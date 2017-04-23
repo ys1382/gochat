@@ -43,12 +43,16 @@ func (cr *ChatRoom) Init(db *bolt.DB) {
       if ok == false {
         fmt.Println("Can't find " + to)
       } else {
-        fmt.Println("Send " + message.GetWhich().String() + " to " + to)
+        which := message.Which
+        if which != Haber_ROSTER { // don't forward sessionId
+          message.SessionId = ""
+        }
+        fmt.Println("Send " + message.GetWhich().String() + " from " + message.From + " to " + message.To)
         client.Send(&message)
 
-        which := message.Which
         if (which == Haber_TEXT || which == Haber_FILE) && (message.To != message.From) {
           message.To = message.From
+          fmt.Println("\t also send " + message.GetWhich().String() + " from " + message.From + " to " + message.To)
           cr.queue <- message
         }
       }
@@ -163,7 +167,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 
       sessionId = haber.GetSessionId()
       if sessionId != "" {
-        fmt.Println("\n sessionId is " + sessionId)
+        fmt.Println("\nsessionId is " + sessionId)
         updatePresence(sessionId, true)
       }
 
@@ -184,7 +188,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 func updatePresence(sessionId string, online bool) {
   if client, ok := chat.clients[sessionId]; ok {
     if online == client.online {
-      fmt.Printf("updatePresence: %s is already %t", client.name, client.online)
+      fmt.Printf("updatePresence: %s is already %t\n", client.name, client.online)
       return
     }
     fmt.Println("updatePresence sessionId=" + sessionId)
