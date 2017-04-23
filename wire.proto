@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+option go_package = "main";
+
+message Login {
+    string username = 1;
+}
+
+message Contact {
+    string name = 1;
+    bool online = 2;
+}
+
+message Text {
+    string body = 1;
+}
+
+message File {
+    bytes data = 1;
+}
+
+message Av {
+    bytes data = 1;
+}
+
+message Haber {
+
+    uint32 version = 1;
+    string sessionId = 2;
+    string from = 3;
+    string to = 4;
+
+    // Identifies which field is filled in
+    enum Which {
+        LOGIN = 0;
+        ROSTER = 1;
+        PRESENCE = 2;
+        TEXT = 3;
+        FILE = 4;
+        AV = 5;
+    }
+    Which which = 5;
+
+    // One of the following will be filled in
+    Login login = 101;
+    repeated Contact roster = 102;
+    Contact presence = 103;
+    Text text = 104;
+    Av av = 105;
+    File file = 106;
+}
