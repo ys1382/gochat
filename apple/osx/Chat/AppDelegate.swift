@@ -4,10 +4,9 @@ import Cocoa
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     static let usernameKey = "usernamekey"
-    static let address = "ws://107.170.4.248:8000/ws"
 
     func login(username: String) {
-        Backend.shared.connect(withUsername: username, address: AppDelegate.address)
+        Backend.shared.connect(withUsername: username)
     }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {

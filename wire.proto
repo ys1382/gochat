@@ -16,7 +16,8 @@ message Text {
 }
 
 message File {
-    bytes data = 1;
+    string key = 1;
+    bytes data = 2;
 }
 
 message Av {
@@ -33,7 +34,7 @@ message Haber {
     // Identifies which field is filled in
     enum Which {
         LOGIN = 0;
-        ROSTER = 1;
+        CONTACTS = 1;
         PRESENCE = 2;
         TEXT = 3;
         FILE = 4;
@@ -43,8 +44,7 @@ message Haber {
 
     // One of the following will be filled in
     Login login = 101;
-    repeated Contact roster = 102;
-    Contact presence = 103;
+    repeated Contact contacts = 102; // for roster, presence, and invite
     Text text = 104;
     Av av = 105;
     File file = 106;

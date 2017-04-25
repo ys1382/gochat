@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="run main" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="server" />
+    <working_directory value="$PROJECT_DIR$" />
+    <go_parameters value="-i" />
+    <filePath value="$PROJECT_DIR$/src/main/main.go" />
+    <kind value="PACKAGE" />
+    <package value="main" />
+    <method />
+  </configuration>
+</component>

@@ -7,19 +7,30 @@ class Model {
 
     var username: String?
     var roster = [String:Contact]()
-    var texts = [String:[Haber]]()
+    var texts = [Haber]()
+    var unreads = [String:Int]()
+    var watching: String? {
+        didSet {
+            if let watching = watching {
+                self.unreads[watching] = 0
+            }
+        }
+    }
 
     func didReceivePresence(_ haber: Haber) {
-        self.roster[haber.presence.name] = haber.presence
-        self.post(about:.presence, with:haber as AnyObject)
+        for contact in haber.contacts {
+            self.roster[contact.name] = contact
+        }
+        self.post(about:.presence)
     }
 
     func didReceiveText(_ haber: Haber) {
-        if self.texts[haber.from] == nil {
-            self.texts[haber.from] = []
+        let from = haber.from
+        if haber.from != self.watching {
+            self.unreads[from] = (self.unreads[from] ?? 0) + 1
         }
-        self.texts[haber.from]?.append(haber)
-        self.post(about:.text, with:haber as AnyObject)
+        self.texts.append(haber)
+        self.post(about:.text)
     }
 
     func didReceiveRoster(_ contacts: [Contact]) {
@@ -28,7 +39,7 @@ class Model {
             dict[contact.name] = contact
             return dict
         }
-        self.post(about:.roster, with:self.roster as AnyObject)
+        self.post(about:.contacts)
     }
 
     func addListener(about:Haber.Which, didReceive:@escaping (Notification)->Void) {
@@ -38,10 +49,10 @@ class Model {
                                                using: didReceive)
     }
 
-    func post(about:Haber.Which, with info:AnyObject) {
+    private func post(about:Haber.Which) {
         NotificationCenter.default.post(name:Notification.Name(rawValue:about.toString()),
                                         object: nil,
-                                        userInfo:[about:info])
+                                        userInfo:nil)
     }
 
     func setContacts(_ names: [String]) {
@@ -56,6 +67,6 @@ class Model {
         self.roster = update
         Backend.shared.sendContacts(self.roster)
     }
-
+    
     private init() {}
 }

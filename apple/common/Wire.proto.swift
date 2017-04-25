@@ -724,10 +724,14 @@ final public class File : GeneratedMessage {
             return true
         }
         var fieldCheck:Bool = (lhs.hashValue == rhs.hashValue)
+        fieldCheck = fieldCheck && (lhs.hasKey == rhs.hasKey) && (!lhs.hasKey || lhs.key == rhs.key)
         fieldCheck = fieldCheck && (lhs.hasData == rhs.hasData) && (!lhs.hasData || lhs.data == rhs.data)
         fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
         return fieldCheck
     }
+
+    public fileprivate(set) var key:String = ""
+    public fileprivate(set) var hasKey:Bool = false
 
     public fileprivate(set) var data:Data = Data()
     public fileprivate(set) var hasData:Bool = false
@@ -739,8 +743,11 @@ final public class File : GeneratedMessage {
         return true
     }
     override public func writeTo(codedOutputStream: CodedOutputStream) throws {
+        if hasKey {
+            try codedOutputStream.writeString(fieldNumber: 1, value:key)
+        }
         if hasData {
-            try codedOutputStream.writeData(fieldNumber: 1, value:data)
+            try codedOutputStream.writeData(fieldNumber: 2, value:data)
         }
         try unknownFields.writeTo(codedOutputStream: codedOutputStream)
     }
@@ -751,8 +758,11 @@ final public class File : GeneratedMessage {
         }
 
         serialize_size = 0
+        if hasKey {
+            serialize_size += key.computeStringSize(fieldNumber: 1)
+        }
         if hasData {
-            serialize_size += data.computeDataSize(fieldNumber: 1)
+            serialize_size += data.computeDataSize(fieldNumber: 2)
         }
         serialize_size += unknownFields.serializedSize()
         memoizedSerializedSize = serialize_size
@@ -782,6 +792,9 @@ final public class File : GeneratedMessage {
         }
 
         var jsonMap:Dictionary<String,Any> = Dictionary<String,Any>()
+        if hasKey {
+            jsonMap["key"] = key
+        }
         if hasData {
             jsonMap["data"] = data.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
         }
@@ -795,6 +808,9 @@ final public class File : GeneratedMessage {
     }
     override public func getDescription(indent:String) throws -> String {
         var output = ""
+        if hasKey {
+            output += "\(indent) key: \(key) \n"
+        }
         if hasData {
             output += "\(indent) data: \(data) \n"
         }
@@ -804,6 +820,9 @@ final public class File : GeneratedMessage {
     override public var hashValue:Int {
         get {
             var hashCode:Int = 7
+            if hasKey {
+                hashCode = (hashCode &* 31) &+ key.hashValue
+            }
             if hasData {
                 hashCode = (hashCode &* 31) &+ data.hashValue
             }
@@ -831,6 +850,31 @@ final public class File : GeneratedMessage {
 
         required override public init () {
             super.init()
+        }
+        public var key:String {
+            get {
+                return builderResult.key
+            }
+            set (value) {
+                builderResult.hasKey = true
+                builderResult.key = value
+            }
+        }
+        public var hasKey:Bool {
+            get {
+                return builderResult.hasKey
+            }
+        }
+        @discardableResult
+        public func setKey(_ value:String) -> File.Builder {
+            self.key = value
+            return self
+        }
+        @discardableResult
+        public func clearKey() -> File.Builder{
+            builderResult.hasKey = false
+            builderResult.key = ""
+            return self
         }
         public var data:Data {
             get {
@@ -883,6 +927,9 @@ final public class File : GeneratedMessage {
             if other == File() {
                 return self
             }
+            if other.hasKey {
+                key = other.key
+            }
             if other.hasData {
                 data = other.data
             }
@@ -904,6 +951,9 @@ final public class File : GeneratedMessage {
                     return self
 
                 case 10:
+                    key = try codedInputStream.readString()
+
+                case 18:
                     data = try codedInputStream.readData()
 
                 default:
@@ -916,6 +966,9 @@ final public class File : GeneratedMessage {
         }
         class override public func decodeToBuilder(jsonMap:Dictionary<String,Any>) throws -> File.Builder {
             let resultDecodedBuilder = File.Builder()
+            if let jsonValueKey = jsonMap["key"] as? String {
+                resultDecodedBuilder.key = jsonValueKey
+            }
             if let jsonValueData = jsonMap["data"] as? String {
                 resultDecodedBuilder.data = Data(base64Encoded:jsonValueData, options: Data.Base64DecodingOptions(rawValue:0))!
             }
@@ -1160,8 +1213,7 @@ final public class Haber : GeneratedMessage {
         fieldCheck = fieldCheck && (lhs.hasTo == rhs.hasTo) && (!lhs.hasTo || lhs.to == rhs.to)
         fieldCheck = fieldCheck && (lhs.hasWhich == rhs.hasWhich) && (!lhs.hasWhich || lhs.which == rhs.which)
         fieldCheck = fieldCheck && (lhs.hasLogin == rhs.hasLogin) && (!lhs.hasLogin || lhs.login == rhs.login)
-        fieldCheck = fieldCheck && (lhs.roster == rhs.roster)
-        fieldCheck = fieldCheck && (lhs.hasPresence == rhs.hasPresence) && (!lhs.hasPresence || lhs.presence == rhs.presence)
+        fieldCheck = fieldCheck && (lhs.contacts == rhs.contacts)
         fieldCheck = fieldCheck && (lhs.hasText == rhs.hasText) && (!lhs.hasText || lhs.text == rhs.text)
         fieldCheck = fieldCheck && (lhs.hasAv == rhs.hasAv) && (!lhs.hasAv || lhs.av == rhs.av)
         fieldCheck = fieldCheck && (lhs.hasFile == rhs.hasFile) && (!lhs.hasFile || lhs.file == rhs.file)
@@ -1176,7 +1228,7 @@ final public class Haber : GeneratedMessage {
         /// Identifies which field is filled in
         public enum Which:Int32, CustomDebugStringConvertible, CustomStringConvertible, Hashable {
             case login = 0
-            case roster = 1
+            case contacts = 1
             case presence = 2
             case text = 3
             case file = 4
@@ -1184,7 +1236,7 @@ final public class Haber : GeneratedMessage {
             public func toString() -> String {
                 switch self {
                 case .login: return "LOGIN"
-                case .roster: return "ROSTER"
+                case .contacts: return "CONTACTS"
                 case .presence: return "PRESENCE"
                 case .text: return "TEXT"
                 case .file: return "FILE"
@@ -1194,7 +1246,7 @@ final public class Haber : GeneratedMessage {
             public static func fromString(str:String) throws -> Haber.Which {
                 switch str {
                 case "LOGIN":    return .login
-                case "ROSTER":    return .roster
+                case "CONTACTS":    return .contacts
                 case "PRESENCE":    return .presence
                 case "TEXT":    return .text
                 case "FILE":    return .file
@@ -1207,7 +1259,7 @@ final public class Haber : GeneratedMessage {
             private func getDescription() -> String { 
                 switch self {
                 case .login: return ".login"
-                case .roster: return ".roster"
+                case .contacts: return ".contacts"
                 case .presence: return ".presence"
                 case .text: return ".text"
                 case .file: return ".file"
@@ -1240,9 +1292,7 @@ final public class Haber : GeneratedMessage {
     public fileprivate(set) var hasWhich:Bool = false
     public fileprivate(set) var login:Login!
     public fileprivate(set) var hasLogin:Bool = false
-    public fileprivate(set) var roster:Array<Contact>  = Array<Contact>()
-    public fileprivate(set) var presence:Contact!
-    public fileprivate(set) var hasPresence:Bool = false
+    public fileprivate(set) var contacts:Array<Contact>  = Array<Contact>()
     public fileprivate(set) var text:Text!
     public fileprivate(set) var hasText:Bool = false
     public fileprivate(set) var av:Av!
@@ -1274,11 +1324,8 @@ final public class Haber : GeneratedMessage {
         if hasLogin {
             try codedOutputStream.writeMessage(fieldNumber: 101, value:login)
         }
-        for oneElementRoster in roster {
-              try codedOutputStream.writeMessage(fieldNumber: 102, value:oneElementRoster)
-        }
-        if hasPresence {
-            try codedOutputStream.writeMessage(fieldNumber: 103, value:presence)
+        for oneElementContacts in contacts {
+              try codedOutputStream.writeMessage(fieldNumber: 102, value:oneElementContacts)
         }
         if hasText {
             try codedOutputStream.writeMessage(fieldNumber: 104, value:text)
@@ -1318,13 +1365,8 @@ final public class Haber : GeneratedMessage {
                 serialize_size += varSizelogin
             }
         }
-        for oneElementRoster in roster {
-            serialize_size += oneElementRoster.computeMessageSize(fieldNumber: 102)
-        }
-        if hasPresence {
-            if let varSizepresence = presence?.computeMessageSize(fieldNumber: 103) {
-                serialize_size += varSizepresence
-            }
+        for oneElementContacts in contacts {
+            serialize_size += oneElementContacts.computeMessageSize(fieldNumber: 102)
         }
         if hasText {
             if let varSizetext = text?.computeMessageSize(fieldNumber: 104) {
@@ -1387,16 +1429,13 @@ final public class Haber : GeneratedMessage {
         if hasLogin {
             jsonMap["login"] = try login.encode()
         }
-        if !roster.isEmpty {
-            var jsonArrayRoster:Array<Dictionary<String,Any>> = []
-            for oneValueRoster in roster {
-                let ecodedMessageRoster = try oneValueRoster.encode()
-                jsonArrayRoster.append(ecodedMessageRoster)
+        if !contacts.isEmpty {
+            var jsonArrayContacts:Array<Dictionary<String,Any>> = []
+            for oneValueContacts in contacts {
+                let ecodedMessageContacts = try oneValueContacts.encode()
+                jsonArrayContacts.append(ecodedMessageContacts)
             }
-            jsonMap["roster"] = jsonArrayRoster
-        }
-        if hasPresence {
-            jsonMap["presence"] = try presence.encode()
+            jsonMap["contacts"] = jsonArrayContacts
         }
         if hasText {
             jsonMap["text"] = try text.encode()
@@ -1439,19 +1478,12 @@ final public class Haber : GeneratedMessage {
             }
             output += "\(indent) }\n"
         }
-        var rosterElementIndex:Int = 0
-        for oneElementRoster in roster {
-            output += "\(indent) roster[\(rosterElementIndex)] {\n"
-            output += try oneElementRoster.getDescription(indent: "\(indent)  ")
+        var contactsElementIndex:Int = 0
+        for oneElementContacts in contacts {
+            output += "\(indent) contacts[\(contactsElementIndex)] {\n"
+            output += try oneElementContacts.getDescription(indent: "\(indent)  ")
             output += "\(indent)}\n"
-            rosterElementIndex += 1
-        }
-        if hasPresence {
-            output += "\(indent) presence {\n"
-            if let outDescPresence = presence {
-                output += try outDescPresence.getDescription(indent: "\(indent)  ")
-            }
-            output += "\(indent) }\n"
+            contactsElementIndex += 1
         }
         if hasText {
             output += "\(indent) text {\n"
@@ -1500,13 +1532,8 @@ final public class Haber : GeneratedMessage {
                     hashCode = (hashCode &* 31) &+ hashValuelogin
                 }
             }
-            for oneElementRoster in roster {
-                hashCode = (hashCode &* 31) &+ oneElementRoster.hashValue
-            }
-            if hasPresence {
-                if let hashValuepresence = presence?.hashValue {
-                    hashCode = (hashCode &* 31) &+ hashValuepresence
-                }
+            for oneElementContacts in contacts {
+                hashCode = (hashCode &* 31) &+ oneElementContacts.hashValue
             }
             if hasText {
                 if let hashValuetext = text?.hashValue {
@@ -1728,76 +1755,23 @@ final public class Haber : GeneratedMessage {
             builderResult.login = nil
             return self
         }
-        public var roster:Array<Contact> {
+        /// for roster, presence, and invite
+        public var contacts:Array<Contact> {
             get {
-                return builderResult.roster
+                return builderResult.contacts
             }
             set (value) {
-                builderResult.roster = value
+                builderResult.contacts = value
             }
         }
         @discardableResult
-        public func setRoster(_ value:Array<Contact>) -> Haber.Builder {
-            self.roster = value
+        public func setContacts(_ value:Array<Contact>) -> Haber.Builder {
+            self.contacts = value
             return self
         }
         @discardableResult
-        public func clearRoster() -> Haber.Builder {
-            builderResult.roster.removeAll(keepingCapacity: false)
-            return self
-        }
-        public var presence:Contact! {
-            get {
-                if presenceBuilder_ != nil {
-                    builderResult.presence = presenceBuilder_.getMessage()
-                }
-                return builderResult.presence
-            }
-            set (value) {
-                builderResult.hasPresence = true
-                builderResult.presence = value
-            }
-        }
-        public var hasPresence:Bool {
-            get {
-                return builderResult.hasPresence
-            }
-        }
-        fileprivate var presenceBuilder_:Contact.Builder! {
-            didSet {
-                builderResult.hasPresence = true
-            }
-        }
-        public func getPresenceBuilder() -> Contact.Builder {
-            if presenceBuilder_ == nil {
-                presenceBuilder_ = Contact.Builder()
-                builderResult.presence = presenceBuilder_.getMessage()
-                if presence != nil {
-                    try! presenceBuilder_.mergeFrom(other: presence)
-                }
-            }
-            return presenceBuilder_
-        }
-        @discardableResult
-        public func setPresence(_ value:Contact!) -> Haber.Builder {
-            self.presence = value
-            return self
-        }
-        @discardableResult
-        public func mergePresence(value:Contact) throws -> Haber.Builder {
-            if builderResult.hasPresence {
-                builderResult.presence = try Contact.builderWithPrototype(prototype:builderResult.presence).mergeFrom(other: value).buildPartial()
-            } else {
-                builderResult.presence = value
-            }
-            builderResult.hasPresence = true
-            return self
-        }
-        @discardableResult
-        public func clearPresence() -> Haber.Builder {
-            presenceBuilder_ = nil
-            builderResult.hasPresence = false
-            builderResult.presence = nil
+        public func clearContacts() -> Haber.Builder {
+            builderResult.contacts.removeAll(keepingCapacity: false)
             return self
         }
         public var text:Text! {
@@ -2006,11 +1980,8 @@ final public class Haber : GeneratedMessage {
             if (other.hasLogin) {
                 try mergeLogin(value: other.login)
             }
-            if !other.roster.isEmpty  {
-                 builderResult.roster += other.roster
-            }
-            if (other.hasPresence) {
-                try mergePresence(value: other.presence)
+            if !other.contacts.isEmpty  {
+                 builderResult.contacts += other.contacts
             }
             if (other.hasText) {
                 try mergeText(value: other.text)
@@ -2069,15 +2040,7 @@ final public class Haber : GeneratedMessage {
                 case 818:
                     let subBuilder = Contact.Builder()
                     try codedInputStream.readMessage(builder: subBuilder,extensionRegistry:extensionRegistry)
-                    roster.append(subBuilder.buildPartial())
-
-                case 826:
-                    let subBuilder:Contact.Builder = Contact.Builder()
-                    if hasPresence {
-                        try subBuilder.mergeFrom(other: presence)
-                    }
-                    try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
-                    presence = subBuilder.buildPartial()
+                    contacts.append(subBuilder.buildPartial())
 
                 case 834:
                     let subBuilder:Text.Builder = Text.Builder()
@@ -2134,18 +2097,14 @@ final public class Haber : GeneratedMessage {
                 resultDecodedBuilder.login = try Login.Builder.decodeToBuilder(jsonMap:jsonValueLogin).build()
 
             }
-            if let jsonValueRoster = jsonMap["roster"] as? Array<Dictionary<String,Any>> {
-                var jsonArrayRoster:Array<Contact> = []
-                for oneValueRoster in jsonValueRoster {
-                    let messageFromStringRoster = try Contact.Builder.decodeToBuilder(jsonMap:oneValueRoster).build()
+            if let jsonValueContacts = jsonMap["contacts"] as? Array<Dictionary<String,Any>> {
+                var jsonArrayContacts:Array<Contact> = []
+                for oneValueContacts in jsonValueContacts {
+                    let messageFromStringContacts = try Contact.Builder.decodeToBuilder(jsonMap:oneValueContacts).build()
 
-                    jsonArrayRoster.append(messageFromStringRoster)
+                    jsonArrayContacts.append(messageFromStringContacts)
                 }
-                resultDecodedBuilder.roster = jsonArrayRoster
-            }
-            if let jsonValuePresence = jsonMap["presence"] as? Dictionary<String,Any> {
-                resultDecodedBuilder.presence = try Contact.Builder.decodeToBuilder(jsonMap:jsonValuePresence).build()
-
+                resultDecodedBuilder.contacts = jsonArrayContacts
             }
             if let jsonValueText = jsonMap["text"] as? Dictionary<String,Any> {
                 resultDecodedBuilder.text = try Text.Builder.decodeToBuilder(jsonMap:jsonValueText).build()
@@ -2378,6 +2337,7 @@ extension File: GeneratedMessageProtocol {
     }
     public subscript(key: String) -> Any? {
         switch key {
+        case "key": return self.key
         case "data": return self.data
         default: return nil
         }
@@ -2387,12 +2347,18 @@ extension File.Builder: GeneratedMessageBuilderProtocol {
     public subscript(key: String) -> Any? {
         get { 
             switch key {
+            case "key": return self.key
             case "data": return self.data
             default: return nil
             }
         }
         set (newSubscriptValue) { 
             switch key {
+            case "key":
+                guard let newSubscriptValue = newSubscriptValue as? String else {
+                    return
+                }
+                self.key = newSubscriptValue
             case "data":
                 guard let newSubscriptValue = newSubscriptValue as? Data else {
                     return
@@ -2496,8 +2462,7 @@ extension Haber: GeneratedMessageProtocol {
         case "to": return self.to
         case "which": return self.which
         case "login": return self.login
-        case "roster": return self.roster
-        case "presence": return self.presence
+        case "contacts": return self.contacts
         case "text": return self.text
         case "av": return self.av
         case "file": return self.file
@@ -2515,8 +2480,7 @@ extension Haber.Builder: GeneratedMessageBuilderProtocol {
             case "to": return self.to
             case "which": return self.which
             case "login": return self.login
-            case "roster": return self.roster
-            case "presence": return self.presence
+            case "contacts": return self.contacts
             case "text": return self.text
             case "av": return self.av
             case "file": return self.file
@@ -2555,16 +2519,11 @@ extension Haber.Builder: GeneratedMessageBuilderProtocol {
                     return
                 }
                 self.login = newSubscriptValue
-            case "roster":
+            case "contacts":
                 guard let newSubscriptValue = newSubscriptValue as? Array<Contact> else {
                     return
                 }
-                self.roster = newSubscriptValue
-            case "presence":
-                guard let newSubscriptValue = newSubscriptValue as? Contact else {
-                    return
-                }
-                self.presence = newSubscriptValue
+                self.contacts = newSubscriptValue
             case "text":
                 guard let newSubscriptValue = newSubscriptValue as? Text else {
                     return

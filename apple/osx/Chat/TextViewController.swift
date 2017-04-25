@@ -9,17 +9,14 @@ class TextViewController: NSViewController {
     @IBOutlet weak var input: NSTextField!
     @IBOutlet weak var sendButton: NSButton!
 
-    var withWhom: String? {
-        didSet {
-            let hidden = self.withWhom == nil
-            _ = [scrollView, input, sendButton].map({ view in view.isHidden = hidden })
-            transcript.string = ""
-        }
+    func reload() {
+        _ = [scrollView, input, sendButton].map({ view in view.isHidden = Model.shared.watching == nil })
+        updateTranscript()
     }
 
     @IBAction func didClickSend(_ sender: Any) {
         let body = input.stringValue
-        Backend.shared.sendText(body, to: self.withWhom!)
+        Backend.shared.sendText(body, to: Model.shared.watching!)
         input.stringValue = ""
     }
 
@@ -27,17 +24,17 @@ class TextViewController: NSViewController {
         super.viewDidLoad()
         TextViewController.shared = self
 
+        self.updateTranscript()
         Model.shared.addListener(about: .text) { notification in
-            if let haber = notification.userInfo?[Haber.Which.text] as? Haber,
-                (self.withWhom == haber.from || Model.shared.username == haber.from) {
-                self.addLine(line: haber.text.body, from:haber.from)
-            }
+            self.updateTranscript()
         }
     }
 
-    func addLine(line: String, from: String = Model.shared.username ?? "You") {
-        let report = from + ": " + line
-        let newline = (self.transcript.string?.characters.count ?? 0) > 0 ? "\n" : ""
-        self.transcript.string = (self.transcript.string ?? "") + newline + report
+    private func updateTranscript() {
+        if let whom = Model.shared.watching {
+            self.transcript.string = Model.shared.texts
+                .filter({ haber in haber.from == Model.shared.username || haber.from == whom })
+                .reduce("", { text,haber in text + "\n" + haber.from + ": " + haber.text.body} )
+        }
     }
 }

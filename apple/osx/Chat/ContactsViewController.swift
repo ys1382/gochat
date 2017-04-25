@@ -27,12 +27,16 @@ class ContactsViewController: NSViewController, NSTableViewDelegate, NSTableView
         tableView.delegate = self
         tableView.dataSource = self
 
-        Model.shared.addListener(about: .roster) { notification in
+        Model.shared.addListener(about: .contacts) { notification in
             self.names = Array(Model.shared.roster.values).map({ contact in return contact.name })
             self.tableView.reloadData()
         }
 
         Model.shared.addListener(about: .presence) { notification in
+            self.tableView.reloadData()
+        }
+
+        Model.shared.addListener(about: .text) { notification in
             self.tableView.reloadData()
         }
     }
@@ -56,16 +60,21 @@ class ContactsViewController: NSViewController, NSTableViewDelegate, NSTableView
                    viewFor tableColumn: NSTableColumn?,
                    row: Int) -> NSView? {
         let cellView = tableView.make(withIdentifier: tableColumn!.identifier, owner: self) as! NSTableCellView
-        let contact = self.names[row]
-        cellView.textField?.stringValue = contact
-        let online = Model.shared.roster[contact]?.online ?? false
-        cellView.textField?.textColor = online ? NSColor.blue : NSColor.gray
+        let name = self.names[row]
+        cellView.textField?.stringValue = self.cellTextFor(name)
+        cellView.textField?.textColor = Model.shared.roster[name]?.online == true ? .blue : .gray
         return cellView
+    }
+
+    func cellTextFor(_ name: String) -> String {
+        let unreads = Model.shared.unreads[name] ?? 0
+        let showUnreads = unreads > 0 ? " (\(unreads))" : ""
+        return name + showUnreads
     }
 
     func tableViewSelectionDidChange(_ notification: Notification) {
         let table = notification.object as! NSTableView
-            TextViewController.shared?.withWhom = table.selectedRow >= 0 ?
-                self.names[table.selectedRow] : nil
+        Model.shared.watching = table.selectedRow >= 0 ? self.names[table.selectedRow] : nil
+        TextViewController.shared?.reload()
     }
 }

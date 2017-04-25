@@ -3,14 +3,16 @@ import Starscream
 
 class Backend: WebSocketDelegate {
 
+    static let address = "ws://127.0.0.1:8000/ws"
+
     static let shared = Backend()
 
     private var websocket: WebSocket?
     private var sessionId: String?
 
-    func connect(withUsername: String, address: String) {
-        guard let url = URL(string: address) else {
-            print("could not create url from " + address)
+    func connect(withUsername: String) {
+        guard let url = URL(string: Backend.address) else {
+            print("could not create url from " + Backend.address)
             return
         }
         self.websocket = WebSocket(url: url)
@@ -37,8 +39,8 @@ class Backend: WebSocketDelegate {
         self.send(haberBuilder)
     }
 
-    func sendContacts(_ roster: [String:Contact]) {
-        let haberBuilder = Haber.Builder().setRoster(Array(roster.values)).setWhich(.roster)
+    func sendContacts(_ contacts: [String:Contact]) {
+        let haberBuilder = Haber.Builder().setContacts(Array(contacts.values)).setWhich(.contacts)
         Backend.shared.send(haberBuilder)
     }
 
@@ -76,8 +78,8 @@ class Backend: WebSocketDelegate {
 
         print("read \(data.count) bytes for \(haber.which)")
         switch haber.which {
-        case .roster:
-            Model.shared.didReceiveRoster(haber.roster)
+        case .contacts:
+            Model.shared.didReceiveRoster(haber.contacts)
         case .text:
             Model.shared.didReceiveText(haber)
         case .presence:
