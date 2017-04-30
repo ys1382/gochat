@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A3B27F31EB04D710017654D /* VideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3B27F21EB04D710017654D /* VideoViewController.swift */; };
+		1A3B27FC1EB1B7F90017654D /* Audio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3B27FB1EB1B7F90017654D /* Audio.swift */; };
+		1A3B27FE1EB5B2AD0017654D /* Video.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3B27FD1EB5B2AD0017654D /* Video.swift */; };
 		1A60DFF41EA30FC900BECD73 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A60DFF21EA30FC900BECD73 /* Backend.swift */; };
 		1A60DFF51EA30FC900BECD73 /* Wire.proto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A60DFF31EA30FC900BECD73 /* Wire.proto.swift */; };
 		1A60E0001EA4039400BECD73 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A60DFFF1EA4039400BECD73 /* Model.swift */; };
@@ -19,6 +22,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1A3B27F21EB04D710017654D /* VideoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoViewController.swift; sourceTree = "<group>"; };
+		1A3B27FB1EB1B7F90017654D /* Audio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Audio.swift; sourceTree = "<group>"; };
+		1A3B27FD1EB5B2AD0017654D /* Video.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Video.swift; sourceTree = "<group>"; };
 		1A60DFF21EA30FC900BECD73 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Backend.swift; path = ../../common/Backend.swift; sourceTree = "<group>"; };
 		1A60DFF31EA30FC900BECD73 /* Wire.proto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Wire.proto.swift; path = ../../common/Wire.proto.swift; sourceTree = "<group>"; };
 		1A60DFFF1EA4039400BECD73 /* Model.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Model.swift; path = ../../common/Model.swift; sourceTree = "<group>"; };
@@ -73,9 +79,12 @@
 				1ADE89E41EA1CE0E00E41212 /* AppDelegate.swift */,
 				1AF35A941EA30C34002AFC3F /* ContactsViewController.swift */,
 				1AF35A921EA30BFE002AFC3F /* TextViewController.swift */,
+				1A3B27F21EB04D710017654D /* VideoViewController.swift */,
 				1A60DFF21EA30FC900BECD73 /* Backend.swift */,
 				1A60DFFF1EA4039400BECD73 /* Model.swift */,
 				1A60DFF31EA30FC900BECD73 /* Wire.proto.swift */,
+				1A3B27FD1EB5B2AD0017654D /* Video.swift */,
+				1A3B27FB1EB1B7F90017654D /* Audio.swift */,
 			);
 			path = Chat;
 			sourceTree = "<group>";
@@ -219,8 +228,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A3B27FC1EB1B7F90017654D /* Audio.swift in Sources */,
 				1A60DFF41EA30FC900BECD73 /* Backend.swift in Sources */,
+				1A3B27F31EB04D710017654D /* VideoViewController.swift in Sources */,
 				1AF35A951EA30C34002AFC3F /* ContactsViewController.swift in Sources */,
+				1A3B27FE1EB5B2AD0017654D /* Video.swift in Sources */,
 				1ADE89E51EA1CE0E00E41212 /* AppDelegate.swift in Sources */,
 				1A60E0001EA4039400BECD73 /* Model.swift in Sources */,
 				1A60DFF51EA30FC900BECD73 /* Wire.proto.swift in Sources */,

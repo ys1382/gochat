@@ -39,6 +39,10 @@ class ContactsViewController: NSViewController, NSTableViewDelegate, NSTableView
         Model.shared.addListener(about: .text) { notification in
             self.tableView.reloadData()
         }
+
+//        let audio = Audio()
+//        audio.setUp()
+//        audio.start()
     }
 
     func addContact(_ username:String) {
