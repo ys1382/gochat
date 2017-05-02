@@ -28,36 +28,6 @@ class Video: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         print("failureNotification" + notification.description)
     }
 
-//    override func observeValue(forKeyPath keyPath: String?,
-//                               of object: Any?,
-//                               change: [NSKeyValueChangeKey : Any]?,
-//                               context: UnsafeMutableRawPointer?) {
-//        print("kvo: " + (keyPath ?? "nil"))
-//    }
-
-//    lazy var cameraSession: AVCaptureSession = {
-//        let captureSession = AVCaptureSession()
-//        captureSession.sessionPreset = AVCaptureSessionPresetLow
-//        return captureSession
-//    }()
-//
-//    lazy var previewLayer: AVCaptureVideoPreviewLayer = {
-//        let layer = AVCaptureVideoPreviewLayer(session: self.cameraSession)
-//        layer?.bounds = CGRect(x: 0, y: 0, width: bounds.width, height: self.view.bounds.height)
-//        layer?.position = CGPoint(x: self.bounds.midX, y: self.view.bounds.midY)
-//        layer?.videoGravity = AVLayerVideoGravityResize
-//        return layer!
-//    }()
-//
-//    lazy var captureLayer: AVSampleBufferDisplayLayer = {
-//        var layer = AVSampleBufferDisplayLayer()
-//        layer.bounds = CGRect(x: 0, y: 0, width: bounds.width, height: self.view.bounds.height)
-//        layer.position = CGPoint(x: bounds.midX, y: self.view.bounds.midY)
-//        layer.videoGravity = AVLayerVideoGravityResize
-//        layer.flush()
-//        return layer
-//    }()
-
     lazy var networkLayer: AVSampleBufferDisplayLayer = {
         var layer = AVSampleBufferDisplayLayer()
         return layer
