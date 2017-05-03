@@ -21,7 +21,12 @@ message File {
 }
 
 message Av {
-    bytes data = 1;
+    enum Media {
+        AUDIO = 0;
+        VIDEO = 1;
+    }
+    Media media = 1;
+    bytes data = 2;
 }
 
 message Haber {

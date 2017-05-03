@@ -992,11 +992,52 @@ final public class Av : GeneratedMessage {
             return true
         }
         var fieldCheck:Bool = (lhs.hashValue == rhs.hashValue)
+        fieldCheck = fieldCheck && (lhs.hasMedia == rhs.hasMedia) && (!lhs.hasMedia || lhs.media == rhs.media)
         fieldCheck = fieldCheck && (lhs.hasData == rhs.hasData) && (!lhs.hasData || lhs.data == rhs.data)
         fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
         return fieldCheck
     }
 
+
+
+        //Enum type declaration start 
+
+        public enum Media:Int32, CustomDebugStringConvertible, CustomStringConvertible, Hashable {
+            case audio = 0
+            case video = 1
+            public func toString() -> String {
+                switch self {
+                case .audio: return "AUDIO"
+                case .video: return "VIDEO"
+                }
+            }
+            public static func fromString(str:String) throws -> Av.Media {
+                switch str {
+                case "AUDIO":    return .audio
+                case "VIDEO":    return .video
+                default: throw ProtocolBuffersError.invalidProtocolBuffer("Conversion String to Enum has failed.")
+                }
+            }
+            public var debugDescription:String { return getDescription() }
+            public var description:String { return getDescription() }
+            private func getDescription() -> String { 
+                switch self {
+                case .audio: return ".audio"
+                case .video: return ".video"
+                }
+            }
+            public var hashValue:Int {
+                return self.rawValue.hashValue
+            }
+            public static func ==(lhs:Media, rhs:Media) -> Bool {
+                return lhs.hashValue == rhs.hashValue
+            }
+        }
+
+        //Enum type declaration end 
+
+    public fileprivate(set) var media:Av.Media = Av.Media.audio
+    public fileprivate(set) var hasMedia:Bool = false
     public fileprivate(set) var data:Data = Data()
     public fileprivate(set) var hasData:Bool = false
 
@@ -1007,8 +1048,11 @@ final public class Av : GeneratedMessage {
         return true
     }
     override public func writeTo(codedOutputStream: CodedOutputStream) throws {
+        if hasMedia {
+            try codedOutputStream.writeEnum(fieldNumber: 1, value:media.rawValue)
+        }
         if hasData {
-            try codedOutputStream.writeData(fieldNumber: 1, value:data)
+            try codedOutputStream.writeData(fieldNumber: 2, value:data)
         }
         try unknownFields.writeTo(codedOutputStream: codedOutputStream)
     }
@@ -1019,8 +1063,11 @@ final public class Av : GeneratedMessage {
         }
 
         serialize_size = 0
+        if (hasMedia) {
+            serialize_size += media.rawValue.computeEnumSize(fieldNumber: 1)
+        }
         if hasData {
-            serialize_size += data.computeDataSize(fieldNumber: 1)
+            serialize_size += data.computeDataSize(fieldNumber: 2)
         }
         serialize_size += unknownFields.serializedSize()
         memoizedSerializedSize = serialize_size
@@ -1050,6 +1097,9 @@ final public class Av : GeneratedMessage {
         }
 
         var jsonMap:Dictionary<String,Any> = Dictionary<String,Any>()
+        if hasMedia {
+            jsonMap["media"] = media.toString()
+        }
         if hasData {
             jsonMap["data"] = data.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
         }
@@ -1063,6 +1113,9 @@ final public class Av : GeneratedMessage {
     }
     override public func getDescription(indent:String) throws -> String {
         var output = ""
+        if (hasMedia) {
+            output += "\(indent) media: \(media.description)\n"
+        }
         if hasData {
             output += "\(indent) data: \(data) \n"
         }
@@ -1072,6 +1125,9 @@ final public class Av : GeneratedMessage {
     override public var hashValue:Int {
         get {
             var hashCode:Int = 7
+            if hasMedia {
+                 hashCode = (hashCode &* 31) &+ media.hashValue
+            }
             if hasData {
                 hashCode = (hashCode &* 31) &+ data.hashValue
             }
@@ -1100,6 +1156,31 @@ final public class Av : GeneratedMessage {
         required override public init () {
             super.init()
         }
+            public var media:Av.Media {
+                get {
+                    return builderResult.media
+                }
+                set (value) {
+                    builderResult.hasMedia = true
+                    builderResult.media = value
+                }
+            }
+            public var hasMedia:Bool{
+                get {
+                    return builderResult.hasMedia
+                }
+            }
+        @discardableResult
+            public func setMedia(_ value:Av.Media) -> Av.Builder {
+              self.media = value
+              return self
+            }
+        @discardableResult
+            public func clearMedia() -> Av.Builder {
+               builderResult.hasMedia = false
+               builderResult.media = .audio
+               return self
+            }
         public var data:Data {
             get {
                 return builderResult.data
@@ -1151,6 +1232,9 @@ final public class Av : GeneratedMessage {
             if other == Av() {
                 return self
             }
+            if other.hasMedia {
+                media = other.media
+            }
             if other.hasData {
                 data = other.data
             }
@@ -1171,7 +1255,15 @@ final public class Av : GeneratedMessage {
                     self.unknownFields = try unknownFieldsBuilder.build()
                     return self
 
-                case 10:
+                case 8:
+                    let valueIntmedia = try codedInputStream.readEnum()
+                    if let enumsmedia = Av.Media(rawValue:valueIntmedia){
+                        media = enumsmedia
+                    } else {
+                        try unknownFieldsBuilder.mergeVarintField(fieldNumber: 1, value:Int64(valueIntmedia))
+                    }
+
+                case 18:
                     data = try codedInputStream.readData()
 
                 default:
@@ -1184,6 +1276,9 @@ final public class Av : GeneratedMessage {
         }
         class override public func decodeToBuilder(jsonMap:Dictionary<String,Any>) throws -> Av.Builder {
             let resultDecodedBuilder = Av.Builder()
+            if let jsonValueMedia = jsonMap["media"] as? String {
+                resultDecodedBuilder.media = try Av.Media.fromString(str: jsonValueMedia)
+            }
             if let jsonValueData = jsonMap["data"] as? String {
                 resultDecodedBuilder.data = Data(base64Encoded:jsonValueData, options: Data.Base64DecodingOptions(rawValue:0))!
             }
@@ -2400,6 +2495,7 @@ extension Av: GeneratedMessageProtocol {
     }
     public subscript(key: String) -> Any? {
         switch key {
+        case "media": return self.media
         case "data": return self.data
         default: return nil
         }
@@ -2409,12 +2505,18 @@ extension Av.Builder: GeneratedMessageBuilderProtocol {
     public subscript(key: String) -> Any? {
         get { 
             switch key {
+            case "media": return self.media
             case "data": return self.data
             default: return nil
             }
         }
         set (newSubscriptValue) { 
             switch key {
+            case "media":
+                guard let newSubscriptValue = newSubscriptValue as? Av.Media else {
+                    return
+                }
+                self.media = newSubscriptValue
             case "data":
                 guard let newSubscriptValue = newSubscriptValue as? Data else {
                     return
