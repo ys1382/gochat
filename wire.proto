@@ -20,13 +20,37 @@ message File {
     bytes data = 2;
 }
 
+message Timestamp {
+    int64 duration = 1;
+    int64 presentation = 2;
+}
+
+message Image {
+    int64 width = 1;
+    int64 height = 2;
+    uint32 format = 3;
+    map <string, string> attachments = 4;
+    bytes data = 5;
+}
+
+message FormatDescription {
+    uint32 mediaType = 1;
+    uint32 mediaSubtype = 2;
+    map <string, string> extensions = 3;
+}
+
+message VideoSample {
+    Timestamp timestamp = 1;
+    Image image = 2;
+    FormatDescription format = 3;
+}
+
+message AudioSample {
+}
+
 message Av {
-    enum Media {
-        AUDIO = 0;
-        VIDEO = 1;
-    }
-    Media media = 1;
-    bytes data = 2;
+    VideoSample video = 1;
+    AudioSample audio = 2;
 }
 
 message Haber {

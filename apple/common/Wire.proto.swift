@@ -985,6 +985,2239 @@ final public class File : GeneratedMessage {
 
 }
 
+final public class Timestamp : GeneratedMessage {
+
+    public static func == (lhs: Timestamp, rhs: Timestamp) -> Bool {
+        if lhs === rhs {
+            return true
+        }
+        var fieldCheck:Bool = (lhs.hashValue == rhs.hashValue)
+        fieldCheck = fieldCheck && (lhs.hasDuration == rhs.hasDuration) && (!lhs.hasDuration || lhs.duration == rhs.duration)
+        fieldCheck = fieldCheck && (lhs.hasPresentation == rhs.hasPresentation) && (!lhs.hasPresentation || lhs.presentation == rhs.presentation)
+        fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
+        return fieldCheck
+    }
+
+    public fileprivate(set) var duration:Int64 = Int64(0)
+    public fileprivate(set) var hasDuration:Bool = false
+
+    public fileprivate(set) var presentation:Int64 = Int64(0)
+    public fileprivate(set) var hasPresentation:Bool = false
+
+    required public init() {
+        super.init()
+    }
+    override public func isInitialized() -> Bool {
+        return true
+    }
+    override public func writeTo(codedOutputStream: CodedOutputStream) throws {
+        if hasDuration {
+            try codedOutputStream.writeInt64(fieldNumber: 1, value:duration)
+        }
+        if hasPresentation {
+            try codedOutputStream.writeInt64(fieldNumber: 2, value:presentation)
+        }
+        try unknownFields.writeTo(codedOutputStream: codedOutputStream)
+    }
+    override public func serializedSize() -> Int32 {
+        var serialize_size:Int32 = memoizedSerializedSize
+        if serialize_size != -1 {
+         return serialize_size
+        }
+
+        serialize_size = 0
+        if hasDuration {
+            serialize_size += duration.computeInt64Size(fieldNumber: 1)
+        }
+        if hasPresentation {
+            serialize_size += presentation.computeInt64Size(fieldNumber: 2)
+        }
+        serialize_size += unknownFields.serializedSize()
+        memoizedSerializedSize = serialize_size
+        return serialize_size
+    }
+    public class func getBuilder() -> Timestamp.Builder {
+        return Timestamp.classBuilder() as! Timestamp.Builder
+    }
+    public func getBuilder() -> Timestamp.Builder {
+        return classBuilder() as! Timestamp.Builder
+    }
+    override public class func classBuilder() -> ProtocolBuffersMessageBuilder {
+        return Timestamp.Builder()
+    }
+    override public func classBuilder() -> ProtocolBuffersMessageBuilder {
+        return Timestamp.Builder()
+    }
+    public func toBuilder() throws -> Timestamp.Builder {
+        return try Timestamp.builderWithPrototype(prototype:self)
+    }
+    public class func builderWithPrototype(prototype:Timestamp) throws -> Timestamp.Builder {
+        return try Timestamp.Builder().mergeFrom(other:prototype)
+    }
+    override public func encode() throws -> Dictionary<String,Any> {
+        guard isInitialized() else {
+            throw ProtocolBuffersError.invalidProtocolBuffer("Uninitialized Message")
+        }
+
+        var jsonMap:Dictionary<String,Any> = Dictionary<String,Any>()
+        if hasDuration {
+            jsonMap["duration"] = "\(duration)"
+        }
+        if hasPresentation {
+            jsonMap["presentation"] = "\(presentation)"
+        }
+        return jsonMap
+    }
+    override class public func decode(jsonMap:Dictionary<String,Any>) throws -> Timestamp {
+        return try Timestamp.Builder.decodeToBuilder(jsonMap:jsonMap).build()
+    }
+    override class public func fromJSON(data:Data) throws -> Timestamp {
+        return try Timestamp.Builder.fromJSONToBuilder(data:data).build()
+    }
+    override public func getDescription(indent:String) throws -> String {
+        var output = ""
+        if hasDuration {
+            output += "\(indent) duration: \(duration) \n"
+        }
+        if hasPresentation {
+            output += "\(indent) presentation: \(presentation) \n"
+        }
+        output += unknownFields.getDescription(indent: indent)
+        return output
+    }
+    override public var hashValue:Int {
+        get {
+            var hashCode:Int = 7
+            if hasDuration {
+                hashCode = (hashCode &* 31) &+ duration.hashValue
+            }
+            if hasPresentation {
+                hashCode = (hashCode &* 31) &+ presentation.hashValue
+            }
+            hashCode = (hashCode &* 31) &+  unknownFields.hashValue
+            return hashCode
+        }
+    }
+
+
+    //Meta information declaration start
+
+    override public class func className() -> String {
+        return "Timestamp"
+    }
+    override public func className() -> String {
+        return "Timestamp"
+    }
+    //Meta information declaration end
+
+    final public class Builder : GeneratedMessageBuilder {
+        fileprivate var builderResult:Timestamp = Timestamp()
+        public func getMessage() -> Timestamp {
+            return builderResult
+        }
+
+        required override public init () {
+            super.init()
+        }
+        public var duration:Int64 {
+            get {
+                return builderResult.duration
+            }
+            set (value) {
+                builderResult.hasDuration = true
+                builderResult.duration = value
+            }
+        }
+        public var hasDuration:Bool {
+            get {
+                return builderResult.hasDuration
+            }
+        }
+        @discardableResult
+        public func setDuration(_ value:Int64) -> Timestamp.Builder {
+            self.duration = value
+            return self
+        }
+        @discardableResult
+        public func clearDuration() -> Timestamp.Builder{
+            builderResult.hasDuration = false
+            builderResult.duration = Int64(0)
+            return self
+        }
+        public var presentation:Int64 {
+            get {
+                return builderResult.presentation
+            }
+            set (value) {
+                builderResult.hasPresentation = true
+                builderResult.presentation = value
+            }
+        }
+        public var hasPresentation:Bool {
+            get {
+                return builderResult.hasPresentation
+            }
+        }
+        @discardableResult
+        public func setPresentation(_ value:Int64) -> Timestamp.Builder {
+            self.presentation = value
+            return self
+        }
+        @discardableResult
+        public func clearPresentation() -> Timestamp.Builder{
+            builderResult.hasPresentation = false
+            builderResult.presentation = Int64(0)
+            return self
+        }
+        override public var internalGetResult:GeneratedMessage {
+            get {
+                return builderResult
+            }
+        }
+        @discardableResult
+        override public func clear() -> Timestamp.Builder {
+            builderResult = Timestamp()
+            return self
+        }
+        override public func clone() throws -> Timestamp.Builder {
+            return try Timestamp.builderWithPrototype(prototype:builderResult)
+        }
+        override public func build() throws -> Timestamp {
+            try checkInitialized()
+            return buildPartial()
+        }
+        public func buildPartial() -> Timestamp {
+            let returnMe:Timestamp = builderResult
+            return returnMe
+        }
+        @discardableResult
+        public func mergeFrom(other:Timestamp) throws -> Timestamp.Builder {
+            if other == Timestamp() {
+                return self
+            }
+            if other.hasDuration {
+                duration = other.duration
+            }
+            if other.hasPresentation {
+                presentation = other.presentation
+            }
+            try merge(unknownField: other.unknownFields)
+            return self
+        }
+        @discardableResult
+        override public func mergeFrom(codedInputStream: CodedInputStream) throws -> Timestamp.Builder {
+            return try mergeFrom(codedInputStream: codedInputStream, extensionRegistry:ExtensionRegistry())
+        }
+        @discardableResult
+        override public func mergeFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> Timestamp.Builder {
+            let unknownFieldsBuilder:UnknownFieldSet.Builder = try UnknownFieldSet.builderWithUnknownFields(copyFrom:self.unknownFields)
+            while (true) {
+                let protobufTag = try codedInputStream.readTag()
+                switch protobufTag {
+                case 0: 
+                    self.unknownFields = try unknownFieldsBuilder.build()
+                    return self
+
+                case 8:
+                    duration = try codedInputStream.readInt64()
+
+                case 16:
+                    presentation = try codedInputStream.readInt64()
+
+                default:
+                    if (!(try parse(codedInputStream:codedInputStream, unknownFields:unknownFieldsBuilder, extensionRegistry:extensionRegistry, tag:protobufTag))) {
+                        unknownFields = try unknownFieldsBuilder.build()
+                        return self
+                    }
+                }
+            }
+        }
+        class override public func decodeToBuilder(jsonMap:Dictionary<String,Any>) throws -> Timestamp.Builder {
+            let resultDecodedBuilder = Timestamp.Builder()
+            if let jsonValueDuration = jsonMap["duration"] as? String {
+                resultDecodedBuilder.duration = Int64(jsonValueDuration)!
+            } else if let jsonValueDuration = jsonMap["duration"] as? Int {
+                resultDecodedBuilder.duration = Int64(jsonValueDuration)
+            }
+            if let jsonValuePresentation = jsonMap["presentation"] as? String {
+                resultDecodedBuilder.presentation = Int64(jsonValuePresentation)!
+            } else if let jsonValuePresentation = jsonMap["presentation"] as? Int {
+                resultDecodedBuilder.presentation = Int64(jsonValuePresentation)
+            }
+            return resultDecodedBuilder
+        }
+        override class public func fromJSONToBuilder(data:Data) throws -> Timestamp.Builder {
+            let jsonData = try JSONSerialization.jsonObject(with:data, options: JSONSerialization.ReadingOptions(rawValue: 0))
+            guard let jsDataCast = jsonData as? Dictionary<String,Any> else {
+              throw ProtocolBuffersError.invalidProtocolBuffer("Invalid JSON data")
+            }
+            return try Timestamp.Builder.decodeToBuilder(jsonMap:jsDataCast)
+        }
+    }
+
+}
+
+final public class Image : GeneratedMessage {
+
+    public static func == (lhs: Image, rhs: Image) -> Bool {
+        if lhs === rhs {
+            return true
+        }
+        var fieldCheck:Bool = (lhs.hashValue == rhs.hashValue)
+        fieldCheck = fieldCheck && (lhs.hasWidth == rhs.hasWidth) && (!lhs.hasWidth || lhs.width == rhs.width)
+        fieldCheck = fieldCheck && (lhs.hasHeight == rhs.hasHeight) && (!lhs.hasHeight || lhs.height == rhs.height)
+        fieldCheck = fieldCheck && (lhs.hasFormat == rhs.hasFormat) && (!lhs.hasFormat || lhs.format == rhs.format)
+        fieldCheck = fieldCheck && (lhs.hasAttachments == rhs.hasAttachments) && (!lhs.hasAttachments || lhs.attachments == rhs.attachments)
+        fieldCheck = fieldCheck && (lhs.hasData == rhs.hasData) && (!lhs.hasData || lhs.data == rhs.data)
+        fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
+        return fieldCheck
+    }
+
+
+
+    //Nested type declaration start
+
+    final public class AttachmentsEntry : GeneratedMessage {
+
+        public static func == (lhs: Image.AttachmentsEntry, rhs: Image.AttachmentsEntry) -> Bool {
+            if lhs === rhs {
+                return true
+            }
+            var fieldCheck:Bool = (lhs.hashValue == rhs.hashValue)
+            fieldCheck = fieldCheck && (lhs.hasKey == rhs.hasKey) && (!lhs.hasKey || lhs.key == rhs.key)
+            fieldCheck = fieldCheck && (lhs.hasValue == rhs.hasValue) && (!lhs.hasValue || lhs.value == rhs.value)
+            fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
+            return fieldCheck
+        }
+
+        public fileprivate(set) var key:String = ""
+        public fileprivate(set) var hasKey:Bool = false
+
+        public fileprivate(set) var value:String = ""
+        public fileprivate(set) var hasValue:Bool = false
+
+        required public init() {
+            super.init()
+        }
+        override public func isInitialized() -> Bool {
+            return true
+        }
+        override public func writeTo(codedOutputStream: CodedOutputStream) throws {
+            if hasKey {
+                try codedOutputStream.writeString(fieldNumber: 1, value:key)
+            }
+            if hasValue {
+                try codedOutputStream.writeString(fieldNumber: 2, value:value)
+            }
+            try unknownFields.writeTo(codedOutputStream: codedOutputStream)
+        }
+        override public func serializedSize() -> Int32 {
+            var serialize_size:Int32 = memoizedSerializedSize
+            if serialize_size != -1 {
+             return serialize_size
+            }
+
+            serialize_size = 0
+            if hasKey {
+                serialize_size += key.computeStringSize(fieldNumber: 1)
+            }
+            if hasValue {
+                serialize_size += value.computeStringSize(fieldNumber: 2)
+            }
+            serialize_size += unknownFields.serializedSize()
+            memoizedSerializedSize = serialize_size
+            return serialize_size
+        }
+        public class func getBuilder() -> Image.AttachmentsEntry.Builder {
+            return Image.AttachmentsEntry.classBuilder() as! Image.AttachmentsEntry.Builder
+        }
+        public func getBuilder() -> Image.AttachmentsEntry.Builder {
+            return classBuilder() as! Image.AttachmentsEntry.Builder
+        }
+        override public class func classBuilder() -> ProtocolBuffersMessageBuilder {
+            return Image.AttachmentsEntry.Builder()
+        }
+        override public func classBuilder() -> ProtocolBuffersMessageBuilder {
+            return Image.AttachmentsEntry.Builder()
+        }
+        public func toBuilder() throws -> Image.AttachmentsEntry.Builder {
+            return try Image.AttachmentsEntry.builderWithPrototype(prototype:self)
+        }
+        public class func builderWithPrototype(prototype:Image.AttachmentsEntry) throws -> Image.AttachmentsEntry.Builder {
+            return try Image.AttachmentsEntry.Builder().mergeFrom(other:prototype)
+        }
+        override public func encode() throws -> Dictionary<String,Any> {
+            guard isInitialized() else {
+                throw ProtocolBuffersError.invalidProtocolBuffer("Uninitialized Message")
+            }
+
+            var jsonMap:Dictionary<String,Any> = Dictionary<String,Any>()
+            if hasKey {
+                jsonMap["key"] = key
+            }
+            if hasValue {
+                jsonMap["value"] = value
+            }
+            return jsonMap
+        }
+        override class public func decode(jsonMap:Dictionary<String,Any>) throws -> Image.AttachmentsEntry {
+            return try Image.AttachmentsEntry.Builder.decodeToBuilder(jsonMap:jsonMap).build()
+        }
+        override class public func fromJSON(data:Data) throws -> Image.AttachmentsEntry {
+            return try Image.AttachmentsEntry.Builder.fromJSONToBuilder(data:data).build()
+        }
+        override public func getDescription(indent:String) throws -> String {
+            var output = ""
+            if hasKey {
+                output += "\(indent) key: \(key) \n"
+            }
+            if hasValue {
+                output += "\(indent) value: \(value) \n"
+            }
+            output += unknownFields.getDescription(indent: indent)
+            return output
+        }
+        override public var hashValue:Int {
+            get {
+                var hashCode:Int = 7
+                if hasKey {
+                    hashCode = (hashCode &* 31) &+ key.hashValue
+                }
+                if hasValue {
+                    hashCode = (hashCode &* 31) &+ value.hashValue
+                }
+                hashCode = (hashCode &* 31) &+  unknownFields.hashValue
+                return hashCode
+            }
+        }
+
+
+        //Meta information declaration start
+
+        override public class func className() -> String {
+            return "Image.AttachmentsEntry"
+        }
+        override public func className() -> String {
+            return "Image.AttachmentsEntry"
+        }
+        //Meta information declaration end
+
+        final public class Builder : GeneratedMessageBuilder {
+            fileprivate var builderResult:Image.AttachmentsEntry = Image.AttachmentsEntry()
+            public func getMessage() -> Image.AttachmentsEntry {
+                return builderResult
+            }
+
+            required override public init () {
+                super.init()
+            }
+            public var key:String {
+                get {
+                    return builderResult.key
+                }
+                set (value) {
+                    builderResult.hasKey = true
+                    builderResult.key = value
+                }
+            }
+            public var hasKey:Bool {
+                get {
+                    return builderResult.hasKey
+                }
+            }
+            @discardableResult
+            public func setKey(_ value:String) -> Image.AttachmentsEntry.Builder {
+                self.key = value
+                return self
+            }
+            @discardableResult
+            public func clearKey() -> Image.AttachmentsEntry.Builder{
+                builderResult.hasKey = false
+                builderResult.key = ""
+                return self
+            }
+            public var value:String {
+                get {
+                    return builderResult.value
+                }
+                set (value) {
+                    builderResult.hasValue = true
+                    builderResult.value = value
+                }
+            }
+            public var hasValue:Bool {
+                get {
+                    return builderResult.hasValue
+                }
+            }
+            @discardableResult
+            public func setValue(_ value:String) -> Image.AttachmentsEntry.Builder {
+                self.value = value
+                return self
+            }
+            @discardableResult
+            public func clearValue() -> Image.AttachmentsEntry.Builder{
+                builderResult.hasValue = false
+                builderResult.value = ""
+                return self
+            }
+            override public var internalGetResult:GeneratedMessage {
+                get {
+                    return builderResult
+                }
+            }
+            @discardableResult
+            override public func clear() -> Image.AttachmentsEntry.Builder {
+                builderResult = Image.AttachmentsEntry()
+                return self
+            }
+            override public func clone() throws -> Image.AttachmentsEntry.Builder {
+                return try Image.AttachmentsEntry.builderWithPrototype(prototype:builderResult)
+            }
+            override public func build() throws -> Image.AttachmentsEntry {
+                try checkInitialized()
+                return buildPartial()
+            }
+            public func buildPartial() -> Image.AttachmentsEntry {
+                let returnMe:Image.AttachmentsEntry = builderResult
+                return returnMe
+            }
+            @discardableResult
+            public func mergeFrom(other:Image.AttachmentsEntry) throws -> Image.AttachmentsEntry.Builder {
+                if other == Image.AttachmentsEntry() {
+                    return self
+                }
+                if other.hasKey {
+                    key = other.key
+                }
+                if other.hasValue {
+                    value = other.value
+                }
+                try merge(unknownField: other.unknownFields)
+                return self
+            }
+            @discardableResult
+            override public func mergeFrom(codedInputStream: CodedInputStream) throws -> Image.AttachmentsEntry.Builder {
+                return try mergeFrom(codedInputStream: codedInputStream, extensionRegistry:ExtensionRegistry())
+            }
+            @discardableResult
+            override public func mergeFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> Image.AttachmentsEntry.Builder {
+                let unknownFieldsBuilder:UnknownFieldSet.Builder = try UnknownFieldSet.builderWithUnknownFields(copyFrom:self.unknownFields)
+                while (true) {
+                    let protobufTag = try codedInputStream.readTag()
+                    switch protobufTag {
+                    case 0: 
+                        self.unknownFields = try unknownFieldsBuilder.build()
+                        return self
+
+                    case 10:
+                        key = try codedInputStream.readString()
+
+                    case 18:
+                        value = try codedInputStream.readString()
+
+                    default:
+                        if (!(try parse(codedInputStream:codedInputStream, unknownFields:unknownFieldsBuilder, extensionRegistry:extensionRegistry, tag:protobufTag))) {
+                            unknownFields = try unknownFieldsBuilder.build()
+                            return self
+                        }
+                    }
+                }
+            }
+            class override public func decodeToBuilder(jsonMap:Dictionary<String,Any>) throws -> Image.AttachmentsEntry.Builder {
+                let resultDecodedBuilder = Image.AttachmentsEntry.Builder()
+                if let jsonValueKey = jsonMap["key"] as? String {
+                    resultDecodedBuilder.key = jsonValueKey
+                }
+                if let jsonValueValue = jsonMap["value"] as? String {
+                    resultDecodedBuilder.value = jsonValueValue
+                }
+                return resultDecodedBuilder
+            }
+            override class public func fromJSONToBuilder(data:Data) throws -> Image.AttachmentsEntry.Builder {
+                let jsonData = try JSONSerialization.jsonObject(with:data, options: JSONSerialization.ReadingOptions(rawValue: 0))
+                guard let jsDataCast = jsonData as? Dictionary<String,Any> else {
+                  throw ProtocolBuffersError.invalidProtocolBuffer("Invalid JSON data")
+                }
+                return try Image.AttachmentsEntry.Builder.decodeToBuilder(jsonMap:jsDataCast)
+            }
+        }
+
+    }
+
+    //Nested type declaration end
+
+    public fileprivate(set) var width:Int64 = Int64(0)
+    public fileprivate(set) var hasWidth:Bool = false
+
+    public fileprivate(set) var height:Int64 = Int64(0)
+    public fileprivate(set) var hasHeight:Bool = false
+
+    public fileprivate(set) var format:UInt32 = UInt32(0)
+    public fileprivate(set) var hasFormat:Bool = false
+
+    public fileprivate(set) var attachments:Dictionary<String,String> = Dictionary<String,String>()
+
+    public fileprivate(set) var hasAttachments:Bool = false
+    public fileprivate(set) var data:Data = Data()
+    public fileprivate(set) var hasData:Bool = false
+
+    required public init() {
+        super.init()
+    }
+    override public func isInitialized() -> Bool {
+        return true
+    }
+    override public func writeTo(codedOutputStream: CodedOutputStream) throws {
+        if hasWidth {
+            try codedOutputStream.writeInt64(fieldNumber: 1, value:width)
+        }
+        if hasHeight {
+            try codedOutputStream.writeInt64(fieldNumber: 2, value:height)
+        }
+        if hasFormat {
+            try codedOutputStream.writeUInt32(fieldNumber: 3, value:format)
+        }
+        if hasAttachments {
+            for (keyAttachments, valueAttachments) in attachments {
+                let valueOfAttachments = try! Image.AttachmentsEntry.Builder().setKey(keyAttachments).setValue(valueAttachments).build()
+                  try codedOutputStream.writeMessage(fieldNumber: 4, value:valueOfAttachments)
+              }
+        }
+        if hasData {
+            try codedOutputStream.writeData(fieldNumber: 5, value:data)
+        }
+        try unknownFields.writeTo(codedOutputStream: codedOutputStream)
+    }
+    override public func serializedSize() -> Int32 {
+        var serialize_size:Int32 = memoizedSerializedSize
+        if serialize_size != -1 {
+         return serialize_size
+        }
+
+        serialize_size = 0
+        if hasWidth {
+            serialize_size += width.computeInt64Size(fieldNumber: 1)
+        }
+        if hasHeight {
+            serialize_size += height.computeInt64Size(fieldNumber: 2)
+        }
+        if hasFormat {
+            serialize_size += format.computeUInt32Size(fieldNumber: 3)
+        }
+        if hasAttachments {
+              for (keyAttachments, valueAttachments) in attachments {
+                  let valueOfAttachments = try! Image.AttachmentsEntry.Builder().setKey(keyAttachments).setValue(valueAttachments).build()
+            serialize_size += valueOfAttachments.computeMessageSize(fieldNumber: 4)
+            }
+        }
+        if hasData {
+            serialize_size += data.computeDataSize(fieldNumber: 5)
+        }
+        serialize_size += unknownFields.serializedSize()
+        memoizedSerializedSize = serialize_size
+        return serialize_size
+    }
+    public class func getBuilder() -> Image.Builder {
+        return Image.classBuilder() as! Image.Builder
+    }
+    public func getBuilder() -> Image.Builder {
+        return classBuilder() as! Image.Builder
+    }
+    override public class func classBuilder() -> ProtocolBuffersMessageBuilder {
+        return Image.Builder()
+    }
+    override public func classBuilder() -> ProtocolBuffersMessageBuilder {
+        return Image.Builder()
+    }
+    public func toBuilder() throws -> Image.Builder {
+        return try Image.builderWithPrototype(prototype:self)
+    }
+    public class func builderWithPrototype(prototype:Image) throws -> Image.Builder {
+        return try Image.Builder().mergeFrom(other:prototype)
+    }
+    override public func encode() throws -> Dictionary<String,Any> {
+        guard isInitialized() else {
+            throw ProtocolBuffersError.invalidProtocolBuffer("Uninitialized Message")
+        }
+
+        var jsonMap:Dictionary<String,Any> = Dictionary<String,Any>()
+        if hasWidth {
+            jsonMap["width"] = "\(width)"
+        }
+        if hasHeight {
+            jsonMap["height"] = "\(height)"
+        }
+        if hasFormat {
+            jsonMap["format"] = UInt(format)
+        }
+        if hasAttachments {
+            var mapAttachments = Dictionary<String, String>()
+            for (keyAttachments, valueAttachments) in attachments {
+                mapAttachments["\(keyAttachments)"] = valueAttachments
+            }
+            jsonMap["attachments"] = mapAttachments
+        }
+        if hasData {
+            jsonMap["data"] = data.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
+        }
+        return jsonMap
+    }
+    override class public func decode(jsonMap:Dictionary<String,Any>) throws -> Image {
+        return try Image.Builder.decodeToBuilder(jsonMap:jsonMap).build()
+    }
+    override class public func fromJSON(data:Data) throws -> Image {
+        return try Image.Builder.fromJSONToBuilder(data:data).build()
+    }
+    override public func getDescription(indent:String) throws -> String {
+        var output = ""
+        if hasWidth {
+            output += "\(indent) width: \(width) \n"
+        }
+        if hasHeight {
+            output += "\(indent) height: \(height) \n"
+        }
+        if hasFormat {
+            output += "\(indent) format: \(format) \n"
+        }
+        if hasAttachments {
+            output += "\(indent) attachments: \(attachments) \n"
+        }
+        if hasData {
+            output += "\(indent) data: \(data) \n"
+        }
+        output += unknownFields.getDescription(indent: indent)
+        return output
+    }
+    override public var hashValue:Int {
+        get {
+            var hashCode:Int = 7
+            if hasWidth {
+                hashCode = (hashCode &* 31) &+ width.hashValue
+            }
+            if hasHeight {
+                hashCode = (hashCode &* 31) &+ height.hashValue
+            }
+            if hasFormat {
+                hashCode = (hashCode &* 31) &+ format.hashValue
+            }
+            if hasAttachments {
+                for (keyAttachments, valueAttachments) in attachments {
+                    hashCode = (hashCode &* 31) &+ keyAttachments.hashValue
+                    hashCode = (hashCode &* 31) &+ valueAttachments.hashValue
+                }
+            }
+            if hasData {
+                hashCode = (hashCode &* 31) &+ data.hashValue
+            }
+            hashCode = (hashCode &* 31) &+  unknownFields.hashValue
+            return hashCode
+        }
+    }
+
+
+    //Meta information declaration start
+
+    override public class func className() -> String {
+        return "Image"
+    }
+    override public func className() -> String {
+        return "Image"
+    }
+    //Meta information declaration end
+
+    final public class Builder : GeneratedMessageBuilder {
+        fileprivate var builderResult:Image = Image()
+        public func getMessage() -> Image {
+            return builderResult
+        }
+
+        required override public init () {
+            super.init()
+        }
+        public var width:Int64 {
+            get {
+                return builderResult.width
+            }
+            set (value) {
+                builderResult.hasWidth = true
+                builderResult.width = value
+            }
+        }
+        public var hasWidth:Bool {
+            get {
+                return builderResult.hasWidth
+            }
+        }
+        @discardableResult
+        public func setWidth(_ value:Int64) -> Image.Builder {
+            self.width = value
+            return self
+        }
+        @discardableResult
+        public func clearWidth() -> Image.Builder{
+            builderResult.hasWidth = false
+            builderResult.width = Int64(0)
+            return self
+        }
+        public var height:Int64 {
+            get {
+                return builderResult.height
+            }
+            set (value) {
+                builderResult.hasHeight = true
+                builderResult.height = value
+            }
+        }
+        public var hasHeight:Bool {
+            get {
+                return builderResult.hasHeight
+            }
+        }
+        @discardableResult
+        public func setHeight(_ value:Int64) -> Image.Builder {
+            self.height = value
+            return self
+        }
+        @discardableResult
+        public func clearHeight() -> Image.Builder{
+            builderResult.hasHeight = false
+            builderResult.height = Int64(0)
+            return self
+        }
+        public var format:UInt32 {
+            get {
+                return builderResult.format
+            }
+            set (value) {
+                builderResult.hasFormat = true
+                builderResult.format = value
+            }
+        }
+        public var hasFormat:Bool {
+            get {
+                return builderResult.hasFormat
+            }
+        }
+        @discardableResult
+        public func setFormat(_ value:UInt32) -> Image.Builder {
+            self.format = value
+            return self
+        }
+        @discardableResult
+        public func clearFormat() -> Image.Builder{
+            builderResult.hasFormat = false
+            builderResult.format = UInt32(0)
+            return self
+        }
+        public var hasAttachments:Bool {
+            get {
+                return builderResult.hasAttachments
+            }
+        }
+        public var attachments:Dictionary<String,String> {
+            get {
+                return builderResult.attachments
+            }
+            set (value) {
+                builderResult.hasAttachments = true
+                builderResult.attachments = value
+            }
+        }
+        @discardableResult
+        public func setAttachments(_ value:Dictionary<String,String>) -> Image.Builder {
+            self.attachments = value
+            return self
+        }
+        @discardableResult
+        public func clearAttachments() -> Image.Builder{
+            builderResult.hasAttachments = false
+            builderResult.attachments = Dictionary<String,String>()
+            return self
+        }
+        public var data:Data {
+            get {
+                return builderResult.data
+            }
+            set (value) {
+                builderResult.hasData = true
+                builderResult.data = value
+            }
+        }
+        public var hasData:Bool {
+            get {
+                return builderResult.hasData
+            }
+        }
+        @discardableResult
+        public func setData(_ value:Data) -> Image.Builder {
+            self.data = value
+            return self
+        }
+        @discardableResult
+        public func clearData() -> Image.Builder{
+            builderResult.hasData = false
+            builderResult.data = Data()
+            return self
+        }
+        override public var internalGetResult:GeneratedMessage {
+            get {
+                return builderResult
+            }
+        }
+        @discardableResult
+        override public func clear() -> Image.Builder {
+            builderResult = Image()
+            return self
+        }
+        override public func clone() throws -> Image.Builder {
+            return try Image.builderWithPrototype(prototype:builderResult)
+        }
+        override public func build() throws -> Image {
+            try checkInitialized()
+            return buildPartial()
+        }
+        public func buildPartial() -> Image {
+            let returnMe:Image = builderResult
+            return returnMe
+        }
+        @discardableResult
+        public func mergeFrom(other:Image) throws -> Image.Builder {
+            if other == Image() {
+                return self
+            }
+            if other.hasWidth {
+                width = other.width
+            }
+            if other.hasHeight {
+                height = other.height
+            }
+            if other.hasFormat {
+                format = other.format
+            }
+            if other.hasAttachments {
+                attachments = other.attachments
+            }
+            if other.hasData {
+                data = other.data
+            }
+            try merge(unknownField: other.unknownFields)
+            return self
+        }
+        @discardableResult
+        override public func mergeFrom(codedInputStream: CodedInputStream) throws -> Image.Builder {
+            return try mergeFrom(codedInputStream: codedInputStream, extensionRegistry:ExtensionRegistry())
+        }
+        @discardableResult
+        override public func mergeFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> Image.Builder {
+            let unknownFieldsBuilder:UnknownFieldSet.Builder = try UnknownFieldSet.builderWithUnknownFields(copyFrom:self.unknownFields)
+            while (true) {
+                let protobufTag = try codedInputStream.readTag()
+                switch protobufTag {
+                case 0: 
+                    self.unknownFields = try unknownFieldsBuilder.build()
+                    return self
+
+                case 8:
+                    width = try codedInputStream.readInt64()
+
+                case 16:
+                    height = try codedInputStream.readInt64()
+
+                case 24:
+                    format = try codedInputStream.readUInt32()
+
+                case 34:
+                    let subBuilder = Image.AttachmentsEntry.Builder()
+                    try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
+                    let buildOfAttachments = subBuilder.buildPartial()
+                    attachments[buildOfAttachments.key] = buildOfAttachments.value
+
+                case 42:
+                    data = try codedInputStream.readData()
+
+                default:
+                    if (!(try parse(codedInputStream:codedInputStream, unknownFields:unknownFieldsBuilder, extensionRegistry:extensionRegistry, tag:protobufTag))) {
+                        unknownFields = try unknownFieldsBuilder.build()
+                        return self
+                    }
+                }
+            }
+        }
+        class override public func decodeToBuilder(jsonMap:Dictionary<String,Any>) throws -> Image.Builder {
+            let resultDecodedBuilder = Image.Builder()
+            if let jsonValueWidth = jsonMap["width"] as? String {
+                resultDecodedBuilder.width = Int64(jsonValueWidth)!
+            } else if let jsonValueWidth = jsonMap["width"] as? Int {
+                resultDecodedBuilder.width = Int64(jsonValueWidth)
+            }
+            if let jsonValueHeight = jsonMap["height"] as? String {
+                resultDecodedBuilder.height = Int64(jsonValueHeight)!
+            } else if let jsonValueHeight = jsonMap["height"] as? Int {
+                resultDecodedBuilder.height = Int64(jsonValueHeight)
+            }
+            if let jsonValueFormat = jsonMap["format"] as? UInt {
+                resultDecodedBuilder.format = UInt32(jsonValueFormat)
+            } else if let jsonValueFormat = jsonMap["format"] as? String {
+                resultDecodedBuilder.format = UInt32(jsonValueFormat)!
+            }
+            if let jsonValueAttachments = jsonMap["attachments"] as? Dictionary<String, String> {
+                var mapAttachments = Dictionary<String, String>()
+                for (keyAttachments, valueAttachments) in jsonValueAttachments {
+                    guard let keyFromAttachments = String(keyAttachments) else {
+                        throw ProtocolBuffersError.invalidProtocolBuffer("Invalid JSON data")
+                    }
+                    mapAttachments[keyFromAttachments] = valueAttachments
+                }
+                resultDecodedBuilder.attachments = mapAttachments
+            }
+            if let jsonValueData = jsonMap["data"] as? String {
+                resultDecodedBuilder.data = Data(base64Encoded:jsonValueData, options: Data.Base64DecodingOptions(rawValue:0))!
+            }
+            return resultDecodedBuilder
+        }
+        override class public func fromJSONToBuilder(data:Data) throws -> Image.Builder {
+            let jsonData = try JSONSerialization.jsonObject(with:data, options: JSONSerialization.ReadingOptions(rawValue: 0))
+            guard let jsDataCast = jsonData as? Dictionary<String,Any> else {
+              throw ProtocolBuffersError.invalidProtocolBuffer("Invalid JSON data")
+            }
+            return try Image.Builder.decodeToBuilder(jsonMap:jsDataCast)
+        }
+    }
+
+}
+
+final public class FormatDescription : GeneratedMessage {
+
+    public static func == (lhs: FormatDescription, rhs: FormatDescription) -> Bool {
+        if lhs === rhs {
+            return true
+        }
+        var fieldCheck:Bool = (lhs.hashValue == rhs.hashValue)
+        fieldCheck = fieldCheck && (lhs.hasMediaType == rhs.hasMediaType) && (!lhs.hasMediaType || lhs.mediaType == rhs.mediaType)
+        fieldCheck = fieldCheck && (lhs.hasMediaSubtype == rhs.hasMediaSubtype) && (!lhs.hasMediaSubtype || lhs.mediaSubtype == rhs.mediaSubtype)
+        fieldCheck = fieldCheck && (lhs.hasExtensions == rhs.hasExtensions) && (!lhs.hasExtensions || lhs.extensions == rhs.extensions)
+        fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
+        return fieldCheck
+    }
+
+
+
+    //Nested type declaration start
+
+    final public class ExtensionsEntry : GeneratedMessage {
+
+        public static func == (lhs: FormatDescription.ExtensionsEntry, rhs: FormatDescription.ExtensionsEntry) -> Bool {
+            if lhs === rhs {
+                return true
+            }
+            var fieldCheck:Bool = (lhs.hashValue == rhs.hashValue)
+            fieldCheck = fieldCheck && (lhs.hasKey == rhs.hasKey) && (!lhs.hasKey || lhs.key == rhs.key)
+            fieldCheck = fieldCheck && (lhs.hasValue == rhs.hasValue) && (!lhs.hasValue || lhs.value == rhs.value)
+            fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
+            return fieldCheck
+        }
+
+        public fileprivate(set) var key:String = ""
+        public fileprivate(set) var hasKey:Bool = false
+
+        public fileprivate(set) var value:String = ""
+        public fileprivate(set) var hasValue:Bool = false
+
+        required public init() {
+            super.init()
+        }
+        override public func isInitialized() -> Bool {
+            return true
+        }
+        override public func writeTo(codedOutputStream: CodedOutputStream) throws {
+            if hasKey {
+                try codedOutputStream.writeString(fieldNumber: 1, value:key)
+            }
+            if hasValue {
+                try codedOutputStream.writeString(fieldNumber: 2, value:value)
+            }
+            try unknownFields.writeTo(codedOutputStream: codedOutputStream)
+        }
+        override public func serializedSize() -> Int32 {
+            var serialize_size:Int32 = memoizedSerializedSize
+            if serialize_size != -1 {
+             return serialize_size
+            }
+
+            serialize_size = 0
+            if hasKey {
+                serialize_size += key.computeStringSize(fieldNumber: 1)
+            }
+            if hasValue {
+                serialize_size += value.computeStringSize(fieldNumber: 2)
+            }
+            serialize_size += unknownFields.serializedSize()
+            memoizedSerializedSize = serialize_size
+            return serialize_size
+        }
+        public class func getBuilder() -> FormatDescription.ExtensionsEntry.Builder {
+            return FormatDescription.ExtensionsEntry.classBuilder() as! FormatDescription.ExtensionsEntry.Builder
+        }
+        public func getBuilder() -> FormatDescription.ExtensionsEntry.Builder {
+            return classBuilder() as! FormatDescription.ExtensionsEntry.Builder
+        }
+        override public class func classBuilder() -> ProtocolBuffersMessageBuilder {
+            return FormatDescription.ExtensionsEntry.Builder()
+        }
+        override public func classBuilder() -> ProtocolBuffersMessageBuilder {
+            return FormatDescription.ExtensionsEntry.Builder()
+        }
+        public func toBuilder() throws -> FormatDescription.ExtensionsEntry.Builder {
+            return try FormatDescription.ExtensionsEntry.builderWithPrototype(prototype:self)
+        }
+        public class func builderWithPrototype(prototype:FormatDescription.ExtensionsEntry) throws -> FormatDescription.ExtensionsEntry.Builder {
+            return try FormatDescription.ExtensionsEntry.Builder().mergeFrom(other:prototype)
+        }
+        override public func encode() throws -> Dictionary<String,Any> {
+            guard isInitialized() else {
+                throw ProtocolBuffersError.invalidProtocolBuffer("Uninitialized Message")
+            }
+
+            var jsonMap:Dictionary<String,Any> = Dictionary<String,Any>()
+            if hasKey {
+                jsonMap["key"] = key
+            }
+            if hasValue {
+                jsonMap["value"] = value
+            }
+            return jsonMap
+        }
+        override class public func decode(jsonMap:Dictionary<String,Any>) throws -> FormatDescription.ExtensionsEntry {
+            return try FormatDescription.ExtensionsEntry.Builder.decodeToBuilder(jsonMap:jsonMap).build()
+        }
+        override class public func fromJSON(data:Data) throws -> FormatDescription.ExtensionsEntry {
+            return try FormatDescription.ExtensionsEntry.Builder.fromJSONToBuilder(data:data).build()
+        }
+        override public func getDescription(indent:String) throws -> String {
+            var output = ""
+            if hasKey {
+                output += "\(indent) key: \(key) \n"
+            }
+            if hasValue {
+                output += "\(indent) value: \(value) \n"
+            }
+            output += unknownFields.getDescription(indent: indent)
+            return output
+        }
+        override public var hashValue:Int {
+            get {
+                var hashCode:Int = 7
+                if hasKey {
+                    hashCode = (hashCode &* 31) &+ key.hashValue
+                }
+                if hasValue {
+                    hashCode = (hashCode &* 31) &+ value.hashValue
+                }
+                hashCode = (hashCode &* 31) &+  unknownFields.hashValue
+                return hashCode
+            }
+        }
+
+
+        //Meta information declaration start
+
+        override public class func className() -> String {
+            return "FormatDescription.ExtensionsEntry"
+        }
+        override public func className() -> String {
+            return "FormatDescription.ExtensionsEntry"
+        }
+        //Meta information declaration end
+
+        final public class Builder : GeneratedMessageBuilder {
+            fileprivate var builderResult:FormatDescription.ExtensionsEntry = FormatDescription.ExtensionsEntry()
+            public func getMessage() -> FormatDescription.ExtensionsEntry {
+                return builderResult
+            }
+
+            required override public init () {
+                super.init()
+            }
+            public var key:String {
+                get {
+                    return builderResult.key
+                }
+                set (value) {
+                    builderResult.hasKey = true
+                    builderResult.key = value
+                }
+            }
+            public var hasKey:Bool {
+                get {
+                    return builderResult.hasKey
+                }
+            }
+            @discardableResult
+            public func setKey(_ value:String) -> FormatDescription.ExtensionsEntry.Builder {
+                self.key = value
+                return self
+            }
+            @discardableResult
+            public func clearKey() -> FormatDescription.ExtensionsEntry.Builder{
+                builderResult.hasKey = false
+                builderResult.key = ""
+                return self
+            }
+            public var value:String {
+                get {
+                    return builderResult.value
+                }
+                set (value) {
+                    builderResult.hasValue = true
+                    builderResult.value = value
+                }
+            }
+            public var hasValue:Bool {
+                get {
+                    return builderResult.hasValue
+                }
+            }
+            @discardableResult
+            public func setValue(_ value:String) -> FormatDescription.ExtensionsEntry.Builder {
+                self.value = value
+                return self
+            }
+            @discardableResult
+            public func clearValue() -> FormatDescription.ExtensionsEntry.Builder{
+                builderResult.hasValue = false
+                builderResult.value = ""
+                return self
+            }
+            override public var internalGetResult:GeneratedMessage {
+                get {
+                    return builderResult
+                }
+            }
+            @discardableResult
+            override public func clear() -> FormatDescription.ExtensionsEntry.Builder {
+                builderResult = FormatDescription.ExtensionsEntry()
+                return self
+            }
+            override public func clone() throws -> FormatDescription.ExtensionsEntry.Builder {
+                return try FormatDescription.ExtensionsEntry.builderWithPrototype(prototype:builderResult)
+            }
+            override public func build() throws -> FormatDescription.ExtensionsEntry {
+                try checkInitialized()
+                return buildPartial()
+            }
+            public func buildPartial() -> FormatDescription.ExtensionsEntry {
+                let returnMe:FormatDescription.ExtensionsEntry = builderResult
+                return returnMe
+            }
+            @discardableResult
+            public func mergeFrom(other:FormatDescription.ExtensionsEntry) throws -> FormatDescription.ExtensionsEntry.Builder {
+                if other == FormatDescription.ExtensionsEntry() {
+                    return self
+                }
+                if other.hasKey {
+                    key = other.key
+                }
+                if other.hasValue {
+                    value = other.value
+                }
+                try merge(unknownField: other.unknownFields)
+                return self
+            }
+            @discardableResult
+            override public func mergeFrom(codedInputStream: CodedInputStream) throws -> FormatDescription.ExtensionsEntry.Builder {
+                return try mergeFrom(codedInputStream: codedInputStream, extensionRegistry:ExtensionRegistry())
+            }
+            @discardableResult
+            override public func mergeFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> FormatDescription.ExtensionsEntry.Builder {
+                let unknownFieldsBuilder:UnknownFieldSet.Builder = try UnknownFieldSet.builderWithUnknownFields(copyFrom:self.unknownFields)
+                while (true) {
+                    let protobufTag = try codedInputStream.readTag()
+                    switch protobufTag {
+                    case 0: 
+                        self.unknownFields = try unknownFieldsBuilder.build()
+                        return self
+
+                    case 10:
+                        key = try codedInputStream.readString()
+
+                    case 18:
+                        value = try codedInputStream.readString()
+
+                    default:
+                        if (!(try parse(codedInputStream:codedInputStream, unknownFields:unknownFieldsBuilder, extensionRegistry:extensionRegistry, tag:protobufTag))) {
+                            unknownFields = try unknownFieldsBuilder.build()
+                            return self
+                        }
+                    }
+                }
+            }
+            class override public func decodeToBuilder(jsonMap:Dictionary<String,Any>) throws -> FormatDescription.ExtensionsEntry.Builder {
+                let resultDecodedBuilder = FormatDescription.ExtensionsEntry.Builder()
+                if let jsonValueKey = jsonMap["key"] as? String {
+                    resultDecodedBuilder.key = jsonValueKey
+                }
+                if let jsonValueValue = jsonMap["value"] as? String {
+                    resultDecodedBuilder.value = jsonValueValue
+                }
+                return resultDecodedBuilder
+            }
+            override class public func fromJSONToBuilder(data:Data) throws -> FormatDescription.ExtensionsEntry.Builder {
+                let jsonData = try JSONSerialization.jsonObject(with:data, options: JSONSerialization.ReadingOptions(rawValue: 0))
+                guard let jsDataCast = jsonData as? Dictionary<String,Any> else {
+                  throw ProtocolBuffersError.invalidProtocolBuffer("Invalid JSON data")
+                }
+                return try FormatDescription.ExtensionsEntry.Builder.decodeToBuilder(jsonMap:jsDataCast)
+            }
+        }
+
+    }
+
+    //Nested type declaration end
+
+    public fileprivate(set) var mediaType:UInt32 = UInt32(0)
+    public fileprivate(set) var hasMediaType:Bool = false
+
+    public fileprivate(set) var mediaSubtype:UInt32 = UInt32(0)
+    public fileprivate(set) var hasMediaSubtype:Bool = false
+
+    public fileprivate(set) var extensions:Dictionary<String,String> = Dictionary<String,String>()
+
+    public fileprivate(set) var hasExtensions:Bool = false
+    required public init() {
+        super.init()
+    }
+    override public func isInitialized() -> Bool {
+        return true
+    }
+    override public func writeTo(codedOutputStream: CodedOutputStream) throws {
+        if hasMediaType {
+            try codedOutputStream.writeUInt32(fieldNumber: 1, value:mediaType)
+        }
+        if hasMediaSubtype {
+            try codedOutputStream.writeUInt32(fieldNumber: 2, value:mediaSubtype)
+        }
+        if hasExtensions {
+            for (keyExtensions, valueExtensions) in extensions {
+                let valueOfExtensions = try! FormatDescription.ExtensionsEntry.Builder().setKey(keyExtensions).setValue(valueExtensions).build()
+                  try codedOutputStream.writeMessage(fieldNumber: 3, value:valueOfExtensions)
+              }
+        }
+        try unknownFields.writeTo(codedOutputStream: codedOutputStream)
+    }
+    override public func serializedSize() -> Int32 {
+        var serialize_size:Int32 = memoizedSerializedSize
+        if serialize_size != -1 {
+         return serialize_size
+        }
+
+        serialize_size = 0
+        if hasMediaType {
+            serialize_size += mediaType.computeUInt32Size(fieldNumber: 1)
+        }
+        if hasMediaSubtype {
+            serialize_size += mediaSubtype.computeUInt32Size(fieldNumber: 2)
+        }
+        if hasExtensions {
+              for (keyExtensions, valueExtensions) in extensions {
+                  let valueOfExtensions = try! FormatDescription.ExtensionsEntry.Builder().setKey(keyExtensions).setValue(valueExtensions).build()
+            serialize_size += valueOfExtensions.computeMessageSize(fieldNumber: 3)
+            }
+        }
+        serialize_size += unknownFields.serializedSize()
+        memoizedSerializedSize = serialize_size
+        return serialize_size
+    }
+    public class func getBuilder() -> FormatDescription.Builder {
+        return FormatDescription.classBuilder() as! FormatDescription.Builder
+    }
+    public func getBuilder() -> FormatDescription.Builder {
+        return classBuilder() as! FormatDescription.Builder
+    }
+    override public class func classBuilder() -> ProtocolBuffersMessageBuilder {
+        return FormatDescription.Builder()
+    }
+    override public func classBuilder() -> ProtocolBuffersMessageBuilder {
+        return FormatDescription.Builder()
+    }
+    public func toBuilder() throws -> FormatDescription.Builder {
+        return try FormatDescription.builderWithPrototype(prototype:self)
+    }
+    public class func builderWithPrototype(prototype:FormatDescription) throws -> FormatDescription.Builder {
+        return try FormatDescription.Builder().mergeFrom(other:prototype)
+    }
+    override public func encode() throws -> Dictionary<String,Any> {
+        guard isInitialized() else {
+            throw ProtocolBuffersError.invalidProtocolBuffer("Uninitialized Message")
+        }
+
+        var jsonMap:Dictionary<String,Any> = Dictionary<String,Any>()
+        if hasMediaType {
+            jsonMap["mediaType"] = UInt(mediaType)
+        }
+        if hasMediaSubtype {
+            jsonMap["mediaSubtype"] = UInt(mediaSubtype)
+        }
+        if hasExtensions {
+            var mapExtensions = Dictionary<String, String>()
+            for (keyExtensions, valueExtensions) in extensions {
+                mapExtensions["\(keyExtensions)"] = valueExtensions
+            }
+            jsonMap["extensions"] = mapExtensions
+        }
+        return jsonMap
+    }
+    override class public func decode(jsonMap:Dictionary<String,Any>) throws -> FormatDescription {
+        return try FormatDescription.Builder.decodeToBuilder(jsonMap:jsonMap).build()
+    }
+    override class public func fromJSON(data:Data) throws -> FormatDescription {
+        return try FormatDescription.Builder.fromJSONToBuilder(data:data).build()
+    }
+    override public func getDescription(indent:String) throws -> String {
+        var output = ""
+        if hasMediaType {
+            output += "\(indent) mediaType: \(mediaType) \n"
+        }
+        if hasMediaSubtype {
+            output += "\(indent) mediaSubtype: \(mediaSubtype) \n"
+        }
+        if hasExtensions {
+            output += "\(indent) extensions: \(extensions) \n"
+        }
+        output += unknownFields.getDescription(indent: indent)
+        return output
+    }
+    override public var hashValue:Int {
+        get {
+            var hashCode:Int = 7
+            if hasMediaType {
+                hashCode = (hashCode &* 31) &+ mediaType.hashValue
+            }
+            if hasMediaSubtype {
+                hashCode = (hashCode &* 31) &+ mediaSubtype.hashValue
+            }
+            if hasExtensions {
+                for (keyExtensions, valueExtensions) in extensions {
+                    hashCode = (hashCode &* 31) &+ keyExtensions.hashValue
+                    hashCode = (hashCode &* 31) &+ valueExtensions.hashValue
+                }
+            }
+            hashCode = (hashCode &* 31) &+  unknownFields.hashValue
+            return hashCode
+        }
+    }
+
+
+    //Meta information declaration start
+
+    override public class func className() -> String {
+        return "FormatDescription"
+    }
+    override public func className() -> String {
+        return "FormatDescription"
+    }
+    //Meta information declaration end
+
+    final public class Builder : GeneratedMessageBuilder {
+        fileprivate var builderResult:FormatDescription = FormatDescription()
+        public func getMessage() -> FormatDescription {
+            return builderResult
+        }
+
+        required override public init () {
+            super.init()
+        }
+        public var mediaType:UInt32 {
+            get {
+                return builderResult.mediaType
+            }
+            set (value) {
+                builderResult.hasMediaType = true
+                builderResult.mediaType = value
+            }
+        }
+        public var hasMediaType:Bool {
+            get {
+                return builderResult.hasMediaType
+            }
+        }
+        @discardableResult
+        public func setMediaType(_ value:UInt32) -> FormatDescription.Builder {
+            self.mediaType = value
+            return self
+        }
+        @discardableResult
+        public func clearMediaType() -> FormatDescription.Builder{
+            builderResult.hasMediaType = false
+            builderResult.mediaType = UInt32(0)
+            return self
+        }
+        public var mediaSubtype:UInt32 {
+            get {
+                return builderResult.mediaSubtype
+            }
+            set (value) {
+                builderResult.hasMediaSubtype = true
+                builderResult.mediaSubtype = value
+            }
+        }
+        public var hasMediaSubtype:Bool {
+            get {
+                return builderResult.hasMediaSubtype
+            }
+        }
+        @discardableResult
+        public func setMediaSubtype(_ value:UInt32) -> FormatDescription.Builder {
+            self.mediaSubtype = value
+            return self
+        }
+        @discardableResult
+        public func clearMediaSubtype() -> FormatDescription.Builder{
+            builderResult.hasMediaSubtype = false
+            builderResult.mediaSubtype = UInt32(0)
+            return self
+        }
+        public var hasExtensions:Bool {
+            get {
+                return builderResult.hasExtensions
+            }
+        }
+        public var extensions:Dictionary<String,String> {
+            get {
+                return builderResult.extensions
+            }
+            set (value) {
+                builderResult.hasExtensions = true
+                builderResult.extensions = value
+            }
+        }
+        @discardableResult
+        public func setExtensions(_ value:Dictionary<String,String>) -> FormatDescription.Builder {
+            self.extensions = value
+            return self
+        }
+        @discardableResult
+        public func clearExtensions() -> FormatDescription.Builder{
+            builderResult.hasExtensions = false
+            builderResult.extensions = Dictionary<String,String>()
+            return self
+        }
+        override public var internalGetResult:GeneratedMessage {
+            get {
+                return builderResult
+            }
+        }
+        @discardableResult
+        override public func clear() -> FormatDescription.Builder {
+            builderResult = FormatDescription()
+            return self
+        }
+        override public func clone() throws -> FormatDescription.Builder {
+            return try FormatDescription.builderWithPrototype(prototype:builderResult)
+        }
+        override public func build() throws -> FormatDescription {
+            try checkInitialized()
+            return buildPartial()
+        }
+        public func buildPartial() -> FormatDescription {
+            let returnMe:FormatDescription = builderResult
+            return returnMe
+        }
+        @discardableResult
+        public func mergeFrom(other:FormatDescription) throws -> FormatDescription.Builder {
+            if other == FormatDescription() {
+                return self
+            }
+            if other.hasMediaType {
+                mediaType = other.mediaType
+            }
+            if other.hasMediaSubtype {
+                mediaSubtype = other.mediaSubtype
+            }
+            if other.hasExtensions {
+                extensions = other.extensions
+            }
+            try merge(unknownField: other.unknownFields)
+            return self
+        }
+        @discardableResult
+        override public func mergeFrom(codedInputStream: CodedInputStream) throws -> FormatDescription.Builder {
+            return try mergeFrom(codedInputStream: codedInputStream, extensionRegistry:ExtensionRegistry())
+        }
+        @discardableResult
+        override public func mergeFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> FormatDescription.Builder {
+            let unknownFieldsBuilder:UnknownFieldSet.Builder = try UnknownFieldSet.builderWithUnknownFields(copyFrom:self.unknownFields)
+            while (true) {
+                let protobufTag = try codedInputStream.readTag()
+                switch protobufTag {
+                case 0: 
+                    self.unknownFields = try unknownFieldsBuilder.build()
+                    return self
+
+                case 8:
+                    mediaType = try codedInputStream.readUInt32()
+
+                case 16:
+                    mediaSubtype = try codedInputStream.readUInt32()
+
+                case 26:
+                    let subBuilder = FormatDescription.ExtensionsEntry.Builder()
+                    try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
+                    let buildOfExtensions = subBuilder.buildPartial()
+                    extensions[buildOfExtensions.key] = buildOfExtensions.value
+
+                default:
+                    if (!(try parse(codedInputStream:codedInputStream, unknownFields:unknownFieldsBuilder, extensionRegistry:extensionRegistry, tag:protobufTag))) {
+                        unknownFields = try unknownFieldsBuilder.build()
+                        return self
+                    }
+                }
+            }
+        }
+        class override public func decodeToBuilder(jsonMap:Dictionary<String,Any>) throws -> FormatDescription.Builder {
+            let resultDecodedBuilder = FormatDescription.Builder()
+            if let jsonValueMediaType = jsonMap["mediaType"] as? UInt {
+                resultDecodedBuilder.mediaType = UInt32(jsonValueMediaType)
+            } else if let jsonValueMediaType = jsonMap["mediaType"] as? String {
+                resultDecodedBuilder.mediaType = UInt32(jsonValueMediaType)!
+            }
+            if let jsonValueMediaSubtype = jsonMap["mediaSubtype"] as? UInt {
+                resultDecodedBuilder.mediaSubtype = UInt32(jsonValueMediaSubtype)
+            } else if let jsonValueMediaSubtype = jsonMap["mediaSubtype"] as? String {
+                resultDecodedBuilder.mediaSubtype = UInt32(jsonValueMediaSubtype)!
+            }
+            if let jsonValueExtensions = jsonMap["extensions"] as? Dictionary<String, String> {
+                var mapExtensions = Dictionary<String, String>()
+                for (keyExtensions, valueExtensions) in jsonValueExtensions {
+                    guard let keyFromExtensions = String(keyExtensions) else {
+                        throw ProtocolBuffersError.invalidProtocolBuffer("Invalid JSON data")
+                    }
+                    mapExtensions[keyFromExtensions] = valueExtensions
+                }
+                resultDecodedBuilder.extensions = mapExtensions
+            }
+            return resultDecodedBuilder
+        }
+        override class public func fromJSONToBuilder(data:Data) throws -> FormatDescription.Builder {
+            let jsonData = try JSONSerialization.jsonObject(with:data, options: JSONSerialization.ReadingOptions(rawValue: 0))
+            guard let jsDataCast = jsonData as? Dictionary<String,Any> else {
+              throw ProtocolBuffersError.invalidProtocolBuffer("Invalid JSON data")
+            }
+            return try FormatDescription.Builder.decodeToBuilder(jsonMap:jsDataCast)
+        }
+    }
+
+}
+
+final public class VideoSample : GeneratedMessage {
+
+    public static func == (lhs: VideoSample, rhs: VideoSample) -> Bool {
+        if lhs === rhs {
+            return true
+        }
+        var fieldCheck:Bool = (lhs.hashValue == rhs.hashValue)
+        fieldCheck = fieldCheck && (lhs.hasTimestamp == rhs.hasTimestamp) && (!lhs.hasTimestamp || lhs.timestamp == rhs.timestamp)
+        fieldCheck = fieldCheck && (lhs.hasImage == rhs.hasImage) && (!lhs.hasImage || lhs.image == rhs.image)
+        fieldCheck = fieldCheck && (lhs.hasFormat == rhs.hasFormat) && (!lhs.hasFormat || lhs.format == rhs.format)
+        fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
+        return fieldCheck
+    }
+
+    public fileprivate(set) var timestamp:Timestamp!
+    public fileprivate(set) var hasTimestamp:Bool = false
+    public fileprivate(set) var image:Image!
+    public fileprivate(set) var hasImage:Bool = false
+    public fileprivate(set) var format:FormatDescription!
+    public fileprivate(set) var hasFormat:Bool = false
+    required public init() {
+        super.init()
+    }
+    override public func isInitialized() -> Bool {
+        return true
+    }
+    override public func writeTo(codedOutputStream: CodedOutputStream) throws {
+        if hasTimestamp {
+            try codedOutputStream.writeMessage(fieldNumber: 1, value:timestamp)
+        }
+        if hasImage {
+            try codedOutputStream.writeMessage(fieldNumber: 2, value:image)
+        }
+        if hasFormat {
+            try codedOutputStream.writeMessage(fieldNumber: 3, value:format)
+        }
+        try unknownFields.writeTo(codedOutputStream: codedOutputStream)
+    }
+    override public func serializedSize() -> Int32 {
+        var serialize_size:Int32 = memoizedSerializedSize
+        if serialize_size != -1 {
+         return serialize_size
+        }
+
+        serialize_size = 0
+        if hasTimestamp {
+            if let varSizetimestamp = timestamp?.computeMessageSize(fieldNumber: 1) {
+                serialize_size += varSizetimestamp
+            }
+        }
+        if hasImage {
+            if let varSizeimage = image?.computeMessageSize(fieldNumber: 2) {
+                serialize_size += varSizeimage
+            }
+        }
+        if hasFormat {
+            if let varSizeformat = format?.computeMessageSize(fieldNumber: 3) {
+                serialize_size += varSizeformat
+            }
+        }
+        serialize_size += unknownFields.serializedSize()
+        memoizedSerializedSize = serialize_size
+        return serialize_size
+    }
+    public class func getBuilder() -> VideoSample.Builder {
+        return VideoSample.classBuilder() as! VideoSample.Builder
+    }
+    public func getBuilder() -> VideoSample.Builder {
+        return classBuilder() as! VideoSample.Builder
+    }
+    override public class func classBuilder() -> ProtocolBuffersMessageBuilder {
+        return VideoSample.Builder()
+    }
+    override public func classBuilder() -> ProtocolBuffersMessageBuilder {
+        return VideoSample.Builder()
+    }
+    public func toBuilder() throws -> VideoSample.Builder {
+        return try VideoSample.builderWithPrototype(prototype:self)
+    }
+    public class func builderWithPrototype(prototype:VideoSample) throws -> VideoSample.Builder {
+        return try VideoSample.Builder().mergeFrom(other:prototype)
+    }
+    override public func encode() throws -> Dictionary<String,Any> {
+        guard isInitialized() else {
+            throw ProtocolBuffersError.invalidProtocolBuffer("Uninitialized Message")
+        }
+
+        var jsonMap:Dictionary<String,Any> = Dictionary<String,Any>()
+        if hasTimestamp {
+            jsonMap["timestamp"] = try timestamp.encode()
+        }
+        if hasImage {
+            jsonMap["image"] = try image.encode()
+        }
+        if hasFormat {
+            jsonMap["format"] = try format.encode()
+        }
+        return jsonMap
+    }
+    override class public func decode(jsonMap:Dictionary<String,Any>) throws -> VideoSample {
+        return try VideoSample.Builder.decodeToBuilder(jsonMap:jsonMap).build()
+    }
+    override class public func fromJSON(data:Data) throws -> VideoSample {
+        return try VideoSample.Builder.fromJSONToBuilder(data:data).build()
+    }
+    override public func getDescription(indent:String) throws -> String {
+        var output = ""
+        if hasTimestamp {
+            output += "\(indent) timestamp {\n"
+            if let outDescTimestamp = timestamp {
+                output += try outDescTimestamp.getDescription(indent: "\(indent)  ")
+            }
+            output += "\(indent) }\n"
+        }
+        if hasImage {
+            output += "\(indent) image {\n"
+            if let outDescImage = image {
+                output += try outDescImage.getDescription(indent: "\(indent)  ")
+            }
+            output += "\(indent) }\n"
+        }
+        if hasFormat {
+            output += "\(indent) format {\n"
+            if let outDescFormat = format {
+                output += try outDescFormat.getDescription(indent: "\(indent)  ")
+            }
+            output += "\(indent) }\n"
+        }
+        output += unknownFields.getDescription(indent: indent)
+        return output
+    }
+    override public var hashValue:Int {
+        get {
+            var hashCode:Int = 7
+            if hasTimestamp {
+                if let hashValuetimestamp = timestamp?.hashValue {
+                    hashCode = (hashCode &* 31) &+ hashValuetimestamp
+                }
+            }
+            if hasImage {
+                if let hashValueimage = image?.hashValue {
+                    hashCode = (hashCode &* 31) &+ hashValueimage
+                }
+            }
+            if hasFormat {
+                if let hashValueformat = format?.hashValue {
+                    hashCode = (hashCode &* 31) &+ hashValueformat
+                }
+            }
+            hashCode = (hashCode &* 31) &+  unknownFields.hashValue
+            return hashCode
+        }
+    }
+
+
+    //Meta information declaration start
+
+    override public class func className() -> String {
+        return "VideoSample"
+    }
+    override public func className() -> String {
+        return "VideoSample"
+    }
+    //Meta information declaration end
+
+    final public class Builder : GeneratedMessageBuilder {
+        fileprivate var builderResult:VideoSample = VideoSample()
+        public func getMessage() -> VideoSample {
+            return builderResult
+        }
+
+        required override public init () {
+            super.init()
+        }
+        public var timestamp:Timestamp! {
+            get {
+                if timestampBuilder_ != nil {
+                    builderResult.timestamp = timestampBuilder_.getMessage()
+                }
+                return builderResult.timestamp
+            }
+            set (value) {
+                builderResult.hasTimestamp = true
+                builderResult.timestamp = value
+            }
+        }
+        public var hasTimestamp:Bool {
+            get {
+                return builderResult.hasTimestamp
+            }
+        }
+        fileprivate var timestampBuilder_:Timestamp.Builder! {
+            didSet {
+                builderResult.hasTimestamp = true
+            }
+        }
+        public func getTimestampBuilder() -> Timestamp.Builder {
+            if timestampBuilder_ == nil {
+                timestampBuilder_ = Timestamp.Builder()
+                builderResult.timestamp = timestampBuilder_.getMessage()
+                if timestamp != nil {
+                    try! timestampBuilder_.mergeFrom(other: timestamp)
+                }
+            }
+            return timestampBuilder_
+        }
+        @discardableResult
+        public func setTimestamp(_ value:Timestamp!) -> VideoSample.Builder {
+            self.timestamp = value
+            return self
+        }
+        @discardableResult
+        public func mergeTimestamp(value:Timestamp) throws -> VideoSample.Builder {
+            if builderResult.hasTimestamp {
+                builderResult.timestamp = try Timestamp.builderWithPrototype(prototype:builderResult.timestamp).mergeFrom(other: value).buildPartial()
+            } else {
+                builderResult.timestamp = value
+            }
+            builderResult.hasTimestamp = true
+            return self
+        }
+        @discardableResult
+        public func clearTimestamp() -> VideoSample.Builder {
+            timestampBuilder_ = nil
+            builderResult.hasTimestamp = false
+            builderResult.timestamp = nil
+            return self
+        }
+        public var image:Image! {
+            get {
+                if imageBuilder_ != nil {
+                    builderResult.image = imageBuilder_.getMessage()
+                }
+                return builderResult.image
+            }
+            set (value) {
+                builderResult.hasImage = true
+                builderResult.image = value
+            }
+        }
+        public var hasImage:Bool {
+            get {
+                return builderResult.hasImage
+            }
+        }
+        fileprivate var imageBuilder_:Image.Builder! {
+            didSet {
+                builderResult.hasImage = true
+            }
+        }
+        public func getImageBuilder() -> Image.Builder {
+            if imageBuilder_ == nil {
+                imageBuilder_ = Image.Builder()
+                builderResult.image = imageBuilder_.getMessage()
+                if image != nil {
+                    try! imageBuilder_.mergeFrom(other: image)
+                }
+            }
+            return imageBuilder_
+        }
+        @discardableResult
+        public func setImage(_ value:Image!) -> VideoSample.Builder {
+            self.image = value
+            return self
+        }
+        @discardableResult
+        public func mergeImage(value:Image) throws -> VideoSample.Builder {
+            if builderResult.hasImage {
+                builderResult.image = try Image.builderWithPrototype(prototype:builderResult.image).mergeFrom(other: value).buildPartial()
+            } else {
+                builderResult.image = value
+            }
+            builderResult.hasImage = true
+            return self
+        }
+        @discardableResult
+        public func clearImage() -> VideoSample.Builder {
+            imageBuilder_ = nil
+            builderResult.hasImage = false
+            builderResult.image = nil
+            return self
+        }
+        public var format:FormatDescription! {
+            get {
+                if formatBuilder_ != nil {
+                    builderResult.format = formatBuilder_.getMessage()
+                }
+                return builderResult.format
+            }
+            set (value) {
+                builderResult.hasFormat = true
+                builderResult.format = value
+            }
+        }
+        public var hasFormat:Bool {
+            get {
+                return builderResult.hasFormat
+            }
+        }
+        fileprivate var formatBuilder_:FormatDescription.Builder! {
+            didSet {
+                builderResult.hasFormat = true
+            }
+        }
+        public func getFormatBuilder() -> FormatDescription.Builder {
+            if formatBuilder_ == nil {
+                formatBuilder_ = FormatDescription.Builder()
+                builderResult.format = formatBuilder_.getMessage()
+                if format != nil {
+                    try! formatBuilder_.mergeFrom(other: format)
+                }
+            }
+            return formatBuilder_
+        }
+        @discardableResult
+        public func setFormat(_ value:FormatDescription!) -> VideoSample.Builder {
+            self.format = value
+            return self
+        }
+        @discardableResult
+        public func mergeFormat(value:FormatDescription) throws -> VideoSample.Builder {
+            if builderResult.hasFormat {
+                builderResult.format = try FormatDescription.builderWithPrototype(prototype:builderResult.format).mergeFrom(other: value).buildPartial()
+            } else {
+                builderResult.format = value
+            }
+            builderResult.hasFormat = true
+            return self
+        }
+        @discardableResult
+        public func clearFormat() -> VideoSample.Builder {
+            formatBuilder_ = nil
+            builderResult.hasFormat = false
+            builderResult.format = nil
+            return self
+        }
+        override public var internalGetResult:GeneratedMessage {
+            get {
+                return builderResult
+            }
+        }
+        @discardableResult
+        override public func clear() -> VideoSample.Builder {
+            builderResult = VideoSample()
+            return self
+        }
+        override public func clone() throws -> VideoSample.Builder {
+            return try VideoSample.builderWithPrototype(prototype:builderResult)
+        }
+        override public func build() throws -> VideoSample {
+            try checkInitialized()
+            return buildPartial()
+        }
+        public func buildPartial() -> VideoSample {
+            let returnMe:VideoSample = builderResult
+            return returnMe
+        }
+        @discardableResult
+        public func mergeFrom(other:VideoSample) throws -> VideoSample.Builder {
+            if other == VideoSample() {
+                return self
+            }
+            if (other.hasTimestamp) {
+                try mergeTimestamp(value: other.timestamp)
+            }
+            if (other.hasImage) {
+                try mergeImage(value: other.image)
+            }
+            if (other.hasFormat) {
+                try mergeFormat(value: other.format)
+            }
+            try merge(unknownField: other.unknownFields)
+            return self
+        }
+        @discardableResult
+        override public func mergeFrom(codedInputStream: CodedInputStream) throws -> VideoSample.Builder {
+            return try mergeFrom(codedInputStream: codedInputStream, extensionRegistry:ExtensionRegistry())
+        }
+        @discardableResult
+        override public func mergeFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> VideoSample.Builder {
+            let unknownFieldsBuilder:UnknownFieldSet.Builder = try UnknownFieldSet.builderWithUnknownFields(copyFrom:self.unknownFields)
+            while (true) {
+                let protobufTag = try codedInputStream.readTag()
+                switch protobufTag {
+                case 0: 
+                    self.unknownFields = try unknownFieldsBuilder.build()
+                    return self
+
+                case 10:
+                    let subBuilder:Timestamp.Builder = Timestamp.Builder()
+                    if hasTimestamp {
+                        try subBuilder.mergeFrom(other: timestamp)
+                    }
+                    try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
+                    timestamp = subBuilder.buildPartial()
+
+                case 18:
+                    let subBuilder:Image.Builder = Image.Builder()
+                    if hasImage {
+                        try subBuilder.mergeFrom(other: image)
+                    }
+                    try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
+                    image = subBuilder.buildPartial()
+
+                case 26:
+                    let subBuilder:FormatDescription.Builder = FormatDescription.Builder()
+                    if hasFormat {
+                        try subBuilder.mergeFrom(other: format)
+                    }
+                    try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
+                    format = subBuilder.buildPartial()
+
+                default:
+                    if (!(try parse(codedInputStream:codedInputStream, unknownFields:unknownFieldsBuilder, extensionRegistry:extensionRegistry, tag:protobufTag))) {
+                        unknownFields = try unknownFieldsBuilder.build()
+                        return self
+                    }
+                }
+            }
+        }
+        class override public func decodeToBuilder(jsonMap:Dictionary<String,Any>) throws -> VideoSample.Builder {
+            let resultDecodedBuilder = VideoSample.Builder()
+            if let jsonValueTimestamp = jsonMap["timestamp"] as? Dictionary<String,Any> {
+                resultDecodedBuilder.timestamp = try Timestamp.Builder.decodeToBuilder(jsonMap:jsonValueTimestamp).build()
+
+            }
+            if let jsonValueImage = jsonMap["image"] as? Dictionary<String,Any> {
+                resultDecodedBuilder.image = try Image.Builder.decodeToBuilder(jsonMap:jsonValueImage).build()
+
+            }
+            if let jsonValueFormat = jsonMap["format"] as? Dictionary<String,Any> {
+                resultDecodedBuilder.format = try FormatDescription.Builder.decodeToBuilder(jsonMap:jsonValueFormat).build()
+
+            }
+            return resultDecodedBuilder
+        }
+        override class public func fromJSONToBuilder(data:Data) throws -> VideoSample.Builder {
+            let jsonData = try JSONSerialization.jsonObject(with:data, options: JSONSerialization.ReadingOptions(rawValue: 0))
+            guard let jsDataCast = jsonData as? Dictionary<String,Any> else {
+              throw ProtocolBuffersError.invalidProtocolBuffer("Invalid JSON data")
+            }
+            return try VideoSample.Builder.decodeToBuilder(jsonMap:jsDataCast)
+        }
+    }
+
+}
+
+final public class AudioSample : GeneratedMessage {
+
+    public static func == (lhs: AudioSample, rhs: AudioSample) -> Bool {
+        if lhs === rhs {
+            return true
+        }
+        var fieldCheck:Bool = (lhs.hashValue == rhs.hashValue)
+        fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
+        return fieldCheck
+    }
+
+    required public init() {
+        super.init()
+    }
+    override public func isInitialized() -> Bool {
+        return true
+    }
+    override public func writeTo(codedOutputStream: CodedOutputStream) throws {
+        try unknownFields.writeTo(codedOutputStream: codedOutputStream)
+    }
+    override public func serializedSize() -> Int32 {
+        var serialize_size:Int32 = memoizedSerializedSize
+        if serialize_size != -1 {
+         return serialize_size
+        }
+
+        serialize_size = 0
+        serialize_size += unknownFields.serializedSize()
+        memoizedSerializedSize = serialize_size
+        return serialize_size
+    }
+    public class func getBuilder() -> AudioSample.Builder {
+        return AudioSample.classBuilder() as! AudioSample.Builder
+    }
+    public func getBuilder() -> AudioSample.Builder {
+        return classBuilder() as! AudioSample.Builder
+    }
+    override public class func classBuilder() -> ProtocolBuffersMessageBuilder {
+        return AudioSample.Builder()
+    }
+    override public func classBuilder() -> ProtocolBuffersMessageBuilder {
+        return AudioSample.Builder()
+    }
+    public func toBuilder() throws -> AudioSample.Builder {
+        return try AudioSample.builderWithPrototype(prototype:self)
+    }
+    public class func builderWithPrototype(prototype:AudioSample) throws -> AudioSample.Builder {
+        return try AudioSample.Builder().mergeFrom(other:prototype)
+    }
+    override public func encode() throws -> Dictionary<String,Any> {
+        guard isInitialized() else {
+            throw ProtocolBuffersError.invalidProtocolBuffer("Uninitialized Message")
+        }
+
+        let jsonMap:Dictionary<String,Any> = Dictionary<String,Any>()
+        return jsonMap
+    }
+    override class public func decode(jsonMap:Dictionary<String,Any>) throws -> AudioSample {
+        return try AudioSample.Builder.decodeToBuilder(jsonMap:jsonMap).build()
+    }
+    override class public func fromJSON(data:Data) throws -> AudioSample {
+        return try AudioSample.Builder.fromJSONToBuilder(data:data).build()
+    }
+    override public func getDescription(indent:String) throws -> String {
+        var output = ""
+        output += unknownFields.getDescription(indent: indent)
+        return output
+    }
+    override public var hashValue:Int {
+        get {
+            var hashCode:Int = 7
+            hashCode = (hashCode &* 31) &+  unknownFields.hashValue
+            return hashCode
+        }
+    }
+
+
+    //Meta information declaration start
+
+    override public class func className() -> String {
+        return "AudioSample"
+    }
+    override public func className() -> String {
+        return "AudioSample"
+    }
+    //Meta information declaration end
+
+    final public class Builder : GeneratedMessageBuilder {
+        fileprivate var builderResult:AudioSample = AudioSample()
+        public func getMessage() -> AudioSample {
+            return builderResult
+        }
+
+        required override public init () {
+            super.init()
+        }
+        override public var internalGetResult:GeneratedMessage {
+            get {
+                return builderResult
+            }
+        }
+        @discardableResult
+        override public func clear() -> AudioSample.Builder {
+            builderResult = AudioSample()
+            return self
+        }
+        override public func clone() throws -> AudioSample.Builder {
+            return try AudioSample.builderWithPrototype(prototype:builderResult)
+        }
+        override public func build() throws -> AudioSample {
+            try checkInitialized()
+            return buildPartial()
+        }
+        public func buildPartial() -> AudioSample {
+            let returnMe:AudioSample = builderResult
+            return returnMe
+        }
+        @discardableResult
+        public func mergeFrom(other:AudioSample) throws -> AudioSample.Builder {
+            if other == AudioSample() {
+                return self
+            }
+            try merge(unknownField: other.unknownFields)
+            return self
+        }
+        @discardableResult
+        override public func mergeFrom(codedInputStream: CodedInputStream) throws -> AudioSample.Builder {
+            return try mergeFrom(codedInputStream: codedInputStream, extensionRegistry:ExtensionRegistry())
+        }
+        @discardableResult
+        override public func mergeFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> AudioSample.Builder {
+            let unknownFieldsBuilder:UnknownFieldSet.Builder = try UnknownFieldSet.builderWithUnknownFields(copyFrom:self.unknownFields)
+            while (true) {
+                let protobufTag = try codedInputStream.readTag()
+                switch protobufTag {
+                case 0: 
+                    self.unknownFields = try unknownFieldsBuilder.build()
+                    return self
+
+                default:
+                    if (!(try parse(codedInputStream:codedInputStream, unknownFields:unknownFieldsBuilder, extensionRegistry:extensionRegistry, tag:protobufTag))) {
+                        unknownFields = try unknownFieldsBuilder.build()
+                        return self
+                    }
+                }
+            }
+        }
+        class override public func decodeToBuilder(jsonMap:Dictionary<String,Any>) throws -> AudioSample.Builder {
+            let resultDecodedBuilder = AudioSample.Builder()
+            return resultDecodedBuilder
+        }
+        override class public func fromJSONToBuilder(data:Data) throws -> AudioSample.Builder {
+            let jsonData = try JSONSerialization.jsonObject(with:data, options: JSONSerialization.ReadingOptions(rawValue: 0))
+            guard let jsDataCast = jsonData as? Dictionary<String,Any> else {
+              throw ProtocolBuffersError.invalidProtocolBuffer("Invalid JSON data")
+            }
+            return try AudioSample.Builder.decodeToBuilder(jsonMap:jsDataCast)
+        }
+    }
+
+}
+
 final public class Av : GeneratedMessage {
 
     public static func == (lhs: Av, rhs: Av) -> Bool {
@@ -993,7 +3226,8 @@ final public class Av : GeneratedMessage {
         }
         var fieldCheck:Bool = (lhs.hashValue == rhs.hashValue)
         fieldCheck = fieldCheck && (lhs.hasMedia == rhs.hasMedia) && (!lhs.hasMedia || lhs.media == rhs.media)
-        fieldCheck = fieldCheck && (lhs.hasData == rhs.hasData) && (!lhs.hasData || lhs.data == rhs.data)
+        fieldCheck = fieldCheck && (lhs.hasVideo == rhs.hasVideo) && (!lhs.hasVideo || lhs.video == rhs.video)
+        fieldCheck = fieldCheck && (lhs.hasAudio == rhs.hasAudio) && (!lhs.hasAudio || lhs.audio == rhs.audio)
         fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
         return fieldCheck
     }
@@ -1038,9 +3272,10 @@ final public class Av : GeneratedMessage {
 
     public fileprivate(set) var media:Av.Media = Av.Media.audio
     public fileprivate(set) var hasMedia:Bool = false
-    public fileprivate(set) var data:Data = Data()
-    public fileprivate(set) var hasData:Bool = false
-
+    public fileprivate(set) var video:VideoSample!
+    public fileprivate(set) var hasVideo:Bool = false
+    public fileprivate(set) var audio:AudioSample!
+    public fileprivate(set) var hasAudio:Bool = false
     required public init() {
         super.init()
     }
@@ -1051,8 +3286,11 @@ final public class Av : GeneratedMessage {
         if hasMedia {
             try codedOutputStream.writeEnum(fieldNumber: 1, value:media.rawValue)
         }
-        if hasData {
-            try codedOutputStream.writeData(fieldNumber: 2, value:data)
+        if hasVideo {
+            try codedOutputStream.writeMessage(fieldNumber: 2, value:video)
+        }
+        if hasAudio {
+            try codedOutputStream.writeMessage(fieldNumber: 3, value:audio)
         }
         try unknownFields.writeTo(codedOutputStream: codedOutputStream)
     }
@@ -1066,8 +3304,15 @@ final public class Av : GeneratedMessage {
         if (hasMedia) {
             serialize_size += media.rawValue.computeEnumSize(fieldNumber: 1)
         }
-        if hasData {
-            serialize_size += data.computeDataSize(fieldNumber: 2)
+        if hasVideo {
+            if let varSizevideo = video?.computeMessageSize(fieldNumber: 2) {
+                serialize_size += varSizevideo
+            }
+        }
+        if hasAudio {
+            if let varSizeaudio = audio?.computeMessageSize(fieldNumber: 3) {
+                serialize_size += varSizeaudio
+            }
         }
         serialize_size += unknownFields.serializedSize()
         memoizedSerializedSize = serialize_size
@@ -1100,8 +3345,11 @@ final public class Av : GeneratedMessage {
         if hasMedia {
             jsonMap["media"] = media.toString()
         }
-        if hasData {
-            jsonMap["data"] = data.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
+        if hasVideo {
+            jsonMap["video"] = try video.encode()
+        }
+        if hasAudio {
+            jsonMap["audio"] = try audio.encode()
         }
         return jsonMap
     }
@@ -1116,8 +3364,19 @@ final public class Av : GeneratedMessage {
         if (hasMedia) {
             output += "\(indent) media: \(media.description)\n"
         }
-        if hasData {
-            output += "\(indent) data: \(data) \n"
+        if hasVideo {
+            output += "\(indent) video {\n"
+            if let outDescVideo = video {
+                output += try outDescVideo.getDescription(indent: "\(indent)  ")
+            }
+            output += "\(indent) }\n"
+        }
+        if hasAudio {
+            output += "\(indent) audio {\n"
+            if let outDescAudio = audio {
+                output += try outDescAudio.getDescription(indent: "\(indent)  ")
+            }
+            output += "\(indent) }\n"
         }
         output += unknownFields.getDescription(indent: indent)
         return output
@@ -1128,8 +3387,15 @@ final public class Av : GeneratedMessage {
             if hasMedia {
                  hashCode = (hashCode &* 31) &+ media.hashValue
             }
-            if hasData {
-                hashCode = (hashCode &* 31) &+ data.hashValue
+            if hasVideo {
+                if let hashValuevideo = video?.hashValue {
+                    hashCode = (hashCode &* 31) &+ hashValuevideo
+                }
+            }
+            if hasAudio {
+                if let hashValueaudio = audio?.hashValue {
+                    hashCode = (hashCode &* 31) &+ hashValueaudio
+                }
             }
             hashCode = (hashCode &* 31) &+  unknownFields.hashValue
             return hashCode
@@ -1181,29 +3447,112 @@ final public class Av : GeneratedMessage {
                builderResult.media = .audio
                return self
             }
-        public var data:Data {
+        public var video:VideoSample! {
             get {
-                return builderResult.data
+                if videoBuilder_ != nil {
+                    builderResult.video = videoBuilder_.getMessage()
+                }
+                return builderResult.video
             }
             set (value) {
-                builderResult.hasData = true
-                builderResult.data = value
+                builderResult.hasVideo = true
+                builderResult.video = value
             }
         }
-        public var hasData:Bool {
+        public var hasVideo:Bool {
             get {
-                return builderResult.hasData
+                return builderResult.hasVideo
             }
+        }
+        fileprivate var videoBuilder_:VideoSample.Builder! {
+            didSet {
+                builderResult.hasVideo = true
+            }
+        }
+        public func getVideoBuilder() -> VideoSample.Builder {
+            if videoBuilder_ == nil {
+                videoBuilder_ = VideoSample.Builder()
+                builderResult.video = videoBuilder_.getMessage()
+                if video != nil {
+                    try! videoBuilder_.mergeFrom(other: video)
+                }
+            }
+            return videoBuilder_
         }
         @discardableResult
-        public func setData(_ value:Data) -> Av.Builder {
-            self.data = value
+        public func setVideo(_ value:VideoSample!) -> Av.Builder {
+            self.video = value
             return self
         }
         @discardableResult
-        public func clearData() -> Av.Builder{
-            builderResult.hasData = false
-            builderResult.data = Data()
+        public func mergeVideo(value:VideoSample) throws -> Av.Builder {
+            if builderResult.hasVideo {
+                builderResult.video = try VideoSample.builderWithPrototype(prototype:builderResult.video).mergeFrom(other: value).buildPartial()
+            } else {
+                builderResult.video = value
+            }
+            builderResult.hasVideo = true
+            return self
+        }
+        @discardableResult
+        public func clearVideo() -> Av.Builder {
+            videoBuilder_ = nil
+            builderResult.hasVideo = false
+            builderResult.video = nil
+            return self
+        }
+        public var audio:AudioSample! {
+            get {
+                if audioBuilder_ != nil {
+                    builderResult.audio = audioBuilder_.getMessage()
+                }
+                return builderResult.audio
+            }
+            set (value) {
+                builderResult.hasAudio = true
+                builderResult.audio = value
+            }
+        }
+        public var hasAudio:Bool {
+            get {
+                return builderResult.hasAudio
+            }
+        }
+        fileprivate var audioBuilder_:AudioSample.Builder! {
+            didSet {
+                builderResult.hasAudio = true
+            }
+        }
+        public func getAudioBuilder() -> AudioSample.Builder {
+            if audioBuilder_ == nil {
+                audioBuilder_ = AudioSample.Builder()
+                builderResult.audio = audioBuilder_.getMessage()
+                if audio != nil {
+                    try! audioBuilder_.mergeFrom(other: audio)
+                }
+            }
+            return audioBuilder_
+        }
+        @discardableResult
+        public func setAudio(_ value:AudioSample!) -> Av.Builder {
+            self.audio = value
+            return self
+        }
+        @discardableResult
+        public func mergeAudio(value:AudioSample) throws -> Av.Builder {
+            if builderResult.hasAudio {
+                builderResult.audio = try AudioSample.builderWithPrototype(prototype:builderResult.audio).mergeFrom(other: value).buildPartial()
+            } else {
+                builderResult.audio = value
+            }
+            builderResult.hasAudio = true
+            return self
+        }
+        @discardableResult
+        public func clearAudio() -> Av.Builder {
+            audioBuilder_ = nil
+            builderResult.hasAudio = false
+            builderResult.audio = nil
             return self
         }
         override public var internalGetResult:GeneratedMessage {
@@ -1235,8 +3584,11 @@ final public class Av : GeneratedMessage {
             if other.hasMedia {
                 media = other.media
             }
-            if other.hasData {
-                data = other.data
+            if (other.hasVideo) {
+                try mergeVideo(value: other.video)
+            }
+            if (other.hasAudio) {
+                try mergeAudio(value: other.audio)
             }
             try merge(unknownField: other.unknownFields)
             return self
@@ -1264,7 +3616,20 @@ final public class Av : GeneratedMessage {
                     }
 
                 case 18:
-                    data = try codedInputStream.readData()
+                    let subBuilder:VideoSample.Builder = VideoSample.Builder()
+                    if hasVideo {
+                        try subBuilder.mergeFrom(other: video)
+                    }
+                    try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
+                    video = subBuilder.buildPartial()
+
+                case 26:
+                    let subBuilder:AudioSample.Builder = AudioSample.Builder()
+                    if hasAudio {
+                        try subBuilder.mergeFrom(other: audio)
+                    }
+                    try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
+                    audio = subBuilder.buildPartial()
 
                 default:
                     if (!(try parse(codedInputStream:codedInputStream, unknownFields:unknownFieldsBuilder, extensionRegistry:extensionRegistry, tag:protobufTag))) {
@@ -1279,8 +3644,13 @@ final public class Av : GeneratedMessage {
             if let jsonValueMedia = jsonMap["media"] as? String {
                 resultDecodedBuilder.media = try Av.Media.fromString(str: jsonValueMedia)
             }
-            if let jsonValueData = jsonMap["data"] as? String {
-                resultDecodedBuilder.data = Data(base64Encoded:jsonValueData, options: Data.Base64DecodingOptions(rawValue:0))!
+            if let jsonValueVideo = jsonMap["video"] as? Dictionary<String,Any> {
+                resultDecodedBuilder.video = try VideoSample.Builder.decodeToBuilder(jsonMap:jsonValueVideo).build()
+
+            }
+            if let jsonValueAudio = jsonMap["audio"] as? Dictionary<String,Any> {
+                resultDecodedBuilder.audio = try AudioSample.Builder.decodeToBuilder(jsonMap:jsonValueAudio).build()
+
             }
             return resultDecodedBuilder
         }
@@ -2464,6 +4834,458 @@ extension File.Builder: GeneratedMessageBuilderProtocol {
         }
     }
 }
+extension Timestamp: GeneratedMessageProtocol {
+    public class func parseArrayDelimitedFrom(inputStream: InputStream) throws -> Array<Timestamp> {
+        var mergedArray = Array<Timestamp>()
+        while let value = try parseDelimitedFrom(inputStream: inputStream) {
+          mergedArray.append(value)
+        }
+        return mergedArray
+    }
+    public class func parseDelimitedFrom(inputStream: InputStream) throws -> Timestamp? {
+        return try Timestamp.Builder().mergeDelimitedFrom(inputStream: inputStream)?.build()
+    }
+    public class func parseFrom(data: Data) throws -> Timestamp {
+        return try Timestamp.Builder().mergeFrom(data: data, extensionRegistry:WireRoot.default.extensionRegistry).build()
+    }
+    public class func parseFrom(data: Data, extensionRegistry:ExtensionRegistry) throws -> Timestamp {
+        return try Timestamp.Builder().mergeFrom(data: data, extensionRegistry:extensionRegistry).build()
+    }
+    public class func parseFrom(inputStream: InputStream) throws -> Timestamp {
+        return try Timestamp.Builder().mergeFrom(inputStream: inputStream).build()
+    }
+    public class func parseFrom(inputStream: InputStream, extensionRegistry:ExtensionRegistry) throws -> Timestamp {
+        return try Timestamp.Builder().mergeFrom(inputStream: inputStream, extensionRegistry:extensionRegistry).build()
+    }
+    public class func parseFrom(codedInputStream: CodedInputStream) throws -> Timestamp {
+        return try Timestamp.Builder().mergeFrom(codedInputStream: codedInputStream).build()
+    }
+    public class func parseFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> Timestamp {
+        return try Timestamp.Builder().mergeFrom(codedInputStream: codedInputStream, extensionRegistry:extensionRegistry).build()
+    }
+    public subscript(key: String) -> Any? {
+        switch key {
+        case "duration": return self.duration
+        case "presentation": return self.presentation
+        default: return nil
+        }
+    }
+}
+extension Timestamp.Builder: GeneratedMessageBuilderProtocol {
+    public subscript(key: String) -> Any? {
+        get { 
+            switch key {
+            case "duration": return self.duration
+            case "presentation": return self.presentation
+            default: return nil
+            }
+        }
+        set (newSubscriptValue) { 
+            switch key {
+            case "duration":
+                guard let newSubscriptValue = newSubscriptValue as? Int64 else {
+                    return
+                }
+                self.duration = newSubscriptValue
+            case "presentation":
+                guard let newSubscriptValue = newSubscriptValue as? Int64 else {
+                    return
+                }
+                self.presentation = newSubscriptValue
+            default: return
+            }
+        }
+    }
+}
+extension Image: GeneratedMessageProtocol {
+    public class func parseArrayDelimitedFrom(inputStream: InputStream) throws -> Array<Image> {
+        var mergedArray = Array<Image>()
+        while let value = try parseDelimitedFrom(inputStream: inputStream) {
+          mergedArray.append(value)
+        }
+        return mergedArray
+    }
+    public class func parseDelimitedFrom(inputStream: InputStream) throws -> Image? {
+        return try Image.Builder().mergeDelimitedFrom(inputStream: inputStream)?.build()
+    }
+    public class func parseFrom(data: Data) throws -> Image {
+        return try Image.Builder().mergeFrom(data: data, extensionRegistry:WireRoot.default.extensionRegistry).build()
+    }
+    public class func parseFrom(data: Data, extensionRegistry:ExtensionRegistry) throws -> Image {
+        return try Image.Builder().mergeFrom(data: data, extensionRegistry:extensionRegistry).build()
+    }
+    public class func parseFrom(inputStream: InputStream) throws -> Image {
+        return try Image.Builder().mergeFrom(inputStream: inputStream).build()
+    }
+    public class func parseFrom(inputStream: InputStream, extensionRegistry:ExtensionRegistry) throws -> Image {
+        return try Image.Builder().mergeFrom(inputStream: inputStream, extensionRegistry:extensionRegistry).build()
+    }
+    public class func parseFrom(codedInputStream: CodedInputStream) throws -> Image {
+        return try Image.Builder().mergeFrom(codedInputStream: codedInputStream).build()
+    }
+    public class func parseFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> Image {
+        return try Image.Builder().mergeFrom(codedInputStream: codedInputStream, extensionRegistry:extensionRegistry).build()
+    }
+    public subscript(key: String) -> Any? {
+        switch key {
+        case "width": return self.width
+        case "height": return self.height
+        case "format": return self.format
+        case "attachments": return self.attachments
+        case "data": return self.data
+        default: return nil
+        }
+    }
+}
+extension Image.AttachmentsEntry: GeneratedMessageProtocol {
+    public class func parseArrayDelimitedFrom(inputStream: InputStream) throws -> Array<Image.AttachmentsEntry> {
+        var mergedArray = Array<Image.AttachmentsEntry>()
+        while let value = try parseDelimitedFrom(inputStream: inputStream) {
+          mergedArray.append(value)
+        }
+        return mergedArray
+    }
+    public class func parseDelimitedFrom(inputStream: InputStream) throws -> Image.AttachmentsEntry? {
+        return try Image.AttachmentsEntry.Builder().mergeDelimitedFrom(inputStream: inputStream)?.build()
+    }
+    public class func parseFrom(data: Data) throws -> Image.AttachmentsEntry {
+        return try Image.AttachmentsEntry.Builder().mergeFrom(data: data, extensionRegistry:WireRoot.default.extensionRegistry).build()
+    }
+    public class func parseFrom(data: Data, extensionRegistry:ExtensionRegistry) throws -> Image.AttachmentsEntry {
+        return try Image.AttachmentsEntry.Builder().mergeFrom(data: data, extensionRegistry:extensionRegistry).build()
+    }
+    public class func parseFrom(inputStream: InputStream) throws -> Image.AttachmentsEntry {
+        return try Image.AttachmentsEntry.Builder().mergeFrom(inputStream: inputStream).build()
+    }
+    public class func parseFrom(inputStream: InputStream, extensionRegistry:ExtensionRegistry) throws -> Image.AttachmentsEntry {
+        return try Image.AttachmentsEntry.Builder().mergeFrom(inputStream: inputStream, extensionRegistry:extensionRegistry).build()
+    }
+    public class func parseFrom(codedInputStream: CodedInputStream) throws -> Image.AttachmentsEntry {
+        return try Image.AttachmentsEntry.Builder().mergeFrom(codedInputStream: codedInputStream).build()
+    }
+    public class func parseFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> Image.AttachmentsEntry {
+        return try Image.AttachmentsEntry.Builder().mergeFrom(codedInputStream: codedInputStream, extensionRegistry:extensionRegistry).build()
+    }
+    public subscript(key: String) -> Any? {
+        switch key {
+        case "key": return self.key
+        case "value": return self.value
+        default: return nil
+        }
+    }
+}
+extension Image.Builder: GeneratedMessageBuilderProtocol {
+    public subscript(key: String) -> Any? {
+        get { 
+            switch key {
+            case "width": return self.width
+            case "height": return self.height
+            case "format": return self.format
+            case "attachments": return self.attachments
+            case "data": return self.data
+            default: return nil
+            }
+        }
+        set (newSubscriptValue) { 
+            switch key {
+            case "width":
+                guard let newSubscriptValue = newSubscriptValue as? Int64 else {
+                    return
+                }
+                self.width = newSubscriptValue
+            case "height":
+                guard let newSubscriptValue = newSubscriptValue as? Int64 else {
+                    return
+                }
+                self.height = newSubscriptValue
+            case "format":
+                guard let newSubscriptValue = newSubscriptValue as? UInt32 else {
+                    return
+                }
+                self.format = newSubscriptValue
+            case "attachments":
+                guard let newSubscriptValue = newSubscriptValue as? Dictionary<String,String> else {
+                    return
+                }
+                self.attachments = newSubscriptValue
+            case "data":
+                guard let newSubscriptValue = newSubscriptValue as? Data else {
+                    return
+                }
+                self.data = newSubscriptValue
+            default: return
+            }
+        }
+    }
+}
+extension Image.AttachmentsEntry.Builder: GeneratedMessageBuilderProtocol {
+    public subscript(key: String) -> Any? {
+        get { 
+            switch key {
+            case "key": return self.key
+            case "value": return self.value
+            default: return nil
+            }
+        }
+        set (newSubscriptValue) { 
+            switch key {
+            case "key":
+                guard let newSubscriptValue = newSubscriptValue as? String else {
+                    return
+                }
+                self.key = newSubscriptValue
+            case "value":
+                guard let newSubscriptValue = newSubscriptValue as? String else {
+                    return
+                }
+                self.value = newSubscriptValue
+            default: return
+            }
+        }
+    }
+}
+extension FormatDescription: GeneratedMessageProtocol {
+    public class func parseArrayDelimitedFrom(inputStream: InputStream) throws -> Array<FormatDescription> {
+        var mergedArray = Array<FormatDescription>()
+        while let value = try parseDelimitedFrom(inputStream: inputStream) {
+          mergedArray.append(value)
+        }
+        return mergedArray
+    }
+    public class func parseDelimitedFrom(inputStream: InputStream) throws -> FormatDescription? {
+        return try FormatDescription.Builder().mergeDelimitedFrom(inputStream: inputStream)?.build()
+    }
+    public class func parseFrom(data: Data) throws -> FormatDescription {
+        return try FormatDescription.Builder().mergeFrom(data: data, extensionRegistry:WireRoot.default.extensionRegistry).build()
+    }
+    public class func parseFrom(data: Data, extensionRegistry:ExtensionRegistry) throws -> FormatDescription {
+        return try FormatDescription.Builder().mergeFrom(data: data, extensionRegistry:extensionRegistry).build()
+    }
+    public class func parseFrom(inputStream: InputStream) throws -> FormatDescription {
+        return try FormatDescription.Builder().mergeFrom(inputStream: inputStream).build()
+    }
+    public class func parseFrom(inputStream: InputStream, extensionRegistry:ExtensionRegistry) throws -> FormatDescription {
+        return try FormatDescription.Builder().mergeFrom(inputStream: inputStream, extensionRegistry:extensionRegistry).build()
+    }
+    public class func parseFrom(codedInputStream: CodedInputStream) throws -> FormatDescription {
+        return try FormatDescription.Builder().mergeFrom(codedInputStream: codedInputStream).build()
+    }
+    public class func parseFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> FormatDescription {
+        return try FormatDescription.Builder().mergeFrom(codedInputStream: codedInputStream, extensionRegistry:extensionRegistry).build()
+    }
+    public subscript(key: String) -> Any? {
+        switch key {
+        case "mediaType": return self.mediaType
+        case "mediaSubtype": return self.mediaSubtype
+        case "extensions": return self.extensions
+        default: return nil
+        }
+    }
+}
+extension FormatDescription.ExtensionsEntry: GeneratedMessageProtocol {
+    public class func parseArrayDelimitedFrom(inputStream: InputStream) throws -> Array<FormatDescription.ExtensionsEntry> {
+        var mergedArray = Array<FormatDescription.ExtensionsEntry>()
+        while let value = try parseDelimitedFrom(inputStream: inputStream) {
+          mergedArray.append(value)
+        }
+        return mergedArray
+    }
+    public class func parseDelimitedFrom(inputStream: InputStream) throws -> FormatDescription.ExtensionsEntry? {
+        return try FormatDescription.ExtensionsEntry.Builder().mergeDelimitedFrom(inputStream: inputStream)?.build()
+    }
+    public class func parseFrom(data: Data) throws -> FormatDescription.ExtensionsEntry {
+        return try FormatDescription.ExtensionsEntry.Builder().mergeFrom(data: data, extensionRegistry:WireRoot.default.extensionRegistry).build()
+    }
+    public class func parseFrom(data: Data, extensionRegistry:ExtensionRegistry) throws -> FormatDescription.ExtensionsEntry {
+        return try FormatDescription.ExtensionsEntry.Builder().mergeFrom(data: data, extensionRegistry:extensionRegistry).build()
+    }
+    public class func parseFrom(inputStream: InputStream) throws -> FormatDescription.ExtensionsEntry {
+        return try FormatDescription.ExtensionsEntry.Builder().mergeFrom(inputStream: inputStream).build()
+    }
+    public class func parseFrom(inputStream: InputStream, extensionRegistry:ExtensionRegistry) throws -> FormatDescription.ExtensionsEntry {
+        return try FormatDescription.ExtensionsEntry.Builder().mergeFrom(inputStream: inputStream, extensionRegistry:extensionRegistry).build()
+    }
+    public class func parseFrom(codedInputStream: CodedInputStream) throws -> FormatDescription.ExtensionsEntry {
+        return try FormatDescription.ExtensionsEntry.Builder().mergeFrom(codedInputStream: codedInputStream).build()
+    }
+    public class func parseFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> FormatDescription.ExtensionsEntry {
+        return try FormatDescription.ExtensionsEntry.Builder().mergeFrom(codedInputStream: codedInputStream, extensionRegistry:extensionRegistry).build()
+    }
+    public subscript(key: String) -> Any? {
+        switch key {
+        case "key": return self.key
+        case "value": return self.value
+        default: return nil
+        }
+    }
+}
+extension FormatDescription.Builder: GeneratedMessageBuilderProtocol {
+    public subscript(key: String) -> Any? {
+        get { 
+            switch key {
+            case "mediaType": return self.mediaType
+            case "mediaSubtype": return self.mediaSubtype
+            case "extensions": return self.extensions
+            default: return nil
+            }
+        }
+        set (newSubscriptValue) { 
+            switch key {
+            case "mediaType":
+                guard let newSubscriptValue = newSubscriptValue as? UInt32 else {
+                    return
+                }
+                self.mediaType = newSubscriptValue
+            case "mediaSubtype":
+                guard let newSubscriptValue = newSubscriptValue as? UInt32 else {
+                    return
+                }
+                self.mediaSubtype = newSubscriptValue
+            case "extensions":
+                guard let newSubscriptValue = newSubscriptValue as? Dictionary<String,String> else {
+                    return
+                }
+                self.extensions = newSubscriptValue
+            default: return
+            }
+        }
+    }
+}
+extension FormatDescription.ExtensionsEntry.Builder: GeneratedMessageBuilderProtocol {
+    public subscript(key: String) -> Any? {
+        get { 
+            switch key {
+            case "key": return self.key
+            case "value": return self.value
+            default: return nil
+            }
+        }
+        set (newSubscriptValue) { 
+            switch key {
+            case "key":
+                guard let newSubscriptValue = newSubscriptValue as? String else {
+                    return
+                }
+                self.key = newSubscriptValue
+            case "value":
+                guard let newSubscriptValue = newSubscriptValue as? String else {
+                    return
+                }
+                self.value = newSubscriptValue
+            default: return
+            }
+        }
+    }
+}
+extension VideoSample: GeneratedMessageProtocol {
+    public class func parseArrayDelimitedFrom(inputStream: InputStream) throws -> Array<VideoSample> {
+        var mergedArray = Array<VideoSample>()
+        while let value = try parseDelimitedFrom(inputStream: inputStream) {
+          mergedArray.append(value)
+        }
+        return mergedArray
+    }
+    public class func parseDelimitedFrom(inputStream: InputStream) throws -> VideoSample? {
+        return try VideoSample.Builder().mergeDelimitedFrom(inputStream: inputStream)?.build()
+    }
+    public class func parseFrom(data: Data) throws -> VideoSample {
+        return try VideoSample.Builder().mergeFrom(data: data, extensionRegistry:WireRoot.default.extensionRegistry).build()
+    }
+    public class func parseFrom(data: Data, extensionRegistry:ExtensionRegistry) throws -> VideoSample {
+        return try VideoSample.Builder().mergeFrom(data: data, extensionRegistry:extensionRegistry).build()
+    }
+    public class func parseFrom(inputStream: InputStream) throws -> VideoSample {
+        return try VideoSample.Builder().mergeFrom(inputStream: inputStream).build()
+    }
+    public class func parseFrom(inputStream: InputStream, extensionRegistry:ExtensionRegistry) throws -> VideoSample {
+        return try VideoSample.Builder().mergeFrom(inputStream: inputStream, extensionRegistry:extensionRegistry).build()
+    }
+    public class func parseFrom(codedInputStream: CodedInputStream) throws -> VideoSample {
+        return try VideoSample.Builder().mergeFrom(codedInputStream: codedInputStream).build()
+    }
+    public class func parseFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> VideoSample {
+        return try VideoSample.Builder().mergeFrom(codedInputStream: codedInputStream, extensionRegistry:extensionRegistry).build()
+    }
+    public subscript(key: String) -> Any? {
+        switch key {
+        case "timestamp": return self.timestamp
+        case "image": return self.image
+        case "format": return self.format
+        default: return nil
+        }
+    }
+}
+extension VideoSample.Builder: GeneratedMessageBuilderProtocol {
+    public subscript(key: String) -> Any? {
+        get { 
+            switch key {
+            case "timestamp": return self.timestamp
+            case "image": return self.image
+            case "format": return self.format
+            default: return nil
+            }
+        }
+        set (newSubscriptValue) { 
+            switch key {
+            case "timestamp":
+                guard let newSubscriptValue = newSubscriptValue as? Timestamp else {
+                    return
+                }
+                self.timestamp = newSubscriptValue
+            case "image":
+                guard let newSubscriptValue = newSubscriptValue as? Image else {
+                    return
+                }
+                self.image = newSubscriptValue
+            case "format":
+                guard let newSubscriptValue = newSubscriptValue as? FormatDescription else {
+                    return
+                }
+                self.format = newSubscriptValue
+            default: return
+            }
+        }
+    }
+}
+extension AudioSample: GeneratedMessageProtocol {
+    public class func parseArrayDelimitedFrom(inputStream: InputStream) throws -> Array<AudioSample> {
+        var mergedArray = Array<AudioSample>()
+        while let value = try parseDelimitedFrom(inputStream: inputStream) {
+          mergedArray.append(value)
+        }
+        return mergedArray
+    }
+    public class func parseDelimitedFrom(inputStream: InputStream) throws -> AudioSample? {
+        return try AudioSample.Builder().mergeDelimitedFrom(inputStream: inputStream)?.build()
+    }
+    public class func parseFrom(data: Data) throws -> AudioSample {
+        return try AudioSample.Builder().mergeFrom(data: data, extensionRegistry:WireRoot.default.extensionRegistry).build()
+    }
+    public class func parseFrom(data: Data, extensionRegistry:ExtensionRegistry) throws -> AudioSample {
+        return try AudioSample.Builder().mergeFrom(data: data, extensionRegistry:extensionRegistry).build()
+    }
+    public class func parseFrom(inputStream: InputStream) throws -> AudioSample {
+        return try AudioSample.Builder().mergeFrom(inputStream: inputStream).build()
+    }
+    public class func parseFrom(inputStream: InputStream, extensionRegistry:ExtensionRegistry) throws -> AudioSample {
+        return try AudioSample.Builder().mergeFrom(inputStream: inputStream, extensionRegistry:extensionRegistry).build()
+    }
+    public class func parseFrom(codedInputStream: CodedInputStream) throws -> AudioSample {
+        return try AudioSample.Builder().mergeFrom(codedInputStream: codedInputStream).build()
+    }
+    public class func parseFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> AudioSample {
+        return try AudioSample.Builder().mergeFrom(codedInputStream: codedInputStream, extensionRegistry:extensionRegistry).build()
+    }
+    public subscript(key: String) -> Any? {
+        return nil
+    }
+}
+extension AudioSample.Builder: GeneratedMessageBuilderProtocol {
+    public subscript(key: String) -> Any? {
+        get { return nil }
+        set { }
+    }
+}
 extension Av: GeneratedMessageProtocol {
     public class func parseArrayDelimitedFrom(inputStream: InputStream) throws -> Array<Av> {
         var mergedArray = Array<Av>()
@@ -2496,7 +5318,8 @@ extension Av: GeneratedMessageProtocol {
     public subscript(key: String) -> Any? {
         switch key {
         case "media": return self.media
-        case "data": return self.data
+        case "video": return self.video
+        case "audio": return self.audio
         default: return nil
         }
     }
@@ -2506,7 +5329,8 @@ extension Av.Builder: GeneratedMessageBuilderProtocol {
         get { 
             switch key {
             case "media": return self.media
-            case "data": return self.data
+            case "video": return self.video
+            case "audio": return self.audio
             default: return nil
             }
         }
@@ -2517,11 +5341,16 @@ extension Av.Builder: GeneratedMessageBuilderProtocol {
                     return
                 }
                 self.media = newSubscriptValue
-            case "data":
-                guard let newSubscriptValue = newSubscriptValue as? Data else {
+            case "video":
+                guard let newSubscriptValue = newSubscriptValue as? VideoSample else {
                     return
                 }
-                self.data = newSubscriptValue
+                self.video = newSubscriptValue
+            case "audio":
+                guard let newSubscriptValue = newSubscriptValue as? AudioSample else {
+                    return
+                }
+                self.audio = newSubscriptValue
             default: return
             }
         }

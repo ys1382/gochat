@@ -22,8 +22,8 @@ class VideoViewController: NSViewController, AVCaptureVideoDataOutputSampleBuffe
     override func viewDidAppear() {
         super.viewDidAppear()
 
-        videoDelegate.start(callback: handleSample)
-        audioDelegate.start()
+        videoDelegate.start(videoCallback: handleSample)
+//        audioDelegate.start()
 
         captureLayer.bounds = CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.height)
         captureLayer.position = CGPoint(x: self.view.bounds.midX, y: self.view.bounds.midY)
@@ -38,6 +38,8 @@ class VideoViewController: NSViewController, AVCaptureVideoDataOutputSampleBuffe
         self.preview.layer?.addSublayer(previewLayer)
         self.capture.layer?.addSublayer(captureLayer)
         self.network.layer?.addSublayer(networkLayer)
+//        let h = Haishin()
+//        h.start(view: self.network)
     }
 
     lazy var networkLayer: AVSampleBufferDisplayLayer = {

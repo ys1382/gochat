@@ -1,17 +1,19 @@
+// todo: add h264 encoding/decoding from https://github.com/shogo4405/lf.swift/tree/master/Sources/Media
+
 import Cocoa
 import AVFoundation
 
-class Video: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
+class Video: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
 
     var cameraSession = AVCaptureSession()
-    var callback: ((CMSampleBuffer)->())?
+    var videoCallback: ((CMSampleBuffer)->())?
+    var audio: Audio?
 
-    override init() {
+    override init() {}
 
-    }
-
-    func start(callback:@escaping (CMSampleBuffer)->()) {
-        self.callback = callback
+    func start(videoCallback:@escaping (CMSampleBuffer)->()) {
+        audio = Audio()
+        self.videoCallback = videoCallback
 
         NotificationCenter.default.addObserver(forName: .AVSampleBufferDisplayLayerFailedToDecode,
                                                object: nil,
@@ -61,7 +63,7 @@ class Video: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
 
             // outputs
             let videoDataOutput = AVCaptureVideoDataOutput()
-            videoDataOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as AnyHashable: Int(kCVPixelFormatType_32ARGB)]
+            videoDataOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as AnyHashable: Int(kCVPixelFormatType_32BGRA)]
             videoDataOutput.alwaysDiscardsLateVideoFrames = true
             if (cameraSession.canAddOutput(videoDataOutput) == true) {
                 cameraSession.addOutput(videoDataOutput)
@@ -76,6 +78,9 @@ class Video: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             let videoQueue = DispatchQueue(label: "videoQueue")
             videoDataOutput.setSampleBufferDelegate(self, queue: videoQueue)
 
+            let audioQueue = DispatchQueue(label: "audioQueue")
+            audioDataOutput.setSampleBufferDelegate(self, queue: audioQueue)
+
             cameraSession.startRunning()
 
         }
@@ -88,88 +93,16 @@ class Video: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
                        didOutputSampleBuffer sampleBuffer: CMSampleBuffer!,
                        from connection: AVCaptureConnection!) {
 
-        if let sb2 = self.serialize(sampleBuffer) {
-            callback?(sb2)
+        if let sampleBufferOut = sampleBuffer.copy(), let mediaType = sampleBufferOut.getMediaType() {
+            switch mediaType {
+            case kCMMediaType_Audio:
+                audioCallback(sampleBufferOut)
+            case kCMMediaType_Video:
+                videoCallback?(sampleBufferOut)
+            default:
+                print("did not handle format description type \(mediaType)")
+            }
         }
-    }
-
-    func pixelBufferCopy(_ pixelBufferIn : CVPixelBuffer) -> CVPixelBuffer? {
-        if CVPixelBufferIsPlanar(pixelBufferIn) {
-            print("planar")
-            return nil
-        }
-        let lockFlags = CVPixelBufferLockFlags(rawValue: 0)
-        CVPixelBufferLockBaseAddress(pixelBufferIn, lockFlags)
-
-
-        let attachments = CMGetAttachment(pixelBufferIn, "CVImageBufferColorPrimaries" as CFString, nil)
-
-
-        let baseAddress = CVPixelBufferGetBaseAddress(pixelBufferIn)
-        let bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBufferIn)
-        let width = CVPixelBufferGetWidth(pixelBufferIn)
-        let height = CVPixelBufferGetHeight(pixelBufferIn)
-        let format = CVPixelBufferGetPixelFormatType(pixelBufferIn)
-
-        var pixelBufferOut: CVPixelBuffer?
-
-        let result = CVPixelBufferCreateWithBytes(
-            kCFAllocatorDefault,
-            width,
-            height,
-            format,
-            baseAddress!,
-            bytesPerRow,
-            nil,
-            nil,
-            nil,
-            &pixelBufferOut);
-
-        if (result != kCVReturnSuccess) {
-            print("CVPixelBufferCreateWithPlanarBytes failed: \(result)")
-            return nil
-        }
-
-        CVPixelBufferUnlockBaseAddress(pixelBufferIn, lockFlags)
-        return pixelBufferOut
-    }
-
-    func serialize(_ sampleBufferIn: CMSampleBuffer) -> CMSampleBuffer? {
-        guard let pixelBufferIn : CVPixelBuffer = CMSampleBufferGetImageBuffer(sampleBufferIn) else {
-//            let pixelBufferOut = pixelBufferCopy(pixelBufferIn) else {
-            print("could not get image buffer")
-            return nil
-        }
-        let pixelBufferOut = pixelBufferIn.copy()
-
-        var count: CMItemCount = 1
-        var timingInfo = CMSampleTimingInfo()
-        CMSampleBufferGetSampleTimingInfoArray(sampleBufferIn, count, &timingInfo, &count)
-
-        let formatDescription = CMSampleBufferGetFormatDescription(sampleBufferIn)!
-
-        var sampleBufferOut: CMSampleBuffer?
-
-        let status = CMSampleBufferCreateReadyWithImageBuffer(
-            kCFAllocatorDefault,
-            pixelBufferOut,
-            formatDescription,
-            &timingInfo,
-            &sampleBufferOut)
-
-        if checkError(status) {
-            return nil
-        }
-
-        return sampleBufferOut
-    }
-
-    func checkError(_ status: OSStatus) -> Bool {
-        if status != noErr {
-            print("Error " + status.description)
-            return true
-        }
-        return false
     }
 
     func captureOutput(_ captureOutput: AVCaptureOutput!,
@@ -177,37 +110,217 @@ class Video: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
                        from connection: AVCaptureConnection!) {
         print("dropped frame")
     }
+
+    func audioCallback(_ sampleBuffer: CMSampleBuffer) {
+        print("audioCallback")
+        var blockBuffer: CMBlockBuffer?
+        var audioBufferList: AudioBufferList = AudioBufferList()
+        let status = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
+            sampleBuffer,
+            nil,
+            &audioBufferList,
+            MemoryLayout<AudioBufferList>.size,
+            nil,
+            nil,
+            0,
+            &blockBuffer
+        )
+        if checkError(status) { return }
+
+        let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer)!
+        let asbd = CMAudioFormatDescriptionGetStreamBasicDescription(formatDescription)
+        audio?.formatDescription = asbd?.pointee
+        audio?.initializeForAudioQueue()
+        audio?.startRunning()
+
+        let ffs = UnsafeMutablePointer<AudioBufferList>.allocate(capacity: 1)
+        ffs.initialize(to: audioBufferList)
+        let abl = UnsafeMutableAudioBufferListPointer(ffs)
+        for buffer in abl {
+            var description = AudioStreamPacketDescription(
+                mStartOffset: 0,
+                mVariableFramesInPacket: 0,
+                mDataByteSize: buffer.mDataByteSize)
+            audio?.appendBuffer(buffer.mData!, inPacketDescription: &description)
+        }
+    }
+}
+
+func checkError(_ status: OSStatus) -> Bool {
+    if status != noErr {
+        print("Error " + status.description)
+        return true
+    }
+    return false
+}
+
+extension CMSampleBuffer {
+    func copy() -> CMSampleBuffer? {
+
+        let formatDescription = CMSampleBufferGetFormatDescription(self)!
+        guard let formatDescriptionOut = formatDescription.copy() else {
+            return nil
+        }
+
+        var count: CMItemCount = 1
+        var timingInfoIn = CMSampleTimingInfo()
+        CMSampleBufferGetSampleTimingInfoArray(self, count, &timingInfoIn, &count)
+        let timingInfoOut = timingInfoIn.copy()
+
+        switch CMFormatDescriptionGetMediaType(formatDescription) {
+        case kCMMediaType_Audio:
+            return audioCopy(format: formatDescriptionOut, timing: timingInfoOut)
+        case kCMMediaType_Video:
+            return videoCopy(format: formatDescriptionOut, timing: timingInfoOut)
+        default:
+            print("did not handle format description type \(CMFormatDescriptionGetMediaType(formatDescription))")
+            return nil
+        }
+    }
+
+    func getMediaType() -> CMMediaType? {
+        if let formatDescription = CMSampleBufferGetFormatDescription(self) {
+            return CMFormatDescriptionGetMediaType(formatDescription)
+        }
+        return nil
+    }
+
+    func audioCopy(format: CMFormatDescription, timing: CMSampleTimingInfo) -> CMSampleBuffer? {
+
+        var blockBuffer: CMBlockBuffer?
+        var audioBufferList: AudioBufferList = AudioBufferList()
+        let numSamples = CMSampleBufferGetNumSamples(self)
+
+        var status = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
+            self,
+            nil,
+            &audioBufferList,
+            MemoryLayout<AudioBufferList>.size,
+            nil,
+            nil,
+            0,
+            &blockBuffer
+        )
+        if checkError(status) { return nil }
+
+
+        // clone audio CMSampleBuffer
+        var sampleBufferOut: CMSampleBuffer?
+        var timingInfo = timing
+        status = CMSampleBufferCreateReady(
+            kCFAllocatorDefault,
+            blockBuffer,
+            format,
+            numSamples,
+            1,
+            &timingInfo,
+            0,
+            nil,
+            &sampleBufferOut)
+        if checkError(status) { return nil }
+
+        return sampleBufferOut
+    }
+
+    func videoCopy(format: CMFormatDescription, timing: CMSampleTimingInfo) -> CMSampleBuffer? {
+        guard let pixelBufferIn : CVPixelBuffer = CMSampleBufferGetImageBuffer(self) else {
+            print("could not get image buffer")
+            return nil
+        }
+        let pixelBufferOut = pixelBufferIn.copy()
+
+        var timingInfo = timing
+        var sampleBufferOut: CMSampleBuffer?
+        let status = CMSampleBufferCreateReadyWithImageBuffer(
+            kCFAllocatorDefault,
+            pixelBufferOut,
+            format,
+            &timingInfo,
+            &sampleBufferOut)
+
+        if checkError(status) { return nil }
+        return sampleBufferOut
+    }
+}
+
+extension CMFormatDescription {
+    func copy() -> CMFormatDescription? {
+        let extensions = CMFormatDescriptionGetExtensions(self)
+        let mediaType = CMFormatDescriptionGetMediaType(self)
+
+        var formatOut: CMFormatDescription?
+        var status: OSStatus
+        switch mediaType {
+        case kCMMediaType_Audio:
+            let asbd = CMAudioFormatDescriptionGetStreamBasicDescription(self)
+            status = CMAudioFormatDescriptionCreate(
+                nil,
+                asbd!,
+                0,
+                nil,
+                0,
+                nil,
+                extensions,
+                &formatOut)
+        case kCMMediaType_Video:
+            let codecType = CMFormatDescriptionGetMediaSubType(self)
+            let dimensions = CMVideoFormatDescriptionGetDimensions(self)
+            status = CMVideoFormatDescriptionCreate(
+                nil,
+                codecType,
+                dimensions.width,
+                dimensions.height,
+                extensions,
+                &formatOut)
+        default:
+            status = noErr
+            print("did not handle format description media type \(mediaType)")
+        }
+        if checkError(status) { return nil }
+        return formatOut
+    }
+}
+
+extension CMSampleTimingInfo {
+    func copy() -> CMSampleTimingInfo {
+        let durationIn = self.duration
+        let presentationIn = self.presentationTimeStamp
+        let decodeIn = kCMTimeInvalid
+        return CMSampleTimingInfo(duration: durationIn, presentationTimeStamp: presentationIn, decodeTimeStamp: decodeIn)
+    }
 }
 
 extension CVPixelBuffer {
     func copy() -> CVPixelBuffer {
         precondition(CFGetTypeID(self) == CVPixelBufferGetTypeID(), "copy() cannot be called on a non-CVPixelBuffer")
 
-        var _copy : CVPixelBuffer?
+        var pixelBufferCopy : CVPixelBuffer?
         CVPixelBufferCreate(
             nil,
             CVPixelBufferGetWidth(self),
             CVPixelBufferGetHeight(self),
             CVPixelBufferGetPixelFormatType(self),
             nil,
-            &_copy)
+            &pixelBufferCopy)
 
-        guard let copy = _copy else { fatalError() }
+        guard let pixelBufferOut = pixelBufferCopy else { fatalError() }
 
         CVPixelBufferLockBaseAddress(self, .readOnly)
-        CVPixelBufferLockBaseAddress(copy, CVPixelBufferLockFlags(rawValue: 0))
+        CVPixelBufferLockBaseAddress(pixelBufferOut, CVPixelBufferLockFlags(rawValue: 0))
 
         memcpy(
-            CVPixelBufferGetBaseAddress(copy),
+            CVPixelBufferGetBaseAddress(pixelBufferOut),
             CVPixelBufferGetBaseAddress(self),
             CVPixelBufferGetDataSize(self))
 
-        CVPixelBufferUnlockBaseAddress(copy, CVPixelBufferLockFlags(rawValue: 0))
+        CVPixelBufferUnlockBaseAddress(pixelBufferOut, CVPixelBufferLockFlags(rawValue: 0))
         CVPixelBufferUnlockBaseAddress(self, .readOnly)
 
         let attachments = CVBufferGetAttachments(self, .shouldPropagate)
-        CVBufferSetAttachments(copy, attachments!, .shouldPropagate)
+        var dict = attachments as! [String: AnyObject]
+        dict["MetadataDictionary"] = nil // because not needed (probably)
+        CVBufferSetAttachments(pixelBufferOut, dict as CFDictionary, .shouldPropagate)
 
-        return copy
+        return pixelBufferOut
     }
 }
