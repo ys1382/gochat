@@ -71,7 +71,7 @@ class Audio {
                 &self.formatDescription!,
                 self.outputCallback,
                 unsafeBitCast(self, to: UnsafeMutableRawPointer.self),
-                nil,//self.runloop,
+                self.runloop,
                 CFRunLoopMode.commonModes.rawValue,
                 0,
                 &queue)
@@ -101,7 +101,6 @@ class Audio {
     }
 
     func appendBuffer(_ inInputData:UnsafeRawPointer, inPacketDescription:inout AudioStreamPacketDescription) {
-        print("audio appendBuffer")
         let offset:Int = Int(inPacketDescription.mStartOffset)
         let packetSize:UInt32 = inPacketDescription.mDataByteSize
         if (isBufferFull(packetSize) || isPacketDescriptionsFull) {

@@ -112,19 +112,7 @@ class Video: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAu
     }
 
     func audioCallback(_ sampleBuffer: CMSampleBuffer) {
-        print("audioCallback")
-        var blockBuffer: CMBlockBuffer?
-        var audioBufferList: AudioBufferList = AudioBufferList()
-        let status = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
-            sampleBuffer,
-            nil,
-            &audioBufferList,
-            MemoryLayout<AudioBufferList>.size,
-            nil,
-            nil,
-            0,
-            &blockBuffer
-        )
+        let (status, audioBufferList, _) = sampleBuffer.getAudioListAndBlockBuffer()
         if checkError(status) { return }
 
         let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer)!
@@ -133,14 +121,15 @@ class Video: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAu
         audio?.initializeForAudioQueue()
         audio?.startRunning()
 
-        let ffs = UnsafeMutablePointer<AudioBufferList>.allocate(capacity: 1)
-        ffs.initialize(to: audioBufferList)
-        let abl = UnsafeMutableAudioBufferListPointer(ffs)
-        for buffer in abl {
+        print("")
+        var varAbl = audioBufferList!
+        let umAbl = UnsafeMutableAudioBufferListPointer(&varAbl)
+        for buffer in umAbl {
             var description = AudioStreamPacketDescription(
                 mStartOffset: 0,
                 mVariableFramesInPacket: 0,
                 mDataByteSize: buffer.mDataByteSize)
+            print("mDataByteSize: \(buffer.mDataByteSize)")
             audio?.appendBuffer(buffer.mData!, inPacketDescription: &description)
         }
     }
@@ -185,29 +174,49 @@ extension CMSampleBuffer {
         return nil
     }
 
-    func audioCopy(format: CMFormatDescription, timing: CMSampleTimingInfo) -> CMSampleBuffer? {
+    func getAudioListAndBlockBuffer() -> (status: OSStatus, audioBufferList: AudioBufferList?, blockBuffer: CMBlockBuffer?) {
 
-        var blockBuffer: CMBlockBuffer?
-        var audioBufferList: AudioBufferList = AudioBufferList()
-        let numSamples = CMSampleBufferGetNumSamples(self)
-
+        var bufferListSizeNeededOut: Int = 0
         var status = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
+            self,
+            &bufferListSizeNeededOut,
+            nil,
+            0,
+            nil,
+            nil,
+            0,
+            nil
+        )
+        if checkError(status) { return (status, nil, nil) }
+
+        var audioBufferList: AudioBufferList = AudioBufferList()
+        var blockBuffer: CMBlockBuffer?
+        status = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
             self,
             nil,
             &audioBufferList,
-            MemoryLayout<AudioBufferList>.size,
+            bufferListSizeNeededOut,
             nil,
             nil,
             0,
             &blockBuffer
         )
-        if checkError(status) { return nil }
+        if checkError(status) { return (status, nil, nil) }
 
+        return (status, audioBufferList, blockBuffer)
+    }
+
+    func audioCopy(format: CMFormatDescription, timing: CMSampleTimingInfo) -> CMSampleBuffer? {
+
+        let (status1, _, blockBuffer) = self.getAudioListAndBlockBuffer()
+        if checkError(status1) { return nil }
 
         // clone audio CMSampleBuffer
         var sampleBufferOut: CMSampleBuffer?
         var timingInfo = timing
-        status = CMSampleBufferCreateReady(
+        let numSamples = CMSampleBufferGetNumSamples(self)
+
+        let status2 = CMSampleBufferCreateReady(
             kCFAllocatorDefault,
             blockBuffer,
             format,
@@ -217,7 +226,7 @@ extension CMSampleBuffer {
             0,
             nil,
             &sampleBufferOut)
-        if checkError(status) { return nil }
+        if checkError(status2) { return nil }
 
         return sampleBufferOut
     }
