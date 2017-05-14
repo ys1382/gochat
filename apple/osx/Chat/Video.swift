@@ -184,26 +184,29 @@ extension CMSampleBuffer {
             0,
             nil,
             nil,
-            0,
+            kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment,
             nil
         )
         if checkError(status) { return (status, nil, nil) }
 
-        var audioBufferList: AudioBufferList = AudioBufferList()
+        let formatDescription = CMSampleBufferGetFormatDescription(self)!
+        let asbd = CMAudioFormatDescriptionGetStreamBasicDescription(formatDescription)!.pointee
+        let audioBufferList = AudioBufferList.allocate(maximumBuffers: Int(asbd.mChannelsPerFrame)).unsafeMutablePointer
+
         var blockBuffer: CMBlockBuffer?
         status = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
             self,
             nil,
-            &audioBufferList,
+            audioBufferList,
             bufferListSizeNeededOut,
             nil,
             nil,
-            0,
+            kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment,
             &blockBuffer
         )
         if checkError(status) { return (status, nil, nil) }
 
-        return (status, audioBufferList, blockBuffer)
+        return (status, audioBufferList.pointee, blockBuffer)
     }
 
     func audioCopy(format: CMFormatDescription, timing: CMSampleTimingInfo) -> CMSampleBuffer? {
