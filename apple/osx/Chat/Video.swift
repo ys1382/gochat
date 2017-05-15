@@ -122,9 +122,7 @@ class Video: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAu
         audio?.startRunning()
 
         print("")
-        var varAbl = audioBufferList!
-        let umAbl = UnsafeMutableAudioBufferListPointer(&varAbl)
-        for buffer in umAbl {
+        for buffer in audioBufferList! {
             var description = AudioStreamPacketDescription(
                 mStartOffset: 0,
                 mVariableFramesInPacket: 0,
@@ -174,7 +172,9 @@ extension CMSampleBuffer {
         return nil
     }
 
-    func getAudioListAndBlockBuffer() -> (status: OSStatus, audioBufferList: AudioBufferList?, blockBuffer: CMBlockBuffer?) {
+    func getAudioListAndBlockBuffer() -> (status: OSStatus,
+        audioBufferList: UnsafeMutableAudioBufferListPointer?,
+        blockBuffer: CMBlockBuffer?) {
 
         var bufferListSizeNeededOut: Int = 0
         var status = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
@@ -191,13 +191,13 @@ extension CMSampleBuffer {
 
         let formatDescription = CMSampleBufferGetFormatDescription(self)!
         let asbd = CMAudioFormatDescriptionGetStreamBasicDescription(formatDescription)!.pointee
-        let audioBufferList = AudioBufferList.allocate(maximumBuffers: Int(asbd.mChannelsPerFrame)).unsafeMutablePointer
+        let audioBufferList = AudioBufferList.allocate(maximumBuffers: Int(asbd.mChannelsPerFrame))
 
         var blockBuffer: CMBlockBuffer?
         status = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
             self,
             nil,
-            audioBufferList,
+            &audioBufferList.unsafeMutablePointer.pointee,
             bufferListSizeNeededOut,
             nil,
             nil,
@@ -206,7 +206,7 @@ extension CMSampleBuffer {
         )
         if checkError(status) { return (status, nil, nil) }
 
-        return (status, audioBufferList.pointee, blockBuffer)
+        return (status, audioBufferList, blockBuffer)
     }
 
     func audioCopy(format: CMFormatDescription, timing: CMSampleTimingInfo) -> CMSampleBuffer? {
