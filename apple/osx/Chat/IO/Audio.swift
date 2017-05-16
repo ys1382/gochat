@@ -9,12 +9,18 @@ let kInputBus: UInt32 = 1
 let kOutputBus: UInt32 = 0
 let sizeofFlag: UInt32 = UInt32(MemoryLayout<UInt32>.size)
 
-class Audio {
+class Audio:
+    NSObject,
+    IOProtocol,
+    AVCaptureAudioDataOutputSampleBufferDelegate
+{
 
     static let defaultBufferSize:UInt32 = 128 * 1024
     static let defaultNumberOfBuffers:Int = 128
     static let defaultMaxPacketDescriptions:Int = 1
 
+    var captureSession: AVCaptureSession!
+    
     var await:Bool = false
     var runloop:CFRunLoop? = nil
     var numberOfBuffers:Int = Audio.defaultNumberOfBuffers
@@ -59,6 +65,104 @@ class Audio {
         let playback:Audio = unsafeBitCast(inUserData, to: Audio.self)
         playback.onOutputForQueue(inAQ, inBuffer)
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // IOProtocol
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    func start()
+    {
+        
+    }
+    
+    func stop()
+    {
+        
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Setup
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    func setup(session: AVCaptureSession)
+    {
+        self.captureSession = session
+        
+        let audioCaptureDevice = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeAudio) as AVCaptureDevice
+        
+        do
+        {
+            // inputs
+           
+            let audioDeviceInput = try AVCaptureDeviceInput(device: audioCaptureDevice)
+            
+            if captureSession.canAddInput(audioDeviceInput)
+            {
+                captureSession.addInput(audioDeviceInput)
+            }
+            else
+            {
+                print("Could not add audio device input to the session")
+            }
+            
+            // outputs
+            
+            let audioDataOutput = AVCaptureAudioDataOutput()
+            let audioQueue = DispatchQueue(label: "audioQueue")
+            
+            audioDataOutput.setSampleBufferDelegate(self, queue: audioQueue)
+
+            if (captureSession.canAddOutput(audioDataOutput) == true)
+            {
+                captureSession.addOutput(audioDataOutput)
+            }
+            
+        }
+        catch let error as NSError
+        {
+            NSLog("\(error), \(error.localizedDescription)")
+        }
+    }
+    
+    func captureOutput(_ captureOutput: AVCaptureOutput!,
+                       didOutputSampleBuffer sampleBuffer: CMSampleBuffer!,
+                       from connection: AVCaptureConnection!)
+    {
+        let sampleBufferCopy = sampleBuffer.copy()!
+        let (status, audioBufferList, _) = sampleBufferCopy.getAudioListAndBlockBuffer()
+       
+        if checkError(status) { return }
+        
+        let formatDescription = CMSampleBufferGetFormatDescription(sampleBufferCopy)!
+        let asbd = CMAudioFormatDescriptionGetStreamBasicDescription(formatDescription)
+       
+        self.formatDescription = asbd?.pointee
+        self.initializeForAudioQueue()
+        self.startRunning()
+        
+        print("")
+        
+        for buffer in audioBufferList!
+        {
+            var description = AudioStreamPacketDescription(
+                mStartOffset: 0,
+                mVariableFramesInPacket: 0,
+                mDataByteSize: buffer.mDataByteSize)
+            print("mDataByteSize: \(buffer.mDataByteSize)")
+            appendBuffer(buffer.mData!, inPacketDescription: &description)
+        }
+    }
+    
+    func captureOutput(_ captureOutput: AVCaptureOutput!,
+                       didDrop sampleBuffer: CMSampleBuffer!,
+                       from connection: AVCaptureConnection!)
+    {
+        print("dropped audio frame")
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     func initializeForAudioQueue() {
         guard let _:AudioStreamBasicDescription = formatDescription, self.queue == nil else {
