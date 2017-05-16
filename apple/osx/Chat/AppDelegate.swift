@@ -1,15 +1,45 @@
 import Cocoa
+import AVFoundation
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
+    static var shared: AppDelegate!
     static let usernameKey = "usernamekey"
+
+    let video = Video()
 
     func login(username: String) {
         Backend.shared.connect(withUsername: username)
     }
 
-    func applicationDidFinishLaunching(_ aNotification: Notification) {
+    override init()
+    {
+        super.init()
+        
+        AppDelegate.shared = self
+        
+        // init IO
+        
+        let captureSession = AVCaptureSession()
+        let capture = IOCapture(captureSession)
+//        let audio = Audio()
+        let audio2 = Audio2()
+        
+        captureSession.beginConfiguration()
+        captureSession.sessionPreset = AVCaptureSessionPresetLow
+        video.setup(session: captureSession)
+//        audio.setup(session: captureSession)
+        captureSession.commitConfiguration()
+        
+        IOChain.shared.register(video)
+//        IOChain.shared.register(audio)
+        IOChain.shared.register(capture)
+        IOChain.shared.register(audio2)
+    }
+    
+    func applicationDidFinishLaunching(_ aNotification: Notification)
+    {
         if let username = UserDefaults.standard.string(forKey: AppDelegate.usernameKey) {
             self.login(username: username)
         } else {

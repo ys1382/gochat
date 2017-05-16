@@ -9,8 +9,6 @@ class VideoViewController: NSViewController, AVCaptureVideoDataOutputSampleBuffe
 
     var captureLayer = AVSampleBufferDisplayLayer()
     var previewLayer = AVCaptureVideoPreviewLayer()
-    let audioDelegate = Audio()
-    let videoDelegate = Video()
 
     func handleSample(_ sampleBuffer: CMSampleBuffer) {
         if captureLayer.isReadyForMoreMediaData {
@@ -22,15 +20,16 @@ class VideoViewController: NSViewController, AVCaptureVideoDataOutputSampleBuffe
     override func viewDidAppear() {
         super.viewDidAppear()
 
-        videoDelegate.start(videoCallback: handleSample)
-//        audioDelegate.start()
+        let video = AppDelegate.shared.video
+        
+        video.callback = handleSample
 
         captureLayer.bounds = CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.height)
         captureLayer.position = CGPoint(x: self.view.bounds.midX, y: self.view.bounds.midY)
         captureLayer.videoGravity = AVLayerVideoGravityResize
         captureLayer.flush()
 
-        previewLayer = AVCaptureVideoPreviewLayer(session: videoDelegate.cameraSession)
+        previewLayer = AVCaptureVideoPreviewLayer(session: video.captureSession)
         previewLayer.bounds = CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.height)
         previewLayer.position = CGPoint(x: self.view.bounds.midX, y: self.view.bounds.midY)
         previewLayer.videoGravity = AVLayerVideoGravityResize
@@ -40,6 +39,8 @@ class VideoViewController: NSViewController, AVCaptureVideoDataOutputSampleBuffe
         self.network.layer?.addSublayer(networkLayer)
 //        let h = Haishin()
 //        h.start(view: self.network)
+        
+        IOChain.shared.start()
     }
 
     lazy var networkLayer: AVSampleBufferDisplayLayer = {
