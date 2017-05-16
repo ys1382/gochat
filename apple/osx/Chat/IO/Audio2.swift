@@ -9,33 +9,51 @@
 import Foundation
 import AVFoundation
 
-
 class Audio2 : IOProtocol
 {
-    let engine = AVAudioEngine()
+    let engineI = AVAudioEngine()
+    let engineO = AVAudioEngine()
+    let player = AVAudioPlayerNode()
 
     init()
     {
-        let format = engine.inputNode!.inputFormat(forBus: IOBus.input)
-        let eqlzr = AVAudioUnitEQ()
+        let format = engineI.inputNode!.inputFormat(forBus: IOBus.input)
+        let node = AVAudioMixerNode()
         
-        eqlzr.globalGain = 24 // increase volume
-        engine.attach(eqlzr)
+        engineI.attach(node)
+        engineO.attach(player)
         
-        engine.connect(engine.inputNode!, to: engine.mainMixerNode, format: format)
-        engine.connect(engine.mainMixerNode, to: eqlzr, format: format)
-        engine.connect(eqlzr, to: engine.outputNode, format: format)
-        engine.prepare()
+        node.installTap(onBus: IOBus.input,
+                        bufferSize: 4096,
+                        format: format,
+                        block:
+        { (buffer: AVAudioPCMBuffer, time: AVAudioTime) in
+            
+            let buffer_serialized = buffer.serialize()
+            let buffer_deserialized = AVAudioPCMBuffer.deserialize(buffer_serialized, format)
+
+            self.player.scheduleBuffer(buffer_deserialized, completionHandler: nil)
+        })
+        
+        engineI.connect(engineI.inputNode!, to: node, format: format)
+        engineI.prepare()
+        
+        engineO.connect(player, to: engineO.outputNode, format: format)
+        engineO.prepare()
     }
     
     func start()
     {
-        try! engine.start()
+        try! engineI.start()
+        try! engineO.start()
+
+        player.play()
     }
     
     func stop()
     {
-        engine.stop()
+        engineI.stop()
+        engineO.stop()
     }
     
 }

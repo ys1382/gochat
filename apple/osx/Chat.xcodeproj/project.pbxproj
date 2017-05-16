@@ -26,6 +26,7 @@
 		821DC29A1ECB21EE00DCF907 /* IOChain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821DC2951ECB21EE00DCF907 /* IOChain.swift */; };
 		821DC29B1ECB21EE00DCF907 /* Video.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821DC2961ECB21EE00DCF907 /* Video.swift */; };
 		821DC29D1ECB274200DCF907 /* IOCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821DC29C1ECB274200DCF907 /* IOCapture.swift */; };
+		821DC29F1ECB795900DCF907 /* AVAudioPCMBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821DC29E1ECB795900DCF907 /* AVAudioPCMBuffer.swift */; };
 		D4C11B8E12CA4AE1016CA052 /* Pods_Chat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F3DC7F985F75CB41DAED56C7 /* Pods_Chat.framework */; };
 /* End PBXBuildFile section */
 
@@ -52,6 +53,7 @@
 		821DC2951ECB21EE00DCF907 /* IOChain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IOChain.swift; sourceTree = "<group>"; };
 		821DC2961ECB21EE00DCF907 /* Video.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Video.swift; sourceTree = "<group>"; };
 		821DC29C1ECB274200DCF907 /* IOCapture.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IOCapture.swift; sourceTree = "<group>"; };
+		821DC29E1ECB795900DCF907 /* AVAudioPCMBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVAudioPCMBuffer.swift; sourceTree = "<group>"; };
 		931CB699F7145BBD7B223700 /* Pods-Chat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chat.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Chat/Pods-Chat.debug.xcconfig"; sourceTree = "<group>"; };
 		F3DC7F985F75CB41DAED56C7 /* Pods_Chat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Chat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -129,6 +131,7 @@
 				821DC2891ECB1C7800DCF907 /* CMFormatDescription.swift */,
 				821DC28B1ECB1C9A00DCF907 /* CMSampleTimingInfo.swift */,
 				821DC28D1ECB1CB500DCF907 /* CVPixelBuffer.swift */,
+				821DC29E1ECB795900DCF907 /* AVAudioPCMBuffer.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -280,6 +283,7 @@
 				821DC2881ECB1C5500DCF907 /* CMSampleBuffer.swift in Sources */,
 				1A60E0001EA4039400BECD73 /* Model.swift in Sources */,
 				821DC28E1ECB1CB500DCF907 /* CVPixelBuffer.swift in Sources */,
+				821DC29F1ECB795900DCF907 /* AVAudioPCMBuffer.swift in Sources */,
 				1A60DFF51EA30FC900BECD73 /* Wire.proto.swift in Sources */,
 				821DC2981ECB21EE00DCF907 /* Audio2.swift in Sources */,
 				821DC29B1ECB21EE00DCF907 /* Video.swift in Sources */,
