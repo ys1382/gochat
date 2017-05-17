@@ -128,6 +128,9 @@ class Audio:
                        didOutputSampleBuffer sampleBuffer: CMSampleBuffer!,
                        from connection: AVCaptureConnection!)
     {
+        print("audio1 \(CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer)))")
+        
+/*
         let sampleBufferCopy = sampleBuffer.copy()!
         let (status, audioBufferList, _) = sampleBufferCopy.getAudioListAndBlockBuffer()
        
@@ -151,6 +154,7 @@ class Audio:
             print("mDataByteSize: \(buffer.mDataByteSize)")
             appendBuffer(buffer.mData!, inPacketDescription: &description)
         }
+ */
     }
     
     func captureOutput(_ captureOutput: AVCaptureOutput!,

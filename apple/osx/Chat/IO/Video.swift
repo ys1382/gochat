@@ -99,6 +99,7 @@ class Video:
                        didOutputSampleBuffer sampleBuffer: CMSampleBuffer!,
                        from connection: AVCaptureConnection!)
     {
+        print("video \(CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer)))")
         callback?(sampleBuffer.copy()!)
     }
 
