@@ -8,11 +8,9 @@
 
 import AVFoundation
 
-extension AVAudioPCMBuffer
-{
+extension AVAudioPCMBuffer {
     
-    func serialize() -> NSData
-    {
+    func serialize() -> NSData {
         let channelCount = 1  // given PCMBuffer channel count is 1
         let channels = UnsafeBufferPointer(start: self.floatChannelData, count: channelCount)
         let length = Int(self.frameCapacity * self.format.streamDescription.pointee.mBytesPerFrame)
@@ -20,8 +18,7 @@ extension AVAudioPCMBuffer
         return NSData(bytes: channels[0], length:length)
     }
     
-    static func deserialize(_ data: NSData, _ format: AVAudioFormat) -> AVAudioPCMBuffer
-    {
+    static func deserialize(_ data: NSData, _ format: AVAudioFormat) -> AVAudioPCMBuffer {
         assert(UInt32(data.length) % format.streamDescription.pointee.mBytesPerFrame == 0)
         
         let frameCapacity = AVAudioFrameCount(UInt32(data.length) / format.streamDescription.pointee.mBytesPerFrame)
@@ -33,5 +30,4 @@ extension AVAudioPCMBuffer
         
         return result
     }
-    
 }

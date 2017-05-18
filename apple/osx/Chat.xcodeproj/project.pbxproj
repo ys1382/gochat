@@ -20,8 +20,7 @@
 		821DC28A1ECB1C7800DCF907 /* CMFormatDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821DC2891ECB1C7800DCF907 /* CMFormatDescription.swift */; };
 		821DC28C1ECB1C9A00DCF907 /* CMSampleTimingInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821DC28B1ECB1C9A00DCF907 /* CMSampleTimingInfo.swift */; };
 		821DC28E1ECB1CB500DCF907 /* CVPixelBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821DC28D1ECB1CB500DCF907 /* CVPixelBuffer.swift */; };
-		821DC2971ECB21EE00DCF907 /* Audio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821DC2921ECB21EE00DCF907 /* Audio.swift */; };
-		821DC2981ECB21EE00DCF907 /* Audio2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821DC2931ECB21EE00DCF907 /* Audio2.swift */; };
+		821DC2981ECB21EE00DCF907 /* Audio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821DC2931ECB21EE00DCF907 /* Audio.swift */; };
 		821DC2991ECB21EE00DCF907 /* IO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821DC2941ECB21EE00DCF907 /* IO.swift */; };
 		821DC29A1ECB21EE00DCF907 /* IOChain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821DC2951ECB21EE00DCF907 /* IOChain.swift */; };
 		821DC29B1ECB21EE00DCF907 /* Video.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821DC2961ECB21EE00DCF907 /* Video.swift */; };
@@ -47,8 +46,7 @@
 		821DC2891ECB1C7800DCF907 /* CMFormatDescription.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CMFormatDescription.swift; sourceTree = "<group>"; };
 		821DC28B1ECB1C9A00DCF907 /* CMSampleTimingInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CMSampleTimingInfo.swift; sourceTree = "<group>"; };
 		821DC28D1ECB1CB500DCF907 /* CVPixelBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CVPixelBuffer.swift; sourceTree = "<group>"; };
-		821DC2921ECB21EE00DCF907 /* Audio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Audio.swift; sourceTree = "<group>"; };
-		821DC2931ECB21EE00DCF907 /* Audio2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Audio2.swift; sourceTree = "<group>"; };
+		821DC2931ECB21EE00DCF907 /* Audio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Audio.swift; sourceTree = "<group>"; };
 		821DC2941ECB21EE00DCF907 /* IO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IO.swift; sourceTree = "<group>"; };
 		821DC2951ECB21EE00DCF907 /* IOChain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IOChain.swift; sourceTree = "<group>"; };
 		821DC2961ECB21EE00DCF907 /* Video.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Video.swift; sourceTree = "<group>"; };
@@ -142,8 +140,7 @@
 				821DC2941ECB21EE00DCF907 /* IO.swift */,
 				821DC2951ECB21EE00DCF907 /* IOChain.swift */,
 				821DC29C1ECB274200DCF907 /* IOCapture.swift */,
-				821DC2921ECB21EE00DCF907 /* Audio.swift */,
-				821DC2931ECB21EE00DCF907 /* Audio2.swift */,
+				821DC2931ECB21EE00DCF907 /* Audio.swift */,
 				821DC2961ECB21EE00DCF907 /* Video.swift */,
 			);
 			path = IO;
@@ -231,7 +228,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		7249A186023EE5BC9CB6E59F /* [CP] Copy Pods Resources */ = {
@@ -271,7 +268,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				821DC2971ECB21EE00DCF907 /* Audio.swift in Sources */,
 				821DC29A1ECB21EE00DCF907 /* IOChain.swift in Sources */,
 				821DC29D1ECB274200DCF907 /* IOCapture.swift in Sources */,
 				821DC28A1ECB1C7800DCF907 /* CMFormatDescription.swift in Sources */,
@@ -285,7 +281,7 @@
 				821DC28E1ECB1CB500DCF907 /* CVPixelBuffer.swift in Sources */,
 				821DC29F1ECB795900DCF907 /* AVAudioPCMBuffer.swift in Sources */,
 				1A60DFF51EA30FC900BECD73 /* Wire.proto.swift in Sources */,
-				821DC2981ECB21EE00DCF907 /* Audio2.swift in Sources */,
+				821DC2981ECB21EE00DCF907 /* Audio.swift in Sources */,
 				821DC29B1ECB21EE00DCF907 /* Video.swift in Sources */,
 				821DC28C1ECB1C9A00DCF907 /* CMSampleTimingInfo.swift in Sources */,
 				1AF35A931EA30BFE002AFC3F /* TextViewController.swift in Sources */,

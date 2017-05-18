@@ -37,8 +37,6 @@ class VideoViewController: NSViewController, AVCaptureVideoDataOutputSampleBuffe
         self.preview.layer?.addSublayer(previewLayer)
         self.capture.layer?.addSublayer(captureLayer)
         self.network.layer?.addSublayer(networkLayer)
-//        let h = Haishin()
-//        h.start(view: self.network)
         
         IOChain.shared.start()
     }

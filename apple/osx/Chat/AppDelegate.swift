@@ -13,33 +13,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         Backend.shared.connect(withUsername: username)
     }
 
-    override init()
-    {
+    override init() {
         super.init()
         
         AppDelegate.shared = self
-        
-        // init IO
-        
+        initIo()
+    }
+
+    func initIo() {
         let captureSession = AVCaptureSession()
         let capture = IOCapture(captureSession)
         let audio = Audio()
-        let audio2 = Audio2()
-        
+
         captureSession.beginConfiguration()
         captureSession.sessionPreset = AVCaptureSessionPresetLow
         video.setup(session: captureSession)
-        audio.setup(session: captureSession)
         captureSession.commitConfiguration()
-        
+
         IOChain.shared.register(video)
-        IOChain.shared.register(audio)
         IOChain.shared.register(capture)
-        IOChain.shared.register(audio2)
+        IOChain.shared.register(audio)
     }
-    
-    func applicationDidFinishLaunching(_ aNotification: Notification)
-    {
+
+    func applicationDidFinishLaunching(_ aNotification: Notification) {
         if let username = UserDefaults.standard.string(forKey: AppDelegate.usernameKey) {
             self.login(username: username)
         } else {
