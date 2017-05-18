@@ -32,6 +32,8 @@ class Audio2 : IOProtocol
             let buffer_serialized = buffer.serialize()
             let buffer_deserialized = AVAudioPCMBuffer.deserialize(buffer_serialized, format)
 
+            print("audio2 \(AVAudioTime.seconds(forHostTime: time.hostTime))")
+            
             self.player.scheduleBuffer(buffer_deserialized, completionHandler: nil)
         })
         

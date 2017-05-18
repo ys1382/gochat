@@ -23,17 +23,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let captureSession = AVCaptureSession()
         let capture = IOCapture(captureSession)
-//        let audio = Audio()
+        let audio = Audio()
         let audio2 = Audio2()
         
         captureSession.beginConfiguration()
         captureSession.sessionPreset = AVCaptureSessionPresetLow
         video.setup(session: captureSession)
-//        audio.setup(session: captureSession)
+        audio.setup(session: captureSession)
         captureSession.commitConfiguration()
         
         IOChain.shared.register(video)
-//        IOChain.shared.register(audio)
+        IOChain.shared.register(audio)
         IOChain.shared.register(capture)
         IOChain.shared.register(audio2)
     }
