@@ -7,7 +7,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     static var shared: AppDelegate!
     static let usernameKey = "usernamekey"
 
-    let video = Video()
+//    let video = Video()
+//    let audio = Audio()
 
     func login(username: String) {
         Backend.shared.connect(withUsername: username)
@@ -17,23 +18,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         super.init()
         
         AppDelegate.shared = self
-        initIo()
+//        initIo()
     }
 
-    func initIo() {
-        let captureSession = AVCaptureSession()
-        let capture = IOCapture(captureSession)
-        let audio = Audio()
+//    func initIo() {
+//        let captureSession = AVCaptureSession()
+//        let capture = IOCapture(captureSession)
 
-        captureSession.beginConfiguration()
-        captureSession.sessionPreset = AVCaptureSessionPresetLow
-        video.setup(session: captureSession)
-        captureSession.commitConfiguration()
+//        captureSession.beginConfiguration()
+//        captureSession.sessionPreset = AVCaptureSessionPresetLow
+//        video.setup()//session: captureSession)
+//        captureSession.commitConfiguration()
 
-        IOChain.shared.register(video)
-        IOChain.shared.register(capture)
-        IOChain.shared.register(audio)
-    }
+//        IOChain.shared.register(video)
+//        IOChain.shared.register(capture)
+//        IOChain.shared.register(audio)
+//    }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         if let username = UserDefaults.standard.string(forKey: AppDelegate.usernameKey) {

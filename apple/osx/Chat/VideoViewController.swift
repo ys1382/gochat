@@ -17,11 +17,12 @@ class VideoViewController: NSViewController, AVCaptureVideoDataOutputSampleBuffe
         }
     }
 
+    let video = Video()
+    let audio = Audio()
+
     override func viewDidAppear() {
         super.viewDidAppear()
 
-        let video = AppDelegate.shared.video
-        
         video.callback = handleSample
 
         captureLayer.bounds = CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.height)
@@ -38,7 +39,8 @@ class VideoViewController: NSViewController, AVCaptureVideoDataOutputSampleBuffe
         self.capture.layer?.addSublayer(captureLayer)
         self.network.layer?.addSublayer(networkLayer)
         
-        IOChain.shared.start()
+        video.start()
+        audio.start()
     }
 
     lazy var networkLayer: AVSampleBufferDisplayLayer = {
