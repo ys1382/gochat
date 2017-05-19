@@ -4,7 +4,6 @@ func checkError(_ status: OSStatus) -> Bool {
     if status != noErr {
         print("Error " + status.description)
         return true
-    } else {
-        return false
     }
+    return false
 }

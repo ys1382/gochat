@@ -20,9 +20,16 @@ message File {
     bytes data = 2;
 }
 
+message Time {
+    int64 value = 1;
+    int32 scale = 2;
+    uint32 flags = 3;
+    int64 epoch = 4;
+}
+
 message Timestamp {
-    int64 duration = 1;
-    int64 presentation = 2;
+    Time duration = 1;
+    Time presentation = 2;
 }
 
 message Image {

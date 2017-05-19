@@ -985,6 +985,388 @@ final public class File : GeneratedMessage {
 
 }
 
+final public class Time : GeneratedMessage {
+
+    public static func == (lhs: Time, rhs: Time) -> Bool {
+        if lhs === rhs {
+            return true
+        }
+        var fieldCheck:Bool = (lhs.hashValue == rhs.hashValue)
+        fieldCheck = fieldCheck && (lhs.hasValue == rhs.hasValue) && (!lhs.hasValue || lhs.value == rhs.value)
+        fieldCheck = fieldCheck && (lhs.hasScale == rhs.hasScale) && (!lhs.hasScale || lhs.scale == rhs.scale)
+        fieldCheck = fieldCheck && (lhs.hasFlags == rhs.hasFlags) && (!lhs.hasFlags || lhs.flags == rhs.flags)
+        fieldCheck = fieldCheck && (lhs.hasEpoch == rhs.hasEpoch) && (!lhs.hasEpoch || lhs.epoch == rhs.epoch)
+        fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
+        return fieldCheck
+    }
+
+    public fileprivate(set) var value:Int64 = Int64(0)
+    public fileprivate(set) var hasValue:Bool = false
+
+    public fileprivate(set) var scale:Int32 = Int32(0)
+    public fileprivate(set) var hasScale:Bool = false
+
+    public fileprivate(set) var flags:UInt32 = UInt32(0)
+    public fileprivate(set) var hasFlags:Bool = false
+
+    public fileprivate(set) var epoch:Int64 = Int64(0)
+    public fileprivate(set) var hasEpoch:Bool = false
+
+    required public init() {
+        super.init()
+    }
+    override public func isInitialized() -> Bool {
+        return true
+    }
+    override public func writeTo(codedOutputStream: CodedOutputStream) throws {
+        if hasValue {
+            try codedOutputStream.writeInt64(fieldNumber: 1, value:value)
+        }
+        if hasScale {
+            try codedOutputStream.writeInt32(fieldNumber: 2, value:scale)
+        }
+        if hasFlags {
+            try codedOutputStream.writeUInt32(fieldNumber: 3, value:flags)
+        }
+        if hasEpoch {
+            try codedOutputStream.writeInt64(fieldNumber: 4, value:epoch)
+        }
+        try unknownFields.writeTo(codedOutputStream: codedOutputStream)
+    }
+    override public func serializedSize() -> Int32 {
+        var serialize_size:Int32 = memoizedSerializedSize
+        if serialize_size != -1 {
+         return serialize_size
+        }
+
+        serialize_size = 0
+        if hasValue {
+            serialize_size += value.computeInt64Size(fieldNumber: 1)
+        }
+        if hasScale {
+            serialize_size += scale.computeInt32Size(fieldNumber: 2)
+        }
+        if hasFlags {
+            serialize_size += flags.computeUInt32Size(fieldNumber: 3)
+        }
+        if hasEpoch {
+            serialize_size += epoch.computeInt64Size(fieldNumber: 4)
+        }
+        serialize_size += unknownFields.serializedSize()
+        memoizedSerializedSize = serialize_size
+        return serialize_size
+    }
+    public class func getBuilder() -> Time.Builder {
+        return Time.classBuilder() as! Time.Builder
+    }
+    public func getBuilder() -> Time.Builder {
+        return classBuilder() as! Time.Builder
+    }
+    override public class func classBuilder() -> ProtocolBuffersMessageBuilder {
+        return Time.Builder()
+    }
+    override public func classBuilder() -> ProtocolBuffersMessageBuilder {
+        return Time.Builder()
+    }
+    public func toBuilder() throws -> Time.Builder {
+        return try Time.builderWithPrototype(prototype:self)
+    }
+    public class func builderWithPrototype(prototype:Time) throws -> Time.Builder {
+        return try Time.Builder().mergeFrom(other:prototype)
+    }
+    override public func encode() throws -> Dictionary<String,Any> {
+        guard isInitialized() else {
+            throw ProtocolBuffersError.invalidProtocolBuffer("Uninitialized Message")
+        }
+
+        var jsonMap:Dictionary<String,Any> = Dictionary<String,Any>()
+        if hasValue {
+            jsonMap["value"] = "\(value)"
+        }
+        if hasScale {
+            jsonMap["scale"] = Int(scale)
+        }
+        if hasFlags {
+            jsonMap["flags"] = UInt(flags)
+        }
+        if hasEpoch {
+            jsonMap["epoch"] = "\(epoch)"
+        }
+        return jsonMap
+    }
+    override class public func decode(jsonMap:Dictionary<String,Any>) throws -> Time {
+        return try Time.Builder.decodeToBuilder(jsonMap:jsonMap).build()
+    }
+    override class public func fromJSON(data:Data) throws -> Time {
+        return try Time.Builder.fromJSONToBuilder(data:data).build()
+    }
+    override public func getDescription(indent:String) throws -> String {
+        var output = ""
+        if hasValue {
+            output += "\(indent) value: \(value) \n"
+        }
+        if hasScale {
+            output += "\(indent) scale: \(scale) \n"
+        }
+        if hasFlags {
+            output += "\(indent) flags: \(flags) \n"
+        }
+        if hasEpoch {
+            output += "\(indent) epoch: \(epoch) \n"
+        }
+        output += unknownFields.getDescription(indent: indent)
+        return output
+    }
+    override public var hashValue:Int {
+        get {
+            var hashCode:Int = 7
+            if hasValue {
+                hashCode = (hashCode &* 31) &+ value.hashValue
+            }
+            if hasScale {
+                hashCode = (hashCode &* 31) &+ scale.hashValue
+            }
+            if hasFlags {
+                hashCode = (hashCode &* 31) &+ flags.hashValue
+            }
+            if hasEpoch {
+                hashCode = (hashCode &* 31) &+ epoch.hashValue
+            }
+            hashCode = (hashCode &* 31) &+  unknownFields.hashValue
+            return hashCode
+        }
+    }
+
+
+    //Meta information declaration start
+
+    override public class func className() -> String {
+        return "Time"
+    }
+    override public func className() -> String {
+        return "Time"
+    }
+    //Meta information declaration end
+
+    final public class Builder : GeneratedMessageBuilder {
+        fileprivate var builderResult:Time = Time()
+        public func getMessage() -> Time {
+            return builderResult
+        }
+
+        required override public init () {
+            super.init()
+        }
+        public var value:Int64 {
+            get {
+                return builderResult.value
+            }
+            set (value) {
+                builderResult.hasValue = true
+                builderResult.value = value
+            }
+        }
+        public var hasValue:Bool {
+            get {
+                return builderResult.hasValue
+            }
+        }
+        @discardableResult
+        public func setValue(_ value:Int64) -> Time.Builder {
+            self.value = value
+            return self
+        }
+        @discardableResult
+        public func clearValue() -> Time.Builder{
+            builderResult.hasValue = false
+            builderResult.value = Int64(0)
+            return self
+        }
+        public var scale:Int32 {
+            get {
+                return builderResult.scale
+            }
+            set (value) {
+                builderResult.hasScale = true
+                builderResult.scale = value
+            }
+        }
+        public var hasScale:Bool {
+            get {
+                return builderResult.hasScale
+            }
+        }
+        @discardableResult
+        public func setScale(_ value:Int32) -> Time.Builder {
+            self.scale = value
+            return self
+        }
+        @discardableResult
+        public func clearScale() -> Time.Builder{
+            builderResult.hasScale = false
+            builderResult.scale = Int32(0)
+            return self
+        }
+        public var flags:UInt32 {
+            get {
+                return builderResult.flags
+            }
+            set (value) {
+                builderResult.hasFlags = true
+                builderResult.flags = value
+            }
+        }
+        public var hasFlags:Bool {
+            get {
+                return builderResult.hasFlags
+            }
+        }
+        @discardableResult
+        public func setFlags(_ value:UInt32) -> Time.Builder {
+            self.flags = value
+            return self
+        }
+        @discardableResult
+        public func clearFlags() -> Time.Builder{
+            builderResult.hasFlags = false
+            builderResult.flags = UInt32(0)
+            return self
+        }
+        public var epoch:Int64 {
+            get {
+                return builderResult.epoch
+            }
+            set (value) {
+                builderResult.hasEpoch = true
+                builderResult.epoch = value
+            }
+        }
+        public var hasEpoch:Bool {
+            get {
+                return builderResult.hasEpoch
+            }
+        }
+        @discardableResult
+        public func setEpoch(_ value:Int64) -> Time.Builder {
+            self.epoch = value
+            return self
+        }
+        @discardableResult
+        public func clearEpoch() -> Time.Builder{
+            builderResult.hasEpoch = false
+            builderResult.epoch = Int64(0)
+            return self
+        }
+        override public var internalGetResult:GeneratedMessage {
+            get {
+                return builderResult
+            }
+        }
+        @discardableResult
+        override public func clear() -> Time.Builder {
+            builderResult = Time()
+            return self
+        }
+        override public func clone() throws -> Time.Builder {
+            return try Time.builderWithPrototype(prototype:builderResult)
+        }
+        override public func build() throws -> Time {
+            try checkInitialized()
+            return buildPartial()
+        }
+        public func buildPartial() -> Time {
+            let returnMe:Time = builderResult
+            return returnMe
+        }
+        @discardableResult
+        public func mergeFrom(other:Time) throws -> Time.Builder {
+            if other == Time() {
+                return self
+            }
+            if other.hasValue {
+                value = other.value
+            }
+            if other.hasScale {
+                scale = other.scale
+            }
+            if other.hasFlags {
+                flags = other.flags
+            }
+            if other.hasEpoch {
+                epoch = other.epoch
+            }
+            try merge(unknownField: other.unknownFields)
+            return self
+        }
+        @discardableResult
+        override public func mergeFrom(codedInputStream: CodedInputStream) throws -> Time.Builder {
+            return try mergeFrom(codedInputStream: codedInputStream, extensionRegistry:ExtensionRegistry())
+        }
+        @discardableResult
+        override public func mergeFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> Time.Builder {
+            let unknownFieldsBuilder:UnknownFieldSet.Builder = try UnknownFieldSet.builderWithUnknownFields(copyFrom:self.unknownFields)
+            while (true) {
+                let protobufTag = try codedInputStream.readTag()
+                switch protobufTag {
+                case 0: 
+                    self.unknownFields = try unknownFieldsBuilder.build()
+                    return self
+
+                case 8:
+                    value = try codedInputStream.readInt64()
+
+                case 16:
+                    scale = try codedInputStream.readInt32()
+
+                case 24:
+                    flags = try codedInputStream.readUInt32()
+
+                case 32:
+                    epoch = try codedInputStream.readInt64()
+
+                default:
+                    if (!(try parse(codedInputStream:codedInputStream, unknownFields:unknownFieldsBuilder, extensionRegistry:extensionRegistry, tag:protobufTag))) {
+                        unknownFields = try unknownFieldsBuilder.build()
+                        return self
+                    }
+                }
+            }
+        }
+        class override public func decodeToBuilder(jsonMap:Dictionary<String,Any>) throws -> Time.Builder {
+            let resultDecodedBuilder = Time.Builder()
+            if let jsonValueValue = jsonMap["value"] as? String {
+                resultDecodedBuilder.value = Int64(jsonValueValue)!
+            } else if let jsonValueValue = jsonMap["value"] as? Int {
+                resultDecodedBuilder.value = Int64(jsonValueValue)
+            }
+            if let jsonValueScale = jsonMap["scale"] as? Int {
+                resultDecodedBuilder.scale = Int32(jsonValueScale)
+            } else if let jsonValueScale = jsonMap["scale"] as? String {
+                resultDecodedBuilder.scale = Int32(jsonValueScale)!
+            }
+            if let jsonValueFlags = jsonMap["flags"] as? UInt {
+                resultDecodedBuilder.flags = UInt32(jsonValueFlags)
+            } else if let jsonValueFlags = jsonMap["flags"] as? String {
+                resultDecodedBuilder.flags = UInt32(jsonValueFlags)!
+            }
+            if let jsonValueEpoch = jsonMap["epoch"] as? String {
+                resultDecodedBuilder.epoch = Int64(jsonValueEpoch)!
+            } else if let jsonValueEpoch = jsonMap["epoch"] as? Int {
+                resultDecodedBuilder.epoch = Int64(jsonValueEpoch)
+            }
+            return resultDecodedBuilder
+        }
+        override class public func fromJSONToBuilder(data:Data) throws -> Time.Builder {
+            let jsonData = try JSONSerialization.jsonObject(with:data, options: JSONSerialization.ReadingOptions(rawValue: 0))
+            guard let jsDataCast = jsonData as? Dictionary<String,Any> else {
+              throw ProtocolBuffersError.invalidProtocolBuffer("Invalid JSON data")
+            }
+            return try Time.Builder.decodeToBuilder(jsonMap:jsDataCast)
+        }
+    }
+
+}
+
 final public class Timestamp : GeneratedMessage {
 
     public static func == (lhs: Timestamp, rhs: Timestamp) -> Bool {
@@ -998,12 +1380,10 @@ final public class Timestamp : GeneratedMessage {
         return fieldCheck
     }
 
-    public fileprivate(set) var duration:Int64 = Int64(0)
+    public fileprivate(set) var duration:Time!
     public fileprivate(set) var hasDuration:Bool = false
-
-    public fileprivate(set) var presentation:Int64 = Int64(0)
+    public fileprivate(set) var presentation:Time!
     public fileprivate(set) var hasPresentation:Bool = false
-
     required public init() {
         super.init()
     }
@@ -1012,10 +1392,10 @@ final public class Timestamp : GeneratedMessage {
     }
     override public func writeTo(codedOutputStream: CodedOutputStream) throws {
         if hasDuration {
-            try codedOutputStream.writeInt64(fieldNumber: 1, value:duration)
+            try codedOutputStream.writeMessage(fieldNumber: 1, value:duration)
         }
         if hasPresentation {
-            try codedOutputStream.writeInt64(fieldNumber: 2, value:presentation)
+            try codedOutputStream.writeMessage(fieldNumber: 2, value:presentation)
         }
         try unknownFields.writeTo(codedOutputStream: codedOutputStream)
     }
@@ -1027,10 +1407,14 @@ final public class Timestamp : GeneratedMessage {
 
         serialize_size = 0
         if hasDuration {
-            serialize_size += duration.computeInt64Size(fieldNumber: 1)
+            if let varSizeduration = duration?.computeMessageSize(fieldNumber: 1) {
+                serialize_size += varSizeduration
+            }
         }
         if hasPresentation {
-            serialize_size += presentation.computeInt64Size(fieldNumber: 2)
+            if let varSizepresentation = presentation?.computeMessageSize(fieldNumber: 2) {
+                serialize_size += varSizepresentation
+            }
         }
         serialize_size += unknownFields.serializedSize()
         memoizedSerializedSize = serialize_size
@@ -1061,10 +1445,10 @@ final public class Timestamp : GeneratedMessage {
 
         var jsonMap:Dictionary<String,Any> = Dictionary<String,Any>()
         if hasDuration {
-            jsonMap["duration"] = "\(duration)"
+            jsonMap["duration"] = try duration.encode()
         }
         if hasPresentation {
-            jsonMap["presentation"] = "\(presentation)"
+            jsonMap["presentation"] = try presentation.encode()
         }
         return jsonMap
     }
@@ -1077,10 +1461,18 @@ final public class Timestamp : GeneratedMessage {
     override public func getDescription(indent:String) throws -> String {
         var output = ""
         if hasDuration {
-            output += "\(indent) duration: \(duration) \n"
+            output += "\(indent) duration {\n"
+            if let outDescDuration = duration {
+                output += try outDescDuration.getDescription(indent: "\(indent)  ")
+            }
+            output += "\(indent) }\n"
         }
         if hasPresentation {
-            output += "\(indent) presentation: \(presentation) \n"
+            output += "\(indent) presentation {\n"
+            if let outDescPresentation = presentation {
+                output += try outDescPresentation.getDescription(indent: "\(indent)  ")
+            }
+            output += "\(indent) }\n"
         }
         output += unknownFields.getDescription(indent: indent)
         return output
@@ -1089,10 +1481,14 @@ final public class Timestamp : GeneratedMessage {
         get {
             var hashCode:Int = 7
             if hasDuration {
-                hashCode = (hashCode &* 31) &+ duration.hashValue
+                if let hashValueduration = duration?.hashValue {
+                    hashCode = (hashCode &* 31) &+ hashValueduration
+                }
             }
             if hasPresentation {
-                hashCode = (hashCode &* 31) &+ presentation.hashValue
+                if let hashValuepresentation = presentation?.hashValue {
+                    hashCode = (hashCode &* 31) &+ hashValuepresentation
+                }
             }
             hashCode = (hashCode &* 31) &+  unknownFields.hashValue
             return hashCode
@@ -1119,8 +1515,11 @@ final public class Timestamp : GeneratedMessage {
         required override public init () {
             super.init()
         }
-        public var duration:Int64 {
+        public var duration:Time! {
             get {
+                if durationBuilder_ != nil {
+                    builderResult.duration = durationBuilder_.getMessage()
+                }
                 return builderResult.duration
             }
             set (value) {
@@ -1133,19 +1532,48 @@ final public class Timestamp : GeneratedMessage {
                 return builderResult.hasDuration
             }
         }
+        fileprivate var durationBuilder_:Time.Builder! {
+            didSet {
+                builderResult.hasDuration = true
+            }
+        }
+        public func getDurationBuilder() -> Time.Builder {
+            if durationBuilder_ == nil {
+                durationBuilder_ = Time.Builder()
+                builderResult.duration = durationBuilder_.getMessage()
+                if duration != nil {
+                    try! durationBuilder_.mergeFrom(other: duration)
+                }
+            }
+            return durationBuilder_
+        }
         @discardableResult
-        public func setDuration(_ value:Int64) -> Timestamp.Builder {
+        public func setDuration(_ value:Time!) -> Timestamp.Builder {
             self.duration = value
             return self
         }
         @discardableResult
-        public func clearDuration() -> Timestamp.Builder{
-            builderResult.hasDuration = false
-            builderResult.duration = Int64(0)
+        public func mergeDuration(value:Time) throws -> Timestamp.Builder {
+            if builderResult.hasDuration {
+                builderResult.duration = try Time.builderWithPrototype(prototype:builderResult.duration).mergeFrom(other: value).buildPartial()
+            } else {
+                builderResult.duration = value
+            }
+            builderResult.hasDuration = true
             return self
         }
-        public var presentation:Int64 {
+        @discardableResult
+        public func clearDuration() -> Timestamp.Builder {
+            durationBuilder_ = nil
+            builderResult.hasDuration = false
+            builderResult.duration = nil
+            return self
+        }
+        public var presentation:Time! {
             get {
+                if presentationBuilder_ != nil {
+                    builderResult.presentation = presentationBuilder_.getMessage()
+                }
                 return builderResult.presentation
             }
             set (value) {
@@ -1158,15 +1586,41 @@ final public class Timestamp : GeneratedMessage {
                 return builderResult.hasPresentation
             }
         }
+        fileprivate var presentationBuilder_:Time.Builder! {
+            didSet {
+                builderResult.hasPresentation = true
+            }
+        }
+        public func getPresentationBuilder() -> Time.Builder {
+            if presentationBuilder_ == nil {
+                presentationBuilder_ = Time.Builder()
+                builderResult.presentation = presentationBuilder_.getMessage()
+                if presentation != nil {
+                    try! presentationBuilder_.mergeFrom(other: presentation)
+                }
+            }
+            return presentationBuilder_
+        }
         @discardableResult
-        public func setPresentation(_ value:Int64) -> Timestamp.Builder {
+        public func setPresentation(_ value:Time!) -> Timestamp.Builder {
             self.presentation = value
             return self
         }
         @discardableResult
-        public func clearPresentation() -> Timestamp.Builder{
+        public func mergePresentation(value:Time) throws -> Timestamp.Builder {
+            if builderResult.hasPresentation {
+                builderResult.presentation = try Time.builderWithPrototype(prototype:builderResult.presentation).mergeFrom(other: value).buildPartial()
+            } else {
+                builderResult.presentation = value
+            }
+            builderResult.hasPresentation = true
+            return self
+        }
+        @discardableResult
+        public func clearPresentation() -> Timestamp.Builder {
+            presentationBuilder_ = nil
             builderResult.hasPresentation = false
-            builderResult.presentation = Int64(0)
+            builderResult.presentation = nil
             return self
         }
         override public var internalGetResult:GeneratedMessage {
@@ -1195,11 +1649,11 @@ final public class Timestamp : GeneratedMessage {
             if other == Timestamp() {
                 return self
             }
-            if other.hasDuration {
-                duration = other.duration
+            if (other.hasDuration) {
+                try mergeDuration(value: other.duration)
             }
-            if other.hasPresentation {
-                presentation = other.presentation
+            if (other.hasPresentation) {
+                try mergePresentation(value: other.presentation)
             }
             try merge(unknownField: other.unknownFields)
             return self
@@ -1218,11 +1672,21 @@ final public class Timestamp : GeneratedMessage {
                     self.unknownFields = try unknownFieldsBuilder.build()
                     return self
 
-                case 8:
-                    duration = try codedInputStream.readInt64()
+                case 10:
+                    let subBuilder:Time.Builder = Time.Builder()
+                    if hasDuration {
+                        try subBuilder.mergeFrom(other: duration)
+                    }
+                    try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
+                    duration = subBuilder.buildPartial()
 
-                case 16:
-                    presentation = try codedInputStream.readInt64()
+                case 18:
+                    let subBuilder:Time.Builder = Time.Builder()
+                    if hasPresentation {
+                        try subBuilder.mergeFrom(other: presentation)
+                    }
+                    try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
+                    presentation = subBuilder.buildPartial()
 
                 default:
                     if (!(try parse(codedInputStream:codedInputStream, unknownFields:unknownFieldsBuilder, extensionRegistry:extensionRegistry, tag:protobufTag))) {
@@ -1234,15 +1698,13 @@ final public class Timestamp : GeneratedMessage {
         }
         class override public func decodeToBuilder(jsonMap:Dictionary<String,Any>) throws -> Timestamp.Builder {
             let resultDecodedBuilder = Timestamp.Builder()
-            if let jsonValueDuration = jsonMap["duration"] as? String {
-                resultDecodedBuilder.duration = Int64(jsonValueDuration)!
-            } else if let jsonValueDuration = jsonMap["duration"] as? Int {
-                resultDecodedBuilder.duration = Int64(jsonValueDuration)
+            if let jsonValueDuration = jsonMap["duration"] as? Dictionary<String,Any> {
+                resultDecodedBuilder.duration = try Time.Builder.decodeToBuilder(jsonMap:jsonValueDuration).build()
+
             }
-            if let jsonValuePresentation = jsonMap["presentation"] as? String {
-                resultDecodedBuilder.presentation = Int64(jsonValuePresentation)!
-            } else if let jsonValuePresentation = jsonMap["presentation"] as? Int {
-                resultDecodedBuilder.presentation = Int64(jsonValuePresentation)
+            if let jsonValuePresentation = jsonMap["presentation"] as? Dictionary<String,Any> {
+                resultDecodedBuilder.presentation = try Time.Builder.decodeToBuilder(jsonMap:jsonValuePresentation).build()
+
             }
             return resultDecodedBuilder
         }
@@ -3225,53 +3687,12 @@ final public class Av : GeneratedMessage {
             return true
         }
         var fieldCheck:Bool = (lhs.hashValue == rhs.hashValue)
-        fieldCheck = fieldCheck && (lhs.hasMedia == rhs.hasMedia) && (!lhs.hasMedia || lhs.media == rhs.media)
         fieldCheck = fieldCheck && (lhs.hasVideo == rhs.hasVideo) && (!lhs.hasVideo || lhs.video == rhs.video)
         fieldCheck = fieldCheck && (lhs.hasAudio == rhs.hasAudio) && (!lhs.hasAudio || lhs.audio == rhs.audio)
         fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
         return fieldCheck
     }
 
-
-
-        //Enum type declaration start 
-
-        public enum Media:Int32, CustomDebugStringConvertible, CustomStringConvertible, Hashable {
-            case audio = 0
-            case video = 1
-            public func toString() -> String {
-                switch self {
-                case .audio: return "AUDIO"
-                case .video: return "VIDEO"
-                }
-            }
-            public static func fromString(str:String) throws -> Av.Media {
-                switch str {
-                case "AUDIO":    return .audio
-                case "VIDEO":    return .video
-                default: throw ProtocolBuffersError.invalidProtocolBuffer("Conversion String to Enum has failed.")
-                }
-            }
-            public var debugDescription:String { return getDescription() }
-            public var description:String { return getDescription() }
-            private func getDescription() -> String { 
-                switch self {
-                case .audio: return ".audio"
-                case .video: return ".video"
-                }
-            }
-            public var hashValue:Int {
-                return self.rawValue.hashValue
-            }
-            public static func ==(lhs:Media, rhs:Media) -> Bool {
-                return lhs.hashValue == rhs.hashValue
-            }
-        }
-
-        //Enum type declaration end 
-
-    public fileprivate(set) var media:Av.Media = Av.Media.audio
-    public fileprivate(set) var hasMedia:Bool = false
     public fileprivate(set) var video:VideoSample!
     public fileprivate(set) var hasVideo:Bool = false
     public fileprivate(set) var audio:AudioSample!
@@ -3283,14 +3704,11 @@ final public class Av : GeneratedMessage {
         return true
     }
     override public func writeTo(codedOutputStream: CodedOutputStream) throws {
-        if hasMedia {
-            try codedOutputStream.writeEnum(fieldNumber: 1, value:media.rawValue)
-        }
         if hasVideo {
-            try codedOutputStream.writeMessage(fieldNumber: 2, value:video)
+            try codedOutputStream.writeMessage(fieldNumber: 1, value:video)
         }
         if hasAudio {
-            try codedOutputStream.writeMessage(fieldNumber: 3, value:audio)
+            try codedOutputStream.writeMessage(fieldNumber: 2, value:audio)
         }
         try unknownFields.writeTo(codedOutputStream: codedOutputStream)
     }
@@ -3301,16 +3719,13 @@ final public class Av : GeneratedMessage {
         }
 
         serialize_size = 0
-        if (hasMedia) {
-            serialize_size += media.rawValue.computeEnumSize(fieldNumber: 1)
-        }
         if hasVideo {
-            if let varSizevideo = video?.computeMessageSize(fieldNumber: 2) {
+            if let varSizevideo = video?.computeMessageSize(fieldNumber: 1) {
                 serialize_size += varSizevideo
             }
         }
         if hasAudio {
-            if let varSizeaudio = audio?.computeMessageSize(fieldNumber: 3) {
+            if let varSizeaudio = audio?.computeMessageSize(fieldNumber: 2) {
                 serialize_size += varSizeaudio
             }
         }
@@ -3342,9 +3757,6 @@ final public class Av : GeneratedMessage {
         }
 
         var jsonMap:Dictionary<String,Any> = Dictionary<String,Any>()
-        if hasMedia {
-            jsonMap["media"] = media.toString()
-        }
         if hasVideo {
             jsonMap["video"] = try video.encode()
         }
@@ -3361,9 +3773,6 @@ final public class Av : GeneratedMessage {
     }
     override public func getDescription(indent:String) throws -> String {
         var output = ""
-        if (hasMedia) {
-            output += "\(indent) media: \(media.description)\n"
-        }
         if hasVideo {
             output += "\(indent) video {\n"
             if let outDescVideo = video {
@@ -3384,9 +3793,6 @@ final public class Av : GeneratedMessage {
     override public var hashValue:Int {
         get {
             var hashCode:Int = 7
-            if hasMedia {
-                 hashCode = (hashCode &* 31) &+ media.hashValue
-            }
             if hasVideo {
                 if let hashValuevideo = video?.hashValue {
                     hashCode = (hashCode &* 31) &+ hashValuevideo
@@ -3422,31 +3828,6 @@ final public class Av : GeneratedMessage {
         required override public init () {
             super.init()
         }
-            public var media:Av.Media {
-                get {
-                    return builderResult.media
-                }
-                set (value) {
-                    builderResult.hasMedia = true
-                    builderResult.media = value
-                }
-            }
-            public var hasMedia:Bool{
-                get {
-                    return builderResult.hasMedia
-                }
-            }
-        @discardableResult
-            public func setMedia(_ value:Av.Media) -> Av.Builder {
-              self.media = value
-              return self
-            }
-        @discardableResult
-            public func clearMedia() -> Av.Builder {
-               builderResult.hasMedia = false
-               builderResult.media = .audio
-               return self
-            }
         public var video:VideoSample! {
             get {
                 if videoBuilder_ != nil {
@@ -3581,9 +3962,6 @@ final public class Av : GeneratedMessage {
             if other == Av() {
                 return self
             }
-            if other.hasMedia {
-                media = other.media
-            }
             if (other.hasVideo) {
                 try mergeVideo(value: other.video)
             }
@@ -3607,15 +3985,7 @@ final public class Av : GeneratedMessage {
                     self.unknownFields = try unknownFieldsBuilder.build()
                     return self
 
-                case 8:
-                    let valueIntmedia = try codedInputStream.readEnum()
-                    if let enumsmedia = Av.Media(rawValue:valueIntmedia){
-                        media = enumsmedia
-                    } else {
-                        try unknownFieldsBuilder.mergeVarintField(fieldNumber: 1, value:Int64(valueIntmedia))
-                    }
-
-                case 18:
+                case 10:
                     let subBuilder:VideoSample.Builder = VideoSample.Builder()
                     if hasVideo {
                         try subBuilder.mergeFrom(other: video)
@@ -3623,7 +3993,7 @@ final public class Av : GeneratedMessage {
                     try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
                     video = subBuilder.buildPartial()
 
-                case 26:
+                case 18:
                     let subBuilder:AudioSample.Builder = AudioSample.Builder()
                     if hasAudio {
                         try subBuilder.mergeFrom(other: audio)
@@ -3641,9 +4011,6 @@ final public class Av : GeneratedMessage {
         }
         class override public func decodeToBuilder(jsonMap:Dictionary<String,Any>) throws -> Av.Builder {
             let resultDecodedBuilder = Av.Builder()
-            if let jsonValueMedia = jsonMap["media"] as? String {
-                resultDecodedBuilder.media = try Av.Media.fromString(str: jsonValueMedia)
-            }
             if let jsonValueVideo = jsonMap["video"] as? Dictionary<String,Any> {
                 resultDecodedBuilder.video = try VideoSample.Builder.decodeToBuilder(jsonMap:jsonValueVideo).build()
 
@@ -4834,6 +5201,83 @@ extension File.Builder: GeneratedMessageBuilderProtocol {
         }
     }
 }
+extension Time: GeneratedMessageProtocol {
+    public class func parseArrayDelimitedFrom(inputStream: InputStream) throws -> Array<Time> {
+        var mergedArray = Array<Time>()
+        while let value = try parseDelimitedFrom(inputStream: inputStream) {
+          mergedArray.append(value)
+        }
+        return mergedArray
+    }
+    public class func parseDelimitedFrom(inputStream: InputStream) throws -> Time? {
+        return try Time.Builder().mergeDelimitedFrom(inputStream: inputStream)?.build()
+    }
+    public class func parseFrom(data: Data) throws -> Time {
+        return try Time.Builder().mergeFrom(data: data, extensionRegistry:WireRoot.default.extensionRegistry).build()
+    }
+    public class func parseFrom(data: Data, extensionRegistry:ExtensionRegistry) throws -> Time {
+        return try Time.Builder().mergeFrom(data: data, extensionRegistry:extensionRegistry).build()
+    }
+    public class func parseFrom(inputStream: InputStream) throws -> Time {
+        return try Time.Builder().mergeFrom(inputStream: inputStream).build()
+    }
+    public class func parseFrom(inputStream: InputStream, extensionRegistry:ExtensionRegistry) throws -> Time {
+        return try Time.Builder().mergeFrom(inputStream: inputStream, extensionRegistry:extensionRegistry).build()
+    }
+    public class func parseFrom(codedInputStream: CodedInputStream) throws -> Time {
+        return try Time.Builder().mergeFrom(codedInputStream: codedInputStream).build()
+    }
+    public class func parseFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> Time {
+        return try Time.Builder().mergeFrom(codedInputStream: codedInputStream, extensionRegistry:extensionRegistry).build()
+    }
+    public subscript(key: String) -> Any? {
+        switch key {
+        case "value": return self.value
+        case "scale": return self.scale
+        case "flags": return self.flags
+        case "epoch": return self.epoch
+        default: return nil
+        }
+    }
+}
+extension Time.Builder: GeneratedMessageBuilderProtocol {
+    public subscript(key: String) -> Any? {
+        get { 
+            switch key {
+            case "value": return self.value
+            case "scale": return self.scale
+            case "flags": return self.flags
+            case "epoch": return self.epoch
+            default: return nil
+            }
+        }
+        set (newSubscriptValue) { 
+            switch key {
+            case "value":
+                guard let newSubscriptValue = newSubscriptValue as? Int64 else {
+                    return
+                }
+                self.value = newSubscriptValue
+            case "scale":
+                guard let newSubscriptValue = newSubscriptValue as? Int32 else {
+                    return
+                }
+                self.scale = newSubscriptValue
+            case "flags":
+                guard let newSubscriptValue = newSubscriptValue as? UInt32 else {
+                    return
+                }
+                self.flags = newSubscriptValue
+            case "epoch":
+                guard let newSubscriptValue = newSubscriptValue as? Int64 else {
+                    return
+                }
+                self.epoch = newSubscriptValue
+            default: return
+            }
+        }
+    }
+}
 extension Timestamp: GeneratedMessageProtocol {
     public class func parseArrayDelimitedFrom(inputStream: InputStream) throws -> Array<Timestamp> {
         var mergedArray = Array<Timestamp>()
@@ -4883,12 +5327,12 @@ extension Timestamp.Builder: GeneratedMessageBuilderProtocol {
         set (newSubscriptValue) { 
             switch key {
             case "duration":
-                guard let newSubscriptValue = newSubscriptValue as? Int64 else {
+                guard let newSubscriptValue = newSubscriptValue as? Time else {
                     return
                 }
                 self.duration = newSubscriptValue
             case "presentation":
-                guard let newSubscriptValue = newSubscriptValue as? Int64 else {
+                guard let newSubscriptValue = newSubscriptValue as? Time else {
                     return
                 }
                 self.presentation = newSubscriptValue
@@ -5317,7 +5761,6 @@ extension Av: GeneratedMessageProtocol {
     }
     public subscript(key: String) -> Any? {
         switch key {
-        case "media": return self.media
         case "video": return self.video
         case "audio": return self.audio
         default: return nil
@@ -5328,7 +5771,6 @@ extension Av.Builder: GeneratedMessageBuilderProtocol {
     public subscript(key: String) -> Any? {
         get { 
             switch key {
-            case "media": return self.media
             case "video": return self.video
             case "audio": return self.audio
             default: return nil
@@ -5336,11 +5778,6 @@ extension Av.Builder: GeneratedMessageBuilderProtocol {
         }
         set (newSubscriptValue) { 
             switch key {
-            case "media":
-                guard let newSubscriptValue = newSubscriptValue as? Av.Media else {
-                    return
-                }
-                self.media = newSubscriptValue
             case "video":
                 guard let newSubscriptValue = newSubscriptValue as? VideoSample else {
                     return

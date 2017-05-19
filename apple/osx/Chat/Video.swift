@@ -43,14 +43,13 @@ class Video:
                 self.captureSession.addOutput(videoDataOutput)
             }
             
-        }
-        catch let error as NSError {
+        } catch let error as NSError {
             NSLog("\(error), \(error.localizedDescription)")
         }
     }
 
     func getPreviewLayer() -> AVCaptureVideoPreviewLayer {
-         return AVCaptureVideoPreviewLayer(session: self.captureSession)
+        return AVCaptureVideoPreviewLayer(session: self.captureSession)
     }
 
     func failureNotification(notification: Notification) {
@@ -152,11 +151,54 @@ extension CMSampleTimingInfo {
         let decodeIn = kCMTimeInvalid
         return CMSampleTimingInfo(duration: durationIn, presentationTimeStamp: presentationIn, decodeTimeStamp: decodeIn)
     }
+
+    static func serializeTime(_ cmTime: CMTime) throws -> Time {
+        return try Time.Builder()
+                .setValue(cmTime.value)
+                .setScale(cmTime.timescale)
+                .setFlags(cmTime.flags.rawValue)
+                .setEpoch(cmTime.epoch)
+                .build()
+    }
+
+    static func deserializeTime(_ time: Time) -> CMTime {
+        return CMTime(
+            value: time.value,
+            timescale: time.scale,
+            flags: CMTimeFlags(rawValue: time.flags),
+            epoch: time.epoch)
+    }
+
+    func serialize() throws -> Timestamp {
+        let duration = try CMSampleTimingInfo.serializeTime(self.duration)
+        let presentation = try CMSampleTimingInfo.serializeTime(self.presentationTimeStamp)
+        return try Timestamp.Builder()
+            .setDuration(duration)
+            .setPresentation(presentation)
+            .build()
+    }
+
+    static func deserialize(timestamp: Timestamp) -> CMSampleTimingInfo? {
+        let duration = deserializeTime(timestamp.duration)
+        let presentation = deserializeTime(timestamp.presentation)
+        return CMSampleTimingInfo(
+            duration: duration,
+            presentationTimeStamp: presentation,
+            decodeTimeStamp: kCMTimeInvalid)
+    }
 }
 
 extension CVPixelBuffer {
     func copy() -> CVPixelBuffer {
         precondition(CFGetTypeID(self) == CVPixelBufferGetTypeID(), "copy() cannot be called on a non-CVPixelBuffer")
+
+        do {
+            let s = try self.serialize()
+            let d = CVPixelBuffer.deserialize(s)
+            return d!
+        } catch let error as NSError {
+            NSLog("\(error), \(error.localizedDescription)")
+        }
 
         var pixelBufferCopy : CVPixelBuffer?
         CVPixelBufferCreate(
@@ -184,6 +226,53 @@ extension CVPixelBuffer {
         var dict = attachments as! [String: AnyObject]
         dict["MetadataDictionary"] = nil // because not needed (probably)
         CVBufferSetAttachments(pixelBufferOut, dict as CFDictionary, .shouldPropagate)
+
+        return pixelBufferOut
+    }
+
+    func serialize() throws -> Image {
+        let width = CVPixelBufferGetWidth(self)
+        let height = CVPixelBufferGetHeight(self)
+        let format = CVPixelBufferGetPixelFormatType(self)
+        let attachments = CVBufferGetAttachments(self, .shouldPropagate)
+        let dict = attachments as! [String: String]
+
+        CVPixelBufferLockBaseAddress(self, .readOnly)
+
+        let umrp = CVPixelBufferGetBaseAddress(self)!
+        let size = CVPixelBufferGetDataSize(self)
+        let data = Data(bytesNoCopy: umrp, count: Int(size), deallocator: Data.Deallocator.free)
+
+        let imageBuilder = Image.Builder()
+            .setWidth(Int64(width))
+            .setHeight(Int64(height))
+            .setFormat(format)
+            .setAttachments(dict)
+            .setData(data)
+
+        CVPixelBufferUnlockBaseAddress(self, .readOnly)
+
+        return try imageBuilder.build()
+    }
+
+    static func deserialize(_ image: Image) -> CVPixelBuffer? {
+        var pixelBufferOut : CVPixelBuffer?
+        CVPixelBufferCreate(
+            nil,
+            Int(image.width),
+            Int(image.height),
+            image.format,
+            nil,
+            &pixelBufferOut)
+
+        CVPixelBufferLockBaseAddress(pixelBufferOut!, CVPixelBufferLockFlags(rawValue: 0))
+
+        memcpy(
+            CVPixelBufferGetBaseAddress(pixelBufferOut!),
+            (image.data as NSData).bytes,
+            image.data.count)
+
+        CVPixelBufferUnlockBaseAddress(pixelBufferOut!, CVPixelBufferLockFlags(rawValue: 0))
 
         return pixelBufferOut
     }
