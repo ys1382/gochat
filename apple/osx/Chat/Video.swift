@@ -191,7 +191,7 @@ extension CMSampleTimingInfo {
 extension CVPixelBuffer {
     func copy() -> CVPixelBuffer {
         precondition(CFGetTypeID(self) == CVPixelBufferGetTypeID(), "copy() cannot be called on a non-CVPixelBuffer")
-
+/*
         do {
             let s = try self.serialize()
             let d = CVPixelBuffer.deserialize(s)
@@ -199,7 +199,7 @@ extension CVPixelBuffer {
         } catch let error as NSError {
             NSLog("\(error), \(error.localizedDescription)")
         }
-
+*/
         var pixelBufferCopy : CVPixelBuffer?
         CVPixelBufferCreate(
             nil,
