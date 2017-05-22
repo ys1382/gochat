@@ -12,7 +12,7 @@ class Backend: WebSocketDelegate {
 
     func connect(withUsername: String) {
         guard let url = URL(string: Backend.address) else {
-            print("could not create url from " + Backend.address)
+            logNetworkError("could not create url from " + Backend.address)
             return
         }
         self.websocket = WebSocket(url: url)
@@ -23,16 +23,16 @@ class Backend: WebSocketDelegate {
 
     func send(_ haberBuilder:Haber.Builder) {
         guard let haber = try? haberBuilder.setSessionId(self.sessionId ?? "").build() else {
-            print("could not create haber")
+            logNetworkError("could not create haber")
             return
         }
-        print("write \(haber.data().count) bytes for \(haber.which)")
+        logNetwork("write \(haber.data().count) bytes for \(haber.which)")
         self.websocket?.write(data: haber.data())
     }
 
     func sendText(_ body: String, to: String) {
         guard let update = try? Text.Builder().setBody(body).build() else {
-            print("could not create Text")
+            logNetworkError("could not create Text")
             return
         }
         let haberBuilder = Haber.Builder().setText(update).setWhich(.text).setTo(to)
@@ -59,16 +59,16 @@ class Backend: WebSocketDelegate {
     }
 
     public func websocketDidDisconnect(_ websocket: Starscream.WebSocket, error: NSError?) {
-        print("disconnected")
+        logNetwork("disconnected")
     }
 
     public func websocketDidReceiveMessage(_ websocket: Starscream.WebSocket, text: String) {
-        print("websocketDidReceiveMessage")
+        logNetwork("websocketDidReceiveMessage")
     }
 
     public func websocketDidReceiveData(_ websocket: Starscream.WebSocket, data: Data) {
         guard let haber = try? Haber.parseFrom(data:data) else {
-                print("Could not deserialize")
+                logNetworkError("Could not deserialize")
                 return
         }
 
@@ -76,7 +76,7 @@ class Backend: WebSocketDelegate {
             self.sessionId = haber.sessionId
         }
 
-        print("read \(data.count) bytes for \(haber.which)")
+        logNetwork("read \(data.count) bytes for \(haber.which)")
         switch haber.which {
         case .contacts:
             Model.shared.didReceiveRoster(haber.contacts)
@@ -85,7 +85,7 @@ class Backend: WebSocketDelegate {
         case .presence:
             Model.shared.didReceivePresence(haber)
         default:
-            print("did not handle \(haber.which)")
+            logNetworkError("did not handle \(haber.which)")
         }
     }
 }

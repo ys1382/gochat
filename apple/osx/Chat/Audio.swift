@@ -27,7 +27,7 @@ class Audio {
             let buffer_serialized = buffer.serialize()
             let buffer_deserialized = AVAudioPCMBuffer.deserialize(buffer_serialized, format)
 
-            print("audio \(AVAudioTime.seconds(forHostTime: time.hostTime))")
+            logIO("audio \(AVAudioTime.seconds(forHostTime: time.hostTime))")
             
             self.player.scheduleBuffer(buffer_deserialized, completionHandler: nil)
         })

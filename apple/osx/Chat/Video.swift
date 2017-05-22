@@ -5,8 +5,7 @@ import AVFoundation
 
 class Video:
         NSObject,
-        AVCaptureVideoDataOutputSampleBufferDelegate,
-        AVCaptureAudioDataOutputSampleBufferDelegate
+        AVCaptureVideoDataOutputSampleBufferDelegate
 {
     var callback: ((CMSampleBuffer)->())?
     var captureSession = AVCaptureSession()
@@ -44,7 +43,7 @@ class Video:
             }
             
         } catch let error as NSError {
-            NSLog("\(error), \(error.localizedDescription)")
+            logIOError(error.localizedDescription)
         }
     }
 
@@ -53,7 +52,7 @@ class Video:
     }
 
     func failureNotification(notification: Notification) {
-        print("failureNotification" + notification.description)
+        logIOError("failureNotification " + notification.description)
     }
 
     lazy var networkLayer: AVSampleBufferDisplayLayer = {
@@ -64,7 +63,7 @@ class Video:
     func captureOutput(_ captureOutput: AVCaptureOutput!,
                        didOutputSampleBuffer sampleBuffer: CMSampleBuffer!,
                        from connection: AVCaptureConnection!) {
-        print("video \(CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer)))")
+        logIO("video \(CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer)))")
         callback?(sampleBuffer.copy()!)
     }
 }
@@ -83,12 +82,12 @@ extension CMSampleBuffer {
         var timingInfoOut = timingInfoIn.copy()
 
         if CMFormatDescriptionGetMediaType(formatDescriptionOut) != kCMMediaType_Video {
-            print("did not handle format description type \(CMFormatDescriptionGetMediaType(formatDescriptionOut))")
+            logIOError("did not handle format description type \(CMFormatDescriptionGetMediaType(formatDescriptionOut))")
             return nil
         }
 
         guard let pixelBufferIn : CVPixelBuffer = CMSampleBufferGetImageBuffer(self) else {
-            print("could not get image buffer")
+            logIOError("could not get image buffer")
             return nil
         }
         let pixelBufferOut = pixelBufferIn.copy()
@@ -137,7 +136,7 @@ extension CMFormatDescription {
                 &formatOut)
         default:
             status = noErr
-            print("did not handle format description media type \(mediaType)")
+            logIOError("did not handle format description media type \(mediaType)")
         }
         if checkError(status) { return nil }
         return formatOut
