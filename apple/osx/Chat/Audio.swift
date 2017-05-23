@@ -1,54 +1,18 @@
 import Foundation
 import AVFoundation
 
-struct IOBus {
-    static let input = 0
-    static let output = 1
-}
-
 class Audio {
-    let engineI = AVAudioEngine()
-    let engineO = AVAudioEngine()
-    let player = AVAudioPlayerNode()
-
-    init() {
-        let format = engineI.inputNode!.inputFormat(forBus: IOBus.input)
-        let node = AVAudioMixerNode()
-        
-        engineI.attach(node)
-        engineO.attach(player)
-        
-        node.installTap(onBus: IOBus.input,
-                        bufferSize: 4096,
-                        format: format,
-                        block:
-        { (buffer: AVAudioPCMBuffer, time: AVAudioTime) in
-            
-            let buffer_serialized = buffer.serialize()
-            let buffer_deserialized = AVAudioPCMBuffer.deserialize(buffer_serialized, format)
-
-            logIO("audio \(AVAudioTime.seconds(forHostTime: time.hostTime))")
-            
-            self.player.scheduleBuffer(buffer_deserialized, completionHandler: nil)
-        })
-        
-        engineI.connect(engineI.inputNode!, to: node, format: format)
-        engineI.prepare()
-        
-        engineO.connect(player, to: engineO.outputNode, format: format)
-        engineO.prepare()
-    }
     
-    func start() {
-        try! engineI.start()
-        try! engineO.start()
+    let inp = TRAudioInput()
+    let out = TRAudioOutputChain([TRAudioOutput(), TRNetworkOutput()])
 
-        player.play()
+    func start() {
+        inp.start(kAudioFormatMPEG4AAC_ELD, 0.1, out)
     }
     
     func stop() {
-        engineI.stop()
-        engineO.stop()
+        inp.stop()
+        out.stop()
     }
 }
 

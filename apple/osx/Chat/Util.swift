@@ -23,19 +23,3 @@ func checkError(_ status: OSStatus) -> Bool {
     }
     return false
 }
-
-func logIO(_ message: String) {
-    logMessage("IO", message)
-}
-
-func logIOError(_ message: String) {
-    logError("IO", message)
-}
-
-func logNetwork(_ message: String) {
-    logMessage("Network", message)
-}
-
-func logNetworkError(_ message: String) {
-    logError("Network", message)
-}

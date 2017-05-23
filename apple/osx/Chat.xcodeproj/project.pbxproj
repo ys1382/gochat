@@ -19,6 +19,11 @@
 		1ADE89EC1EA1CE0E00E41212 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1ADE89EA1EA1CE0E00E41212 /* Main.storyboard */; };
 		1AF35A931EA30BFE002AFC3F /* TextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AF35A921EA30BFE002AFC3F /* TextViewController.swift */; };
 		1AF35A951EA30C34002AFC3F /* ContactsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AF35A941EA30C34002AFC3F /* ContactsViewController.swift */; };
+		82FF15A91ED4BD840015B93E /* IO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82FF15A61ED4BD840015B93E /* IO.swift */; };
+		82FF15AA1ED4BD840015B93E /* TRAudioInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82FF15A71ED4BD840015B93E /* TRAudioInput.swift */; };
+		82FF15AB1ED4BD840015B93E /* TRAudioOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82FF15A81ED4BD840015B93E /* TRAudioOutput.swift */; };
+		82FF15AE1ED4BDFD0015B93E /* TRNetworkOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82FF15AD1ED4BDFD0015B93E /* TRNetworkOutput.swift */; };
+		82FF15B21ED4C1D50015B93E /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82FF15B11ED4C1D50015B93E /* Network.swift */; };
 		D4C11B8E12CA4AE1016CA052 /* Pods_Chat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F3DC7F985F75CB41DAED56C7 /* Pods_Chat.framework */; };
 /* End PBXBuildFile section */
 
@@ -38,6 +43,11 @@
 		1AF35A921EA30BFE002AFC3F /* TextViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextViewController.swift; sourceTree = "<group>"; };
 		1AF35A941EA30C34002AFC3F /* ContactsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactsViewController.swift; sourceTree = "<group>"; };
 		64A385B4166E340653D3B04C /* Pods-Chat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chat.release.xcconfig"; path = "Pods/Target Support Files/Pods-Chat/Pods-Chat.release.xcconfig"; sourceTree = "<group>"; };
+		82FF15A61ED4BD840015B93E /* IO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IO.swift; sourceTree = "<group>"; };
+		82FF15A71ED4BD840015B93E /* TRAudioInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TRAudioInput.swift; sourceTree = "<group>"; };
+		82FF15A81ED4BD840015B93E /* TRAudioOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TRAudioOutput.swift; sourceTree = "<group>"; };
+		82FF15AD1ED4BDFD0015B93E /* TRNetworkOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TRNetworkOutput.swift; sourceTree = "<group>"; };
+		82FF15B11ED4C1D50015B93E /* Network.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
 		931CB699F7145BBD7B223700 /* Pods-Chat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chat.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Chat/Pods-Chat.debug.xcconfig"; sourceTree = "<group>"; };
 		F3DC7F985F75CB41DAED56C7 /* Pods_Chat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Chat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -75,6 +85,8 @@
 		1ADE89E31EA1CE0E00E41212 /* Chat */ = {
 			isa = PBXGroup;
 			children = (
+				82FF15AC1ED4BDB10015B93E /* Network */,
+				82FF15A51ED4BD840015B93E /* IO */,
 				1ADE89ED1EA1CE0E00E41212 /* Info.plist */,
 				1ADE89E81EA1CE0E00E41212 /* Assets.xcassets */,
 				1ADE89EA1EA1CE0E00E41212 /* Main.storyboard */,
@@ -107,6 +119,27 @@
 				64A385B4166E340653D3B04C /* Pods-Chat.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		82FF15A51ED4BD840015B93E /* IO */ = {
+			isa = PBXGroup;
+			children = (
+				82FF15A61ED4BD840015B93E /* IO.swift */,
+				82FF15A71ED4BD840015B93E /* TRAudioInput.swift */,
+				82FF15A81ED4BD840015B93E /* TRAudioOutput.swift */,
+			);
+			name = IO;
+			path = ../../common/IO;
+			sourceTree = "<group>";
+		};
+		82FF15AC1ED4BDB10015B93E /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				82FF15B11ED4C1D50015B93E /* Network.swift */,
+				82FF15AD1ED4BDFD0015B93E /* TRNetworkOutput.swift */,
+			);
+			name = Network;
+			path = ../../common/Network;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -231,14 +264,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				82FF15AB1ED4BD840015B93E /* TRAudioOutput.swift in Sources */,
 				1AC5D6031ECD5ACF00345F37 /* Audio.swift in Sources */,
+				82FF15A91ED4BD840015B93E /* IO.swift in Sources */,
 				1AC5D6041ECD5ACF00345F37 /* Util.swift in Sources */,
 				1A60DFF41EA30FC900BECD73 /* Backend.swift in Sources */,
+				82FF15B21ED4C1D50015B93E /* Network.swift in Sources */,
 				1A3B27F31EB04D710017654D /* VideoViewController.swift in Sources */,
 				1AF35A951EA30C34002AFC3F /* ContactsViewController.swift in Sources */,
 				1ADE89E51EA1CE0E00E41212 /* AppDelegate.swift in Sources */,
 				1A60E0001EA4039400BECD73 /* Model.swift in Sources */,
 				1A60DFF51EA30FC900BECD73 /* Wire.proto.swift in Sources */,
+				82FF15AA1ED4BD840015B93E /* TRAudioInput.swift in Sources */,
+				82FF15AE1ED4BDFD0015B93E /* TRNetworkOutput.swift in Sources */,
 				1AF35A931EA30BFE002AFC3F /* TextViewController.swift in Sources */,
 				1AC5D6051ECD5ACF00345F37 /* Video.swift in Sources */,
 			);
