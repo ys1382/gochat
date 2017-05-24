@@ -1,12 +1,7 @@
-//
-//  IO.swift
-//  Chat
-//
-//  Created by Ivan Khvorostinin on 23/05/2017.
-//  Copyright © 2017 ys1382. All rights reserved.
-//
 
+import AVFoundation
 import AudioToolbox
+import VideoToolbox
 
 struct IOBus {
     static let input = 0
@@ -32,6 +27,15 @@ protocol IOAudioOutputProtocol {
     func stop()
 }
 
+protocol IOVideoOutputProtocol {
+    
+    func start()
+    
+    func process(_ data: CMSampleBuffer)
+    
+    func stop()
+}
+
 enum IOError : Error {
     case Error(String)
 }
@@ -46,7 +50,7 @@ func logIOError(_ message: String) {
 
 func checkStatus(_ status: OSStatus, _ message: String) throws {
     guard status == 0 else {
-        throw IOError.Error(message)
+        throw IOError.Error(message + ", status code \(status)")
     }
 }
 

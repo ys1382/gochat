@@ -1,10 +1,3 @@
-//
-//  TRNetworkOutput.swift
-//  Chat
-//
-//  Created by Ivan Khvorostinin on 24/05/2017.
-//  Copyright © 2017 ys1382. All rights reserved.
-//
 
 import AudioToolbox
 

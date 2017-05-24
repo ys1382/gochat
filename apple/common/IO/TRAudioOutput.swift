@@ -1,10 +1,3 @@
-//
-//  Output.swift
-//  Chat
-//
-//  Created by Ivan Khvorostinin on 23/05/2017.
-//  Copyright © 2017 ys1382. All rights reserved.
-//
 
 import AudioToolbox
 
@@ -12,26 +5,26 @@ import AudioToolbox
 // TRAudioOutputChain
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class TRAudioOutputChain : IOAudioOutputProtocol {
+class TRAudioOutputBroadcast : IOAudioOutputProtocol {
     
-    private let chain: [IOAudioOutputProtocol]
+    private let clients: [IOAudioOutputProtocol]
     
-    init(_ chain: [IOAudioOutputProtocol]) {
-        self.chain = chain
+    init(_ clients: [IOAudioOutputProtocol]) {
+        self.clients = clients
     }
     
     func start(_ format: UnsafePointer<AudioStreamBasicDescription>,
                _ maxPacketSize: UInt32,
                _ interval: Double) {
-        _ = chain.map({ $0.start(format, maxPacketSize, interval) })
+        _ = clients.map({ $0.start(format, maxPacketSize, interval) })
     }
     
     func process(_ data: IOAudioData) {
-        _ = chain.map({ $0.process(data) })
+        _ = clients.map({ $0.process(data) })
     }
     
     func stop() {
-        _ = chain.map({ $0.stop() })
+        _ = clients.map({ $0.stop() })
     }
 
 }
