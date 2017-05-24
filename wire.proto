@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 option go_package = "main";
+option java_package = "red.tel.chat.generated_protobuf";
 
 message Login {
     string username = 1;
