@@ -8,11 +8,12 @@
 
 import AudioToolbox
 
-class TRNetworkOutput : TRAudioOutputProtocol {
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// IOAudioOutputProtocol
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class TRNetworkOutput : IOAudioOutputProtocol {
     
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // TRAudioOutputProtocol
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     func start(_ format: UnsafePointer<AudioStreamBasicDescription>,
                _ maxPacketSize: UInt32,
@@ -25,10 +26,7 @@ class TRNetworkOutput : TRAudioOutputProtocol {
         
     }
     
-    func process(_ buffer: AudioQueueBufferRef,
-                 _ packetDesc: UnsafePointer<AudioStreamPacketDescription>,
-                 _ packetNum: UInt32,
-                 _ timeStamp: UnsafePointer<AudioTimeStamp>) {
+    func process(_ data: IOAudioData) {
         
         // TODO: serialize:
         // 1. AudioQueueBufferRef.mAudioDataByteSize
@@ -40,17 +38,13 @@ class TRNetworkOutput : TRAudioOutputProtocol {
         
         var size: UInt32 = 0
         
-        size += UInt32(buffer.pointee.mAudioDataByteSize)
+        size += UInt32(data.bytesNum)
         size += UInt32(MemoryLayout<UInt32>.size)
-        size += UInt32(MemoryLayout<AudioStreamPacketDescription>.size) * packetNum
+        size += UInt32(MemoryLayout<AudioStreamPacketDescription>.size) * data.packetNum
         size += UInt32(MemoryLayout<UInt32>.size)
         size += UInt32(MemoryLayout<AudioTimeStamp>.size)
         
         logNetwork("write audio \(size) bytes")
     }
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 }
+

@@ -4,7 +4,7 @@ import AVFoundation
 class Audio {
     
     let inp = TRAudioInput()
-    let out = TRAudioOutputChain([TRAudioOutput(), TRNetworkOutput()])
+    let out = TRAudioOutputChain([TRAudioOutputSerializer(TRAudioOutput()), TRNetworkOutput()])
 
     func start() {
         inp.start(kAudioFormatMPEG4AAC_ELD, 0.1, out)

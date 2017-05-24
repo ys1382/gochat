@@ -8,33 +8,15 @@
 
 import AudioToolbox
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// TRAudioOutputProtocol
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-protocol TRAudioOutputProtocol {
-
-    func start(_ format: UnsafePointer<AudioStreamBasicDescription>,
-               _ maxPacketSize: UInt32,
-               _ interval: Double)
-
-    func process(_ buffer: AudioQueueBufferRef,
-                 _ packetDesc: UnsafePointer<AudioStreamPacketDescription>,
-                 _ packetNum: UInt32,
-                 _ timeStamp: UnsafePointer<AudioTimeStamp>)
-
-    func stop()
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TRAudioOutputChain
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class TRAudioOutputChain : TRAudioOutputProtocol {
+class TRAudioOutputChain : IOAudioOutputProtocol {
     
-    private let chain: [TRAudioOutputProtocol]
+    private let chain: [IOAudioOutputProtocol]
     
-    init(_ chain: [TRAudioOutputProtocol]) {
+    init(_ chain: [IOAudioOutputProtocol]) {
         self.chain = chain
     }
     
@@ -44,11 +26,8 @@ class TRAudioOutputChain : TRAudioOutputProtocol {
         _ = chain.map({ $0.start(format, maxPacketSize, interval) })
     }
     
-    func process(_ buffer: AudioQueueBufferRef,
-                 _ packetDesc: UnsafePointer<AudioStreamPacketDescription>,
-                 _ packetNum: UInt32,
-                 _ timeStamp: UnsafePointer<AudioTimeStamp>) {
-        _ = chain.map({ $0.process(buffer, packetDesc, packetNum, timeStamp) })
+    func process(_ data: IOAudioData) {
+        _ = chain.map({ $0.process(data) })
     }
     
     func stop() {
@@ -57,11 +36,51 @@ class TRAudioOutputChain : TRAudioOutputProtocol {
 
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// TRAudioOutput
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// TRAudioOutputSerializer
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class TRAudioOutput : TRAudioOutputProtocol {
+class TRAudioOutputSerializer : IOAudioOutputProtocol {
+    
+    private let next: IOAudioOutputProtocol
+    
+    init(_ next: IOAudioOutputProtocol) {
+        self.next = next
+    }
+    
+    func start(_ format: UnsafePointer<AudioStreamBasicDescription>,
+               _ maxPacketSize: UInt32,
+               _ interval: Double) {
+        
+        next.start(format, maxPacketSize, interval)
+    }
+    
+    func process(_ data: IOAudioData) {
+        
+        // TODO: serialize:
+        // 1. AudioQueueBufferRef.mAudioDataByteSize
+        // 2. AudioQueueBufferRef.mAudioData
+        // 3. packet descriptions number
+        // 4. packet descriptions
+        // 5. timestamp
+        
+        let serialized = data.serialize()
+        let deserialized = IOAudioData.deserialize(serialized)
+        
+        next.process(deserialized)
+    }
+    
+    func stop() {
+        
+        next.stop()
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// TRAudioOutput
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class TRAudioOutput : IOAudioOutputProtocol {
     
     private var queue: AudioQueueRef?
     private var buffer: AudioQueueBufferRef?
@@ -130,19 +149,16 @@ class TRAudioOutput : TRAudioOutputProtocol {
         }
     }
     
-    func process(_ buffer: AudioQueueBufferRef,
-                 _ packetDesc: UnsafePointer<AudioStreamPacketDescription>,
-                 _ packetNum: UInt32,
-                 _ timeStamp: UnsafePointer<AudioTimeStamp>) {
+    func process(_ data: IOAudioData) {
         
         do {
-            memcpy(self.buffer!.pointee.mAudioData, buffer.pointee.mAudioData, Int(buffer.pointee.mAudioDataByteSize))
-            self.buffer!.pointee.mAudioDataByteSize = buffer.pointee.mAudioDataByteSize
+            memcpy(self.buffer!.pointee.mAudioData, data.bytes, Int(data.bytesNum))
+            self.buffer!.pointee.mAudioDataByteSize = data.bytesNum
 
-            try checkStatus(AudioQueueEnqueueBuffer(queue!,
+            try checkStatus(AudioQueueEnqueueBuffer(self.queue!,
                                                     self.buffer!,
-                                                    packetNum,
-                                                    packetDesc), "AudioQueueEnqueueBuffer failed")
+                                                    data.packetNum,
+                                                    data.packetDesc), "AudioQueueEnqueueBuffer failed")
         }
         catch {
             logIOError(error.localizedDescription)
@@ -157,7 +173,8 @@ class TRAudioOutput : TRAudioOutputProtocol {
                                         _ outNumPackets: inout UInt32)
     {
         // we only use time here as a guideline
-        // we're really trying to get somewhere between 16K and 64K buffers, but not allocate too much if we don't need it
+        // we're really trying to get somewhere between 16K and 64K buffers,
+        // but not allocate too much if we don't need it
         let maxBufferSize: UInt32 = 0x10000; // limit size to 64K
         let minBufferSize: UInt32 = 0x4000; // limit size to 16K
 

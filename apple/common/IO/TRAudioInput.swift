@@ -11,13 +11,13 @@ import AVFoundation
 
 class TRAudioInput
 {
-    private var output: TRAudioOutputProtocol?
+    private var output: IOAudioOutputProtocol?
     
     private var queue: AudioQueueRef?
     private var	buffer: AudioQueueBufferRef?
     private var format = AudioStreamBasicDescription()
     
-    func start(_ formatID: UInt32, _ interval: Double, _ output: TRAudioOutputProtocol) {
+    func start(_ formatID: UInt32, _ interval: Double, _ output: IOAudioOutputProtocol) {
         
         // prepare format
         
@@ -169,13 +169,24 @@ class TRAudioInput
         inNumPackets: UInt32,
         inPacketDesc: UnsafePointer<AudioStreamPacketDescription>?) in
         
+//        inBuffer.pointee.mAudioData.
         let input = Unmanaged<TRAudioInput>.fromOpaque(inUserData!).takeUnretainedValue()
         
         logIO("audio \(AVAudioTime.seconds(forHostTime: inStartTime.pointee.mHostTime))")
         
+        
+//inBuffer.pointee.mAudioData.
         do {
             if (inNumPackets > 0) {
-                input.output!.process(inBuffer, inPacketDesc!, inNumPackets, inStartTime)
+                var bytes = UnsafeMutablePointer<Int8>.allocate(capacity: Int(inBuffer.pointee.mAudioDataByteSize))
+                
+                memcpy(bytes, inBuffer.pointee.mAudioData, Int(inBuffer.pointee.mAudioDataByteSize))
+                
+                input.output!.process(IOAudioData(bytes,
+                                                  inBuffer.pointee.mAudioDataByteSize,
+                                                  inPacketDesc!,
+                                                  inNumPackets,
+                                                  inStartTime))
             }
             
             try checkStatus(AudioQueueEnqueueBuffer(input.queue!,
