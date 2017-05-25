@@ -22,10 +22,13 @@
 		824F05AE1ED5EFB900148A89 /* TRVideoEncoderH264.swift in Sources */ = {isa = PBXBuildFile; fileRef = 824F05AD1ED5EFB900148A89 /* TRVideoEncoderH264.swift */; };
 		824F05B01ED5F54500148A89 /* TRVideoOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 824F05AF1ED5F54500148A89 /* TRVideoOutput.swift */; };
 		824F05B31ED5FAD000148A89 /* AVFoundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 824F05B21ED5FAD000148A89 /* AVFoundation.swift */; };
+		824F05B71ED6A56900148A89 /* TRVideoDecoderH264.swift in Sources */ = {isa = PBXBuildFile; fileRef = 824F05B61ED6A56900148A89 /* TRVideoDecoderH264.swift */; };
+		824F05B91ED6A8E300148A89 /* TRNetworkDataH264.swift in Sources */ = {isa = PBXBuildFile; fileRef = 824F05B81ED6A8E300148A89 /* TRNetworkDataH264.swift */; };
+		82A68BEA1ED74C6A00049AD9 /* CoreMedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82A68BE91ED74C6900049AD9 /* CoreMedia.swift */; };
 		82FF15A91ED4BD840015B93E /* IO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82FF15A61ED4BD840015B93E /* IO.swift */; };
 		82FF15AA1ED4BD840015B93E /* TRAudioInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82FF15A71ED4BD840015B93E /* TRAudioInput.swift */; };
 		82FF15AB1ED4BD840015B93E /* TRAudioOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82FF15A81ED4BD840015B93E /* TRAudioOutput.swift */; };
-		82FF15AE1ED4BDFD0015B93E /* TRNetworkOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82FF15AD1ED4BDFD0015B93E /* TRNetworkOutput.swift */; };
+		82FF15AE1ED4BDFD0015B93E /* TRNetworkAudioOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82FF15AD1ED4BDFD0015B93E /* TRNetworkAudioOutput.swift */; };
 		82FF15B21ED4C1D50015B93E /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82FF15B11ED4C1D50015B93E /* Network.swift */; };
 		D4C11B8E12CA4AE1016CA052 /* Pods_Chat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F3DC7F985F75CB41DAED56C7 /* Pods_Chat.framework */; };
 /* End PBXBuildFile section */
@@ -49,10 +52,13 @@
 		824F05AD1ED5EFB900148A89 /* TRVideoEncoderH264.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TRVideoEncoderH264.swift; sourceTree = "<group>"; };
 		824F05AF1ED5F54500148A89 /* TRVideoOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TRVideoOutput.swift; sourceTree = "<group>"; };
 		824F05B21ED5FAD000148A89 /* AVFoundation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVFoundation.swift; sourceTree = "<group>"; };
+		824F05B61ED6A56900148A89 /* TRVideoDecoderH264.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TRVideoDecoderH264.swift; sourceTree = "<group>"; };
+		824F05B81ED6A8E300148A89 /* TRNetworkDataH264.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TRNetworkDataH264.swift; path = ../IO/TRNetworkDataH264.swift; sourceTree = "<group>"; };
+		82A68BE91ED74C6900049AD9 /* CoreMedia.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreMedia.swift; sourceTree = "<group>"; };
 		82FF15A61ED4BD840015B93E /* IO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IO.swift; sourceTree = "<group>"; };
 		82FF15A71ED4BD840015B93E /* TRAudioInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TRAudioInput.swift; sourceTree = "<group>"; };
 		82FF15A81ED4BD840015B93E /* TRAudioOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TRAudioOutput.swift; sourceTree = "<group>"; };
-		82FF15AD1ED4BDFD0015B93E /* TRNetworkOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TRNetworkOutput.swift; sourceTree = "<group>"; };
+		82FF15AD1ED4BDFD0015B93E /* TRNetworkAudioOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TRNetworkAudioOutput.swift; sourceTree = "<group>"; };
 		82FF15B11ED4C1D50015B93E /* Network.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
 		931CB699F7145BBD7B223700 /* Pods-Chat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chat.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Chat/Pods-Chat.debug.xcconfig"; sourceTree = "<group>"; };
 		F3DC7F985F75CB41DAED56C7 /* Pods_Chat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Chat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -131,6 +137,7 @@
 			isa = PBXGroup;
 			children = (
 				824F05B21ED5FAD000148A89 /* AVFoundation.swift */,
+				82A68BE91ED74C6900049AD9 /* CoreMedia.swift */,
 			);
 			name = Utils;
 			path = ../../common/Utils;
@@ -145,6 +152,7 @@
 				824F05AB1ED59A8F00148A89 /* TRVideoInput.swift */,
 				824F05AF1ED5F54500148A89 /* TRVideoOutput.swift */,
 				824F05AD1ED5EFB900148A89 /* TRVideoEncoderH264.swift */,
+				824F05B61ED6A56900148A89 /* TRVideoDecoderH264.swift */,
 			);
 			name = IO;
 			path = ../../common/IO;
@@ -154,7 +162,8 @@
 			isa = PBXGroup;
 			children = (
 				82FF15B11ED4C1D50015B93E /* Network.swift */,
-				82FF15AD1ED4BDFD0015B93E /* TRNetworkOutput.swift */,
+				82FF15AD1ED4BDFD0015B93E /* TRNetworkAudioOutput.swift */,
+				824F05B81ED6A8E300148A89 /* TRNetworkDataH264.swift */,
 			);
 			name = Network;
 			path = ../../common/Network;
@@ -290,16 +299,19 @@
 				824F05B31ED5FAD000148A89 /* AVFoundation.swift in Sources */,
 				1AC5D6041ECD5ACF00345F37 /* Util.swift in Sources */,
 				1A60DFF41EA30FC900BECD73 /* Backend.swift in Sources */,
+				82A68BEA1ED74C6A00049AD9 /* CoreMedia.swift in Sources */,
 				82FF15B21ED4C1D50015B93E /* Network.swift in Sources */,
 				1A3B27F31EB04D710017654D /* VideoViewController.swift in Sources */,
 				1AF35A951EA30C34002AFC3F /* ContactsViewController.swift in Sources */,
 				1ADE89E51EA1CE0E00E41212 /* AppDelegate.swift in Sources */,
 				1A60E0001EA4039400BECD73 /* Model.swift in Sources */,
+				824F05B71ED6A56900148A89 /* TRVideoDecoderH264.swift in Sources */,
 				824F05AC1ED59A9000148A89 /* TRVideoInput.swift in Sources */,
 				1A60DFF51EA30FC900BECD73 /* Wire.proto.swift in Sources */,
 				82FF15AA1ED4BD840015B93E /* TRAudioInput.swift in Sources */,
-				82FF15AE1ED4BDFD0015B93E /* TRNetworkOutput.swift in Sources */,
+				82FF15AE1ED4BDFD0015B93E /* TRNetworkAudioOutput.swift in Sources */,
 				1AF35A931EA30BFE002AFC3F /* TextViewController.swift in Sources */,
+				824F05B91ED6A8E300148A89 /* TRNetworkDataH264.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

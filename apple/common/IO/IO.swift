@@ -16,6 +16,14 @@ struct IOAudioData {
     var timeStamp: UnsafePointer<AudioTimeStamp>!
 }
 
+enum IOH264Part : Int {
+    case Time
+    case SPS
+    case PPS
+    case Data
+    case NetworkPacket // Time size, Time, SPS size, SPS, PPS size, PPS, Data size, Data
+}
+
 protocol IOAudioOutputProtocol {
     
     func start(_ format: UnsafePointer<AudioStreamBasicDescription>,
@@ -34,6 +42,11 @@ protocol IOVideoOutputProtocol {
     func process(_ data: CMSampleBuffer)
     
     func stop()
+}
+
+protocol IODataProtocol {
+    
+    func process(_ data: [Int: NSData])
 }
 
 enum IOError : Error {

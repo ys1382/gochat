@@ -8,7 +8,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     static let usernameKey = "usernamekey"
 
     let audioInp = TRAudioInput()
-    let audioOut = TRAudioOutputBroadcast([TRAudioOutputSerializer(TRAudioOutput()), TRNetworkOutput()])
+    let audioOut = TRAudioOutputBroadcast([TRAudioOutputSerializer(TRAudioOutput()), TRNetworkAudioOutput()])
     
     func login(username: String) {
         Backend.shared.connect(withUsername: username)

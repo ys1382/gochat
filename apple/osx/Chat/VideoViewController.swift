@@ -35,8 +35,12 @@ class VideoViewController: NSViewController, IOVideoOutputProtocol {
         self.network.layer?.addSublayer(networkLayer)
         
         // start capture
-        
-        output = TRVideoOutputBroadcast([self, TRVideoEncoderH264()])
+        // retain cycle here but it will be changed in implementation with networking
+        output =
+            TRVideoEncoderH264(
+                TRNetworkH264Serializer(
+                    TRNetworkH264Deserializer(
+                        TRVideoDecoderH264(self))))
         
         output.start()
         input.start(output)

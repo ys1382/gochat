@@ -5,7 +5,7 @@ import AudioToolbox
 // IOAudioOutputProtocol
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class TRNetworkOutput : IOAudioOutputProtocol {
+class TRNetworkAudioOutput : IOAudioOutputProtocol {
     
     
     func start(_ format: UnsafePointer<AudioStreamBasicDescription>,

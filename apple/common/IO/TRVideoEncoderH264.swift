@@ -5,11 +5,16 @@ import VideoToolbox
 class TRVideoEncoderH264 : IOVideoOutputProtocol {
     
     private var session: VTCompressionSession?
-
+    private var output: IODataProtocol?
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Interface
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    init(_ output: IODataProtocol) {
+        self.output = output
+    }
+    
     func start() {
         
         VTCompressionSessionCreate(
@@ -121,52 +126,60 @@ class TRVideoEncoderH264 : IOVideoOutputProtocol {
     
     private func encodeSampleBuffer(_ sampleBuffer: CMSampleBuffer) {
 
-        let dataSamples:NSMutableData = NSMutableData()
-        let dataH264:NSMutableData = NSMutableData()
+        var result = [Int: NSData]()
         
         do {
-            // H264 description
-            
             let formatDescription: CMFormatDescription = CMSampleBufferGetFormatDescription(sampleBuffer)!
-            let isKeyframe = !CFDictionaryContainsKey(unsafeBitCast(CFArrayGetValueAtIndex(CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, true), 0), to: CFDictionary.self), unsafeBitCast(kCMSampleAttachmentKey_NotSync, to: UnsafeRawPointer.self))
+
+            assert(CMSampleBufferGetNumSamples(sampleBuffer) == 1)
+
+            // timing info
             
-            if (isKeyframe) {
-                let sps = UnsafeMutablePointer<UnsafePointer<UInt8>?>.allocate(capacity:  1)
-                let pps = UnsafeMutablePointer<UnsafePointer<UInt8>?>.allocate(capacity:  1)
-                let spsLength = UnsafeMutablePointer<Int>.allocate(capacity:  1)
-                let ppsLength = UnsafeMutablePointer<Int>.allocate(capacity:  1)
-                let spsCount = UnsafeMutablePointer<Int>.allocate(capacity:  1)
-                let ppsCount = UnsafeMutablePointer<Int>.allocate(capacity:  1)
-                
-                spsLength.initialize(to: 0)
-                ppsLength.initialize(to: 0)
-                spsCount.initialize(to: 0)
-                ppsCount.initialize(to: 0)
-                
-                try checkStatus(CMVideoFormatDescriptionGetH264ParameterSetAtIndex(formatDescription,
-                                                                                   0,
-                                                                                   sps,
-                                                                                   spsLength,
-                                                                                   spsCount,
-                                                                                   nil),
-                                "An Error occured while getting h264 sps parameter")
-                
-                try checkStatus(CMVideoFormatDescriptionGetH264ParameterSetAtIndex(formatDescription,
-                                                                                   1,
-                                                                                   pps,
-                                                                                   ppsLength,
-                                                                                   ppsCount,
-                                                                                   nil),
-                                "An Error occured while getting h264 pps parameter")
-                
-                let naluStart:[UInt8] = [0x00, 0x00, 0x00, 0x01]
-                
-                dataSamples.append(naluStart, length: naluStart.count)
-                dataSamples.append(sps.pointee!, length: spsLength.pointee)
-                dataSamples.append(naluStart, length: naluStart.count)
-                dataSamples.append(pps.pointee!, length: ppsLength.pointee)
-            }
+            let timingInfo = UnsafeMutablePointer<CMSampleTimingInfo>.allocate(capacity: 1)
             
+            try checkStatus(CMSampleBufferGetSampleTimingInfo(sampleBuffer,
+                                                              0,
+                                                              timingInfo),
+                            "CMSampleBufferGetSampleTimingInfo failed")
+
+            result[IOH264Part.Time.rawValue] = timingInfo.pointee.toNSData()
+            
+            // H264 description (SPS)
+            
+            let sps = UnsafeMutablePointer<UnsafePointer<UInt8>?>.allocate(capacity:  1)
+            let spsLength = UnsafeMutablePointer<Int>.allocate(capacity:  1)
+            let count = UnsafeMutablePointer<Int>.allocate(capacity:  1)
+            
+            try checkStatus(CMVideoFormatDescriptionGetH264ParameterSetAtIndex(formatDescription,
+                                                                               0,
+                                                                               sps,
+                                                                               spsLength,
+                                                                               count,
+                                                                               nil),
+                            "An Error occured while getting h264 sps parameter")
+            
+            
+            assert(count.pointee == 2) // sps and pps
+            
+            result[IOH264Part.SPS.rawValue] = NSData(bytes: sps.pointee!, length: spsLength.pointee)
+           
+            // H264 description (PPS)
+
+            let pps = UnsafeMutablePointer<UnsafePointer<UInt8>?>.allocate(capacity:  1)
+            let ppsLength = UnsafeMutablePointer<Int>.allocate(capacity:  1)
+
+            try checkStatus(CMVideoFormatDescriptionGetH264ParameterSetAtIndex(formatDescription,
+                                                                               1,
+                                                                               pps,
+                                                                               ppsLength,
+                                                                               count,
+                                                                               nil),
+                            "An Error occured while getting h264 pps parameter")
+
+            assert(count.pointee == 2) // sps and pps
+
+            result[IOH264Part.PPS.rawValue] = NSData(bytes: pps.pointee!, length: ppsLength.pointee)
+
             // H264 data
             
             let blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer)
@@ -180,27 +193,16 @@ class TRVideoEncoderH264 : IOVideoOutputProtocol {
                                                         &totalLength,
                                                         &dataPointer), "CMBlockBufferGetDataPointer failed")
             
-            var bufferOffset = 0;
-            let AVCCHeaderLength = 4
+            assert(length == totalLength)
             
-            while bufferOffset < totalLength - AVCCHeaderLength {
-                var NALUnitLength:UInt32 = 0
-                memcpy(&NALUnitLength, dataPointer!.advanced(by: bufferOffset), AVCCHeaderLength)
-                NALUnitLength = CFSwapInt32BigToHost(NALUnitLength)
-                
-                let naluStart:[UInt8] = [0x00, 0x00, 0x00, 0x01]
-                
-                dataH264.append(naluStart, length: naluStart.count)
-                dataH264.append(dataPointer!.advanced(by: bufferOffset + AVCCHeaderLength), length: Int(NALUnitLength))
-                
-                bufferOffset += (AVCCHeaderLength + Int(NALUnitLength))
-            }
+            result[IOH264Part.Data.rawValue] = NSData(bytes: dataPointer!, length: Int(totalLength))
+
+            // output
             
-            logNetwork("write video \(dataSamples.length + dataH264.length) bytes")
+            output?.process(result)
         }
         catch {
             logIOError(error.localizedDescription)
         }
     }
-
 }
