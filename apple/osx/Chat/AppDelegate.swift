@@ -7,14 +7,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     static var shared: AppDelegate!
     static let usernameKey = "usernamekey"
 
-    let audioInp = TRAudioInput()
-    let audioOut = TRAudioOutputBroadcast([TRAudioOutputSerializer(TRAudioOutput()), TRNetworkAudioOutput()])
+    let audioOut: TRAudioOutput
+    let audioInp: TRAudioInput
     
     func login(username: String) {
         Backend.shared.connect(withUsername: username)
     }
 
     override init() {
+        audioOut = TRAudioOutput()
+        audioInp = TRAudioInput(
+            TRNetworkAACSerializer(
+                TRNetworkAACDeserializer(
+                    audioOut)))
+
         super.init()
         
         AppDelegate.shared = self
@@ -34,7 +40,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
         
-        audioInp.start(kAudioFormatMPEG4AAC_ELD, 0.1, audioOut)
+        audioInp.start(kAudioFormatMPEG4AAC_ELD, 0.1)
+        audioOut.start(&audioInp.format!, audioInp.packetMaxSize, 0.1)
     }
 
     static func ask(title: String, subtitle: String, cancelable: Bool, done:(String?)->Void) {

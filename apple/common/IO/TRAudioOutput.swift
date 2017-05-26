@@ -2,74 +2,6 @@
 import AudioToolbox
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// TRAudioOutputChain
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class TRAudioOutputBroadcast : IOAudioOutputProtocol {
-    
-    private let clients: [IOAudioOutputProtocol]
-    
-    init(_ clients: [IOAudioOutputProtocol]) {
-        self.clients = clients
-    }
-    
-    func start(_ format: UnsafePointer<AudioStreamBasicDescription>,
-               _ maxPacketSize: UInt32,
-               _ interval: Double) {
-        _ = clients.map({ $0.start(format, maxPacketSize, interval) })
-    }
-    
-    func process(_ data: IOAudioData) {
-        _ = clients.map({ $0.process(data) })
-    }
-    
-    func stop() {
-        _ = clients.map({ $0.stop() })
-    }
-
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// TRAudioOutputSerializer
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class TRAudioOutputSerializer : IOAudioOutputProtocol {
-    
-    private let next: IOAudioOutputProtocol
-    
-    init(_ next: IOAudioOutputProtocol) {
-        self.next = next
-    }
-    
-    func start(_ format: UnsafePointer<AudioStreamBasicDescription>,
-               _ maxPacketSize: UInt32,
-               _ interval: Double) {
-        
-        next.start(format, maxPacketSize, interval)
-    }
-    
-    func process(_ data: IOAudioData) {
-        
-        // TODO: serialize:
-        // 1. AudioQueueBufferRef.mAudioDataByteSize
-        // 2. AudioQueueBufferRef.mAudioData
-        // 3. packet descriptions number
-        // 4. packet descriptions
-        // 5. timestamp
-        
-        let serialized = data.serialize()
-        let deserialized = IOAudioData.deserialize(serialized)
-        
-        next.process(deserialized)
-    }
-    
-    func stop() {
-        
-        next.stop()
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TRAudioOutput
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -80,7 +12,7 @@ class TRAudioOutput : IOAudioOutputProtocol {
     private var packetsToRead: UInt32 = 0
     
     func start(_ format: UnsafePointer<AudioStreamBasicDescription>,
-               _ maxPacketSize: UInt32,
+               _ packetMaxSize: UInt32,
                _ interval: Double) {
         
         do {
@@ -101,7 +33,7 @@ class TRAudioOutput : IOAudioOutputProtocol {
             
             // adjust buffer size to represent about a half second of audio based on this format
             var bufferByteSize: UInt32 = 0
-            _calculateBytesForTime (format.pointee, maxPacketSize, interval, &bufferByteSize, &packetsToRead)
+            _calculateBytesForTime (format.pointee, packetMaxSize, interval, &bufferByteSize, &packetsToRead)
             
             let isFormatVBR = format.pointee.mBytesPerPacket == 0 || format.pointee.mFramesPerPacket == 0
             
@@ -160,7 +92,7 @@ class TRAudioOutput : IOAudioOutputProtocol {
     }
     
     private func _calculateBytesForTime(_ inDesc: AudioStreamBasicDescription,
-                                        _ inMaxPacketSize: UInt32,
+                                        _ inpacketMaxSize: UInt32,
                                         _ inSeconds: Double,
                                         _ outBufferSize: inout UInt32,
                                         _ outNumPackets: inout UInt32)
@@ -173,17 +105,17 @@ class TRAudioOutput : IOAudioOutputProtocol {
 
         if (inDesc.mFramesPerPacket != 0) {
             let numPacketsForTime = inDesc.mSampleRate / Double(inDesc.mFramesPerPacket) * inSeconds
-            outBufferSize = UInt32(numPacketsForTime * Double(inMaxPacketSize))
+            outBufferSize = UInt32(numPacketsForTime * Double(inpacketMaxSize))
         }
         else {
             // if frames per packet is zero, then the codec has no predictable packet == time
             // so we can't tailor this (we don't know how many Packets represent a time period
             // we'll just return a default buffer size
-            outBufferSize = maxBufferSize > inMaxPacketSize ? maxBufferSize : inMaxPacketSize;
+            outBufferSize = maxBufferSize > inpacketMaxSize ? maxBufferSize : inpacketMaxSize;
         }
         
         // we're going to limit our size to our default
-        if (outBufferSize > maxBufferSize && outBufferSize > inMaxPacketSize) {
+        if (outBufferSize > maxBufferSize && outBufferSize > inpacketMaxSize) {
             outBufferSize = maxBufferSize
         }
         else if (outBufferSize < minBufferSize) {
@@ -191,7 +123,7 @@ class TRAudioOutput : IOAudioOutputProtocol {
             outBufferSize = minBufferSize;
         }
         
-        outNumPackets = outBufferSize / inMaxPacketSize;
+        outNumPackets = outBufferSize / inpacketMaxSize;
     }
 
     private let callback: AudioQueueOutputCallback = {

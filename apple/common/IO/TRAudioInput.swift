@@ -4,44 +4,51 @@ import AVFoundation
 
 class TRAudioInput
 {
-    private var output: IOAudioOutputProtocol?
-    
+    public var format: AudioStreamBasicDescription?
+    public var packetMaxSize: UInt32 = 0
+
     private var queue: AudioQueueRef?
     private var	buffer: AudioQueueBufferRef?
-    private var format = AudioStreamBasicDescription()
+
+    private var output: IOAudioOutputProtocol?
     
-    func start(_ formatID: UInt32, _ interval: Double, _ output: IOAudioOutputProtocol) {
+    init(_ output: IOAudioOutputProtocol?) {
+        self.output = output
+    }
+    
+    func start(_ formatID: UInt32, _ interval: Double) {
         
         // prepare format
         
+        self.format = AudioStreamBasicDescription()
+
         let engine = AVAudioEngine()
         let inputFormat = engine.inputNode!.inputFormat(forBus: IOBus.input)
         
-        format.mSampleRate = inputFormat.sampleRate;
-        format.mChannelsPerFrame = inputFormat.channelCount;
-        format.mFormatID = formatID;
+        format!.mSampleRate = inputFormat.sampleRate;
+        format!.mChannelsPerFrame = inputFormat.channelCount;
+        format!.mFormatID = formatID;
         
         if (formatID == kAudioFormatLinearPCM)
         {
             // if we want pcm, default to signed 16-bit little-endian
-            format.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
-            format.mBitsPerChannel = 16;
-            format.mBytesPerFrame = (format.mBitsPerChannel / 8) * format.mChannelsPerFrame;
-            format.mBytesPerPacket = format.mBytesPerFrame
-            format.mFramesPerPacket = 1;
+            format!.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
+            format!.mBitsPerChannel = 16;
+            format!.mBytesPerFrame = (format!.mBitsPerChannel / 8) * format!.mChannelsPerFrame;
+            format!.mBytesPerPacket = format!.mBytesPerFrame
+            format!.mFramesPerPacket = 1;
         }
 
         // start queue
         
         var bufferByteSize: UInt32
         var size: UInt32
-        var packetMaxSize: UInt32 = 0
 
         do {
             // create the queue
             
             try checkStatus(AudioQueueNewInput(
-                &format,
+                &format!,
                 callback,
                 Unmanaged.passUnretained(self).toOpaque() /* userData */,
                 CFRunLoopGetCurrent(), CFRunLoopMode.commonModes.rawValue,
@@ -61,7 +68,7 @@ class TRAudioInput
             
             // allocate and enqueue buffers
             
-            bufferByteSize = computeBufferSize(format,
+            bufferByteSize = computeBufferSize(format!,
                                                interval,
                                                &packetMaxSize);	// enough bytes for kBufferDurationSeconds
            
@@ -83,15 +90,12 @@ class TRAudioInput
         catch {
             logIOError(error.localizedDescription)
         }
-        
-        // start output
-        
-        self.output = output
-        output.start(&format, packetMaxSize, interval)
     }
     
     func stop() {
         do {
+            format = nil
+            
             // end recording
             try checkStatus(AudioQueueStop(queue!,
                                            true), "AudioQueueStop failed")
@@ -105,9 +109,9 @@ class TRAudioInput
         }
     }
     
-    func computeBufferSize(_ format: AudioStreamBasicDescription,
+    private func computeBufferSize(_ format: AudioStreamBasicDescription,
                            _ interval: Double,
-                           _ maxPacketSize: inout UInt32) -> UInt32
+                           _ packetMaxSize: inout UInt32) -> UInt32
     {
         var packets: UInt32
         var frames: UInt32
@@ -118,17 +122,17 @@ class TRAudioInput
             
             if (format.mBytesPerFrame > 0) {
                 bytes = frames * format.mBytesPerFrame
-                maxPacketSize = format.mBytesPerPacket
+                packetMaxSize = format.mBytesPerPacket
             }
             else {
                 if (format.mBytesPerPacket > 0) {
-                    maxPacketSize = format.mBytesPerPacket	// constant packet size
+                    packetMaxSize = format.mBytesPerPacket	// constant packet size
                 }
                 else {
                     var propertySize: UInt32 = UInt32(MemoryLayout<UInt32>.size)
                     try checkStatus(AudioQueueGetProperty(queue!,
                                                           kAudioQueueProperty_MaximumOutputPacketSize,
-                                                          &maxPacketSize,
+                                                          &packetMaxSize,
                                                           &propertySize),
                                     "couldn't get queue's maximum output packet size")
                 }
@@ -144,7 +148,7 @@ class TRAudioInput
                     packets = 1
                 }
                 
-                bytes = packets * maxPacketSize;
+                bytes = packets * packetMaxSize;
             }
         }
         catch {
@@ -162,13 +166,11 @@ class TRAudioInput
         inNumPackets: UInt32,
         inPacketDesc: UnsafePointer<AudioStreamPacketDescription>?) in
         
-//        inBuffer.pointee.mAudioData.
         let input = Unmanaged<TRAudioInput>.fromOpaque(inUserData!).takeUnretainedValue()
         
         logIO("audio \(AVAudioTime.seconds(forHostTime: inStartTime.pointee.mHostTime))")
         
         
-//inBuffer.pointee.mAudioData.
         do {
             if (inNumPackets > 0) {
                 var bytes = UnsafeMutablePointer<Int8>.allocate(capacity: Int(inBuffer.pointee.mAudioDataByteSize))

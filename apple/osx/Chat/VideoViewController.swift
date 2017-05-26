@@ -42,13 +42,11 @@ class VideoViewController: NSViewController, IOVideoOutputProtocol {
                     TRNetworkH264Deserializer(
                         TRVideoDecoderH264(self))))
         
-        output.start()
         input.start(output)
     }
 
     override func viewDidDisappear() {
         input.stop()
-        output.stop()
     }
     
     lazy var networkLayer: AVSampleBufferDisplayLayer = {

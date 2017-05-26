@@ -13,6 +13,8 @@ class TRVideoEncoderH264 : IOVideoOutputProtocol {
 
     init(_ output: IODataProtocol) {
         self.output = output
+        
+        start()
     }
     
     func start() {
