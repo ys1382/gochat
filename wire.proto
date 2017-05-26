@@ -47,12 +47,11 @@ message FormatDescription {
 }
 
 message VideoSample {
-    Timestamp timestamp = 1;
-    Image image = 2;
-    FormatDescription format = 3;
+    Image image = 1;
 }
 
 message AudioSample {
+    Image image = 1;
 }
 
 message Av {

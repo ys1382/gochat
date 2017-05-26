@@ -17,9 +17,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     override init() {
         audioOut = TRAudioOutput()
         audioInp = TRAudioInput(
-            TRNetworkAACSerializer(
-                TRNetworkAACDeserializer(
-                    audioOut)))
+            TRNetworkAACSerializer(TRNetworkAudioSender()))
 
         super.init()
         
@@ -42,6 +40,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         audioInp.start(kAudioFormatMPEG4AAC_ELD, 0.1)
         audioOut.start(&audioInp.format!, audioInp.packetMaxSize, 0.1)
+
+        Backend.shared.audio = TRNetworkAACDeserializer(audioOut)
     }
 
     static func ask(title: String, subtitle: String, cancelable: Bool, done:(String?)->Void) {

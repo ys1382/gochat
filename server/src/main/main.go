@@ -182,6 +182,10 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
         if _,ok := chat.clients[sessionId]; ok {
           forward(sessionId, haber)
         }
+      case Haber_AV:
+        if _,ok := chat.clients[sessionId]; ok {
+          forward(sessionId, haber)
+        }
       }
     }
   }()

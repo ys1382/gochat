@@ -27,7 +27,7 @@ class Model {
     func didReceiveText(_ haber: Haber) {
         let from = haber.from
         if haber.from != self.watching {
-            self.unreads[from] = (self.unreads[from] ?? 0) + 1
+            self.unreads[from!] = (self.unreads[from!] ?? 0) + 1
         }
         self.texts.append(haber)
         self.post(about:.text)

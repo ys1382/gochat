@@ -3,10 +3,13 @@ import Starscream
 
 class Backend: WebSocketDelegate {
 
-    static let address = "ws://107.170.4.248:8000/ws"
+    static let address = "ws://localhost:8000/ws"
 
     static let shared = Backend()
 
+    public var audio: IODataProtocol?
+    public var video: IODataProtocol?
+    
     private var websocket: WebSocket?
     private var sessionId: String?
 
@@ -20,6 +23,10 @@ class Backend: WebSocketDelegate {
         websocket?.delegate = self
         websocket?.connect()
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Send
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     func send(_ haberBuilder:Haber.Builder) {
         guard let haber = try? haberBuilder.setSessionId(self.sessionId ?? "").build() else {
@@ -44,7 +51,57 @@ class Backend: WebSocketDelegate {
         Backend.shared.send(haberBuilder)
     }
 
+    func sendVideo(_ data: NSData) {
+        
+        do {
+            let image = try Image.Builder().setData(data as Data).build()
+            let media = try VideoSample.Builder().setImage(image).build()
+            let av = try Av.Builder().setVideo(media).build()
+            
+            let haberBuilder = Haber.Builder().setAv(av).setWhich(.av)
+            haberBuilder.setTo(Model.shared.username!)
+            
+            Backend.shared.send(haberBuilder)
+        }
+        catch {
+            logNetwork(error.localizedDescription)
+        }
+    }
+
+    func sendAudio(_ data: NSData) {
+        
+        do {
+            let image = try Image.Builder().setData(data as Data).build()
+            let media = try AudioSample.Builder().setImage(image).build()
+            let av = try Av.Builder().setAudio(media).build()
+            
+            let haberBuilder = Haber.Builder().setAv(av).setWhich(.av)
+            haberBuilder.setTo(Model.shared.username!)
+            
+            Backend.shared.send(haberBuilder)
+        }
+        catch {
+            logNetwork(error.localizedDescription)
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Receive
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    func getsAV(haber: Haber) {
+        if (haber.av.hasAudio) {
+            audio?.process([IOAACPart.NetworkPacket.rawValue: haber.av.audio.image.data as NSData])
+        }
+        
+        if (haber.av.hasVideo) {
+            video?.process([IOH264Part.NetworkPacket.rawValue: haber.av.video.image.data as NSData])
+        }
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // websocket delegate
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public func websocketDidConnect(_ websocket: Starscream.WebSocket) {
         if let username = Model.shared.username {
@@ -84,6 +141,8 @@ class Backend: WebSocketDelegate {
             Model.shared.didReceiveText(haber)
         case .presence:
             Model.shared.didReceivePresence(haber)
+        case .av:
+            getsAV(haber: haber)
         default:
             logNetworkError("did not handle \(haber.which)")
         }
