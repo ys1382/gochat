@@ -15,9 +15,10 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:name=".ChatApplication" >
         <activity
-            android:name=".SplashActivity"
+            android:name=".ui.SplashActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -27,22 +28,25 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ItemListActivity"
+            android:name=".ui.ItemListActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
-            android:name=".ItemDetailActivity"
+            android:name=".ui.ItemDetailActivity"
             android:label="@string/title_item_detail"
-            android:parentActivityName=".ItemListActivity"
+            android:parentActivityName=".ui.ItemListActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ItemListActivity"/>
+                android:value=".ui.ItemListActivity"/>
         </activity>
         <activity
-            android:name=".LoginActivity"
+            android:name=".ui.LoginActivity"
             android:label="@string/title_activity_login"/>
+        <service
+            android:name=".Network"
+            android:exported="false"/>
     </application>
 
 </manifest>

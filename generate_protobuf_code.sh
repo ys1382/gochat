@@ -1,6 +1,6 @@
 # https://github.com/alexeyxo/protobuf-swift
 echo "generating swift code..."
-protoc  wire.proto --swift_out=./apple/common
+protoc wire.proto --swift_out=./apple/common
 
 # https://github.com/golang/protobuf
 echo "generating golang code..."
