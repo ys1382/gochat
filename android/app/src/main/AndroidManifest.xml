@@ -45,7 +45,7 @@
             android:name=".ui.LoginActivity"
             android:label="@string/title_activity_login"/>
         <service
-            android:name=".Network"
+            android:name=".Backend"
             android:exported="false"/>
     </application>
 
