@@ -39,8 +39,8 @@ public class LoginActivity extends AppCompatActivity {
             return false;
         });
 
-        Button signInButton = (Button) findViewById(R.id.sign_in_button);
-        signInButton.setOnClickListener((View view) -> { didClickSignIn(); });
+//        Button signInButton = (Button) findViewById(R.id.sign_in_button);
+//        signInButton.setOnClickListener((View view) -> { didClickSignIn(); });
 
         loginFormView = findViewById(R.id.login_form);
         progressView = findViewById(R.id.login_progress);
@@ -99,7 +99,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    public void didClickSignIn() {
+    public void onClickSignIn(View v) {
         if (!validateInput()) {
             return;
         }
@@ -110,4 +110,6 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(new Intent(this, ItemListActivity.class));
         });
     }
+
+    public void onClickRegister(View v) {}
 }

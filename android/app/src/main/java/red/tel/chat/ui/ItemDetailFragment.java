@@ -23,14 +23,13 @@ public class ItemDetailFragment extends Fragment {
      */
     public static final String ARG_ITEM_ID = "item_id";
 
-    private String mItem;
+    private String item;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public ItemDetailFragment() {
-    }
+    public ItemDetailFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,12 +39,12 @@ public class ItemDetailFragment extends Fragment {
             // Load the dummy content specified by the fragment
             // arguments. In a real-world scenario, use a Loader
             // to load content from a content provider.
-            mItem = getArguments().getString(ARG_ITEM_ID);
+            item = getArguments().getString(ARG_ITEM_ID);
 
             Activity activity = this.getActivity();
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
             if (appBarLayout != null) {
-                appBarLayout.setTitle(mItem);
+                appBarLayout.setTitle(item);
             }
         }
     }
@@ -53,7 +52,7 @@ public class ItemDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.item_detail, container, false);
-        getActivity().setTitle(mItem);
+        getActivity().setTitle(item);
         return rootView;
     }
 }

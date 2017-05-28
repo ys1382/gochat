@@ -9,7 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".LoginActivity">
+    tools:context=".ui.LoginActivity">
 
     <!-- Login progress -->
     <ProgressBar
@@ -38,7 +38,7 @@
                     android:id="@+id/username"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/prompt_username"
+                    android:hint="@string/username"
                     android:maxLines="1" />
             </android.support.design.widget.TextInputLayout>
 
@@ -49,7 +49,7 @@
                     android:id="@+id/password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/prompt_password"
+                    android:hint="@string/password"
                     android:imeActionId="@+id/login"
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
@@ -59,7 +59,7 @@
 
             <Button
                 android:id="@+id/sign_in_button"
-                android:onClick="didClickSignIn"
+                android:onClick="onClickSignIn"
                 style="?android:textAppearanceSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -69,7 +69,7 @@
 
             <Button
                 android:id="@+id/register_button"
-                android:onClick="didClickRegister"
+                android:onClick="onClickRegister"
                 style="?android:textAppearanceSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -2,30 +2,22 @@ package red.tel.chat.ui;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,8 +46,8 @@ public class ItemListActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener((View view) -> didClickAdd());
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener((View view) -> onClickAdd());
 
         View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
@@ -87,7 +79,7 @@ public class ItemListActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
             holder.dummyItem = this.values.get(position);
-            holder.idView.setText(this.values.get(position));
+            holder.contactName.setText(this.values.get(position));
 
             holder.view.setOnClickListener((View v) -> {
                 if (isTwoPane) {
@@ -102,7 +94,6 @@ public class ItemListActivity extends AppCompatActivity {
                     Context context = v.getContext();
                     Intent intent = new Intent(context, ItemDetailActivity.class);
                     intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, holder.dummyItem);
-
                     context.startActivity(intent);
                 }
             });
@@ -115,15 +106,37 @@ public class ItemListActivity extends AppCompatActivity {
 
         class ViewHolder extends RecyclerView.ViewHolder {
             final View view;
-            final TextView idView;
+            final TextView contactName;
+            final ImageButton deleteContact;
             String dummyItem;
 
             ViewHolder(View view) {
                 super(view);
                 this.view = view;
-                idView = (TextView) view.findViewById(R.id.id);
+                contactName = (TextView) view.findViewById(R.id.contactName);
+                deleteContact = (ImageButton) view.findViewById(R.id.deleteContact);
+                view.setOnLongClickListener(v -> {
+                    deleteContact.setVisibility(View.VISIBLE);
+                    return true;
+                });
             }
+
         }
+    }
+
+    public void onClickDelete(View v) {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle(R.string.del_contact_title);
+        alert.setMessage(R.string.del_contact_message);
+
+        alert.setPositiveButton(R.string.ok, (dialog, whichButton) -> {
+//            recyclerViewAdapter.values.remove(contactName.getText().toString());
+            Model.setContacts(recyclerViewAdapter.values);
+            recyclerViewAdapter.notifyDataSetChanged();
+        });
+
+        alert.setNegativeButton(R.string.cancel, (dialog, whichButton) -> dialog.cancel());
+        alert.create().show();
     }
 
     protected void onResume() {
@@ -145,25 +158,22 @@ public class ItemListActivity extends AppCompatActivity {
         }
     };
 
-    private void didClickAdd() {
+    public void onClickAdd(View v) {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("Alert Dialog With EditText"); //Set Alert dialog title here
-        alert.setMessage("Enter Your Name Here"); //Message here
+        alert.setTitle(R.string.add_contact_title);
+        alert.setMessage(R.string.add_contact_message);
 
         final EditText input = new EditText(this);
         alert.setView(input);
 
-        alert.setPositiveButton("OK", (dialog, whichButton) -> {
-            String srt = input.getEditableText().toString();
-            Log.d(TAG, srt);
+        alert.setPositiveButton(R.string.ok, (dialog, whichButton) -> {
+            String name = input.getEditableText().toString();
+            recyclerViewAdapter.values.add(name);
+            Model.setContacts(recyclerViewAdapter.values);
+            recyclerViewAdapter.notifyDataSetChanged();
         });
 
-        alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                dialog.cancel();
-            }
-        });
-        AlertDialog alertDialog = alert.create();
-        alertDialog.show();
+        alert.setNegativeButton(R.string.cancel, (dialog, whichButton) -> dialog.cancel());
+        alert.create().show();
     }
 }
