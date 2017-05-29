@@ -10,7 +10,7 @@ class VideoViewController: NSViewController, VideoOutputProtocol {
     var captureLayer = AVSampleBufferDisplayLayer()
     var previewLayer = AVCaptureVideoPreviewLayer()
 
-    let input = VideoInput(AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo) as AVCaptureDevice)
+    var input: VideoInput!
     var output: VideoOutputProtocol!
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -20,6 +20,21 @@ class VideoViewController: NSViewController, VideoOutputProtocol {
     override func viewDidAppear() {
         super.viewDidAppear()
 
+        // start capture
+        
+        Backend.shared.video =
+            NetworkH264Deserializer(
+                VideoDecoderH264(self))
+        
+        input = VideoInput(
+            VideoEncoderH264(
+                NetworkH264Serializer(
+                    NetworkVideoSender())))
+        
+        input.start(AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo) as AVCaptureDevice)
+
+        // views
+        
         captureLayer.bounds = CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.height)
         captureLayer.position = CGPoint(x: self.view.bounds.midX, y: self.view.bounds.midY)
         captureLayer.videoGravity = AVLayerVideoGravityResize
@@ -34,17 +49,6 @@ class VideoViewController: NSViewController, VideoOutputProtocol {
         self.preview.layer?.addSublayer(previewLayer)
         self.capture.layer?.addSublayer(captureLayer)
         self.network.layer?.addSublayer(networkLayer)
-        
-        // start capture
-        output =
-            VideoEncoderH264(
-                NetworkH264Serializer(NetworkVideoSender()))
-        
-        Backend.shared.video =
-            NetworkH264Deserializer(
-                VideoDecoderH264(self))
-        
-        input.start(output)
     }
 
     override func viewDidDisappear() {

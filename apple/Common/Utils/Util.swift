@@ -10,7 +10,7 @@ func logMessage(_ scope: String, _ message: String) {
 }
 
 func logError(_ scope: String, _ error: Error) {
-    logMessage("Error in " + scope + ": " + error.localizedDescription)
+    logMessage("Error in " + scope + ": " + String(describing: error))
 }
 
 func logError(_ scope: String, _ message: String) {

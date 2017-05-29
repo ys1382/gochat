@@ -88,7 +88,6 @@ class AudioOutput : AudioOutputProtocol {
         catch {
             logIOError(error)
         }
-
     }
     
     private func _calculateBytesForTime(_ inDesc: AudioStreamBasicDescription,

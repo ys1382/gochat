@@ -3,7 +3,9 @@ import Starscream
 
 class Backend: WebSocketDelegate {
 
-    static let address = "ws://localhost:8000/ws"
+    static let address = "ws://107.170.4.248:8000/ws"
+//    static let address = "ws://localhost:8000/ws"
+//    static let address = "ws://192.168.8.100:8000/ws"
 
     static let shared = Backend()
 
@@ -53,13 +55,15 @@ class Backend: WebSocketDelegate {
 
     func sendVideo(_ data: NSData) {
         
+        guard let username = Model.shared.watching else { return }
+        
         do {
             let image = try Image.Builder().setData(data as Data).build()
             let media = try VideoSample.Builder().setImage(image).build()
             let av = try Av.Builder().setVideo(media).build()
             
             let haberBuilder = Haber.Builder().setAv(av).setWhich(.av)
-            haberBuilder.setTo(Model.shared.username!)
+            haberBuilder.setTo(username)
             
             Backend.shared.send(haberBuilder)
         }
@@ -70,13 +74,15 @@ class Backend: WebSocketDelegate {
 
     func sendAudio(_ data: NSData) {
         
+        guard let username = Model.shared.watching else { return }
+
         do {
             let image = try Image.Builder().setData(data as Data).build()
             let media = try AudioSample.Builder().setImage(image).build()
             let av = try Av.Builder().setAudio(media).build()
             
             let haberBuilder = Haber.Builder().setAv(av).setWhich(.av)
-            haberBuilder.setTo(Model.shared.username!)
+            haberBuilder.setTo(username)
             
             Backend.shared.send(haberBuilder)
         }

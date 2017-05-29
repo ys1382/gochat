@@ -36,7 +36,9 @@ class DetailViewController: UIViewController {
     }
 
     override func viewDidDisappear(_ animated: Bool) {
-        Model.shared.watching = nil
+        if self.navigationController?.viewControllers.contains(self) == false {
+            Model.shared.watching = nil
+        }
     }
 
     private func updateTranscript() {
