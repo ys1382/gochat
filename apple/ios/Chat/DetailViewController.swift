@@ -6,6 +6,7 @@ class DetailViewController: UIViewController {
     @IBOutlet weak var detailDescriptionLabel: UILabel!
     @IBOutlet weak var input: UITextField!
     @IBOutlet weak var transcript: UITextView!
+    @IBOutlet weak var cameraBarButtonItem: UIBarButtonItem!
 
     @IBAction func sendClicked(_ sender: Any) {
         guard let body = input.text, let whom = Model.shared.watching else {
@@ -14,6 +15,14 @@ class DetailViewController: UIViewController {
         }
         Backend.shared.sendText(body, to: whom)
         input.text = ""
+    }
+
+    @IBAction func cameraBarButtonItemAction(_ sender: UIBarButtonItem) {
+        let mediaID = String(describing: MediaViewController.self)
+        let media = self.storyboard?.instantiateViewController(withIdentifier: mediaID)
+        
+        self.navigationController?.pushViewController(media!,
+                                                      animated: true)
     }
 
     override func viewDidLoad() {

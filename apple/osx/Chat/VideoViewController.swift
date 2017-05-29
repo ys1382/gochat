@@ -10,7 +10,7 @@ class VideoViewController: NSViewController, IOVideoOutputProtocol {
     var captureLayer = AVSampleBufferDisplayLayer()
     var previewLayer = AVCaptureVideoPreviewLayer()
 
-    let input = TRVideoInput()
+    let input = TRVideoInput(AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo) as AVCaptureDevice)
     var output: IOVideoOutputProtocol!
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -25,10 +25,11 @@ class VideoViewController: NSViewController, IOVideoOutputProtocol {
         captureLayer.videoGravity = AVLayerVideoGravityResize
         captureLayer.flush()
 
-        previewLayer = AVCaptureVideoPreviewLayer(session: input.session)
+        previewLayer = AVCaptureVideoPreviewLayer()
         previewLayer.bounds = CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.height)
         previewLayer.position = CGPoint(x: self.view.bounds.midX, y: self.view.bounds.midY)
         previewLayer.videoGravity = AVLayerVideoGravityResize
+        previewLayer.session = input.session
 
         self.preview.layer?.addSublayer(previewLayer)
         self.capture.layer?.addSublayer(captureLayer)
@@ -72,10 +73,6 @@ class VideoViewController: NSViewController, IOVideoOutputProtocol {
     // IOVideoOutputProtocol
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    func start() {
-        
-    }
-    
     func process(_ data: CMSampleBuffer) {
         
         if captureLayer.isReadyForMoreMediaData {
@@ -83,9 +80,4 @@ class VideoViewController: NSViewController, IOVideoOutputProtocol {
             captureLayer.enqueue(data)
         }
     }
-    
-    func stop() {
-        
-    }
-
 }

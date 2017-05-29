@@ -6,11 +6,16 @@ class TRVideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     public  var session = AVCaptureSession()
     private var output: IOVideoOutputProtocol?
+    private var device: AVCaptureDevice?
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Interface
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    init(_ device: AVCaptureDevice?) {
+        self.device = device
+    }
+    
     func start(_ output: IOVideoOutputProtocol?) {
         NotificationCenter.default.addObserver(
             forName: .AVSampleBufferDisplayLayerFailedToDecode,
@@ -27,10 +32,8 @@ class TRVideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         session.commitConfiguration()
         session.startRunning()
         
-        let videoCaptureDevice = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo) as AVCaptureDevice
-        
         do {
-            let videoDeviceInput = try AVCaptureDeviceInput(device: videoCaptureDevice)
+            let videoDeviceInput = try AVCaptureDeviceInput(device: device)
             
             if (session.canAddInput(videoDeviceInput) == true) {
                 session.addInput(videoDeviceInput)
@@ -46,7 +49,6 @@ class TRVideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             if (session.canAddOutput(videoDataOutput) == true) {
                 session.addOutput(videoDataOutput)
             }
-            
         } catch {
             logIOError(error.localizedDescription)
         }

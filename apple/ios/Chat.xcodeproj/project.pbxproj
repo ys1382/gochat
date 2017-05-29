@@ -29,6 +29,7 @@
 		82A68C041ED8497D00049AD9 /* AVFoundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82A68BF91ED8497D00049AD9 /* AVFoundation.swift */; };
 		82A68C051ED8497D00049AD9 /* CoreMedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82A68BFA1ED8497D00049AD9 /* CoreMedia.swift */; };
 		82A68C091ED84B3400049AD9 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82A68C081ED84B3400049AD9 /* Util.swift */; };
+		82A68C0C1EDBDE0500049AD9 /* MediaViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82A68C0B1EDBDE0500049AD9 /* MediaViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -56,6 +57,7 @@
 		82A68BF91ED8497D00049AD9 /* AVFoundation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVFoundation.swift; sourceTree = "<group>"; };
 		82A68BFA1ED8497D00049AD9 /* CoreMedia.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreMedia.swift; sourceTree = "<group>"; };
 		82A68C081ED84B3400049AD9 /* Util.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
+		82A68C0B1EDBDE0500049AD9 /* MediaViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaViewController.swift; sourceTree = "<group>"; };
 		C5A48039D30C2E9ECC041BE6 /* Pods-Chat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chat.release.xcconfig"; path = "Pods/Target Support Files/Pods-Chat/Pods-Chat.release.xcconfig"; sourceTree = "<group>"; };
 		F1950861D287C0179BA10F15 /* Pods-Chat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chat.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Chat/Pods-Chat.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -113,6 +115,7 @@
 				82A68BED1ED8497D00049AD9 /* IO */,
 				82A68BF51ED8497D00049AD9 /* Network */,
 				82A68BF81ED8497D00049AD9 /* Utils */,
+				82A68C0A1EDBDD6F00049AD9 /* UI */,
 				1AB0620B1E8843E500A841D0 /* AppDelegate.swift */,
 				1AA0003A1EAD9A36006B9EE7 /* SplitViewController.swift */,
 				1AB0620D1E8843E500A841D0 /* MasterViewController.swift */,
@@ -134,9 +137,9 @@
 				82A68BEF1ED8497D00049AD9 /* TRAudioInput.swift */,
 				82A68BF01ED8497D00049AD9 /* TRAudioOutput.swift */,
 				82A68BF11ED8497D00049AD9 /* TRNetworkH264.swift */,
+				82A68BF41ED8497D00049AD9 /* TRVideoInput.swift */,
 				82A68BF21ED8497D00049AD9 /* TRVideoDecoderH264.swift */,
 				82A68BF31ED8497D00049AD9 /* TRVideoEncoderH264.swift */,
-				82A68BF41ED8497D00049AD9 /* TRVideoInput.swift */,
 			);
 			name = IO;
 			path = ../../common/IO;
@@ -161,6 +164,14 @@
 			);
 			name = Utils;
 			path = ../../common/Utils;
+			sourceTree = "<group>";
+		};
+		82A68C0A1EDBDD6F00049AD9 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				82A68C0B1EDBDE0500049AD9 /* MediaViewController.swift */,
+			);
+			path = UI;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -297,6 +308,7 @@
 				82A68C041ED8497D00049AD9 /* AVFoundation.swift in Sources */,
 				82A68C001ED8497D00049AD9 /* TRVideoEncoderH264.swift in Sources */,
 				1A60E0021EA4039F00BECD73 /* Model.swift in Sources */,
+				82A68C0C1EDBDE0500049AD9 /* MediaViewController.swift in Sources */,
 				82A68C051ED8497D00049AD9 /* CoreMedia.swift in Sources */,
 				82A68C091ED84B3400049AD9 /* Util.swift in Sources */,
 				82A68BFC1ED8497D00049AD9 /* TRAudioInput.swift in Sources */,
