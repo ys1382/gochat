@@ -9,81 +9,10 @@
 import UIKit
 import AVFoundation
 
-extension AVCaptureDevice {
-    
-    class func frontCamera() -> AVCaptureDevice? {
-        
-        for i in AVCaptureDevice.devices(withMediaType: AVMediaTypeVideo) {
-            if (i as! AVCaptureDevice).position == .front {
-                return i as? AVCaptureDevice
-            }
-        }
+class MediaViewController : UIViewController, VideoOutputProtocol {
 
-        return nil
-    }
-}
-
-extension UIView {
-    
-    @IBInspectable var cornerRadius: CGFloat {
-        get {
-            return layer.cornerRadius
-        }
-        set {
-            layer.cornerRadius = newValue
-            layer.masksToBounds = newValue > 0
-        }
-    }
-    
-    @IBInspectable var borderWidth: CGFloat {
-        get {
-            return layer.borderWidth
-        }
-        set {
-            layer.borderWidth = newValue
-        }
-    }
-    
-    @IBInspectable var borderColor: UIColor? {
-        get {
-            return UIColor(cgColor: layer.borderColor!)
-        }
-        set {
-            layer.borderColor = newValue?.cgColor
-        }
-    }
-}
-
-class CaptureVideoPreviewView : UIView {
-    
-    override open class var layerClass: Swift.AnyClass {
-        return AVCaptureVideoPreviewLayer.self
-    }
-
-    var captureLayer: AVCaptureVideoPreviewLayer {
-        get {
-            return layer as! AVCaptureVideoPreviewLayer
-        }
-    }
-}
-
-class SampleBufferDisplayView : UIView {
-    
-    override open class var layerClass: Swift.AnyClass {
-        return AVSampleBufferDisplayLayer.self
-    }
-    
-    var sampleLayer: AVSampleBufferDisplayLayer {
-        get {
-            return layer as! AVSampleBufferDisplayLayer
-        }
-    }
-}
-
-class MediaViewController : UIViewController, IOVideoOutputProtocol {
-
-    private let input = TRVideoInput(AVCaptureDevice.frontCamera())
-    private var output: IOVideoOutputProtocol!
+    private let input = VideoInput(AVCaptureDevice.frontCamera())
+    private var output: VideoOutputProtocol!
 
     @IBOutlet weak var videoView: SampleBufferDisplayView!
     @IBOutlet weak var previewView: CaptureVideoPreviewView!
@@ -106,12 +35,12 @@ class MediaViewController : UIViewController, IOVideoOutputProtocol {
         // start capture
         
         output =
-            TRVideoEncoderH264(
-                TRNetworkH264Serializer(TRNetworkVideoSender()))
+            VideoEncoderH264(
+                NetworkH264Serializer(NetworkVideoSender()))
         
         Backend.shared.video =
-            TRNetworkH264Deserializer(
-                TRVideoDecoderH264(self))
+            NetworkH264Deserializer(
+                VideoDecoderH264(self))
         
         input.start(output)
     }

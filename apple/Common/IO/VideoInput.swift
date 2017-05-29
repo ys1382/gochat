@@ -2,10 +2,10 @@
 import AVFoundation
 import VideoToolbox
 
-class TRVideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
+class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     public  var session = AVCaptureSession()
-    private var output: IOVideoOutputProtocol?
+    private var output: VideoOutputProtocol?
     private var device: AVCaptureDevice?
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -16,7 +16,7 @@ class TRVideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         self.device = device
     }
     
-    func start(_ output: IOVideoOutputProtocol?) {
+    func start(_ output: VideoOutputProtocol?) {
         NotificationCenter.default.addObserver(
             forName: .AVSampleBufferDisplayLayerFailedToDecode,
             object: nil,
@@ -50,7 +50,7 @@ class TRVideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
                 session.addOutput(videoDataOutput)
             }
         } catch {
-            logIOError(error.localizedDescription)
+            logIOError(error)
         }
     }
     

@@ -2,16 +2,16 @@
 import AVFoundation
 import VideoToolbox
 
-class TRVideoEncoderH264 : IOVideoOutputProtocol {
+class VideoEncoderH264 : VideoOutputProtocol {
     
     private var session: VTCompressionSession?
-    private var output: IODataProtocol?
+    private var output: DataProtocol?
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Interface
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    init(_ output: IODataProtocol) {
+    init(_ output: DataProtocol) {
         self.output = output
         
         start()
@@ -67,7 +67,7 @@ class TRVideoEncoderH264 : IOVideoOutputProtocol {
             return
         }
         
-        let SELF: TRVideoEncoderH264 = unsafeBitCast(outputCallbackRefCon, to: TRVideoEncoderH264.self)
+        let SELF: VideoEncoderH264 = unsafeBitCast(outputCallbackRefCon, to: VideoEncoderH264.self)
         
         SELF.encodeSampleBuffer(sampleBuffer)
     } as VTCompressionOutputCallback
@@ -144,7 +144,7 @@ class TRVideoEncoderH264 : IOVideoOutputProtocol {
                                                               timingInfo),
                             "CMSampleBufferGetSampleTimingInfo failed")
 
-            result[IOH264Part.Time.rawValue] = timingInfo.pointee.toNSData()
+            result[H264Part.Time.rawValue] = timingInfo.pointee.toNSData()
             
             // H264 description (SPS)
             
@@ -163,7 +163,7 @@ class TRVideoEncoderH264 : IOVideoOutputProtocol {
             
             assert(count.pointee == 2) // sps and pps
             
-            result[IOH264Part.SPS.rawValue] = NSData(bytes: sps.pointee!, length: spsLength.pointee)
+            result[H264Part.SPS.rawValue] = NSData(bytes: sps.pointee!, length: spsLength.pointee)
            
             // H264 description (PPS)
 
@@ -180,7 +180,7 @@ class TRVideoEncoderH264 : IOVideoOutputProtocol {
 
             assert(count.pointee == 2) // sps and pps
 
-            result[IOH264Part.PPS.rawValue] = NSData(bytes: pps.pointee!, length: ppsLength.pointee)
+            result[H264Part.PPS.rawValue] = NSData(bytes: pps.pointee!, length: ppsLength.pointee)
 
             // H264 data
             
@@ -197,14 +197,14 @@ class TRVideoEncoderH264 : IOVideoOutputProtocol {
             
             assert(length == totalLength)
             
-            result[IOH264Part.Data.rawValue] = NSData(bytes: dataPointer!, length: Int(totalLength))
+            result[H264Part.Data.rawValue] = NSData(bytes: dataPointer!, length: Int(totalLength))
 
             // output
             
             output?.process(result)
         }
         catch {
-            logIOError(error.localizedDescription)
+            logIOError(error)
         }
     }
 }

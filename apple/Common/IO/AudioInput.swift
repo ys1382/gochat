@@ -2,7 +2,7 @@
 import AudioToolbox
 import AVFoundation
 
-class TRAudioInput
+class AudioInput
 {
     public var format: AudioStreamBasicDescription?
     public var packetMaxSize: UInt32 = 0
@@ -10,9 +10,9 @@ class TRAudioInput
     private var queue: AudioQueueRef?
     private var	buffer: AudioQueueBufferRef?
 
-    private var output: IOAudioOutputProtocol?
+    private var output: AudioOutputProtocol?
     
-    init(_ output: IOAudioOutputProtocol?) {
+    init(_ output: AudioOutputProtocol?) {
         self.output = output
     }
     
@@ -23,7 +23,7 @@ class TRAudioInput
         self.format = AudioStreamBasicDescription()
 
         let engine = AVAudioEngine()
-        let inputFormat = engine.inputNode!.inputFormat(forBus: IOBus.input)
+        let inputFormat = engine.inputNode!.inputFormat(forBus: Bus.input)
         
         format!.mSampleRate = inputFormat.sampleRate;
         format!.mChannelsPerFrame = inputFormat.channelCount;
@@ -88,7 +88,7 @@ class TRAudioInput
                                             nil), "AudioQueueStart failed");
         }
         catch {
-            logIOError(error.localizedDescription)
+            logIOError(error)
         }
     }
     
@@ -105,7 +105,7 @@ class TRAudioInput
                                               true), "AudioQueueDispose failed")
         }
         catch {
-            logIOError(error.localizedDescription)
+            logIOError(error)
         }
     }
     
@@ -152,7 +152,7 @@ class TRAudioInput
             }
         }
         catch {
-            logIOError(error.localizedDescription)
+            logIOError(error)
         }
         
         return bytes;
@@ -166,7 +166,7 @@ class TRAudioInput
         inNumPackets: UInt32,
         inPacketDesc: UnsafePointer<AudioStreamPacketDescription>?) in
         
-        let input = Unmanaged<TRAudioInput>.fromOpaque(inUserData!).takeUnretainedValue()
+        let input = Unmanaged<AudioInput>.fromOpaque(inUserData!).takeUnretainedValue()
         
         logIO("audio \(AVAudioTime.seconds(forHostTime: inStartTime.pointee.mHostTime))")
         
@@ -177,7 +177,7 @@ class TRAudioInput
                 
                 memcpy(bytes, inBuffer.pointee.mAudioData, Int(inBuffer.pointee.mAudioDataByteSize))
                 
-                input.output!.process(IOAudioData(bytes,
+                input.output!.process(AudioData(bytes,
                                                   inBuffer.pointee.mAudioDataByteSize,
                                                   inPacketDesc!,
                                                   inNumPackets,
@@ -190,7 +190,7 @@ class TRAudioInput
                                                     nil), "AudioQueueEnqueueBuffer failed");
         }
         catch {
-            logIOError(error.localizedDescription)
+            logIOError(error)
         }
         
     }

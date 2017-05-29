@@ -2,18 +2,18 @@
 import AudioToolbox
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// TRNetworkAACSerializer
+// NetworkAACSerializer
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class TRNetworkAACSerializer : IOAudioOutputProtocol {
+class NetworkAACSerializer : AudioOutputProtocol {
  
-    private let output: IODataProtocol?
+    private let output: DataProtocol?
     
-    init(_ output: IODataProtocol?) {
+    init(_ output: DataProtocol?) {
         self.output = output
     }
     
-    func process(_ data: IOAudioData) {
+    func process(_ data: AudioData) {
     
         var dataSize_: UInt32 = data.bytesNum
         var packetNum_: UInt32 = data.packetNum
@@ -70,26 +70,26 @@ class TRNetworkAACSerializer : IOAudioOutputProtocol {
 
         // output
         
-        output?.process([IOAACPart.NetworkPacket.rawValue: NSData(bytes: result, length: size)])
+        output?.process([AACPart.NetworkPacket.rawValue: NSData(bytes: result, length: size)])
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// TRNetworkAACDeserializer
+// NetworkAACDeserializer
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class TRNetworkAACDeserializer : IODataProtocol {
+class NetworkAACDeserializer : DataProtocol {
     
-    private let output: IOAudioOutputProtocol?
+    private let output: AudioOutputProtocol?
     
-    init(_ output: IOAudioOutputProtocol) {
+    init(_ output: AudioOutputProtocol) {
         self.output = output
     }
     
     func process(_ packets: [Int: NSData]) {
         
-        let data = packets[IOAACPart.NetworkPacket.rawValue]!
-        var result = IOAudioData()
+        let data = packets[AACPart.NetworkPacket.rawValue]!
+        var result = AudioData()
         var shift = 0
         
         // 1. timestamp
@@ -143,12 +143,12 @@ class TRNetworkAACDeserializer : IODataProtocol {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// TRNetworkAudioSender
+// NetworkAudioSender
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class TRNetworkAudioSender : IODataProtocol {
+class NetworkAudioSender : DataProtocol {
     
     func process(_ data: [Int: NSData]) {
-        Backend.shared.sendAudio(data[IOAACPart.NetworkPacket.rawValue]!)
+        Backend.shared.sendAudio(data[AACPart.NetworkPacket.rawValue]!)
     }
 }

@@ -1,29 +1,22 @@
-//
-//  TRVideoDecoderH264.swift
-//  Chat
-//
-//  Created by Ivan Khvorostinin on 25/05/2017.
-//  Copyright © 2017 ys1382. All rights reserved.
-//
 
 import Foundation
 import CoreMedia
 
-class TRVideoDecoderH264 : IODataProtocol {
+class VideoDecoderH264 : DataProtocol {
     
-    private let output: IOVideoOutputProtocol?
+    private let output: VideoOutputProtocol?
     private var formatDescription : CMFormatDescription?
 
-    init(_ output: IOVideoOutputProtocol?) {
+    init(_ output: VideoOutputProtocol?) {
         self.output = output
     }
     
     func process(_ data: [Int: NSData]) {
         
-        let h264SPS  = data[IOH264Part.SPS.rawValue]!
-        let h264PPS  = data[IOH264Part.PPS.rawValue]!
-        let h264Data = data[IOH264Part.Data.rawValue]!
-        let h264Time = data[IOH264Part.Time.rawValue]!
+        let h264SPS  = data[H264Part.SPS.rawValue]!
+        let h264PPS  = data[H264Part.PPS.rawValue]!
+        let h264Data = data[H264Part.Data.rawValue]!
+        let h264Time = data[H264Part.Time.rawValue]!
 
         do {
             // format description
@@ -82,7 +75,7 @@ class TRVideoDecoderH264 : IODataProtocol {
             output?.process(sampleBuffer!)
         }
         catch {
-            logIOError(error.localizedDescription)
+            logIOError(error)
         }
     }
     

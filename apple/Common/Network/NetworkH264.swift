@@ -2,29 +2,29 @@
 import Foundation
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// TRNetworkH264Serializer
+// NetworkH264Serializer
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class TRNetworkH264Serializer : IODataProtocol {
+class NetworkH264Serializer : DataProtocol {
     
-    private var next: IODataProtocol?
+    private var next: DataProtocol?
     
-    init(_ next: IODataProtocol?) {
+    init(_ next: DataProtocol?) {
         self.next = next
     }
     
     func process(_ data: [Int: NSData]) {
         let result = NSMutableData()
         
-        _process(data, IOH264Part.Time, result)
-        _process(data, IOH264Part.SPS, result)
-        _process(data, IOH264Part.PPS, result)
-        _process(data, IOH264Part.Data, result)
+        _process(data, H264Part.Time, result)
+        _process(data, H264Part.SPS, result)
+        _process(data, H264Part.PPS, result)
+        _process(data, H264Part.Data, result)
 
-        next?.process([IOH264Part.NetworkPacket.rawValue: result])
+        next?.process([H264Part.NetworkPacket.rawValue: result])
     }
     
-    func _process(_ data: [Int: NSData], _ part: IOH264Part, _ result: NSMutableData) {
+    func _process(_ data: [Int: NSData], _ part: H264Part, _ result: NSMutableData) {
         var size: UInt32 = UInt32(data.keys.contains(part.rawValue)
             ? data[part.rawValue]!.length
             : 0)
@@ -38,37 +38,37 @@ class TRNetworkH264Serializer : IODataProtocol {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// TRNetworkH264Deserializer
+// NetworkH264Deserializer
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class TRNetworkH264Deserializer : IODataProtocol {
+class NetworkH264Deserializer : DataProtocol {
     
-    private var next: IODataProtocol?
+    private var next: DataProtocol?
     
-    init(_ next: IODataProtocol?) {
+    init(_ next: DataProtocol?) {
         self.next = next
     }
 
     func process(_ data: [Int: NSData]) {
         
         var shift = 0
-        let packet = data[IOH264Part.NetworkPacket.rawValue]!
+        let packet = data[H264Part.NetworkPacket.rawValue]!
         var result = [Int: NSData]()
 
         if let part = _process(data: packet, shift: &shift) {
-            result[IOH264Part.Time.rawValue] = part
+            result[H264Part.Time.rawValue] = part
         }
 
         if let part = _process(data: packet, shift: &shift) {
-            result[IOH264Part.SPS.rawValue] = part
+            result[H264Part.SPS.rawValue] = part
         }
 
         if let part = _process(data: packet, shift: &shift) {
-            result[IOH264Part.PPS.rawValue] = part
+            result[H264Part.PPS.rawValue] = part
         }
 
         if let part = _process(data: packet, shift: &shift) {
-            result[IOH264Part.Data.rawValue] = part
+            result[H264Part.Data.rawValue] = part
         }
         
         next?.process(result)
@@ -92,12 +92,12 @@ class TRNetworkH264Deserializer : IODataProtocol {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// TRNetworkVideoSender
+// NetworkVideoSender
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class TRNetworkVideoSender : IODataProtocol {
+class NetworkVideoSender : DataProtocol {
     
     func process(_ data: [Int: NSData]) {
-        Backend.shared.sendVideo(data[IOH264Part.NetworkPacket.rawValue]!)
+        Backend.shared.sendVideo(data[H264Part.NetworkPacket.rawValue]!)
     }
 }

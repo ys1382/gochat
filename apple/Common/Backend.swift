@@ -7,8 +7,8 @@ class Backend: WebSocketDelegate {
 
     static let shared = Backend()
 
-    public var audio: IODataProtocol?
-    public var video: IODataProtocol?
+    public var audio: DataProtocol?
+    public var video: DataProtocol?
     
     private var websocket: WebSocket?
     private var sessionId: String?
@@ -91,11 +91,11 @@ class Backend: WebSocketDelegate {
     
     func getsAV(haber: Haber) {
         if (haber.av.hasAudio) {
-            audio?.process([IOAACPart.NetworkPacket.rawValue: haber.av.audio.image.data as NSData])
+            audio?.process([AACPart.NetworkPacket.rawValue: haber.av.audio.image.data as NSData])
         }
         
         if (haber.av.hasVideo) {
-            video?.process([IOH264Part.NetworkPacket.rawValue: haber.av.video.image.data as NSData])
+            video?.process([H264Part.NetworkPacket.rawValue: haber.av.video.image.data as NSData])
         }
     }
     

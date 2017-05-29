@@ -1,7 +1,7 @@
 import Cocoa
 import AVFoundation
 
-class VideoViewController: NSViewController, IOVideoOutputProtocol {
+class VideoViewController: NSViewController, VideoOutputProtocol {
 
     @IBOutlet weak var preview: NSView!
     @IBOutlet weak var capture: NSView!
@@ -10,8 +10,8 @@ class VideoViewController: NSViewController, IOVideoOutputProtocol {
     var captureLayer = AVSampleBufferDisplayLayer()
     var previewLayer = AVCaptureVideoPreviewLayer()
 
-    let input = TRVideoInput(AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo) as AVCaptureDevice)
-    var output: IOVideoOutputProtocol!
+    let input = VideoInput(AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo) as AVCaptureDevice)
+    var output: VideoOutputProtocol!
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // View
@@ -37,12 +37,12 @@ class VideoViewController: NSViewController, IOVideoOutputProtocol {
         
         // start capture
         output =
-            TRVideoEncoderH264(
-                TRNetworkH264Serializer(TRNetworkVideoSender()))
+            VideoEncoderH264(
+                NetworkH264Serializer(NetworkVideoSender()))
         
         Backend.shared.video =
-            TRNetworkH264Deserializer(
-                TRVideoDecoderH264(self))
+            NetworkH264Deserializer(
+                VideoDecoderH264(self))
         
         input.start(output)
     }
@@ -70,7 +70,7 @@ class VideoViewController: NSViewController, IOVideoOutputProtocol {
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // IOVideoOutputProtocol
+    // VideoOutputProtocol
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     func process(_ data: CMSampleBuffer) {

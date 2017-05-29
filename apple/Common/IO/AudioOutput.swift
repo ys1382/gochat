@@ -2,10 +2,10 @@
 import AudioToolbox
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// TRAudioOutput
+// AudioOutput
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class TRAudioOutput : IOAudioOutputProtocol {
+class AudioOutput : AudioOutputProtocol {
     
     private var queue: AudioQueueRef?
     private var buffer: AudioQueueBufferRef?
@@ -53,7 +53,7 @@ class TRAudioOutput : IOAudioOutputProtocol {
                                             nil), "AudioQueueStart failed")
         }
         catch {
-            logIOError(error.localizedDescription)
+            logIOError(error)
         }
     }
     
@@ -70,11 +70,11 @@ class TRAudioOutput : IOAudioOutputProtocol {
             queue = nil
         }
         catch {
-            logIOError(error.localizedDescription)
+            logIOError(error)
         }
     }
     
-    func process(_ data: IOAudioData) {
+    func process(_ data: AudioData) {
         
         do {
             memcpy(self.buffer!.pointee.mAudioData, data.bytes, Int(data.bytesNum))
@@ -86,7 +86,7 @@ class TRAudioOutput : IOAudioOutputProtocol {
                                                     data.packetDesc), "AudioQueueEnqueueBuffer failed")
         }
         catch {
-            logIOError(error.localizedDescription)
+            logIOError(error)
         }
 
     }
