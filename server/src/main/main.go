@@ -140,6 +140,7 @@ var upgrader = websocket.Upgrader {
 }
 
 func wsHandler(w http.ResponseWriter, r *http.Request) {
+  fmt.Println("New connection")
   conn, err := upgrader.Upgrade(w, r, nil)
   if err != nil {
     fmt.Println("Error upgrading to websocket:", err)

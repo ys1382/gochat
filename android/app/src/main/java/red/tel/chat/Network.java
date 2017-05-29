@@ -1,5 +1,7 @@
 package red.tel.chat;
 
+import red.tel.chat.EventBus.Event;
+
 import android.util.Log;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +17,7 @@ import com.neovisionaries.ws.client.WebSocketFrame;
 class Network {
 
     private static final String serverUrl = "ws://10.0.0.33:8000/ws";
-    private static final String TAG = "Backend";
+    private static final String TAG = "Network";
     private WebSocket webSocket;
 
     Network() {
@@ -29,16 +31,19 @@ class Network {
                 @Override
                 public void onConnected(WebSocket websocket, Map<String, List<String>> headers) throws Exception {
                     Log.i(TAG, "Connected");
+                    EventBus.announce(Event.CONNECTED);
                 }
 
                 @Override
                 public void onConnectError(WebSocket websocket, WebSocketException cause) throws Exception {
                     Log.e(TAG, "Connect error");
+                    EventBus.announce(Event.DISCONNECTED);
                 }
 
                 @Override
                 public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame, boolean closedByServer) throws Exception {
                     Log.i(TAG, "Disconnected");
+                    EventBus.announce(Event.DISCONNECTED);
                 }
 
                 @Override

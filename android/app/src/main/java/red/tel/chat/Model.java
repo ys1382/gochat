@@ -1,18 +1,16 @@
 package red.tel.chat;
 
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import red.tel.chat.EventBus.Event;
 import red.tel.chat.generated_protobuf.Haber;
-import android.support.v4.content.LocalBroadcastManager;
 import red.tel.chat.generated_protobuf.Contact;
 
 public class Model {
@@ -27,7 +25,7 @@ public class Model {
     }
 
     private static SharedPreferences getSharedPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(ChatApplication.getContext());
+        return PreferenceManager.getDefaultSharedPreferences(ChatApp.getContext());
     }
 
     public static String getUsername() {
@@ -42,16 +40,17 @@ public class Model {
     static void incoming(Haber haber) {
         switch (haber.which) {
             case CONTACTS:
-                roster = haber.contacts.stream().collect(Collectors.toMap(c -> c.name, c -> c));
+                onContacts(haber.contacts);
                 break;
             default:
                 Log.e(TAG, "Did not handle incoming " + haber.which);
                 return;
         }
+    }
 
-        Intent intent = new Intent(haber.which.toString());
-        Context context = ChatApplication.getContext().getApplicationContext();
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+    private static void onContacts(List<Contact> contacts) {
+        roster = contacts.stream().collect(Collectors.toMap(c -> c.name, c -> c));
+        EventBus.announce(Event.CONTACTS);
     }
 
     public static void setContacts(List<String> names) {

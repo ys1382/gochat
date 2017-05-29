@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +20,8 @@ import android.widget.EditText;
 import java.util.ArrayList;
 import java.util.List;
 
+import red.tel.chat.Backend;
+import red.tel.chat.EventBus;
 import red.tel.chat.Model;
 import red.tel.chat.R;
 import red.tel.chat.generated_protobuf.Haber;
@@ -31,7 +32,7 @@ import red.tel.chat.generated_protobuf.Haber;
  * lead to a {@link ItemDetailActivity} representing item details. On tablets, the activity presents
  * the list of items and item details side-by-side using two vertical panes.
  */
-public class ItemListActivity extends AppCompatActivity {
+public class ItemListActivity extends BaseActivity {
 
     private static final String TAG = "ItemListActivity";
     private boolean isTwoPane; // Whether or not the activity is in two-pane mode, i.e. running on a tablet device.
@@ -45,9 +46,6 @@ public class ItemListActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
-
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener((View view) -> onClickAdd());
 
         View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
@@ -69,10 +67,19 @@ public class ItemListActivity extends AppCompatActivity {
 
         private List<String> values = new ArrayList<>();
 
+        SimpleItemRecyclerViewAdapter() {
+            values = Model.getContacts();
+        }
+
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
+            View view = LayoutInflater
+                    .from(parent.getContext())
                     .inflate(R.layout.item_list_content, parent, false);
+            EventBus.listenFor(parent.getContext(), EventBus.Event.CONTACTS, () -> {
+                values = Model.getContacts();
+                notifyDataSetChanged();
+            });
             return new ViewHolder(view);
         }
 
@@ -107,56 +114,39 @@ public class ItemListActivity extends AppCompatActivity {
         class ViewHolder extends RecyclerView.ViewHolder {
             final View view;
             final TextView contactName;
-            final ImageButton deleteContact;
+            final ImageButton deleteButton;
             String dummyItem;
 
             ViewHolder(View view) {
                 super(view);
                 this.view = view;
                 contactName = (TextView) view.findViewById(R.id.contactName);
-                deleteContact = (ImageButton) view.findViewById(R.id.deleteContact);
+                deleteButton = (ImageButton) view.findViewById(R.id.deleteButton);
                 view.setOnLongClickListener(v -> {
-                    deleteContact.setVisibility(View.VISIBLE);
+                    deleteButton.setVisibility(View.VISIBLE);
                     return true;
+                });
+                deleteButton.setOnClickListener(v -> {
+                    onClickDelete();
                 });
             }
 
+            private void onClickDelete() {
+                AlertDialog.Builder alert = new AlertDialog.Builder(view.getContext());
+                alert.setTitle(R.string.del_contact_title);
+                alert.setMessage(R.string.del_contact_message);
+
+                alert.setPositiveButton(R.string.ok, (dialog, whichButton) -> {
+                    recyclerViewAdapter.values.remove(contactName.getText().toString());
+                    Model.setContacts(recyclerViewAdapter.values);
+                    recyclerViewAdapter.notifyDataSetChanged();
+                });
+
+                alert.setNegativeButton(R.string.cancel, (dialog, whichButton) -> dialog.cancel());
+                alert.create().show();
+            }
         }
     }
-
-    public void onClickDelete(View v) {
-        AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle(R.string.del_contact_title);
-        alert.setMessage(R.string.del_contact_message);
-
-        alert.setPositiveButton(R.string.ok, (dialog, whichButton) -> {
-//            recyclerViewAdapter.values.remove(contactName.getText().toString());
-            Model.setContacts(recyclerViewAdapter.values);
-            recyclerViewAdapter.notifyDataSetChanged();
-        });
-
-        alert.setNegativeButton(R.string.cancel, (dialog, whichButton) -> dialog.cancel());
-        alert.create().show();
-    }
-
-    protected void onResume() {
-        super.onResume();
-        IntentFilter intentFilter = new IntentFilter(Haber.Which.CONTACTS.toString());
-        LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, intentFilter);
-    }
-
-    protected void onPause() {
-        super.onPause();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(onNotice);
-    }
-
-    private BroadcastReceiver onNotice = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            recyclerViewAdapter.values = Model.getContacts();
-            recyclerViewAdapter.notifyDataSetChanged();
-        }
-    };
 
     public void onClickAdd(View v) {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);

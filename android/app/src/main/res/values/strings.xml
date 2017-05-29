@@ -22,4 +22,6 @@
     <string name="add_contact_message">Enter contact name</string>
     <string name="del_contact_title">Delete Contact</string>
     <string name="del_contact_message">Are you sure?</string>
+    <string name="disconnected_title">Network Problem</string>
+    <string name="disconnected_message">Cannot connect to server</string>
 </resources>

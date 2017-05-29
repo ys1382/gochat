@@ -73,10 +73,7 @@ class Backend: WebSocketDelegate {
                 return
         }
 
-        if haber.hasSessionId {
-            self.sessionId = haber.sessionId
-        }
-
+    
         print("read \(data.count) bytes for \(haber.which)")
         switch haber.which {
         case .contacts:

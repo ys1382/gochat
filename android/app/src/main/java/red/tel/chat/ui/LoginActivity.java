@@ -16,7 +16,7 @@ import red.tel.chat.Model;
 import red.tel.chat.Backend;
 import red.tel.chat.R;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BaseActivity {
 
     private static final String TAG = "LoginActivity";
     private EditText usernameView;
@@ -104,11 +104,9 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
         String username = usernameView.getText().toString();
+        Model.setUsername(username);
         showProgress(true);
-        Backend.login(username, (Boolean success) -> {
-            Model.setUsername(username);
-            startActivity(new Intent(this, ItemListActivity.class));
-        });
+        Backend.login(username);
     }
 
     public void onClickRegister(View v) {}
