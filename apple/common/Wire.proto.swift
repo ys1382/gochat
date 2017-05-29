@@ -3963,7 +3963,7 @@ final public class Haber : GeneratedMessage {
         //Enum type declaration start 
 
         /// Identifies which field is filled in
-        public enum Which:Int32, GeneratedEnum {
+        public enum Which:Int32, CustomDebugStringConvertible, CustomStringConvertible, Hashable {
             case login = 0
             case contacts = 1
             case presence = 2

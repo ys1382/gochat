@@ -11,7 +11,6 @@
 		1A60DFF41EA30FC900BECD73 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A60DFF21EA30FC900BECD73 /* Backend.swift */; };
 		1A60DFF51EA30FC900BECD73 /* Wire.proto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A60DFF31EA30FC900BECD73 /* Wire.proto.swift */; };
 		1A60E0001EA4039400BECD73 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A60DFFF1EA4039400BECD73 /* Model.swift */; };
-		1AC5D6041ECD5ACF00345F37 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC5D6011ECD5ACF00345F37 /* Util.swift */; };
 		1ADE89E51EA1CE0E00E41212 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADE89E41EA1CE0E00E41212 /* AppDelegate.swift */; };
 		1ADE89E91EA1CE0E00E41212 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1ADE89E81EA1CE0E00E41212 /* Assets.xcassets */; };
 		1ADE89EC1EA1CE0E00E41212 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1ADE89EA1EA1CE0E00E41212 /* Main.storyboard */; };
@@ -23,6 +22,7 @@
 		824F05B71ED6A56900148A89 /* TRVideoDecoderH264.swift in Sources */ = {isa = PBXBuildFile; fileRef = 824F05B61ED6A56900148A89 /* TRVideoDecoderH264.swift */; };
 		824F05B91ED6A8E300148A89 /* TRNetworkH264.swift in Sources */ = {isa = PBXBuildFile; fileRef = 824F05B81ED6A8E300148A89 /* TRNetworkH264.swift */; };
 		82A68BEC1ED7ECEC00049AD9 /* CoreMedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82A68BEB1ED7ECEC00049AD9 /* CoreMedia.swift */; };
+		82A68C071ED84B2000049AD9 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82A68C061ED84B2000049AD9 /* Util.swift */; };
 		82FF15A91ED4BD840015B93E /* IO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82FF15A61ED4BD840015B93E /* IO.swift */; };
 		82FF15AA1ED4BD840015B93E /* TRAudioInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82FF15A71ED4BD840015B93E /* TRAudioInput.swift */; };
 		82FF15AB1ED4BD840015B93E /* TRAudioOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82FF15A81ED4BD840015B93E /* TRAudioOutput.swift */; };
@@ -36,7 +36,6 @@
 		1A60DFF21EA30FC900BECD73 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Backend.swift; path = ../../common/Backend.swift; sourceTree = "<group>"; };
 		1A60DFF31EA30FC900BECD73 /* Wire.proto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Wire.proto.swift; path = ../../common/Wire.proto.swift; sourceTree = "<group>"; };
 		1A60DFFF1EA4039400BECD73 /* Model.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Model.swift; path = ../../common/Model.swift; sourceTree = "<group>"; };
-		1AC5D6011ECD5ACF00345F37 /* Util.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
 		1ADE89E11EA1CE0E00E41212 /* Chat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1ADE89E41EA1CE0E00E41212 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1ADE89E81EA1CE0E00E41212 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -51,6 +50,7 @@
 		824F05B61ED6A56900148A89 /* TRVideoDecoderH264.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TRVideoDecoderH264.swift; sourceTree = "<group>"; };
 		824F05B81ED6A8E300148A89 /* TRNetworkH264.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TRNetworkH264.swift; path = ../IO/TRNetworkH264.swift; sourceTree = "<group>"; };
 		82A68BEB1ED7ECEC00049AD9 /* CoreMedia.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreMedia.swift; sourceTree = "<group>"; };
+		82A68C061ED84B2000049AD9 /* Util.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
 		82FF15A61ED4BD840015B93E /* IO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IO.swift; sourceTree = "<group>"; };
 		82FF15A71ED4BD840015B93E /* TRAudioInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TRAudioInput.swift; sourceTree = "<group>"; };
 		82FF15A81ED4BD840015B93E /* TRAudioOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TRAudioOutput.swift; sourceTree = "<group>"; };
@@ -103,7 +103,6 @@
 				1AF35A941EA30C34002AFC3F /* ContactsViewController.swift */,
 				1AF35A921EA30BFE002AFC3F /* TextViewController.swift */,
 				1A3B27F21EB04D710017654D /* VideoViewController.swift */,
-				1AC5D6011ECD5ACF00345F37 /* Util.swift */,
 				1A60DFF21EA30FC900BECD73 /* Backend.swift */,
 				1A60DFFF1EA4039400BECD73 /* Model.swift */,
 				1A60DFF31EA30FC900BECD73 /* Wire.proto.swift */,
@@ -133,6 +132,7 @@
 			children = (
 				824F05B21ED5FAD000148A89 /* AVFoundation.swift */,
 				82A68BEB1ED7ECEC00049AD9 /* CoreMedia.swift */,
+				82A68C061ED84B2000049AD9 /* Util.swift */,
 			);
 			name = Utils;
 			path = ../../common/Utils;
@@ -289,7 +289,6 @@
 				824F05AE1ED5EFB900148A89 /* TRVideoEncoderH264.swift in Sources */,
 				82FF15A91ED4BD840015B93E /* IO.swift in Sources */,
 				824F05B31ED5FAD000148A89 /* AVFoundation.swift in Sources */,
-				1AC5D6041ECD5ACF00345F37 /* Util.swift in Sources */,
 				1A60DFF41EA30FC900BECD73 /* Backend.swift in Sources */,
 				82FF15B21ED4C1D50015B93E /* Network.swift in Sources */,
 				1A3B27F31EB04D710017654D /* VideoViewController.swift in Sources */,
@@ -298,6 +297,7 @@
 				1ADE89E51EA1CE0E00E41212 /* AppDelegate.swift in Sources */,
 				1A60E0001EA4039400BECD73 /* Model.swift in Sources */,
 				824F05B71ED6A56900148A89 /* TRVideoDecoderH264.swift in Sources */,
+				82A68C071ED84B2000049AD9 /* Util.swift in Sources */,
 				824F05AC1ED59A9000148A89 /* TRVideoInput.swift in Sources */,
 				1A60DFF51EA30FC900BECD73 /* Wire.proto.swift in Sources */,
 				82FF15AA1ED4BD840015B93E /* TRAudioInput.swift in Sources */,
