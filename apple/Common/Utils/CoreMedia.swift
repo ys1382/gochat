@@ -13,3 +13,15 @@ extension CMSampleTimingInfo {
         return NSData(bytes: &copy, length: MemoryLayout<CMSampleTimingInfo>.size)
     }
 }
+
+extension CMVideoDimensions {
+    
+    func turn() -> CMVideoDimensions {
+        return CMVideoDimensions(width: height, height: width)
+    }
+    
+    func bitrate() -> Int32 {
+        return width * height
+    }
+    
+}

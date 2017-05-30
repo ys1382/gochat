@@ -23,11 +23,12 @@
 		829A0E971EDC1DB800FEC353 /* NetworkH264.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E871EDC1DB800FEC353 /* NetworkH264.swift */; };
 		829A0E981EDC1DB800FEC353 /* AVFoundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E891EDC1DB800FEC353 /* AVFoundation.swift */; };
 		829A0E991EDC1DB800FEC353 /* CoreMedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E8A1EDC1DB800FEC353 /* CoreMedia.swift */; };
-		829A0E9A1EDC1DB800FEC353 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E8B1EDC1DB800FEC353 /* Util.swift */; };
+		829A0E9A1EDC1DB800FEC353 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E8B1EDC1DB800FEC353 /* Log.swift */; };
 		829A0E9B1EDC1DB800FEC353 /* Wire.proto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E8C1EDC1DB800FEC353 /* Wire.proto.swift */; };
 		829A0EA51EDC209A00FEC353 /* ContactsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0EA21EDC209A00FEC353 /* ContactsViewController.swift */; };
 		829A0EA61EDC209A00FEC353 /* TextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0EA31EDC209A00FEC353 /* TextViewController.swift */; };
 		829A0EA71EDC209A00FEC353 /* VideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0EA41EDC209A00FEC353 /* VideoViewController.swift */; };
+		829A0EB11EDD2CC000FEC353 /* UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0EB01EDD2CC000FEC353 /* UI.swift */; };
 		D4C11B8E12CA4AE1016CA052 /* Pods_Chat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F3DC7F985F75CB41DAED56C7 /* Pods_Chat.framework */; };
 /* End PBXBuildFile section */
 
@@ -51,11 +52,12 @@
 		829A0E871EDC1DB800FEC353 /* NetworkH264.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkH264.swift; sourceTree = "<group>"; };
 		829A0E891EDC1DB800FEC353 /* AVFoundation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVFoundation.swift; sourceTree = "<group>"; };
 		829A0E8A1EDC1DB800FEC353 /* CoreMedia.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreMedia.swift; sourceTree = "<group>"; };
-		829A0E8B1EDC1DB800FEC353 /* Util.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
+		829A0E8B1EDC1DB800FEC353 /* Log.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 		829A0E8C1EDC1DB800FEC353 /* Wire.proto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Wire.proto.swift; path = ../Common/Wire.proto.swift; sourceTree = "<group>"; };
 		829A0EA21EDC209A00FEC353 /* ContactsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactsViewController.swift; sourceTree = "<group>"; };
 		829A0EA31EDC209A00FEC353 /* TextViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextViewController.swift; sourceTree = "<group>"; };
 		829A0EA41EDC209A00FEC353 /* VideoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoViewController.swift; sourceTree = "<group>"; };
+		829A0EB01EDD2CC000FEC353 /* UI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UI.swift; sourceTree = "<group>"; };
 		931CB699F7145BBD7B223700 /* Pods-Chat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chat.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Chat/Pods-Chat.debug.xcconfig"; sourceTree = "<group>"; };
 		F3DC7F985F75CB41DAED56C7 /* Pods_Chat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Chat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -164,7 +166,8 @@
 			children = (
 				829A0E891EDC1DB800FEC353 /* AVFoundation.swift */,
 				829A0E8A1EDC1DB800FEC353 /* CoreMedia.swift */,
-				829A0E8B1EDC1DB800FEC353 /* Util.swift */,
+				829A0EB01EDD2CC000FEC353 /* UI.swift */,
+				829A0E8B1EDC1DB800FEC353 /* Log.swift */,
 			);
 			name = Utils;
 			path = ../Common/Utils;
@@ -303,7 +306,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				829A0E951EDC1DB800FEC353 /* Network.swift in Sources */,
-				829A0E9A1EDC1DB800FEC353 /* Util.swift in Sources */,
+				829A0E9A1EDC1DB800FEC353 /* Log.swift in Sources */,
 				829A0E911EDC1DB800FEC353 /* VideoDecoderH264.swift in Sources */,
 				829A0EA61EDC209A00FEC353 /* TextViewController.swift in Sources */,
 				829A0EA71EDC209A00FEC353 /* VideoViewController.swift in Sources */,
@@ -315,6 +318,7 @@
 				829A0E901EDC1DB800FEC353 /* IO.swift in Sources */,
 				829A0E8E1EDC1DB800FEC353 /* AudioInput.swift in Sources */,
 				829A0E9B1EDC1DB800FEC353 /* Wire.proto.swift in Sources */,
+				829A0EB11EDD2CC000FEC353 /* UI.swift in Sources */,
 				829A0E981EDC1DB800FEC353 /* AVFoundation.swift in Sources */,
 				829A0E8D1EDC1DB800FEC353 /* Backend.swift in Sources */,
 				829A0E931EDC1DB800FEC353 /* VideoInput.swift in Sources */,

@@ -6,16 +6,18 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     public  var session = AVCaptureSession()
     private var output: VideoOutputProtocol?
+    private var device: AVCaptureDevice?
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Interface
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    init(_ output: VideoOutputProtocol?) {
+    init(_ device: AVCaptureDevice?, _ output: VideoOutputProtocol?) {
         self.output = output
+        self.device = device
     }
     
-    func start(_ device: AVCaptureDevice?) {
+    func start() {
         NotificationCenter.default.addObserver(
             forName: .AVSampleBufferDisplayLayerFailedToDecode,
             object: nil,

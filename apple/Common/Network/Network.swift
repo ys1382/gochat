@@ -8,3 +8,7 @@ func logNetwork(_ message: String) {
 func logNetworkError(_ message: String) {
     logError("Network", message)
 }
+
+func logNetworkError(_ error: Error) {
+    logError("Network", error)
+}

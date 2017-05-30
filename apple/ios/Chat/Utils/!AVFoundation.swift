@@ -22,29 +22,3 @@ extension AVCaptureDevice {
         return nil
     }
 }
-
-class CaptureVideoPreviewView : UIView {
-    
-    override open class var layerClass: Swift.AnyClass {
-        return AVCaptureVideoPreviewLayer.self
-    }
-    
-    var captureLayer: AVCaptureVideoPreviewLayer {
-        get {
-            return layer as! AVCaptureVideoPreviewLayer
-        }
-    }
-}
-
-class SampleBufferDisplayView : UIView {
-    
-    override open class var layerClass: Swift.AnyClass {
-        return AVSampleBufferDisplayLayer.self
-    }
-    
-    var sampleLayer: AVSampleBufferDisplayLayer {
-        get {
-            return layer as! AVSampleBufferDisplayLayer
-        }
-    }
-}

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="12120" systemVersion="16E195" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="12120" systemVersion="16F73" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12120"/>
@@ -667,7 +667,7 @@
                     <window key="window" title="Chat" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-                        <rect key="contentRect" x="196" y="240" width="480" height="270"/>
+                        <rect key="contentRect" x="443" y="287" width="900" height="500"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
                     </window>
                     <connections>
@@ -683,7 +683,7 @@
             <objects>
                 <splitViewController id="mEw-Tu-2aL" sceneMemberID="viewController">
                     <splitViewItems>
-                        <splitViewItem id="P9m-Uh-lA1"/>
+                        <splitViewItem holdingPriority="750" id="P9m-Uh-lA1"/>
                         <splitViewItem id="51F-fc-hUz"/>
                     </splitViewItems>
                     <splitView key="splitView" dividerStyle="thin" vertical="YES" id="SGu-7c-WK1">
@@ -818,32 +818,50 @@
             <objects>
                 <viewController id="WUT-CL-RiX" customClass="VideoViewController" customModule="Chat" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="I6f-K2-ndC">
-                        <rect key="frame" x="0.0" y="0.0" width="203" height="344"/>
+                        <rect key="frame" x="0.0" y="0.0" width="513" height="344"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <customView wantsLayer="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hqi-3l-pyn">
-                                <rect key="frame" x="20" y="228" width="163" height="96"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <customView wantsLayer="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oUq-ib-wb2" customClass="SampleBufferDisplayView" customModule="Chat" customModuleProvider="target">
+                                <rect key="frame" x="20" y="20" width="473" height="304"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="backgroundColor">
+                                        <color key="value" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                             </customView>
-                            <customView wantsLayer="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RjT-gH-WoQ">
-                                <rect key="frame" x="20" y="124" width="163" height="96"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                            </customView>
-                            <customView wantsLayer="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oUq-ib-wb2">
-                                <rect key="frame" x="20" y="20" width="163" height="96"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <customView wantsLayer="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hqi-3l-pyn" customClass="CaptureVideoPreviewView" customModule="Chat" customModuleProvider="target">
+                                <rect key="frame" x="328" y="229" width="160" height="90"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="90" id="cHr-bP-3HD"/>
+                                    <constraint firstAttribute="width" constant="160" id="xPP-QE-Vbf"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                        <color key="value" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                        <real key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                             </customView>
                         </subviews>
+                        <constraints>
+                            <constraint firstAttribute="bottom" secondItem="oUq-ib-wb2" secondAttribute="bottom" constant="20" id="Aub-ph-pTq"/>
+                            <constraint firstAttribute="trailing" secondItem="oUq-ib-wb2" secondAttribute="trailing" constant="20" id="Gf8-pd-wbI"/>
+                            <constraint firstItem="oUq-ib-wb2" firstAttribute="leading" secondItem="I6f-K2-ndC" secondAttribute="leading" constant="20" id="HfN-9u-d9a"/>
+                            <constraint firstItem="hqi-3l-pyn" firstAttribute="top" secondItem="I6f-K2-ndC" secondAttribute="top" constant="25" id="jzz-SV-fJW"/>
+                            <constraint firstItem="oUq-ib-wb2" firstAttribute="top" secondItem="I6f-K2-ndC" secondAttribute="top" constant="20" id="kIE-ZP-2Fk"/>
+                            <constraint firstAttribute="trailing" secondItem="hqi-3l-pyn" secondAttribute="trailing" constant="25" id="lz9-eR-uYe"/>
+                        </constraints>
                     </view>
                     <connections>
-                        <outlet property="capture" destination="RjT-gH-WoQ" id="nwS-Jy-XrN"/>
                         <outlet property="network" destination="oUq-ib-wb2" id="b79-G5-ma9"/>
                         <outlet property="preview" destination="hqi-3l-pyn" id="kFS-YJ-ImI"/>
                     </connections>
                 </viewController>
                 <customObject id="Plb-fC-g6f" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="217.5" y="1130"/>
+            <point key="canvasLocation" x="372.5" y="1130"/>
         </scene>
         <!--Text View Controller-->
         <scene sceneID="K58-Ga-jS2">

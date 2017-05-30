@@ -29,7 +29,11 @@ class MediaViewController : UIViewController, VideoOutputProtocol {
 
     override func viewWillAppear(_ animated: Bool) {
        
+        guard let device = AVCaptureDevice.frontCamera() else { return }
+        
         // start video capture
+        
+        let dimention = CMVideoFormatDescriptionGetDimensions(device.activeFormat.formatDescription)
         
         Backend.shared.video =
             NetworkH264Deserializer(
@@ -38,11 +42,14 @@ class MediaViewController : UIViewController, VideoOutputProtocol {
         
         videoInp =
             VideoInput(
+                device,
                 VideoEncoderH264(
+                    dimention,
+                    dimention,
                     NetworkH264Serializer(
                         NetworkVideoSender())))
 
-        videoInp.start(AVCaptureDevice.frontCamera())
+        videoInp.start()
 
         // start audio capture
         

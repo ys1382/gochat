@@ -5,14 +5,20 @@ import VideoToolbox
 class VideoEncoderH264 : VideoOutputProtocol {
     
     private var session: VTCompressionSession?
-    private var output: DataProtocol?
+    private let output: DataProtocol?
+    private let inputDimention: CMVideoDimensions
+    private let outputDimention: CMVideoDimensions
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Interface
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    init(_ output: DataProtocol) {
+    init(_ inputDimention: CMVideoDimensions,
+         _ outputDimention: CMVideoDimensions,
+         _ output: DataProtocol) {
         self.output = output
+        self.inputDimention = inputDimention
+        self.outputDimention = outputDimention
         
         start()
     }
@@ -21,8 +27,8 @@ class VideoEncoderH264 : VideoOutputProtocol {
         
         VTCompressionSessionCreate(
             kCFAllocatorDefault,
-            720, // encode height
-            1280,// encode width
+            outputDimention.width,
+            outputDimention.height,
             kCMVideoCodecType_H264,
             nil,
             attributes as CFDictionary,
@@ -82,8 +88,8 @@ class VideoEncoderH264 : VideoOutputProtocol {
     
     fileprivate var attributes:[NSString: AnyObject] {
         var attributes:[NSString: AnyObject] = defaultAttributes
-        attributes[kCVPixelBufferHeightKey] = 720 as AnyObject
-        attributes[kCVPixelBufferWidthKey] = 1280 as AnyObject
+        attributes[kCVPixelBufferHeightKey] = inputDimention.height as AnyObject
+        attributes[kCVPixelBufferWidthKey] = inputDimention.width as AnyObject
         return attributes
     }
     
@@ -93,7 +99,7 @@ class VideoEncoderH264 : VideoOutputProtocol {
         var properties:[NSString: AnyObject] = [
             kVTCompressionPropertyKey_RealTime: kCFBooleanTrue,
             kVTCompressionPropertyKey_ProfileLevel: profileLevel as NSObject,
-            kVTCompressionPropertyKey_AverageBitRate: Int(1280*720) as NSObject,
+            kVTCompressionPropertyKey_AverageBitRate: Int(outputDimention.bitrate()) as NSObject,
             kVTCompressionPropertyKey_ExpectedFrameRate: NSNumber(value: 30.0 as Double),
             kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration: NSNumber(value: 2.0 as Double),
             kVTCompressionPropertyKey_AllowFrameReordering: !isBaseline as NSObject,

@@ -81,7 +81,6 @@ class AudioInput
                                                     0,
                                                     nil), "AudioQueueEnqueueBuffer failed");
 
-            
             // start the queue
             
             try checkStatus(AudioQueueStart(queue!,
