@@ -5,11 +5,11 @@ import Foundation
 // NetworkH264Serializer
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class NetworkH264Serializer : DataProtocol {
+class NetworkH264Serializer : IODataProtocol {
     
-    private var next: DataProtocol?
+    private var next: IODataProtocol?
     
-    init(_ next: DataProtocol?) {
+    init(_ next: IODataProtocol?) {
         self.next = next
     }
     
@@ -41,11 +41,11 @@ class NetworkH264Serializer : DataProtocol {
 // NetworkH264Deserializer
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class NetworkH264Deserializer : DataProtocol {
+class NetworkH264Deserializer : IODataProtocol {
     
-    private var next: DataProtocol?
+    private var next: IODataProtocol?
     
-    init(_ next: DataProtocol?) {
+    init(_ next: IODataProtocol?) {
         self.next = next
     }
 
@@ -92,12 +92,60 @@ class NetworkH264Deserializer : DataProtocol {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NetworkVideoSender
+// Video format
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class NetworkVideoSender : DataProtocol {
+extension VideoFormat {
     
-    func process(_ data: [Int: NSData]) {
-        Backend.shared.sendVideo(data[H264Part.NetworkPacket.rawValue]!)
+    func toNetwork() throws -> NSData {
+        return try JSONSerialization.data(withJSONObject: data,
+                                          options: JSONSerialization.defaultWritingOptions) as NSData
+    }
+
+    static func fromNetwork(_ data: NSData) throws -> VideoFormat {
+        let json = try JSONSerialization.jsonObject(with: data as Data,
+                                                    options: JSONSerialization.ReadingOptions()) as! [String: Any]
+        return VideoFormat(json)
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// NetworkOutputVideo
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class NetworkOutputVideo : IODataProtocol {
+    
+    let to: String
+    
+    init(_ to: String) {
+        self.to = to
+    }
+    
+    func process(_ data: [Int: NSData]) {
+        Backend.shared.sendVideo(to, data[H264Part.NetworkPacket.rawValue]!)
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// NetworkOutputVideoSession
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class NetworkOutputVideoSession : IOSessionProtocol {
+    
+    let to: String
+    let format: VideoFormat
+    
+    init(_ to: String, _ format: VideoFormat) {
+        self.to = to
+        self.format = format
+    }
+    
+    func start() throws {
+        Backend.shared.sendVideoSession(to, try format.toNetwork(), true)
+    }
+    
+    func stop() {
+        Backend.shared.sendVideoSession(to, nil, false)
+    }
+}
+

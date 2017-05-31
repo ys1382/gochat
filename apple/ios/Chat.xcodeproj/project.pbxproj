@@ -11,6 +11,7 @@
 		1AB062131E8843E600A841D0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1AB062111E8843E600A841D0 /* Main.storyboard */; };
 		1AB062151E8843E600A841D0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1AB062141E8843E600A841D0 /* Assets.xcassets */; };
 		66C4B5946A64F209719F1358 /* Pods_Chat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ACBFB437F9424A73A5B0830 /* Pods_Chat.framework */; };
+		821F4CC71EDEB03500FA923D /* Dispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821F4CC61EDEB03500FA923D /* Dispatch.swift */; };
 		8286E3101EDC1AFF006788B2 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8286E2FE1EDC1AFF006788B2 /* Backend.swift */; };
 		8286E3111EDC1AFF006788B2 /* IO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8286E3001EDC1AFF006788B2 /* IO.swift */; };
 		8286E3121EDC1AFF006788B2 /* AudioInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8286E3011EDC1AFF006788B2 /* AudioInput.swift */; };
@@ -29,8 +30,11 @@
 		829A0E771EDC1CE200FEC353 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E741EDC1CE200FEC353 /* DetailViewController.swift */; };
 		829A0E781EDC1CE200FEC353 /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E751EDC1CE200FEC353 /* MasterViewController.swift */; };
 		829A0E791EDC1CE200FEC353 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E761EDC1CE200FEC353 /* SplitViewController.swift */; };
-		829A0EA01EDC200B00FEC353 /* !AVFoundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E9F1EDC200B00FEC353 /* !AVFoundation.swift */; };
 		829A0EAF1EDD2C2B00FEC353 /* UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0EAE1EDD2C2B00FEC353 /* UI.swift */; };
+		829A0EB31EDD52D400FEC353 /* Audio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0EB21EDD52D400FEC353 /* Audio.swift */; };
+		829A0EB51EDD52DE00FEC353 /* Video.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0EB41EDD52DE00FEC353 /* Video.swift */; };
+		829A0EBD1EDD6EFB00FEC353 /* Foundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0EBC1EDD6EFB00FEC353 /* Foundation.swift */; };
+		829A0EC11EDD936C00FEC353 /* AV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0EC01EDD936C00FEC353 /* AV.swift */; };
 		82A68C0C1EDBDE0500049AD9 /* MediaViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82A68C0B1EDBDE0500049AD9 /* MediaViewController.swift */; };
 /* End PBXBuildFile section */
 
@@ -41,6 +45,7 @@
 		1AB062121E8843E600A841D0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		1AB062141E8843E600A841D0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1AB062191E8843E600A841D0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		821F4CC61EDEB03500FA923D /* Dispatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dispatch.swift; sourceTree = "<group>"; };
 		8286E2FE1EDC1AFF006788B2 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Backend.swift; path = ../Common/Backend.swift; sourceTree = "<group>"; };
 		8286E3001EDC1AFF006788B2 /* IO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IO.swift; sourceTree = "<group>"; };
 		8286E3011EDC1AFF006788B2 /* AudioInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioInput.swift; sourceTree = "<group>"; };
@@ -59,8 +64,11 @@
 		829A0E741EDC1CE200FEC353 /* DetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
 		829A0E751EDC1CE200FEC353 /* MasterViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MasterViewController.swift; sourceTree = "<group>"; };
 		829A0E761EDC1CE200FEC353 /* SplitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
-		829A0E9F1EDC200B00FEC353 /* !AVFoundation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "!AVFoundation.swift"; sourceTree = "<group>"; };
 		829A0EAE1EDD2C2B00FEC353 /* UI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UI.swift; sourceTree = "<group>"; };
+		829A0EB21EDD52D400FEC353 /* Audio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Audio.swift; sourceTree = "<group>"; };
+		829A0EB41EDD52DE00FEC353 /* Video.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Video.swift; sourceTree = "<group>"; };
+		829A0EBC1EDD6EFB00FEC353 /* Foundation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Foundation.swift; sourceTree = "<group>"; };
+		829A0EC01EDD936C00FEC353 /* AV.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AV.swift; path = ../Common/AV.swift; sourceTree = "<group>"; };
 		82A68C0B1EDBDE0500049AD9 /* MediaViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaViewController.swift; sourceTree = "<group>"; };
 		82A68C451EDC18D200049AD9 /* libChatLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libChatLib.a; path = "../common/build/Debug-iphoneos/libChatLib.a"; sourceTree = "<group>"; };
 		C5A48039D30C2E9ECC041BE6 /* Pods-Chat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chat.release.xcconfig"; path = "Pods/Target Support Files/Pods-Chat/Pods-Chat.release.xcconfig"; sourceTree = "<group>"; };
@@ -120,7 +128,6 @@
 			isa = PBXGroup;
 			children = (
 				82A68C0A1EDBDD6F00049AD9 /* UI */,
-				829A0E9C1EDC1FD800FEC353 /* Utils */,
 				1AB0620B1E8843E500A841D0 /* AppDelegate.swift */,
 				1AB062111E8843E600A841D0 /* Main.storyboard */,
 				1AB062141E8843E600A841D0 /* Assets.xcassets */,
@@ -136,6 +143,7 @@
 				8286E2FF1EDC1AFF006788B2 /* IO */,
 				8286E3081EDC1AFF006788B2 /* Network */,
 				8286E30B1EDC1AFF006788B2 /* Utils */,
+				829A0EC01EDD936C00FEC353 /* AV.swift */,
 				8286E2FE1EDC1AFF006788B2 /* Backend.swift */,
 				8286E3071EDC1AFF006788B2 /* Model.swift */,
 				8286E30F1EDC1AFF006788B2 /* Wire.proto.swift */,
@@ -147,6 +155,8 @@
 			isa = PBXGroup;
 			children = (
 				8286E3001EDC1AFF006788B2 /* IO.swift */,
+				829A0EB21EDD52D400FEC353 /* Audio.swift */,
+				829A0EB41EDD52DE00FEC353 /* Video.swift */,
 				8286E3011EDC1AFF006788B2 /* AudioInput.swift */,
 				8286E3021EDC1AFF006788B2 /* AudioOutput.swift */,
 				8286E3061EDC1AFF006788B2 /* VideoInput.swift */,
@@ -171,21 +181,15 @@
 		8286E30B1EDC1AFF006788B2 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				829A0EBC1EDD6EFB00FEC353 /* Foundation.swift */,
 				8286E30C1EDC1AFF006788B2 /* AVFoundation.swift */,
 				8286E30D1EDC1AFF006788B2 /* CoreMedia.swift */,
 				8286E30E1EDC1AFF006788B2 /* Log.swift */,
 				829A0EAE1EDD2C2B00FEC353 /* UI.swift */,
+				821F4CC61EDEB03500FA923D /* Dispatch.swift */,
 			);
 			name = Utils;
 			path = ../Common/Utils;
-			sourceTree = "<group>";
-		};
-		829A0E9C1EDC1FD800FEC353 /* Utils */ = {
-			isa = PBXGroup;
-			children = (
-				829A0E9F1EDC200B00FEC353 /* !AVFoundation.swift */,
-			);
-			path = Utils;
 			sourceTree = "<group>";
 		};
 		82A68C0A1EDBDD6F00049AD9 /* UI */ = {
@@ -326,7 +330,6 @@
 				8286E3201EDC1B1D006788B2 /* NetworkH264.swift in Sources */,
 				8286E31A1EDC1AFF006788B2 /* NetworkAAC.swift in Sources */,
 				8286E3131EDC1AFF006788B2 /* AudioOutput.swift in Sources */,
-				829A0EA01EDC200B00FEC353 /* !AVFoundation.swift in Sources */,
 				8286E3191EDC1AFF006788B2 /* Network.swift in Sources */,
 				8286E3151EDC1AFF006788B2 /* VideoDecoderH264.swift in Sources */,
 				8286E31E1EDC1AFF006788B2 /* Wire.proto.swift in Sources */,
@@ -335,15 +338,20 @@
 				829A0E771EDC1CE200FEC353 /* DetailViewController.swift in Sources */,
 				8286E3181EDC1AFF006788B2 /* Model.swift in Sources */,
 				8286E31C1EDC1AFF006788B2 /* CoreMedia.swift in Sources */,
+				829A0EB51EDD52DE00FEC353 /* Video.swift in Sources */,
+				829A0EC11EDD936C00FEC353 /* AV.swift in Sources */,
 				8286E31D1EDC1AFF006788B2 /* Log.swift in Sources */,
 				8286E3171EDC1AFF006788B2 /* VideoInput.swift in Sources */,
 				82A68C0C1EDBDE0500049AD9 /* MediaViewController.swift in Sources */,
 				829A0E791EDC1CE200FEC353 /* SplitViewController.swift in Sources */,
+				829A0EBD1EDD6EFB00FEC353 /* Foundation.swift in Sources */,
 				8286E3121EDC1AFF006788B2 /* AudioInput.swift in Sources */,
 				829A0E781EDC1CE200FEC353 /* MasterViewController.swift in Sources */,
 				829A0EAF1EDD2C2B00FEC353 /* UI.swift in Sources */,
+				829A0EB31EDD52D400FEC353 /* Audio.swift in Sources */,
 				8286E3111EDC1AFF006788B2 /* IO.swift in Sources */,
 				1AB0620C1E8843E500A841D0 /* AppDelegate.swift in Sources */,
+				821F4CC71EDEB03500FA923D /* Dispatch.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

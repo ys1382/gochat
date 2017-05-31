@@ -2,10 +2,9 @@
 import Foundation
 import CoreMedia
 
-class VideoDecoderH264 : DataProtocol {
+class VideoDecoderH264 : IODataProtocol {
     
     private let output: VideoOutputProtocol?
-    private var formatDescription : CMFormatDescription?
 
     init(_ output: VideoOutputProtocol?) {
         self.output = output

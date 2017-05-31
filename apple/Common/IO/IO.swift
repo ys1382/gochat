@@ -3,45 +3,51 @@ import AVFoundation
 import AudioToolbox
 import VideoToolbox
 
-struct Bus {
-    static let input = 0
-    static let output = 1
-}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Protocols
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct AudioData {
-    var bytes: UnsafePointer<Int8>!
-    var bytesNum: UInt32 = 0
-    var packetDesc: UnsafePointer<AudioStreamPacketDescription>!
-    var packetNum: UInt32 = 0
-    var timeStamp: UnsafePointer<AudioTimeStamp>!
-}
-
-enum H264Part : Int {
-    case Time
-    case SPS
-    case PPS
-    case Data
-    case NetworkPacket // Time, SPS size, SPS, PPS size, PPS, Data size, Data
-}
-
-enum AACPart : Int {
-    case NetworkPacket // Time, Packet num, Packets, Data size, Data
-}
-
-protocol AudioOutputProtocol {
-    
-    func process(_ data: AudioData)
-}
-
-protocol VideoOutputProtocol {
-    
-    func process(_ data: CMSampleBuffer)
-}
-
-protocol DataProtocol {
+protocol IODataProtocol {
     
     func process(_ data: [Int: NSData])
 }
+
+protocol IOSessionProtocol {
+    func start () throws
+    func stop()
+}
+
+class IOSessionBroadcast : IOSessionProtocol {
+    
+    var x: [IOSessionProtocol]
+    
+    init(_ x: [IOSessionProtocol]) {
+        self.x = x
+    }
+    
+    func start () throws {
+        _ = try x.map({ try $0.start() })
+    }
+    
+    func stop() {
+        _ = x.map({ $0.stop() })
+    }
+}
+
+func create(_ x: [IOSessionProtocol]) -> IOSessionProtocol? {
+    if (x.count == 0) {
+        return nil
+    }
+    if (x.count == 1) {
+        return x.first
+    }
+    
+    return IOSessionBroadcast(x)
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Logging
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 enum ErrorIO : Error {
     case Error(String)
@@ -66,20 +72,21 @@ func checkStatus(_ status: OSStatus, _ message: String) throws {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// AudioData
+// IOData dispatcher
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-extension AudioData {
+class IODataDispatcher : IODataProtocol {
     
-    init(_ bytes: UnsafePointer<Int8>,
-         _ bytesNum: UInt32,
-         _ packetDesc: UnsafePointer<AudioStreamPacketDescription>,
-         _ packetNum: UInt32,
-         _ timeStamp: UnsafePointer<AudioTimeStamp>) {
-        self.bytes = bytes
-        self.bytesNum = bytesNum
-        self.packetDesc = packetDesc
-        self.packetNum = packetNum
-        self.timeStamp = timeStamp
-    }    
+    let queue: DispatchQueue
+    let next: IODataProtocol
+    
+    init(_ queue: DispatchQueue, _ next: IODataProtocol) {
+        self.queue = queue
+        self.next = next
+    }
+    
+    func process(_ data: [Int : NSData]) {
+        queue.async { self.next.process(data) }
+    }
+    
 }

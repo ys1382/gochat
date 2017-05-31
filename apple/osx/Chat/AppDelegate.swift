@@ -16,8 +16,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     override init() {
         audioOut = AudioOutput()
-        audioInp = AudioInput(
-            NetworkAACSerializer(NetworkAudioSender()))
+        audioInp =
+            AudioInput(
+                kAudioFormatMPEG4AAC_ELD,
+                0.1,
+                NetworkAACSerializer(
+                    NetworkAudioSender()))
 
         super.init()
         
@@ -38,7 +42,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
         
-        audioInp.start(kAudioFormatMPEG4AAC_ELD, 0.1)
+        audioInp.start()
         audioOut.start(&audioInp.format!, audioInp.packetMaxSize, 0.1)
 
         Backend.shared.audio = NetworkAACDeserializer(audioOut)

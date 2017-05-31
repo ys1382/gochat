@@ -2,48 +2,37 @@
 import AVFoundation
 import VideoToolbox
 
-class VideoEncoderH264 : VideoOutputProtocol {
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Encoder
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class VideoEncoderH264 : NSObject, VideoOutputProtocol {
     
-    private var session: VTCompressionSession?
-    private let output: DataProtocol?
-    private let inputDimention: CMVideoDimensions
-    private let outputDimention: CMVideoDimensions
+    private let output: IODataProtocol?
+    private let session: VideoEncoderSessionH264
+    
+    init(_ session: VideoEncoderSessionH264,
+         _ output: IODataProtocol) {
+        
+        self.output = output
+        self.session = session
+
+        super.init()
+        
+        session.callback = sessionCallback
+        session.callbackTarget = unsafeBitCast(self, to: UnsafeMutableRawPointer.self)
+    }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Interface
+    // VideoOutputProtocol
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    init(_ inputDimention: CMVideoDimensions,
-         _ outputDimention: CMVideoDimensions,
-         _ output: DataProtocol) {
-        self.output = output
-        self.inputDimention = inputDimention
-        self.outputDimention = outputDimention
-        
-        start()
-    }
-    
-    func start() {
-        
-        VTCompressionSessionCreate(
-            kCFAllocatorDefault,
-            outputDimention.width,
-            outputDimention.height,
-            kCMVideoCodecType_H264,
-            nil,
-            attributes as CFDictionary,
-            nil,
-            sessionCallback,
-            unsafeBitCast(self, to: UnsafeMutableRawPointer.self),
-            &session)
-        
-        VTSessionSetProperties(session!, properties as CFDictionary)
-        VTCompressionSessionPrepareToEncodeFrames(session!)
-    }
-    
     func process(_ data: CMSampleBuffer) {
         
-        guard let image:CVImageBuffer = CMSampleBufferGetImageBuffer(data) else {
+        guard
+            let image:CVImageBuffer = CMSampleBufferGetImageBuffer(data),
+            session.session != nil
+            else {
             return
         }
         
@@ -52,16 +41,11 @@ class VideoEncoderH264 : VideoOutputProtocol {
                           CMSampleBufferGetDuration(data))
     }
     
-    func stop() {
-        VTCompressionSessionInvalidate(session!)
-        session = nil
-    }
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Encoder session
+    // Encode to H264
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-    fileprivate var sessionCallback:VTCompressionOutputCallback = {(
+    private var sessionCallback:VTCompressionOutputCallback = {(
         outputCallbackRefCon:UnsafeMutableRawPointer?,
         sourceFrameRefCon:UnsafeMutableRawPointer?,
         status:OSStatus,
@@ -77,53 +61,14 @@ class VideoEncoderH264 : VideoOutputProtocol {
         
         SELF.encodeSampleBuffer(sampleBuffer)
     } as VTCompressionOutputCallback
-    
-    let defaultAttributes:[NSString: AnyObject] = [
-        kCVPixelBufferPixelFormatTypeKey: Int(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) as AnyObject,
-        kCVPixelBufferIOSurfacePropertiesKey: [:] as AnyObject,
-        kCVPixelBufferOpenGLCompatibilityKey: true as AnyObject,
-        ]
-    fileprivate var width:Int32!
-    fileprivate var height:Int32!
-    
-    fileprivate var attributes:[NSString: AnyObject] {
-        var attributes:[NSString: AnyObject] = defaultAttributes
-        attributes[kCVPixelBufferHeightKey] = inputDimention.height as AnyObject
-        attributes[kCVPixelBufferWidthKey] = inputDimention.width as AnyObject
-        return attributes
-    }
-    
-    var profileLevel:String = kVTProfileLevel_H264_Baseline_3_1 as String
-    fileprivate var properties:[NSString: AnyObject] {
-        let isBaseline:Bool = profileLevel.contains("Baseline")
-        var properties:[NSString: AnyObject] = [
-            kVTCompressionPropertyKey_RealTime: kCFBooleanTrue,
-            kVTCompressionPropertyKey_ProfileLevel: profileLevel as NSObject,
-            kVTCompressionPropertyKey_AverageBitRate: Int(outputDimention.bitrate()) as NSObject,
-            kVTCompressionPropertyKey_ExpectedFrameRate: NSNumber(value: 30.0 as Double),
-            kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration: NSNumber(value: 2.0 as Double),
-            kVTCompressionPropertyKey_AllowFrameReordering: !isBaseline as NSObject,
-            kVTCompressionPropertyKey_PixelTransferProperties: [
-                "ScalingMode": "Trim"
-                ] as AnyObject
-        ]
-        if (!isBaseline) {
-            properties[kVTCompressionPropertyKey_H264EntropyMode] = kVTH264EntropyMode_CABAC
-        }
-        return properties
-    }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Encode to H264
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
     private func encodeImageBuffer(_ imageBuffer:CVImageBuffer,
                                    _ presentationTimeStamp:CMTime,
                                    _ presentationDuration:CMTime) {
         
         var flags:VTEncodeInfoFlags = VTEncodeInfoFlags()
         
-        VTCompressionSessionEncodeFrame(session!,
+        VTCompressionSessionEncodeFrame(session.session!,
                                         imageBuffer,
                                         presentationTimeStamp,
                                         presentationDuration,
@@ -207,10 +152,98 @@ class VideoEncoderH264 : VideoOutputProtocol {
 
             // output
             
-            output?.process(result)
+            AV.shared.videoCaptureQueue.async { self.output?.process(result) }
         }
         catch {
             logIOError(error)
         }
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Session
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class VideoEncoderSessionH264 : IOSessionProtocol {
+    
+    public  var session: VTCompressionSession?
+    public  var callback: VTCompressionOutputCallback?
+    public  var callbackTarget: UnsafeMutableRawPointer?
+    private let inputDimention: CMVideoDimensions
+    private let outputDimention: CMVideoDimensions
+
+    init(_ inputDimention: CMVideoDimensions,
+         _ outputDimention: CMVideoDimensions) {
+        self.inputDimention = inputDimention
+        self.outputDimention = outputDimention
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Settings
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    func start() throws {
+        assert_video_capture_queue()
+
+        VTCompressionSessionCreate(
+            kCFAllocatorDefault,
+            outputDimention.width,
+            outputDimention.height,
+            kCMVideoCodecType_H264,
+            nil,
+            attributes as CFDictionary,
+            nil,
+            callback,
+            callbackTarget,
+            &session)
+        
+        VTSessionSetProperties(session!, properties as CFDictionary)
+        VTCompressionSessionPrepareToEncodeFrames(session!)
+    }
+
+    func stop() {
+        assert_video_capture_queue()
+        VTCompressionSessionInvalidate(session!)
+        session = nil
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Settings
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    let defaultAttributes:[NSString: AnyObject] = [
+        kCVPixelBufferPixelFormatTypeKey: Int(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) as AnyObject,
+        kCVPixelBufferIOSurfacePropertiesKey: [:] as AnyObject,
+        kCVPixelBufferOpenGLCompatibilityKey: true as AnyObject,
+        ]
+    fileprivate var width:Int32!
+    fileprivate var height:Int32!
+    
+    fileprivate var attributes:[NSString: AnyObject] {
+        var attributes:[NSString: AnyObject] = defaultAttributes
+        attributes[kCVPixelBufferHeightKey] = inputDimention.height as AnyObject
+        attributes[kCVPixelBufferWidthKey] = inputDimention.width as AnyObject
+        return attributes
+    }
+    
+    var profileLevel:String = kVTProfileLevel_H264_Baseline_3_1 as String
+    fileprivate var properties:[NSString: AnyObject] {
+        let isBaseline:Bool = profileLevel.contains("Baseline")
+        var properties:[NSString: AnyObject] = [
+            kVTCompressionPropertyKey_RealTime: kCFBooleanTrue,
+            kVTCompressionPropertyKey_ProfileLevel: profileLevel as NSObject,
+            kVTCompressionPropertyKey_AverageBitRate: Int(outputDimention.bitrate()) as NSObject,
+            kVTCompressionPropertyKey_ExpectedFrameRate: NSNumber(value: 30.0 as Double),
+            kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration: NSNumber(value: 2.0 as Double),
+            kVTCompressionPropertyKey_AllowFrameReordering: !isBaseline as NSObject,
+            kVTCompressionPropertyKey_PixelTransferProperties: [
+                "ScalingMode": "Trim"
+                ] as AnyObject
+        ]
+        if (!isBaseline) {
+            properties[kVTCompressionPropertyKey_H264EntropyMode] = kVTH264EntropyMode_CABAC
+        }
+        return properties
+    }
+}
+

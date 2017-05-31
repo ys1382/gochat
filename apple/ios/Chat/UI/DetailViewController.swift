@@ -18,13 +18,23 @@ class DetailViewController: UIViewController {
     }
 
     @IBAction func cameraBarButtonItemAction(_ sender: UIBarButtonItem) {
-        let mediaID = String(describing: MediaViewController.self)
-        let media = self.storyboard?.instantiateViewController(withIdentifier: mediaID)
-        
-        self.navigationController?.pushViewController(media!,
-                                                      animated: true)
+        userMediaViewController = showMedia(Model.shared.watching)
     }
 
+    var userMediaViewController: MediaViewController?
+    
+    func showMedia(_ watching: String?) -> MediaViewController {
+        let mediaID = String(describing: MediaViewController.self)
+        let media = self.storyboard?.instantiateViewController(withIdentifier: mediaID) as! MediaViewController
+        
+        userMediaViewController = nil
+        media.watching = watching
+        self.navigationController?.pushViewController(media,
+                                                      animated: true)
+        
+        return media
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -32,6 +42,44 @@ class DetailViewController: UIViewController {
         self.updateTranscript()
         Model.shared.addListener(about: .text) { notification in
             self.updateTranscript()
+        }
+        
+        // setup video output
+        
+        Backend.shared.videoSessionStart = { (_ from: String, _ format: VideoFormat) throws -> IODataProtocol? in
+            
+            var media: MediaViewController?
+            
+            dispatch_sync_on_main {
+                media = self.navigationController?.topViewController as? MediaViewController
+                
+                if media == self.userMediaViewController && from == self.userMediaViewController?.watching {
+                    return
+                }
+                
+                if media != nil {
+                    self.navigationController?.popViewController(animated: true)
+                }
+                
+                media = self.showMedia(from)
+                _ = media?.view
+            }
+            
+            return try media?.videoSessionStart?(from, format)
+        }
+        
+        Backend.shared.videoSessionStop = { (_ from: String) in
+            
+            var media: MediaViewController?
+
+            dispatch_sync_on_main {
+                if self.navigationController?.topViewController is MediaViewController {
+                    media = self.navigationController?.topViewController as? MediaViewController
+                    self.navigationController?.popViewController(animated: true)
+                }
+            }
+            
+            media?.videoSessionStop?(from)
         }
     }
 

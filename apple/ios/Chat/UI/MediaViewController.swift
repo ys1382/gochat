@@ -11,46 +11,53 @@ import AVFoundation
 
 class MediaViewController : UIViewController, VideoOutputProtocol {
 
-    private var videoInp: VideoInput!
-
+    var watching: String?
+    
     var audioOut: AudioOutput!
     var audioInp: AudioInput!
 
     @IBOutlet weak var videoView: SampleBufferDisplayView!
     @IBOutlet weak var previewView: CaptureVideoPreviewView!
     
+    var videoSessionStart: ((_ sid: String, _ format: VideoFormat) throws ->IODataProtocol?)?
+    var videoSessionStop: ((_ sid: String)->Void)?
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // UIViewController
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     override func viewDidLoad() {
-        self.edgesForExtendedLayout = []
+        edgesForExtendedLayout = []
+        previewView.captureLayer.videoGravity = AVLayerVideoGravityResizeAspect
+        videoView.sampleLayer.videoGravity = AVLayerVideoGravityResizeAspect
+        
+        // setup video output
+        
+        videoSessionStart = { (_, _) in
+            return AV.shared.defaultNetworkOutputVideo(self)
+        }
+        
+        videoSessionStop = { (_) in
+            self.videoView.sampleLayer.flushAndRemoveImage()
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {
        
-        guard let device = AVCaptureDevice.frontCamera() else { return }
-        
         // start video capture
         
-        let dimention = CMVideoFormatDescriptionGetDimensions(device.activeFormat.formatDescription)
+        if watching != nil {
+            AV.shared.videoCaptureQueue.async {
+                do {
+                    try AV.shared.startInput(AV.shared.defaultAudioVideoInput(self.watching!,
+                                                                              self.previewView.captureLayer));
+                }
+                catch {
+                    logIOError(error)
+                }
+            }
+        }
         
-        Backend.shared.video =
-            NetworkH264Deserializer(
-                VideoDecoderH264(
-                    self))
-        
-        videoInp =
-            VideoInput(
-                device,
-                VideoEncoderH264(
-                    dimention,
-                    dimention,
-                    NetworkH264Serializer(
-                        NetworkVideoSender())))
-
-        videoInp.start()
-
         // start audio capture
         
         audioOut =
@@ -62,18 +69,15 @@ class MediaViewController : UIViewController, VideoOutputProtocol {
 
         audioInp =
             AudioInput(
+                kAudioFormatMPEG4AAC,
+                0.1,
                 NetworkAACSerializer(
                     NetworkAudioSender()))
         
         try! AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayAndRecord)
         try! AVAudioSession.sharedInstance().setActive(true)
-        audioInp.start(kAudioFormatMPEG4AAC, 0.1)
+        audioInp.start()
         audioOut.start(&audioInp.format!, audioInp.packetMaxSize, 0.1)
-        
-        // views
-        
-        previewView.captureLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
-        previewView.captureLayer.session = videoInp.session
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -2,22 +2,29 @@
 import AVFoundation
 import VideoToolbox
 
-class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
+class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, IOSessionProtocol {
     
-    public  var session = AVCaptureSession()
-    private var output: VideoOutputProtocol?
-    private var device: AVCaptureDevice?
+    public  var session: AVCaptureSession?
+    private let output: VideoOutputProtocol?
+    private let outputQueue: DispatchQueue?
+    private let device: AVCaptureDevice?
+    private let preview: AVCaptureVideoPreviewLayer?
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Interface
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    init(_ device: AVCaptureDevice?, _ output: VideoOutputProtocol?) {
+    init(_ device: AVCaptureDevice?,
+         _ preview: AVCaptureVideoPreviewLayer?,
+         _ outputQueue: DispatchQueue?,
+         _ output: VideoOutputProtocol?) {
         self.output = output
+        self.outputQueue = outputQueue
         self.device = device
+        self.preview = preview
     }
     
-    func start() {
+    func start() throws {
         NotificationCenter.default.addObserver(
             forName: .AVSampleBufferDisplayLayerFailedToDecode,
             object: nil,
@@ -26,36 +33,47 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         
         // capture session
         
-        session.beginConfiguration()
-        session.sessionPreset = AVCaptureSessionPresetLow
-        session.commitConfiguration()
-        session.startRunning()
+        session = AVCaptureSession()
+        
+        session!.beginConfiguration()
+        session!.sessionPreset = AVCaptureSessionPresetLow
+        session!.commitConfiguration()
+        session!.startRunning()
+        
+        // output
         
         do {
             let videoDeviceInput = try AVCaptureDeviceInput(device: device)
             
-            if (session.canAddInput(videoDeviceInput) == true) {
-                session.addInput(videoDeviceInput)
+            if (session!.canAddInput(videoDeviceInput) == true) {
+                session!.addInput(videoDeviceInput)
             }
             
             let videoDataOutput = AVCaptureVideoDataOutput()
-            let videoQueue = DispatchQueue(label: "videoQueue")
             
-            videoDataOutput.setSampleBufferDelegate(self, queue: videoQueue)
+            videoDataOutput.setSampleBufferDelegate(self, queue: outputQueue)
             videoDataOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as AnyHashable: Int(kCVPixelFormatType_32BGRA)]
             videoDataOutput.alwaysDiscardsLateVideoFrames = true
             
-            if (session.canAddOutput(videoDataOutput) == true) {
-                session.addOutput(videoDataOutput)
+            if (session!.canAddOutput(videoDataOutput) == true) {
+                session!.addOutput(videoDataOutput)
             }
         } catch {
             logIOError(error)
+            stop()
+        }
+        
+        // preview
+        
+        DispatchQueue.main.async {
+            self.preview?.session = self.session
         }
     }
     
     func stop() {
-        session.stopRunning()
-        output = nil
+        session?.stopRunning()
+        session = nil
+        preview?.session = nil
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

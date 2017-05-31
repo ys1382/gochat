@@ -10,20 +10,24 @@ class AudioInput
     private var queue: AudioQueueRef?
     private var	buffer: AudioQueueBufferRef?
 
-    private var output: AudioOutputProtocol?
+    private let output: AudioOutputProtocol?
+    private let formatID: UInt32
+    private let interval: Double
     
-    init(_ output: AudioOutputProtocol?) {
+    init(_ formatID: UInt32, _ interval: Double, _ output: AudioOutputProtocol?) {
         self.output = output
+        self.formatID = formatID
+        self.interval = interval
     }
     
-    func start(_ formatID: UInt32, _ interval: Double) {
+    func start() {
         
         // prepare format
         
         self.format = AudioStreamBasicDescription()
 
         let engine = AVAudioEngine()
-        let inputFormat = engine.inputNode!.inputFormat(forBus: Bus.input)
+        let inputFormat = engine.inputNode!.inputFormat(forBus: AudioBus.input)
         
         format!.mSampleRate = inputFormat.sampleRate;
         format!.mChannelsPerFrame = inputFormat.channelCount;
@@ -191,7 +195,5 @@ class AudioInput
         catch {
             logIOError(error)
         }
-        
     }
-    
 }

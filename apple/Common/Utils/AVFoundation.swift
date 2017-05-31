@@ -1,15 +1,41 @@
 
 import AVFoundation
 
+extension AVCaptureDevice {
+    
+    static func chatVideoDevice() -> AVCaptureDevice? {
+        #if os(iOS)
+            for i in AVCaptureDevice.devices(withMediaType: AVMediaTypeVideo) {
+                if (i as! AVCaptureDevice).position == .front {
+                    return i as? AVCaptureDevice
+                }
+            }
+            
+            return nil
+        #else
+            return AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
+        #endif
+    }
+}
+
+private class _AVCaptureVideoPreviewLayer : AVCaptureVideoPreviewLayer {
+    
+    override var session: AVCaptureSession! {
+        didSet {
+            setNeedsLayout()
+        }
+    }
+}
+
 class CaptureVideoPreviewView : AppleView {
     
     #if os(iOS)
     override open class var layerClass: Swift.AnyClass {
-        return AVCaptureVideoPreviewLayer.self
+        return _AVCaptureVideoPreviewLayer.self
     }
     #else
     override func makeBackingLayer() -> CALayer {
-        return AVCaptureVideoPreviewLayer()
+        return _AVCaptureVideoPreviewLayer()
     }
     #endif
     

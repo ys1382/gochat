@@ -9,8 +9,8 @@ class Backend: WebSocketDelegate {
 
     static let shared = Backend()
 
-    public var audio: DataProtocol?
-    public var video: DataProtocol?
+    public var audio: IODataProtocol?
+    private var video = NetworkInput()
     
     private var websocket: WebSocket?
     private var sessionId: String?
@@ -26,6 +26,11 @@ class Backend: WebSocketDelegate {
         websocket?.connect()
     }
 
+    var videoSessionStart: ((_ sid: String, _ format: VideoFormat) throws ->IODataProtocol?)?
+    var videoSessionStop: ((_ sid: String)->Void)?
+
+    var audioSession:((_ from: String, _ format: AudioFormat, _ active: Bool)->IODataProtocol)?
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Send
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,9 +58,37 @@ class Backend: WebSocketDelegate {
         Backend.shared.send(haberBuilder)
     }
 
-    func sendVideo(_ data: NSData) {
+    private func createAVSession(_ to: String, _ data: NSData?, _ active: Bool) throws -> Haber.Builder {
+        let sessionBuilder = Avsession.Builder().setActive(active)
         
-        guard let username = Model.shared.watching else { return }
+        if data != nil {
+            sessionBuilder.setData(data! as Data)
+        }
+        
+        return Haber.Builder().setAvSession(try sessionBuilder.build()).setTo(to)
+    }
+    
+    func sendVideoSession(_ to: String, _ data: NSData?, _ active: Bool) {
+        do {
+            send(try createAVSession(to, data, active).setWhich(.videoSession))
+        }
+        catch {
+            logNetworkError(error)
+        }
+    }
+
+    func sendAudioSession(_ to: String, _ data: NSData?, _ active: Bool) {
+        do {
+            send(try createAVSession(to, data, active).setWhich(.audioSession))
+        }
+        catch {
+            logNetworkError(error)
+        }
+    }
+
+    func sendVideo(_ to: String, _ data: NSData) {
+        
+        assert_video_capture_queue()
         
         do {
             let image = try Image.Builder().setData(data as Data).build()
@@ -63,12 +96,12 @@ class Backend: WebSocketDelegate {
             let av = try Av.Builder().setVideo(media).build()
             
             let haberBuilder = Haber.Builder().setAv(av).setWhich(.av)
-            haberBuilder.setTo(username)
+            haberBuilder.setTo(to)
             
             Backend.shared.send(haberBuilder)
         }
         catch {
-            logNetwork(error.localizedDescription)
+            logNetworkError(error)
         }
     }
 
@@ -87,7 +120,7 @@ class Backend: WebSocketDelegate {
             Backend.shared.send(haberBuilder)
         }
         catch {
-            logNetwork(error.localizedDescription)
+            logNetworkError(error)
         }
     }
 
@@ -95,16 +128,39 @@ class Backend: WebSocketDelegate {
     // Receive
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-    func getsAV(haber: Haber) {
+    func getsAV(_ haber: Haber) {
         if (haber.av.hasAudio) {
             audio?.process([AACPart.NetworkPacket.rawValue: haber.av.audio.image.data as NSData])
         }
         
         if (haber.av.hasVideo) {
-            video?.process([H264Part.NetworkPacket.rawValue: haber.av.video.image.data as NSData])
+            video.process(haber.from, [H264Part.NetworkPacket.rawValue: haber.av.video.image.data as NSData])
         }
     }
-    
+
+    func getsVideoSession(_ haber: Haber) {
+        do {
+            if haber.avSession.hasActive && haber.avSession.active {
+                let format = try VideoFormat.fromNetwork(haber.avSession.data! as NSData)
+                guard let output = try videoSessionStart?(haber.from, format) else { return }
+
+                video.removeAll()
+                video.add(haber.from, output)
+            }
+            else {
+                videoSessionStop?(haber.from)
+                video.remove(haber.from)
+            }
+        }
+        catch {
+            logNetworkError(error)
+        }
+    }
+
+    func getsAudioSession(_ haber: Haber) {
+        NSLog("audio session")
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // websocket delegate
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -148,7 +204,11 @@ class Backend: WebSocketDelegate {
         case .presence:
             Model.shared.didReceivePresence(haber)
         case .av:
-            getsAV(haber: haber)
+            getsAV(haber)
+        case .audioSession:
+            getsAudioSession(haber)
+        case .videoSession:
+            getsVideoSession(haber)
         default:
             logNetworkError("did not handle \(haber.which)")
         }

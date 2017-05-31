@@ -678,10 +678,10 @@
             </objects>
             <point key="canvasLocation" x="-142" y="260"/>
         </scene>
-        <!--Split View Controller-->
+        <!--Main View Controller-->
         <scene sceneID="fOD-Gh-EZ2">
             <objects>
-                <splitViewController id="mEw-Tu-2aL" sceneMemberID="viewController">
+                <splitViewController id="mEw-Tu-2aL" customClass="MainViewController" customModule="Chat" customModuleProvider="target" sceneMemberID="viewController">
                     <splitViewItems>
                         <splitViewItem holdingPriority="750" id="P9m-Uh-lA1"/>
                         <splitViewItem id="51F-fc-hUz"/>
@@ -691,6 +691,8 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </splitView>
                     <connections>
+                        <outlet property="detailSplitViewItem" destination="51F-fc-hUz" id="7wn-Zv-Vpg"/>
+                        <outlet property="masterSplitViewItem" destination="P9m-Uh-lA1" id="a5I-aX-Td6"/>
                         <segue destination="2Cy-C8-u3o" kind="relationship" relationship="splitItems" id="2pI-cd-kgz"/>
                         <segue destination="WUT-CL-RiX" kind="relationship" relationship="splitItems" id="cp9-S3-5Ji"/>
                     </connections>

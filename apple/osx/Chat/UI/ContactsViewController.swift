@@ -22,6 +22,8 @@ class ContactsViewController: NSViewController, NSTableViewDelegate, NSTableView
         }
     }
 
+    var watchingListener:((_ watching: String?)->Void)?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.delegate = self
@@ -76,5 +78,6 @@ class ContactsViewController: NSViewController, NSTableViewDelegate, NSTableView
         let table = notification.object as! NSTableView
         Model.shared.watching = table.selectedRow >= 0 ? self.names[table.selectedRow] : nil
         TextViewController.shared?.reload()
+        watchingListener?(Model.shared.watching)
     }
 }

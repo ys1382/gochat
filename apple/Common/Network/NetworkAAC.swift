@@ -7,9 +7,9 @@ import AudioToolbox
 
 class NetworkAACSerializer : AudioOutputProtocol {
  
-    private let output: DataProtocol?
+    private let output: IODataProtocol?
     
-    init(_ output: DataProtocol?) {
+    init(_ output: IODataProtocol?) {
         self.output = output
     }
     
@@ -78,7 +78,7 @@ class NetworkAACSerializer : AudioOutputProtocol {
 // NetworkAACDeserializer
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class NetworkAACDeserializer : DataProtocol {
+class NetworkAACDeserializer : IODataProtocol {
     
     private let output: AudioOutputProtocol?
     
@@ -146,7 +146,7 @@ class NetworkAACDeserializer : DataProtocol {
 // NetworkAudioSender
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class NetworkAudioSender : DataProtocol {
+class NetworkAudioSender : IODataProtocol {
     
     func process(_ data: [Int: NSData]) {
         Backend.shared.sendAudio(data[AACPart.NetworkPacket.rawValue]!)

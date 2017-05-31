@@ -6,58 +6,67 @@ class VideoViewController: NSViewController, VideoOutputProtocol {
     @IBOutlet weak var preview: CaptureVideoPreviewView!
     @IBOutlet weak var network: SampleBufferDisplayView!
 
-    var input: VideoInput!
+    var input: IOSessionProtocol?
     var output: VideoOutputProtocol!
 
+    var watchingListener:((_ watching: String?)->Void)?
+
+    let videoQueue = [CMSampleBuffer]()
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // View
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    override func viewDidAppear() {
-        super.viewDidAppear()
-
-        // start capture
+    override func viewDidLoad() {
+        let previewLayer = preview.captureLayer
         
-        let device = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)!
-        let dimention = CMVideoFormatDescriptionGetDimensions(device.activeFormat.formatDescription)
-
-        Backend.shared.video =
-            NetworkH264Deserializer(
-                VideoDecoderH264(self))
+        // setup video input
         
-        input = VideoInput(
-            device,
-            VideoEncoderH264(
-                dimention,
-                dimention,
-                NetworkH264Serializer(
-                    NetworkVideoSender())))
+        watchingListener = { (watching: String?) in
+            AV.shared.videoCaptureQueue.async {
+                do {
+                    if watching != nil {
+                        try AV.shared.startInput(AV.shared.defaultAudioVideoInput(watching!, previewLayer));
+                    }
+                    else {
+                        try AV.shared.startInput(nil)
+                    }
+                }
+                catch {
+                    logIOError(error)
+                }
+            }
+        }
         
-        input.start()
-
-        // views
+        // setup video output
         
-        network.sampleLayer.videoGravity = AVLayerVideoGravityResizeAspect
-        network.sampleLayer.flush()
+        Backend.shared.videoSessionStart = { (_, _) in
+            return AV.shared.defaultNetworkOutputVideo(self)
+        }
 
-        preview.captureLayer.videoGravity = AVLayerVideoGravityResizeAspect
-        preview.captureLayer.session = input.session
-    }
-
-    override func viewDidDisappear() {
-        input.stop()
+        Backend.shared.videoSessionStop = { (_) in
+            self.network.sampleLayer.flushAndRemoveImage()
+        }
     }
     
-    static var status: AVQueuedSampleBufferRenderingStatus?
+    override func viewDidAppear() {
+        super.viewDidAppear()
+     
+        // views
+
+        network.sampleLayer.videoGravity = AVLayerVideoGravityResizeAspect
+        preview.captureLayer.videoGravity = AVLayerVideoGravityResizeAspect
+    }
+
     func printStatus() {
-        if VideoViewController.status == .failed {
-            print("AVQueuedSampleBufferRenderingStatus failed")
+        if network.sampleLayer.status == .failed {
+            logIO("AVQueuedSampleBufferRenderingStatus failed")
         }
         if let error = network.sampleLayer.error {
-            print(error.localizedDescription)
+            logIO(error.localizedDescription)
         }
         if !network.sampleLayer.isReadyForMoreMediaData {
-            print("Video layer not ready for more media data")
+            logIO("Video layer not ready for more media data")
         }
     }
     
@@ -67,9 +76,16 @@ class VideoViewController: NSViewController, VideoOutputProtocol {
 
     func process(_ data: CMSampleBuffer) {
         
-        if network.sampleLayer.isReadyForMoreMediaData {
-            printStatus()
-            network.sampleLayer.enqueue(data)
+        assert_video_output_queue()
+        
+        DispatchQueue.main.sync {
+            if network.sampleLayer.isReadyForMoreMediaData {
+                network.sampleLayer.enqueue(data)
+            }
+            else {
+                printStatus()
+                network.sampleLayer.flush()
+            }
         }
     }
 }

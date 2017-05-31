@@ -176,13 +176,15 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
         sessionId = receivedUsername(conn, haber.GetLogin().GetUsername())
       case Haber_CONTACTS:
         receivedContacts(sessionId, haber)
+      case Haber_AV:
+        fallthrough
+      case Haber_AudioSession:
+        fallthrough
+      case Haber_VideoSession:
+        fallthrough
       case Haber_TEXT:
         fallthrough
       case Haber_FILE:
-        if _,ok := chat.clients[sessionId]; ok {
-          forward(sessionId, haber)
-        }
-      case Haber_AV:
         if _,ok := chat.clients[sessionId]; ok {
           forward(sessionId, haber)
         }

@@ -59,6 +59,11 @@ message Av {
     AudioSample audio = 2;
 }
 
+message AVSession {
+    bool active = 1;
+    bytes data = 2;
+}
+
 message Haber {
 
     uint32 version = 1;
@@ -74,13 +79,16 @@ message Haber {
         TEXT = 3;
         FILE = 4;
         AV = 5;
+        AudioSession = 6;
+        VideoSession = 7;
     }
-    Which which = 5;
+    Which which = 7;
 
     // One of the following will be filled in
     Login login = 101;
     repeated Contact contacts = 102; // for roster, presence, and invite
     Text text = 104;
     Av av = 105;
-    File file = 106;
+    AVSession avSession = 106;
+    File file = 107;
 }
