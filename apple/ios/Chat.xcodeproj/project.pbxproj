@@ -12,6 +12,8 @@
 		1AB062151E8843E600A841D0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1AB062141E8843E600A841D0 /* Assets.xcassets */; };
 		66C4B5946A64F209719F1358 /* Pods_Chat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ACBFB437F9424A73A5B0830 /* Pods_Chat.framework */; };
 		821F4CC71EDEB03500FA923D /* Dispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821F4CC61EDEB03500FA923D /* Dispatch.swift */; };
+		827C52071EE01E4200340D56 /* !Audio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 827C52061EE01E4200340D56 /* !Audio.swift */; };
+		827C52091EE01EB800340D56 /* CoreAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 827C52081EE01EB800340D56 /* CoreAudio.swift */; };
 		8286E3101EDC1AFF006788B2 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8286E2FE1EDC1AFF006788B2 /* Backend.swift */; };
 		8286E3111EDC1AFF006788B2 /* IO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8286E3001EDC1AFF006788B2 /* IO.swift */; };
 		8286E3121EDC1AFF006788B2 /* AudioInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8286E3011EDC1AFF006788B2 /* AudioInput.swift */; };
@@ -46,6 +48,8 @@
 		1AB062141E8843E600A841D0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1AB062191E8843E600A841D0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		821F4CC61EDEB03500FA923D /* Dispatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dispatch.swift; sourceTree = "<group>"; };
+		827C52061EE01E4200340D56 /* !Audio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "!Audio.swift"; sourceTree = "<group>"; };
+		827C52081EE01EB800340D56 /* CoreAudio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreAudio.swift; sourceTree = "<group>"; };
 		8286E2FE1EDC1AFF006788B2 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Backend.swift; path = ../Common/Backend.swift; sourceTree = "<group>"; };
 		8286E3001EDC1AFF006788B2 /* IO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IO.swift; sourceTree = "<group>"; };
 		8286E3011EDC1AFF006788B2 /* AudioInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioInput.swift; sourceTree = "<group>"; };
@@ -128,6 +132,7 @@
 			isa = PBXGroup;
 			children = (
 				82A68C0A1EDBDD6F00049AD9 /* UI */,
+				827C52051EE01E3800340D56 /* Utils */,
 				1AB0620B1E8843E500A841D0 /* AppDelegate.swift */,
 				1AB062111E8843E600A841D0 /* Main.storyboard */,
 				1AB062141E8843E600A841D0 /* Assets.xcassets */,
@@ -135,6 +140,14 @@
 			);
 			name = App;
 			path = Chat;
+			sourceTree = "<group>";
+		};
+		827C52051EE01E3800340D56 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				827C52061EE01E4200340D56 /* !Audio.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 		8286E2FD1EDC1AF2006788B2 /* Lib */ = {
@@ -184,6 +197,7 @@
 				829A0EBC1EDD6EFB00FEC353 /* Foundation.swift */,
 				8286E30C1EDC1AFF006788B2 /* AVFoundation.swift */,
 				8286E30D1EDC1AFF006788B2 /* CoreMedia.swift */,
+				827C52081EE01EB800340D56 /* CoreAudio.swift */,
 				8286E30E1EDC1AFF006788B2 /* Log.swift */,
 				829A0EAE1EDD2C2B00FEC353 /* UI.swift */,
 				821F4CC61EDEB03500FA923D /* Dispatch.swift */,
@@ -346,6 +360,8 @@
 				829A0E791EDC1CE200FEC353 /* SplitViewController.swift in Sources */,
 				829A0EBD1EDD6EFB00FEC353 /* Foundation.swift in Sources */,
 				8286E3121EDC1AFF006788B2 /* AudioInput.swift in Sources */,
+				827C52071EE01E4200340D56 /* !Audio.swift in Sources */,
+				827C52091EE01EB800340D56 /* CoreAudio.swift in Sources */,
 				829A0E781EDC1CE200FEC353 /* MasterViewController.swift in Sources */,
 				829A0EAF1EDD2C2B00FEC353 /* UI.swift in Sources */,
 				829A0EB31EDD52D400FEC353 /* Audio.swift in Sources */,

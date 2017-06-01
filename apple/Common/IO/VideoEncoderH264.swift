@@ -153,7 +153,7 @@ class VideoEncoderH264 : NSObject, VideoOutputProtocol {
 
             // output
             
-            AV.shared.videoCaptureQueue.async { self.output?.process(result) }
+            AV.shared.avCaptureQueue.async { self.output?.process(result) }
         }
         catch {
             logIOError(error)
@@ -184,7 +184,7 @@ class VideoEncoderSessionH264 : IOSessionProtocol {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     func start() throws {
-        assert_video_capture_queue()
+        assert_av_capture_queue()
 
         VTCompressionSessionCreate(
             kCFAllocatorDefault,
@@ -203,7 +203,7 @@ class VideoEncoderSessionH264 : IOSessionProtocol {
     }
 
     func stop() {
-        assert_video_capture_queue()
+        assert_av_capture_queue()
         VTCompressionSessionInvalidate(session!)
         session = nil
     }

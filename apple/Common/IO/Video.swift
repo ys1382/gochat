@@ -15,7 +15,7 @@ struct VideoFormat {
     private static let kWidth = "width"
     private static let kHeight = "height"
     
-    private(set) var data = [String: Any]()
+    private(set) var data: [String: Any]
     
     var width: UInt32 {
         get {
@@ -25,6 +25,7 @@ struct VideoFormat {
             data[VideoFormat.kWidth] = newValue
         }
     }
+
     var height: UInt32 {
         get {
             return data.keys.contains(VideoFormat.kHeight) ? data[VideoFormat.kHeight] as! UInt32 : 0
@@ -35,6 +36,8 @@ struct VideoFormat {
     }
     
     init(_ dimention: CMVideoDimensions) {
+        data = [String: Any]()
+        
         width = UInt32(dimention.width)
         height = UInt32(dimention.height)
     }

@@ -5,23 +5,37 @@ import AudioToolbox
 // AudioOutput
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class AudioOutput : AudioOutputProtocol {
+class AudioOutput : AudioOutputProtocol, IOSessionProtocol {
     
     private var queue: AudioQueueRef?
     private var buffer: AudioQueueBufferRef?
     private var packetsToRead: UInt32 = 0
+
+    let format: AudioFormat
+    let formatID: UInt32
+    let interval: Double
+
+    init(_ format: AudioFormat, _ formatID: UInt32, _ interval: Double) {
+        self.format = format
+        self.formatID = formatID
+        self.interval = interval
+    }
     
-    func start(_ format: UnsafePointer<AudioStreamBasicDescription>,
-               _ packetMaxSize: UInt32,
-               _ interval: Double) {
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // IOSessionProtocol
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    func start() {
+        
+        var format = AudioStreamBasicDescription.CreateOutput(self.format, formatID)
         
         do {
             // create queue
 
-            try checkStatus(AudioQueueNewOutput(format,
+            try checkStatus(AudioQueueNewOutput(&format,
                                                 callback,
                                                 Unmanaged.passUnretained(self).toOpaque(),
-                                                CFRunLoopGetCurrent(),
+                                                CFRunLoopGetMain(),
                                                 CFRunLoopMode.commonModes.rawValue,
                                                 0,
                                                 &queue), "AudioQueueNew failed")
@@ -33,9 +47,14 @@ class AudioOutput : AudioOutputProtocol {
             
             // adjust buffer size to represent about a half second of audio based on this format
             var bufferByteSize: UInt32 = 0
-            _calculateBytesForTime (format.pointee, packetMaxSize, interval, &bufferByteSize, &packetsToRead)
             
-            let isFormatVBR = format.pointee.mBytesPerPacket == 0 || format.pointee.mFramesPerPacket == 0
+            _calculateBytesForTime (format,
+                                    self.format.packetMaxSize,
+                                    interval,
+                                    &bufferByteSize,
+                                    &packetsToRead)
+            
+            let isFormatVBR = format.mBytesPerPacket == 0 || format.mFramesPerPacket == 0
             
             try checkStatus(AudioQueueAllocateBufferWithPacketDescriptions(queue!,
                                                                            bufferByteSize,
@@ -59,21 +78,26 @@ class AudioOutput : AudioOutputProtocol {
     
     func stop() {
         
+        guard let queue = self.queue else { assert(false); return }
+        
         do {
-            
-            try checkStatus(AudioQueueStop(queue!,
+            try checkStatus(AudioQueueStop(queue,
                                            true), "AudioQueueStop failed")
             
-            try checkStatus(AudioQueueDispose(queue!,
+            try checkStatus(AudioQueueDispose(queue,
                                               true), "AudioQueueDispose failed")
             
-            queue = nil
+            self.queue = nil
         }
         catch {
             logIOError(error)
         }
     }
     
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // AudioOutputProtocol
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     func process(_ data: AudioData) {
         
         do {
@@ -90,6 +114,10 @@ class AudioOutput : AudioOutputProtocol {
         }
     }
     
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Utils
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     private func _calculateBytesForTime(_ inDesc: AudioStreamBasicDescription,
                                         _ inpacketMaxSize: UInt32,
                                         _ inSeconds: Double,

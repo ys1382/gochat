@@ -2,10 +2,9 @@
 import AudioToolbox
 import AVFoundation
 
-class AudioInput
+class AudioInput : NSObject, IOSessionProtocol
 {
-    public var format: AudioStreamBasicDescription?
-    public var packetMaxSize: UInt32 = 0
+    private var audioFormat: AudioFormat?
 
     private var queue: AudioQueueRef?
     private var	buffer: AudioQueueBufferRef?
@@ -14,35 +13,31 @@ class AudioInput
     private let formatID: UInt32
     private let interval: Double
     
+    public var format: AudioFormat.Factory {
+        get {
+            return { () in self.audioFormat! }
+        }
+    }
+
     init(_ formatID: UInt32, _ interval: Double, _ output: AudioOutputProtocol?) {
         self.output = output
         self.formatID = formatID
         self.interval = interval
     }
     
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // IOSessionProtocol
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     func start() {
         
         // prepare format
-        
-        self.format = AudioStreamBasicDescription()
 
         let engine = AVAudioEngine()
         let inputFormat = engine.inputNode!.inputFormat(forBus: AudioBus.input)
+        var format = AudioStreamBasicDescription.CreateInput(formatID, inputFormat.sampleRate, inputFormat.channelCount)
+        var packetMaxSize: UInt32 = 0
         
-        format!.mSampleRate = inputFormat.sampleRate;
-        format!.mChannelsPerFrame = inputFormat.channelCount;
-        format!.mFormatID = formatID;
-        
-        if (formatID == kAudioFormatLinearPCM)
-        {
-            // if we want pcm, default to signed 16-bit little-endian
-            format!.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
-            format!.mBitsPerChannel = 16;
-            format!.mBytesPerFrame = (format!.mBitsPerChannel / 8) * format!.mChannelsPerFrame;
-            format!.mBytesPerPacket = format!.mBytesPerFrame
-            format!.mFramesPerPacket = 1;
-        }
-
         // start queue
         
         var bufferByteSize: UInt32
@@ -52,10 +47,10 @@ class AudioInput
             // create the queue
             
             try checkStatus(AudioQueueNewInput(
-                &format!,
+                &format,
                 callback,
                 Unmanaged.passUnretained(self).toOpaque() /* userData */,
-                CFRunLoopGetCurrent(), CFRunLoopMode.commonModes.rawValue,
+                CFRunLoopGetMain(), CFRunLoopMode.commonModes.rawValue,
                 0 /* flags */,
                 &queue), "AudioQueueNewInput failed")
             
@@ -72,7 +67,7 @@ class AudioInput
             
             // allocate and enqueue buffers
             
-            bufferByteSize = computeBufferSize(format!,
+            bufferByteSize = computeBufferSize(format,
                                                interval,
                                                &packetMaxSize);	// enough bytes for kBufferDurationSeconds
            
@@ -93,25 +88,35 @@ class AudioInput
         catch {
             logIOError(error)
         }
+        
+        // audio format
+        
+        audioFormat = AudioFormat(format, packetMaxSize)
     }
     
     func stop() {
+        guard let queue = self.queue else { assert(false); return }
+
         do {
-            format = nil
-            
             // end recording
-            try checkStatus(AudioQueueStop(queue!,
+            try checkStatus(AudioQueueStop(queue,
                                            true), "AudioQueueStop failed")
             
             // a codec may update its cookie at the end of an encoding session, so reapply it to the file now
-            try checkStatus(AudioQueueDispose(queue!,
+            try checkStatus(AudioQueueDispose(queue,
                                               true), "AudioQueueDispose failed")
+            
+            self.queue = nil
         }
         catch {
             logIOError(error)
         }
     }
     
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Utils
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     private func computeBufferSize(_ format: AudioStreamBasicDescription,
                            _ interval: Double,
                            _ packetMaxSize: inout UInt32) -> UInt32

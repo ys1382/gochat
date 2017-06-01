@@ -33,6 +33,74 @@ struct AudioData {
 
 struct AudioFormat {
     
+    typealias Factory = () -> AudioFormat
+    
+    private static let kFlags = "kFlags"
+    private static let kSampleRate = "kSampleRate"
+    private static let kChannelCount = "kChannelCount"
+    private static let kFramesPerPacket = "kFramesPerPacket"
+    private static let kPacketMaxSize = "kPacketMaxSize"
+
+    private(set) var data: [String: Any]
+
+    init(_ x: AudioStreamBasicDescription, _ packetMaxSize: UInt32) {
+        data = [String: Any]()
+        
+        self.flags = x.mFormatFlags
+        self.sampleRate = x.mSampleRate
+        self.channelCount =  x.mChannelsPerFrame
+        self.framesPerPacket = x.mFramesPerPacket
+        self.packetMaxSize = packetMaxSize
+    }
+    
+    init(_ data: [String: Any]) {
+        self.data = data
+    }
+
+    var flags: UInt32 {
+        get {
+            return data.keys.contains(AudioFormat.kFlags) ? data[AudioFormat.kFlags] as! UInt32 : 0
+        }
+        set {
+            data[AudioFormat.kFlags] = newValue
+        }
+    }
+
+    var sampleRate: Double {
+        get {
+            return data.keys.contains(AudioFormat.kSampleRate) ? data[AudioFormat.kSampleRate] as! Double : 0
+        }
+        set {
+            data[AudioFormat.kSampleRate] = newValue
+        }
+    }
+
+    var channelCount: UInt32 {
+        get {
+            return data.keys.contains(AudioFormat.kChannelCount) ? data[AudioFormat.kChannelCount] as! UInt32 : 0
+        }
+        set {
+            data[AudioFormat.kChannelCount] = newValue
+        }
+    }
+
+    var framesPerPacket: UInt32 {
+        get {
+            return data.keys.contains(AudioFormat.kFramesPerPacket) ? data[AudioFormat.kFramesPerPacket] as! UInt32 : 0
+        }
+        set {
+            data[AudioFormat.kFramesPerPacket] = newValue
+        }
+    }
+
+    var packetMaxSize: UInt32 {
+        get {
+            return data.keys.contains(AudioFormat.kPacketMaxSize) ? data[AudioFormat.kPacketMaxSize] as! UInt32 : 0
+        }
+        set {
+            data[AudioFormat.kPacketMaxSize] = newValue
+        }
+    }
 }
 
 protocol AudioOutputProtocol {

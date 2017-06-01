@@ -20,10 +20,10 @@ class VideoViewController: NSViewController, VideoOutputProtocol {
     override func viewDidLoad() {
         let previewLayer = preview.captureLayer
         
-        // setup video input
+        // setup audio/video input
         
         watchingListener = { (watching: String?) in
-            AV.shared.videoCaptureQueue.async {
+            AV.shared.avCaptureQueue.async {
                 do {
                     if watching != nil {
                         try AV.shared.startInput(AV.shared.defaultAudioVideoInput(watching!, previewLayer));
@@ -41,7 +41,7 @@ class VideoViewController: NSViewController, VideoOutputProtocol {
         // setup video output
         
         Backend.shared.videoSessionStart = { (_, _) in
-            return AV.shared.defaultNetworkOutputVideo(self)
+            return AV.shared.defaultNetworkInputVideo(self)
         }
 
         Backend.shared.videoSessionStop = { (_) in
@@ -76,7 +76,7 @@ class VideoViewController: NSViewController, VideoOutputProtocol {
 
     func process(_ data: CMSampleBuffer) {
         
-        assert_video_output_queue()
+        assert_av_output_queue()
         
         DispatchQueue.main.sync {
             if network.sampleLayer.isReadyForMoreMediaData {

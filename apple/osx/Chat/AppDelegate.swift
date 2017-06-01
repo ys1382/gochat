@@ -7,22 +7,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     static var shared: AppDelegate!
     static let usernameKey = "usernamekey"
 
-    let audioOut: AudioOutput
-    let audioInp: AudioInput
-    
     func login(username: String) {
         Backend.shared.connect(withUsername: username)
     }
 
     override init() {
-        audioOut = AudioOutput()
-        audioInp =
-            AudioInput(
-                kAudioFormatMPEG4AAC_ELD,
-                0.1,
-                NetworkAACSerializer(
-                    NetworkAudioSender()))
-
         super.init()
         
         AppDelegate.shared = self
@@ -42,10 +31,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
         
-        audioInp.start()
-        audioOut.start(&audioInp.format!, audioInp.packetMaxSize, 0.1)
-
-        Backend.shared.audio = NetworkAACDeserializer(audioOut)
+        AV.shared.setupDefaultNetworkInputAudio(nil)
     }
 
     static func ask(title: String, subtitle: String, cancelable: Bool, done:(String?)->Void) {

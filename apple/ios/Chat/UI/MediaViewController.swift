@@ -12,9 +12,6 @@ import AVFoundation
 class MediaViewController : UIViewController, VideoOutputProtocol {
 
     var watching: String?
-    
-    var audioOut: AudioOutput!
-    var audioInp: AudioInput!
 
     @IBOutlet weak var videoView: SampleBufferDisplayView!
     @IBOutlet weak var previewView: CaptureVideoPreviewView!
@@ -34,7 +31,7 @@ class MediaViewController : UIViewController, VideoOutputProtocol {
         // setup video output
         
         videoSessionStart = { (_, _) in
-            return AV.shared.defaultNetworkOutputVideo(self)
+            return AV.shared.defaultNetworkInputVideo(self)
         }
         
         videoSessionStop = { (_) in
@@ -47,7 +44,7 @@ class MediaViewController : UIViewController, VideoOutputProtocol {
         // start video capture
         
         if watching != nil {
-            AV.shared.videoCaptureQueue.async {
+            AV.shared.avCaptureQueue.async {
                 do {
                     try AV.shared.startInput(AV.shared.defaultAudioVideoInput(self.watching!,
                                                                               self.previewView.captureLayer));
@@ -57,27 +54,6 @@ class MediaViewController : UIViewController, VideoOutputProtocol {
                 }
             }
         }
-        
-        // start audio capture
-        
-        audioOut =
-            AudioOutput()
-
-        Backend.shared.audio =
-            NetworkAACDeserializer(
-                audioOut)
-
-        audioInp =
-            AudioInput(
-                kAudioFormatMPEG4AAC,
-                0.1,
-                NetworkAACSerializer(
-                    NetworkAudioSender()))
-        
-        try! AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayAndRecord)
-        try! AVAudioSession.sharedInstance().setActive(true)
-        audioInp.start()
-        audioOut.start(&audioInp.format!, audioInp.packetMaxSize, 0.1)
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

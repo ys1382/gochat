@@ -12,6 +12,7 @@
 		1ADE89EC1EA1CE0E00E41212 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1ADE89EA1EA1CE0E00E41212 /* Main.storyboard */; };
 		821F4CC51EDE6E6500FA923D /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821F4CC41EDE6E6500FA923D /* MainViewController.swift */; };
 		821F4CC91EDEB3A100FA923D /* Dispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821F4CC81EDEB3A100FA923D /* Dispatch.swift */; };
+		821F4CCD1EE00D2800FA923D /* CoreAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821F4CCC1EE00D2800FA923D /* CoreAudio.swift */; };
 		829A0E8D1EDC1DB800FEC353 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E7B1EDC1DB800FEC353 /* Backend.swift */; };
 		829A0E8E1EDC1DB800FEC353 /* AudioInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E7D1EDC1DB800FEC353 /* AudioInput.swift */; };
 		829A0E8F1EDC1DB800FEC353 /* AudioOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E7E1EDC1DB800FEC353 /* AudioOutput.swift */; };
@@ -47,6 +48,7 @@
 		64A385B4166E340653D3B04C /* Pods-Chat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chat.release.xcconfig"; path = "Pods/Target Support Files/Pods-Chat/Pods-Chat.release.xcconfig"; sourceTree = "<group>"; };
 		821F4CC41EDE6E6500FA923D /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		821F4CC81EDEB3A100FA923D /* Dispatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dispatch.swift; sourceTree = "<group>"; };
+		821F4CCC1EE00D2800FA923D /* CoreAudio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreAudio.swift; sourceTree = "<group>"; };
 		829A0E7B1EDC1DB800FEC353 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Backend.swift; path = ../Common/Backend.swift; sourceTree = "<group>"; };
 		829A0E7D1EDC1DB800FEC353 /* AudioInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioInput.swift; sourceTree = "<group>"; };
 		829A0E7E1EDC1DB800FEC353 /* AudioOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioOutput.swift; sourceTree = "<group>"; };
@@ -183,6 +185,7 @@
 				829A0EBA1EDD6EED00FEC353 /* Foundation.swift */,
 				829A0E891EDC1DB800FEC353 /* AVFoundation.swift */,
 				829A0E8A1EDC1DB800FEC353 /* CoreMedia.swift */,
+				821F4CCC1EE00D2800FA923D /* CoreAudio.swift */,
 				829A0EB01EDD2CC000FEC353 /* UI.swift */,
 				829A0E8B1EDC1DB800FEC353 /* Log.swift */,
 			);
@@ -348,6 +351,7 @@
 				829A0E991EDC1DB800FEC353 /* CoreMedia.swift in Sources */,
 				829A0E921EDC1DB800FEC353 /* VideoEncoderH264.swift in Sources */,
 				829A0E8F1EDC1DB800FEC353 /* AudioOutput.swift in Sources */,
+				821F4CCD1EE00D2800FA923D /* CoreAudio.swift in Sources */,
 				821F4CC91EDEB3A100FA923D /* Dispatch.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
