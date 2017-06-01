@@ -54,6 +54,7 @@ class VideoEncoderH264 : NSObject, VideoOutputProtocol {
         ) in
         
         guard let sampleBuffer:CMSampleBuffer = sampleBuffer, status == noErr else {
+            logIOError("VTCompressionOutputCallback failed with status \(status)")
             return
         }
         
@@ -226,19 +227,17 @@ class VideoEncoderSessionH264 : IOSessionProtocol {
         return attributes
     }
     
-    var profileLevel:String = kVTProfileLevel_H264_Baseline_3_1 as String
+    var profileLevel:String = kVTProfileLevel_H264_Baseline_AutoLevel as String
     fileprivate var properties:[NSString: AnyObject] {
         let isBaseline:Bool = profileLevel.contains("Baseline")
         var properties:[NSString: AnyObject] = [
             kVTCompressionPropertyKey_RealTime: kCFBooleanTrue,
             kVTCompressionPropertyKey_ProfileLevel: profileLevel as NSObject,
             kVTCompressionPropertyKey_AverageBitRate: Int(outputDimention.bitrate()) as NSObject,
-            kVTCompressionPropertyKey_ExpectedFrameRate: NSNumber(value: 30.0 as Double),
-            kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration: NSNumber(value: 2.0 as Double),
+            kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration: NSNumber(value: 1.0 as Double),
             kVTCompressionPropertyKey_AllowFrameReordering: !isBaseline as NSObject,
-            kVTCompressionPropertyKey_PixelTransferProperties: [
-                "ScalingMode": "Trim"
-                ] as AnyObject
+//            kVTCompressionPropertyKey_ExpectedFrameRate: NSNumber(value: 30.0 as Double),
+//            kVTCompressionPropertyKey_PixelTransferProperties: [ "ScalingMode": "Trim" ] as AnyObject
         ]
         if (!isBaseline) {
             properties[kVTCompressionPropertyKey_H264EntropyMode] = kVTH264EntropyMode_CABAC
