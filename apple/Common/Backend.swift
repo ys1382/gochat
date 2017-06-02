@@ -3,9 +3,9 @@ import Starscream
 
 class Backend: WebSocketDelegate {
 
-    static let address = "ws://107.170.4.248:8000/ws"
-//    static let address = "ws://localhost:8000/ws"
-//    static let address = "ws://192.168.8.100:8000/ws"
+    static var address = "107.170.4.248"
+//    static var address = "localhost"
+//    static var address = "192.168.0.100"
 
     static let shared = Backend()
 
@@ -16,7 +16,7 @@ class Backend: WebSocketDelegate {
     private var sessionId: String?
 
     func connect(withUsername: String) {
-        guard let url = URL(string: Backend.address) else {
+        guard let url = URL(string: "ws://\(Backend.address):8000/ws") else {
             logNetworkError("could not create url from " + Backend.address)
             return
         }
@@ -36,13 +36,17 @@ class Backend: WebSocketDelegate {
     // Send
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    func send(_ haberBuilder:Haber.Builder) {
+    func send(_ haberBuilder:Haber.Builder, _ details: String) {
         guard let haber = try? haberBuilder.setSessionId(self.sessionId ?? "").build() else {
             logNetworkError("could not create haber")
             return
         }
-        logNetwork("write \(haber.data().count) bytes for \(haber.which)")
+        logNetwork("write \(haber.data().count) bytes for \(haber.which) \(details)")
         self.websocket?.write(data: haber.data())
+    }
+
+    func send(_ haberBuilder:Haber.Builder) {
+        send(haberBuilder, "")
     }
 
     func sendText(_ body: String, to: String) {
@@ -89,6 +93,8 @@ class Backend: WebSocketDelegate {
 
     func sendVideo(_ to: String, _ data: NSData) {
         
+//        return
+        
         assert_av_capture_queue()
         
         do {
@@ -99,7 +105,7 @@ class Backend: WebSocketDelegate {
             let haberBuilder = Haber.Builder().setAv(av).setWhich(.av)
             haberBuilder.setTo(to)
             
-            Backend.shared.send(haberBuilder)
+            Backend.shared.send(haberBuilder, "video")
         }
         catch {
             logNetworkError(error)
@@ -107,6 +113,8 @@ class Backend: WebSocketDelegate {
     }
 
     func sendAudio(_ to: String, _ data: NSData) {
+        
+//        return
         
         do {
             let image = try Image.Builder().setData(data as Data).build()
@@ -116,7 +124,7 @@ class Backend: WebSocketDelegate {
             let haberBuilder = Haber.Builder().setAv(av).setWhich(.av)
             haberBuilder.setTo(to)
             
-            Backend.shared.send(haberBuilder)
+            Backend.shared.send(haberBuilder, "audio")
         }
         catch {
             logNetworkError(error)

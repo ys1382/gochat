@@ -29,13 +29,15 @@ class AudioInput : NSObject, IOSessionProtocol
     // IOSessionProtocol
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    func start() {
+    func start() throws {
         
         // prepare format
 
         let engine = AVAudioEngine()
         let inputFormat = engine.inputNode!.inputFormat(forBus: AudioBus.input)
-        var format = AudioStreamBasicDescription.CreateInput(formatID, inputFormat.sampleRate, inputFormat.channelCount)
+        var format = AudioStreamBasicDescription.CreateInput(formatID,
+                                                             8000/*inputFormat.sampleRate*/,
+            1/*inputFormat.channelCount*/)
         var packetMaxSize: UInt32 = 0
         
         // start queue
@@ -43,51 +45,45 @@ class AudioInput : NSObject, IOSessionProtocol
         var bufferByteSize: UInt32
         var size: UInt32
 
-        do {
-            // create the queue
-            
-            try checkStatus(AudioQueueNewInput(
-                &format,
-                callback,
-                Unmanaged.passUnretained(self).toOpaque() /* userData */,
-                CFRunLoopGetMain(), CFRunLoopMode.commonModes.rawValue,
-                0 /* flags */,
-                &queue), "AudioQueueNewInput failed")
-            
-
-            // get the record format back from the queue's audio converter --
-            // the file may require a more specific stream description than was necessary to create the encoder.
-            
-            size = UInt32(MemoryLayout<AudioStreamBasicDescription>.size)
-            try checkStatus(AudioQueueGetProperty(queue!,
-                                                  kAudioQueueProperty_StreamDescription,
-                                                  &format,
-                                                  &size), "couldn't get queue's format");
-
-            
-            // allocate and enqueue buffers
-            
-            bufferByteSize = computeBufferSize(format,
-                                               interval,
-                                               &packetMaxSize);	// enough bytes for kBufferDurationSeconds
-           
-            try checkStatus(AudioQueueAllocateBuffer(queue!,
-                                                     bufferByteSize,
-                                                     &buffer), "AudioQueueAllocateBuffer failed");
-            
-            try checkStatus(AudioQueueEnqueueBuffer(queue!,
-                                                    buffer!,
-                                                    0,
-                                                    nil), "AudioQueueEnqueueBuffer failed");
-
-            // start the queue
-            
-            try checkStatus(AudioQueueStart(queue!,
-                                            nil), "AudioQueueStart failed");
-        }
-        catch {
-            logIOError(error)
-        }
+        // create the queue
+        
+        try checkStatus(AudioQueueNewInput(
+            &format,
+            callback,
+            Unmanaged.passUnretained(self).toOpaque() /* userData */,
+            CFRunLoopGetMain(), CFRunLoopMode.commonModes.rawValue,
+            0 /* flags */,
+            &queue), "AudioQueueNewInput failed")
+        
+        
+        // get the record format back from the queue's audio converter --
+        // the file may require a more specific stream description than was necessary to create the encoder.
+        
+        size = UInt32(MemoryLayout<AudioStreamBasicDescription>.size)
+        try checkStatus(AudioQueueGetProperty(queue!,
+                                              kAudioQueueProperty_StreamDescription,
+                                              &format,
+                                              &size), "couldn't get queue's format");
+        
+        // allocate and enqueue buffers
+        
+        bufferByteSize = computeBufferSize(format,
+                                           interval,
+                                           &packetMaxSize);	// enough bytes for kBufferDurationSeconds
+        
+        try checkStatus(AudioQueueAllocateBuffer(queue!,
+                                                 bufferByteSize,
+                                                 &buffer), "AudioQueueAllocateBuffer failed");
+        
+        try checkStatus(AudioQueueEnqueueBuffer(queue!,
+                                                buffer!,
+                                                0,
+                                                nil), "AudioQueueEnqueueBuffer failed");
+        
+        // start the queue
+        
+        try checkStatus(AudioQueueStart(queue!,
+                                        nil), "AudioQueueStart failed");
         
         // audio format
         

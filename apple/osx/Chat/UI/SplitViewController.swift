@@ -1,7 +1,7 @@
 
 import Cocoa
 
-class MainViewController : NSSplitViewController {
+class SplitViewController : NSSplitViewController {
     
     @IBOutlet weak var masterSplitViewItem: NSSplitViewItem!
     @IBOutlet weak var detailSplitViewItem: NSSplitViewItem!

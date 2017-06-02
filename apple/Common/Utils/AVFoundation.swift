@@ -16,6 +16,12 @@ extension AVCaptureDevice {
             return AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
         #endif
     }
+    
+    var dimentions: CMVideoDimensions {
+        get {
+            return CMVideoFormatDescriptionGetDimensions(activeFormat.formatDescription)
+        }
+    }
 }
 
 private class _AVCaptureVideoPreviewLayer : AVCaptureVideoPreviewLayer {

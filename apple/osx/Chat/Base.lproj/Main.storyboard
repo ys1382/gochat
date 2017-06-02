@@ -671,17 +671,128 @@
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
                     </window>
                     <connections>
-                        <segue destination="mEw-Tu-2aL" kind="relationship" relationship="window.shadowedContentViewController" id="fdi-dg-HdI"/>
+                        <segue destination="dIs-0l-yh4" kind="relationship" relationship="window.shadowedContentViewController" id="9fz-kF-EeR"/>
                     </connections>
                 </windowController>
                 <customObject id="Oky-zY-oP4" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-142" y="260"/>
         </scene>
-        <!--Main View Controller-->
+        <!--Chat View Controller-->
+        <scene sceneID="qb1-VC-OqN">
+            <objects>
+                <viewController id="dIs-0l-yh4" customClass="ChatViewController" customModule="Chat" customModuleProvider="target" sceneMemberID="viewController">
+                    <customView key="view" id="On2-ib-Fgk">
+                        <rect key="frame" x="0.0" y="0.0" width="724" height="300"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <subviews>
+                            <containerView translatesAutoresizingMaskIntoConstraints="NO" id="V9M-zK-eH4">
+                                <rect key="frame" x="0.0" y="0.0" width="724" height="250"/>
+                                <connections>
+                                    <segue destination="mEw-Tu-2aL" kind="embed" id="7Wk-Pi-tnh"/>
+                                </connections>
+                            </containerView>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ckx-YX-OoO">
+                                <rect key="frame" x="13" y="261" width="59" height="17"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Server IP" id="3ov-S1-hku">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xhc-8z-wtr">
+                                <rect key="frame" x="78" y="258" width="151" height="22"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="jX8-De-FS3">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <action selector="textFieldServerIPAction:" target="dIs-0l-yh4" id="mjL-rI-X89"/>
+                                </connections>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Wmb-cR-tc7">
+                                <rect key="frame" x="279" y="260" width="67" height="17"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Video size" id="JhK-Ry-Q6t">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="P5w-fp-p9h">
+                                <rect key="frame" x="352" y="258" width="56" height="22"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="uhb-Fy-XaR">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <action selector="textFieldVideoWidthAction:" target="dIs-0l-yh4" id="HNk-d9-yCU"/>
+                                </connections>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iKg-QU-luB">
+                                <rect key="frame" x="414" y="260" width="11" height="17"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="*" id="5iS-xO-IRo">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AxU-32-rsq">
+                                <rect key="frame" x="430" y="259" width="56" height="22"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="Wo9-Bx-Ojo">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <action selector="textFieldVideoHeightAction:" target="dIs-0l-yh4" id="TDa-zE-jxI"/>
+                                </connections>
+                            </textField>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="eHP-9f-bcr">
+                                <rect key="frame" x="629" y="253" width="81" height="32"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="69" id="gCd-mv-biT"/>
+                                    <constraint firstAttribute="height" constant="21" id="j2x-AT-wLg"/>
+                                </constraints>
+                                <buttonCell key="cell" type="push" title="Restart" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="uc6-fC-2Dv">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="btnRestartAction:" target="dIs-0l-yh4" id="2Nj-rO-AYl"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="V9M-zK-eH4" firstAttribute="leading" secondItem="On2-ib-Fgk" secondAttribute="leading" id="9ba-Zd-ntH"/>
+                            <constraint firstAttribute="trailing" secondItem="V9M-zK-eH4" secondAttribute="trailing" id="Sj5-LK-nRn"/>
+                            <constraint firstItem="V9M-zK-eH4" firstAttribute="top" secondItem="On2-ib-Fgk" secondAttribute="top" constant="50" id="TiP-Bu-Ipn"/>
+                            <constraint firstItem="V9M-zK-eH4" firstAttribute="top" secondItem="eHP-9f-bcr" secondAttribute="bottom" constant="10" id="W4N-IN-ben"/>
+                            <constraint firstAttribute="bottom" secondItem="V9M-zK-eH4" secondAttribute="bottom" id="YVT-xL-yUx"/>
+                            <constraint firstAttribute="trailing" secondItem="eHP-9f-bcr" secondAttribute="trailing" constant="20" id="juv-f5-Hvc"/>
+                        </constraints>
+                    </customView>
+                    <connections>
+                        <outlet property="textFieldServerIP" destination="xhc-8z-wtr" id="UYl-3e-fSC"/>
+                        <outlet property="textFieldVideoHeight" destination="AxU-32-rsq" id="0f8-C6-NxG"/>
+                        <outlet property="textFieldVideoWidth" destination="P5w-fp-p9h" id="czc-hM-rqX"/>
+                    </connections>
+                </viewController>
+                <customObject id="RXn-dj-9uW" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-829" y="716"/>
+        </scene>
+        <!--Split View Controller-->
         <scene sceneID="fOD-Gh-EZ2">
             <objects>
-                <splitViewController id="mEw-Tu-2aL" customClass="MainViewController" customModule="Chat" customModuleProvider="target" sceneMemberID="viewController">
+                <splitViewController id="mEw-Tu-2aL" customClass="SplitViewController" customModule="Chat" customModuleProvider="target" sceneMemberID="viewController">
                     <splitViewItems>
                         <splitViewItem holdingPriority="750" id="P9m-Uh-lA1"/>
                         <splitViewItem id="51F-fc-hUz"/>
@@ -940,6 +1051,18 @@
                 <customObject id="Ivn-40-32J" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-142" y="1194"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="HAT-nS-iDk">
+            <objects>
+                <viewController id="QgG-Fc-Tbk" sceneMemberID="viewController">
+                    <view key="view" id="pme-Ls-KES">
+                        <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </view>
+                </viewController>
+                <customObject id="S66-lf-Iek" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
         </scene>
     </scenes>
 </document>

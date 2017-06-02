@@ -20,7 +20,7 @@ func assert_av_output_queue() {
 class AV {
     
     static let shared = AV()
-    static let defaultAudioFormat = kAudioFormatMPEG4AAC_ELD
+    static let defaultAudioFormat = kAudioFormatMPEG4AAC
     static let defaultAudioInterval = 0.1
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,8 @@ class AV {
     let avCaptureQueue = ChatDispatchQueue.CreateCheckable("chat.AVCaptureQueue")
     let avOutputQueue = ChatDispatchQueue.CreateCheckable("chat.AVOutputQueue")
 
+    var defaultVideoDimention: CMVideoDimensions? = AVCaptureDevice.chatVideoDevice()?.dimentions
+    
     private(set) var activeInput: IOSessionProtocol?
     
     private(set) var activeAudioOutput: IOSessionProtocol?
@@ -43,7 +45,7 @@ class AV {
                                     _ preview: AVCaptureVideoPreviewLayer,
                                     _ x: inout [IOSessionProtocol]) {
         guard let device = AVCaptureDevice.chatVideoDevice() else { return }
-        let dimention = CMVideoFormatDescriptionGetDimensions(device.activeFormat.formatDescription)
+        let dimention = defaultVideoDimention!
         let format = VideoFormat(dimention)
         
         let sessionEncoder = VideoEncoderSessionH264(dimention, dimention)
