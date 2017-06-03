@@ -30,7 +30,7 @@
         <activity
             android:name=".ui.ItemListActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".ui.ItemDetailActivity"
             android:label="@string/title_item_detail"
@@ -48,7 +48,7 @@
             android:name=".Backend"
             android:exported="false" />
 
-        <activity android:name=".ui.BaseActivity"></activity>
+        <activity android:name=".ui.BaseActivity"/>
     </application>
 
 </manifest>

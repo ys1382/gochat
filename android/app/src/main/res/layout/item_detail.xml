@@ -1,55 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="20dp"
     >
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:scrollbars="vertical"
+        android:fillViewport="true"
+        android:layout_weight="1"
+        >
+
+        <TextView
+            style="@style/Transcript"
+            android:id="@+id/messagesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="@null"
+            tools:text="one\ntwo\nthree"
+            />
+
+    </ScrollView>
 
     <LinearLayout
         android:id="@+id/chatControls"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         >
 
         <EditText
             android:id="@+id/messageEdit"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:inputType="textMultiLine"
+            android:layout_gravity="bottom"
             android:hint="@string/send"
-            android:layout_weight="0.8"
+            android:layout_weight="1"
             />
 
-        <ImageButton
+        <android.support.design.widget.FloatingActionButton
             android:id="@+id/chatSendButton"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
             android:src="@android:drawable/ic_menu_send"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/image"
-            android:layout_weight="0.2"
             />
 
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/messagesContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentStart="false"
-        android:layout_alignParentTop="false"
-        android:layout_marginBottom="20dp"
-        android:layout_above="@+id/chatControls"
-        android:layout_marginTop="10dp"
-        android:listSelector="@android:color/transparent"
-        android:transcriptMode="alwaysScroll"
-        android:divider="@null"
-        />
-
-</RelativeLayout>
+</LinearLayout>

@@ -18,6 +18,7 @@ class Network {
 
     private static final String serverUrl = "ws://10.0.0.33:8000/ws";
     private static final String TAG = "Network";
+    private static final int CONNECTION_TIMEOUT = 1000;
     private WebSocket webSocket;
 
     Network() {
@@ -47,13 +48,26 @@ class Network {
                 }
 
                 @Override
+                public void onError(WebSocket websocket, WebSocketException cause) throws Exception {
+                    Log.e(TAG, "Error" + cause.getLocalizedMessage());
+                }
+
+                @Override
+                public void onUnexpectedError(WebSocket websocket, WebSocketException cause) throws Exception {
+                    Log.e(TAG, "Unexpected error");
+                }
+
+
+                @Override
                 public void onBinaryMessage(WebSocket websocket, byte[] binary) throws Exception {
                     Log.i(TAG, "onBinaryMessage " + binary.length + " bytes");
                     Backend.incoming(binary);
                 }
             };
 
-            webSocket = new WebSocketFactory().createSocket(serverUrl);
+            WebSocketFactory webSocketFactory = new WebSocketFactory();
+            webSocketFactory.setConnectionTimeout(CONNECTION_TIMEOUT);
+            webSocket = webSocketFactory.createSocket(serverUrl);
             webSocket.addListener(webSocketAdapter);
             webSocket.connectAsynchronously();
 

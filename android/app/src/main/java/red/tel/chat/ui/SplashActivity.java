@@ -2,16 +2,12 @@ package red.tel.chat.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-import red.tel.chat.Backend;
 import red.tel.chat.EventBus;
 import red.tel.chat.EventBus.Event;
-import red.tel.chat.Model;
 import red.tel.chat.R;
 
 public class SplashActivity extends BaseActivity {

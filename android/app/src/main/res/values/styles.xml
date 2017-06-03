@@ -17,8 +17,24 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="TextInputXYZ">
-        <item name="android:layout_margin">@dimen/edit_text_margin</item>
+    <style name="Transcript">
+        <item name="android:layout_margin">@dimen/generic_margin</item>
+        <item name="android:textSize">@dimen/transcript_text_size</item>
+    </style>
+
+    <style name="ListTextItem">
+        <item name="android:textSize">@dimen/list_text_item_size</item>
+    </style>
+
+    <style name="GenericMargin">
+        <item name="android:layout_margin">@dimen/generic_margin</item>
+    </style>
+
+    <style name="ContactListItem">
+        <item name="android:layout_marginStart">@dimen/contact_list_item_margin_start_end</item>
+        <item name="android:layout_marginEnd">@dimen/contact_list_item_margin_start_end</item>
+        <item name="android:layout_marginTop">@dimen/contact_list_item_margin_top_bottom</item>
+        <item name="android:layout_marginBottom">@dimen/contact_list_item_margin_top_bottom</item>
     </style>
 
 </resources>

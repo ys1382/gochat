@@ -13,6 +13,10 @@ android {
 
         android.compileOptions.sourceCompatibility 1.8
         android.compileOptions.targetCompatibility 1.8
+
+        jackOptions {
+            enabled true
+        }
     }
     buildTypes {
         release {

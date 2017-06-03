@@ -21,6 +21,7 @@ public class ChatApp extends android.app.Application {
     public void onCreate() {
         super.onCreate();
         context = getApplicationContext();
+        listenForConnection();
         startService(new Intent(this, Backend.class));
     }
 

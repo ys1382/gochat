@@ -1,30 +1,27 @@
 package red.tel.chat.ui;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.EditText;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import red.tel.chat.Backend;
 import red.tel.chat.EventBus;
 import red.tel.chat.Model;
 import red.tel.chat.R;
-import red.tel.chat.generated_protobuf.Haber;
 
 /**
  * An activity representing a list of Items. This activity has different presentations for handset
@@ -63,7 +60,7 @@ public class ItemListActivity extends BaseActivity {
         recyclerView.setAdapter(this.recyclerViewAdapter);
     }
 
-    public class SimpleItemRecyclerViewAdapter extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
+    class SimpleItemRecyclerViewAdapter extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
         private List<String> values = new ArrayList<>();
 
@@ -85,13 +82,16 @@ public class ItemListActivity extends BaseActivity {
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.dummyItem = this.values.get(position);
-            holder.contactName.setText(this.values.get(position));
-
+            String name = this.values.get(position);
+            holder.contactName.setText(name);
+            if (Model.isOnline(name)) {
+                holder.contactName.setTextColor(Color.BLUE);
+                holder.contactName.setTypeface(null, Typeface.BOLD);
+            }
             holder.view.setOnClickListener((View v) -> {
                 if (isTwoPane) {
                     Bundle arguments = new Bundle();
-                    arguments.putString(ItemDetailFragment.ARG_ITEM_ID, holder.dummyItem);
+                    arguments.putString(ItemDetailFragment.ARG_ITEM_ID, name);
                     ItemDetailFragment fragment = new ItemDetailFragment();
                     fragment.setArguments(arguments);
                     getSupportFragmentManager().beginTransaction()
@@ -100,7 +100,7 @@ public class ItemListActivity extends BaseActivity {
                 } else {
                     Context context = v.getContext();
                     Intent intent = new Intent(context, ItemDetailActivity.class);
-                    intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, holder.dummyItem);
+                    intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, name);
                     context.startActivity(intent);
                 }
             });
@@ -115,7 +115,6 @@ public class ItemListActivity extends BaseActivity {
             final View view;
             final TextView contactName;
             final ImageButton deleteButton;
-            String dummyItem;
 
             ViewHolder(View view) {
                 super(view);
@@ -126,9 +125,7 @@ public class ItemListActivity extends BaseActivity {
                     deleteButton.setVisibility(View.VISIBLE);
                     return true;
                 });
-                deleteButton.setOnClickListener(v -> {
-                    onClickDelete();
-                });
+                deleteButton.setOnClickListener(v -> onClickDelete());
             }
 
             private void onClickDelete() {
