@@ -1,6 +1,7 @@
 import UIKit
 import Fabric
 import Crashlytics
+import CoreMedia
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
@@ -19,6 +20,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         splitViewController.delegate = self
         
         AV.shared.setupDefaultNetworkInputAudio(ChatAudioSession())
+        
+        if AV.shared.defaultVideoDimention != nil {
+            let k = 160.0 / Double(AV.shared.defaultVideoDimention!.width)
+            let w = Double(AV.shared.defaultVideoDimention!.width) * k
+            let h = Double(AV.shared.defaultVideoDimention!.height) * k
+            AV.shared.defaultVideoDimention = CMVideoDimensions(width: Int32(w),
+                                                                height: Int32(h))
+        }
 
         return true
     }
