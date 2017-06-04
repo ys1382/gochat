@@ -22,7 +22,9 @@ class DetailViewController: UIViewController {
     }
 
     var userMediaViewController: MediaViewController?
-    
+    var videoSessionStart: ((_ sid: String, _ format: VideoFormat) throws ->IODataProtocol?)?
+    var videoSessionStop: ((_ sid: String)->Void)?
+
     func showMedia(_ watching: String?) -> MediaViewController {
         let mediaID = String(describing: MediaViewController.self)
         let media = self.storyboard?.instantiateViewController(withIdentifier: mediaID) as! MediaViewController
@@ -46,7 +48,7 @@ class DetailViewController: UIViewController {
         
         // setup video output
         
-        Backend.shared.videoSessionStart = { (_ from: String, _ format: VideoFormat) throws -> IODataProtocol? in
+        videoSessionStart = { (_ from: String, _ format: VideoFormat) throws -> IODataProtocol? in
             
             var media: MediaViewController?
             
@@ -68,7 +70,7 @@ class DetailViewController: UIViewController {
             return try media?.videoSessionStart?(from, format)
         }
         
-        Backend.shared.videoSessionStop = { (_ from: String) in
+        videoSessionStop = { (_ from: String) in
             
             var media: MediaViewController?
 

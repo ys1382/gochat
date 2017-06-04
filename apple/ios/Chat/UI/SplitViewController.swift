@@ -6,10 +6,55 @@ class SplitViewController : UISplitViewController {
 
     private static var shared: SplitViewController?
 
+    private var navController: UINavigationController? {
+        get {
+            var result = viewControllers.last as? UINavigationController
+            
+            if (result?.topViewController is UINavigationController) {
+                result = result!.topViewController as? UINavigationController
+            }
+            
+            return result
+        }
+    }
+
+    private var detailViewController: DetailViewController? {
+        get {
+            guard let navController = self.navController else { return nil }
+            
+            for i in navController.viewControllers {
+                if i is DetailViewController {
+                    return i as? DetailViewController
+                }
+            }
+            
+            return nil
+        }
+    }
+
     private func login(username: String) {
         Backend.shared.connect(withUsername: username)
     }
 
+    override func viewDidLoad() {
+        Backend.shared.videoSessionStart = { (_ from: String, _ format: VideoFormat) throws -> IODataProtocol? in
+            if self.detailViewController == nil {
+                let detailsID = String(describing: DetailViewController.self)
+                let details = self.storyboard!.instantiateViewController(withIdentifier: String(describing: detailsID))
+                              as! DetailViewController
+                
+                self.navController?.pushViewController(details, animated: false)
+                _ = details.view
+            }
+            
+            return try self.detailViewController!.videoSessionStart?(from, format)
+        }
+        
+        Backend.shared.videoSessionStop = { (_ from: String) in
+            self.detailViewController?.videoSessionStop?(from)
+        }
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         SplitViewController.shared = self
         if let username = UserDefaults.standard.string(forKey: SplitViewController.usernameKey) {
