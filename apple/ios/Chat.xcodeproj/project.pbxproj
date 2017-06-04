@@ -12,6 +12,8 @@
 		1AB062151E8843E600A841D0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1AB062141E8843E600A841D0 /* Assets.xcassets */; };
 		66C4B5946A64F209719F1358 /* Pods_Chat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ACBFB437F9424A73A5B0830 /* Pods_Chat.framework */; };
 		821F4CC71EDEB03500FA923D /* Dispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821F4CC61EDEB03500FA923D /* Dispatch.swift */; };
+		8260DDE51EE47918004416FF /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8260DDE31EE47918004416FF /* Fabric.framework */; };
+		8260DDE61EE47918004416FF /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8260DDE41EE47918004416FF /* Crashlytics.framework */; };
 		827C52071EE01E4200340D56 /* !Audio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 827C52061EE01E4200340D56 /* !Audio.swift */; };
 		827C52091EE01EB800340D56 /* CoreAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 827C52081EE01EB800340D56 /* CoreAudio.swift */; };
 		8286E3101EDC1AFF006788B2 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8286E2FE1EDC1AFF006788B2 /* Backend.swift */; };
@@ -48,6 +50,8 @@
 		1AB062141E8843E600A841D0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1AB062191E8843E600A841D0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		821F4CC61EDEB03500FA923D /* Dispatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dispatch.swift; sourceTree = "<group>"; };
+		8260DDE31EE47918004416FF /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
+		8260DDE41EE47918004416FF /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		827C52061EE01E4200340D56 /* !Audio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "!Audio.swift"; sourceTree = "<group>"; };
 		827C52081EE01EB800340D56 /* CoreAudio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreAudio.swift; sourceTree = "<group>"; };
 		8286E2FE1EDC1AFF006788B2 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Backend.swift; path = ../Common/Backend.swift; sourceTree = "<group>"; };
@@ -85,6 +89,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				66C4B5946A64F209719F1358 /* Pods_Chat.framework in Frameworks */,
+				8260DDE61EE47918004416FF /* Crashlytics.framework in Frameworks */,
+				8260DDE51EE47918004416FF /* Fabric.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,6 +101,8 @@
 			isa = PBXGroup;
 			children = (
 				82A68C451EDC18D200049AD9 /* libChatLib.a */,
+				8260DDE31EE47918004416FF /* Fabric.framework */,
+				8260DDE41EE47918004416FF /* Crashlytics.framework */,
 				0ACBFB437F9424A73A5B0830 /* Pods_Chat.framework */,
 			);
 			name = Frameworks;
@@ -230,6 +238,7 @@
 				1AB062061E8843E500A841D0 /* Resources */,
 				578A0DFDBD2EF911B4B47A00 /* [CP] Embed Pods Frameworks */,
 				8644C625C0B0F3C66F513796 /* [CP] Copy Pods Resources */,
+				8260DDE21EE478E3004416FF /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -317,6 +326,19 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Chat/Pods-Chat-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		8260DDE21EE478E3004416FF /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./Fabric.framework/run 1f758ae0b6b94e430a3d7ee0d9621977331c23d8 326f7e442e43e1077aeda3ea71968aa0d077986f324a939ca69d2b5a9930305d";
 		};
 		8644C625C0B0F3C66F513796 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;

@@ -1,4 +1,6 @@
 import UIKit
+import Fabric
+import Crashlytics
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
@@ -7,6 +9,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        
+        Fabric.with([Crashlytics.self])
+
         let splitViewController = self.window!.rootViewController as! UISplitViewController
         let last = splitViewController.viewControllers.count-1
         let navigationController = splitViewController.viewControllers[last] as! UINavigationController
