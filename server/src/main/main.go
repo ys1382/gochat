@@ -310,7 +310,7 @@ func receivedContacts(sessionId string, haber *Haber) {
   client.contacts = haber.GetContacts()
   client.subscribeToContacts()
   client.Save(chat.db, haber)
-  forward(sessionId, haber)
+  //forward(sessionId, haber) // after this call server stops responding
 }
 
 func createSessionId() string{

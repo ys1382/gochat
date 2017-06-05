@@ -18,6 +18,7 @@ class ContactsViewController: NSViewController, NSTableViewDelegate, NSTableView
         let row = self.tableView.selectedRow
         if row >= 0 {
             Model.shared.roster.removeValue(forKey: self.names[row])
+            self.names.remove(at: row)
             self.updateNames()
         }
     }
