@@ -11,23 +11,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         
+        // fabric
+        
         Fabric.with([Crashlytics.self])
 
+        // enable for Video capture
+        
+        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+
+        // UI
+        
         let splitViewController = self.window!.rootViewController as! UISplitViewController
         let last = splitViewController.viewControllers.count-1
         let navigationController = splitViewController.viewControllers[last] as! UINavigationController
         navigationController.topViewController!.navigationItem.leftBarButtonItem = splitViewController.displayModeButtonItem
         splitViewController.delegate = self
         
+        // Audio
+        
         AV.shared.setupDefaultNetworkInputAudio(ChatAudioSession())
         
+        // Video low res hardcoded
+        
         if AV.shared.defaultVideoDimention != nil {
-            let k = 160.0 / Double(AV.shared.defaultVideoDimention!.width)
+            let k = 640.0 / Double(AV.shared.defaultVideoDimention!.width)
             let w = Double(AV.shared.defaultVideoDimention!.width) * k
             let h = Double(AV.shared.defaultVideoDimention!.height) * k
             AV.shared.defaultVideoDimention = CMVideoDimensions(width: Int32(w),
                                                                 height: Int32(h))
         }
+        
+        // done
 
         return true
     }

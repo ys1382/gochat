@@ -17,29 +17,34 @@ protocol IOSessionProtocol {
     func stop()
 }
 
+class IOSession : IOSessionProtocol {
+    func start() throws {}
+    func stop() {}
+}
+
 class IOSessionBroadcast : IOSessionProtocol {
     
-    var x: [IOSessionProtocol]
+    private var x: [IOSessionProtocol?]
     
-    init(_ x: [IOSessionProtocol]) {
+    init(_ x: [IOSessionProtocol?]) {
         self.x = x
     }
     
     func start () throws {
-        _ = try x.map({ try $0.start() })
+        _ = try x.map({ try $0?.start() })
     }
     
     func stop() {
-        _ = x.map({ $0.stop() })
+        _ = x.map({ $0?.stop() })
     }
 }
 
-func create(_ x: [IOSessionProtocol]) -> IOSessionProtocol? {
+func create(_ x: [IOSessionProtocol?]) -> IOSessionProtocol? {
     if (x.count == 0) {
         return nil
     }
     if (x.count == 1) {
-        return x.first
+        return x.first!
     }
     
     return IOSessionBroadcast(x)

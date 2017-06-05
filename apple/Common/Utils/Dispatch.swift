@@ -37,5 +37,4 @@ func dispatch_sync_on_main(execute block: () -> Swift.Void) {
     else {
         DispatchQueue.main.sync { block() }
     }
-    
 }

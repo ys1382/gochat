@@ -26,7 +26,10 @@ class VideoViewController: NSViewController, VideoOutputProtocol {
             AV.shared.avCaptureQueue.async {
                 do {
                     if watching != nil {
-                        try AV.shared.startInput(AV.shared.defaultAudioVideoInput(watching!, previewLayer));
+                        let audio = AV.shared.defaultAudioInput(watching!)
+                        let video = AV.shared.defaultVideoInput(watching!, previewLayer)
+                        
+                        try AV.shared.startInput(create([audio, video]));
                     }
                     else {
                         try AV.shared.startInput(nil)

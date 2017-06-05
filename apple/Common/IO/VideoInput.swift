@@ -2,22 +2,25 @@
 import AVFoundation
 import VideoToolbox
 
-class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, IOSessionProtocol {
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// VideoInput
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, VideoSessionProtocol {
     
     public  var session: AVCaptureSession?
+   
     private let output: VideoOutputProtocol?
     private let outputQueue: DispatchQueue?
     private let device: AVCaptureDevice?
-    private let preview: AVCaptureVideoPreviewLayer?
+    private var connection_: AVCaptureConnection?
     
     init(_ device: AVCaptureDevice?,
-         _ preview: AVCaptureVideoPreviewLayer?,
          _ outputQueue: DispatchQueue?,
          _ output: VideoOutputProtocol?) {
         self.output = output
         self.outputQueue = outputQueue
         self.device = device
-        self.preview = preview
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,23 +60,21 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, IOSes
             
             if (session!.canAddOutput(videoDataOutput) == true) {
                 session!.addOutput(videoDataOutput)
+                connection_ = videoDataOutput.connection(withMediaType: AVMediaTypeVideo)
             }
         } catch {
             logIOError(error)
             stop()
-        }
-        
-        // preview
-        
-        DispatchQueue.main.async {
-            self.preview?.session = self.session
         }
     }
     
     func stop() {
         session?.stopRunning()
         session = nil
-        preview?.session = nil
+    }
+    
+    func update(_ outputFormat: VideoFormat) throws {
+        // don't change input dimentions because we also showing preview
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -91,5 +92,47 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, IOSes
     func failureNotification(notification: Notification) {
         logIOError("failureNotification " + notification.description)
     }
+}
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// VideoPreview
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class VideoPreview : VideoSession {
+    
+    let layer: AVCaptureVideoPreviewLayer
+    let session: AVCaptureSession.Factory
+    let next: VideoSessionProtocol?
+    
+    convenience init(_ layer: AVCaptureVideoPreviewLayer,
+         _ session: @escaping AVCaptureSession.Factory) {
+        self.init(layer, session, nil)
+    }
+
+    init(_ layer: AVCaptureVideoPreviewLayer,
+         _ session: @escaping AVCaptureSession.Factory,
+         _ next: VideoSessionProtocol?) {
+        self.layer = layer
+        self.session = session
+        self.next = next
+    }
+
+    override func start() throws {
+        try next?.start()
+        
+        dispatch_sync_on_main {
+            layer.session = session()
+            layer.connection.automaticallyAdjustsVideoMirroring = false
+            layer.connection.isVideoMirrored = false
+        }
+    }
+    
+    override func stop() {
+        next?.stop()
+        
+        dispatch_sync_on_main {
+            layer.session = nil
+        }
+    }
+    
 }

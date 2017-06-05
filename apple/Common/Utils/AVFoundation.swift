@@ -24,6 +24,40 @@ extension AVCaptureDevice {
     }
 }
 
+extension AVCaptureConnection {
+    
+    typealias Factory = () -> AVCaptureConnection?
+}
+
+extension AVCaptureSession {
+    
+    typealias Factory = () -> AVCaptureSession?
+}
+
+extension AVCaptureVideoOrientation {
+
+    func isPortrait() -> Bool {
+        return self == AVCaptureVideoOrientation.portrait || self == AVCaptureVideoOrientation.portraitUpsideDown
+    }
+    
+    func isLandscape() ->Bool {
+        return self == AVCaptureVideoOrientation.landscapeLeft || self == AVCaptureVideoOrientation.landscapeRight
+    }
+    
+    func rotates(_ to: AVCaptureVideoOrientation) -> Bool {
+        if self.isLandscape() && to.isPortrait() {
+            return true
+        }
+        
+        if self.isPortrait() && to.isLandscape() {
+            return true
+        }
+        
+        return false
+    }
+    
+}
+
 private class _AVCaptureVideoPreviewLayer : AVCaptureVideoPreviewLayer {
     
     override var session: AVCaptureSession! {
@@ -72,3 +106,18 @@ class SampleBufferDisplayView : AppleView {
     }
 }
 
+func videoConnection(_ layer: AVCaptureVideoPreviewLayer) -> AVCaptureConnection.Factory {
+    return { () in
+        return layer.connection
+    }
+}
+
+func videoConnection(_ session_: AVCaptureSession.Factory?) -> AVCaptureConnection.Factory? {
+    return { () in
+        guard let session = session_?() else { return nil }
+        guard let output = session.outputs.first as? AVCaptureOutput else { return nil }
+        guard let _ = output.connections.first else { return nil }
+        
+        return output.connection(withMediaType: AVMediaTypeVideo)
+    }
+}

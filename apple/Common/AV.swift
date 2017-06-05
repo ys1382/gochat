@@ -42,26 +42,27 @@ class AV {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private func _defaultVideoInput(_ to: String,
-                                    _ preview: AVCaptureVideoPreviewLayer,
-                                    _ x: inout [IOSessionProtocol]) {
+                                    _ session: inout AVCaptureSession.Factory?,
+                                    _ x: inout [VideoSessionProtocol]) {
         guard let device = AVCaptureDevice.chatVideoDevice() else { return }
-        let dimention = defaultVideoDimention!
-        let format = VideoFormat(dimention)
-        
-        let sessionEncoder = VideoEncoderSessionH264(dimention, dimention)
-        let sessionNetwork = NetworkOutputVideoSession(to, format)
 
-        let input =
+        let inpFormat = defaultVideoInputFormat()
+        let outFormat = defaultVideoOutputFormat()
+        
+        let sessionEncoder = VideoEncoderSessionH264(inpFormat.dimentions, outFormat)
+        let sessionNetwork = NetworkOutputVideoSession(to, outFormat)
+
+        let videoInput =
             VideoInput(
                 device,
-                preview,
                 AV.shared.avCaptureQueue,
                 VideoEncoderH264(
                     sessionEncoder,
                     NetworkH264Serializer(
                         NetworkOutputVideo(to))))
         
-        x.append(IOSessionBroadcast([sessionEncoder, input, sessionNetwork]))
+        session = { () in return videoInput.session }
+        x.append(VideoSessionBroadcast([sessionEncoder, videoInput, sessionNetwork]))
     }
 
     private func _defaultAudioInput(_ to: String, _ x: inout [IOSessionProtocol]) {
@@ -85,9 +86,33 @@ class AV {
         try activeInput?.start()
     }
 
-    func defaultVideoInput(_ to: String, _ preview: AVCaptureVideoPreviewLayer) -> IOSessionProtocol? {
-        var x = [IOSessionProtocol]()
-        _defaultVideoInput(to, preview, &x)
+    func defaultVideoInputFormat() -> VideoFormat {
+        guard let dimentions = AVCaptureDevice.chatVideoDevice()?.dimentions else {
+            return VideoFormat()
+        }
+        
+        return VideoFormat(dimentions)
+    }
+    
+    func defaultVideoInput(_ to: String,
+                           _ session: inout AVCaptureSession.Factory?) -> VideoSessionProtocol? {
+        var x = [VideoSessionProtocol]()
+        
+        _defaultVideoInput(to, &session, &x)
+        return create(x)
+    }
+
+    func defaultVideoInput(_ to: String,
+                           _ preview: AVCaptureVideoPreviewLayer) -> VideoSessionProtocol? {
+        var x = [VideoSessionProtocol]()
+        var y: AVCaptureSession.Factory?
+        
+        _defaultVideoInput(to, &y, &x)
+        
+        if y != nil {
+            x.append(VideoPreview(preview, y!))
+        }
+        
         return create(x)
     }
 
@@ -97,17 +122,14 @@ class AV {
         return create(x)
     }
 
-    func defaultAudioVideoInput(_ to: String, _ preview: AVCaptureVideoPreviewLayer) -> IOSessionProtocol? {
-        var x = [IOSessionProtocol]()
-        _defaultVideoInput(to, preview, &x)
-        _defaultAudioInput(to, &x)
-        return create(x)
-    }
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Output
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    func defaultVideoOutputFormat() -> VideoFormat {
+        return VideoFormat(defaultVideoDimention!)
+    }
+    
     func startAudioOutput(_ session: IOSessionProtocol?) throws {
         activeAudioOutput?.stop()
         activeAudioOutput = nil

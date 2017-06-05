@@ -165,22 +165,22 @@ class VideoEncoderH264 : NSObject, VideoOutputProtocol {
 // Session
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class VideoEncoderSessionH264 : IOSessionProtocol {
+class VideoEncoderSessionH264 : VideoSessionProtocol {
     
     public  var session: VTCompressionSession?
     public  var callback: VTCompressionOutputCallback?
     public  var callbackTarget: UnsafeMutableRawPointer?
     private let inputDimention: CMVideoDimensions
-    private let outputDimention: CMVideoDimensions
+    private var outputFormat: VideoFormat
 
     init(_ inputDimention: CMVideoDimensions,
-         _ outputDimention: CMVideoDimensions) {
+         _ outputFormat: VideoFormat) {
         self.inputDimention = inputDimention
-        self.outputDimention = outputDimention
+        self.outputFormat = outputFormat
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Settings
+    // IOSessionProtocol
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     func start() throws {
@@ -188,8 +188,8 @@ class VideoEncoderSessionH264 : IOSessionProtocol {
 
         VTCompressionSessionCreate(
             kCFAllocatorDefault,
-            outputDimention.width,
-            outputDimention.height,
+            Int32(outputFormat.width),
+            Int32(outputFormat.height),
             kCMVideoCodecType_H264,
             nil,
             attributes as CFDictionary,
@@ -209,11 +209,22 @@ class VideoEncoderSessionH264 : IOSessionProtocol {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // VideoSessionProtocol
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    func update(_ outputFormat: VideoFormat) throws {
+        self.outputFormat = outputFormat
+        
+        stop()
+        try start()
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Settings
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     let defaultAttributes:[NSString: AnyObject] = [
-        kCVPixelBufferPixelFormatTypeKey: Int(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) as AnyObject,
+        kCVPixelBufferPixelFormatTypeKey: Int(kCVPixelFormatType_32BGRA) as AnyObject,
         kCVPixelBufferIOSurfacePropertiesKey: [:] as AnyObject,
         kCVPixelBufferOpenGLCompatibilityKey: true as AnyObject,
         ]
@@ -233,7 +244,7 @@ class VideoEncoderSessionH264 : IOSessionProtocol {
         var properties:[NSString: AnyObject] = [
             kVTCompressionPropertyKey_RealTime: kCFBooleanTrue,
             kVTCompressionPropertyKey_ProfileLevel: profileLevel as NSObject,
-            kVTCompressionPropertyKey_AverageBitRate: Int(outputDimention.bitrate()) as NSObject,
+            kVTCompressionPropertyKey_AverageBitRate: Int(outputFormat.width * outputFormat.height) as NSObject,
             kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration: NSNumber(value: 1.0 as Double),
             kVTCompressionPropertyKey_AllowFrameReordering: !isBaseline as NSObject,
 //            kVTCompressionPropertyKey_ExpectedFrameRate: NSNumber(value: 30.0 as Double),

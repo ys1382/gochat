@@ -130,7 +130,7 @@ class NetworkOutputVideo : IODataProtocol {
 // NetworkOutputVideoSession
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class NetworkOutputVideoSession : IOSessionProtocol {
+class NetworkOutputVideoSession : VideoSessionProtocol {
     
     let to: String
     let format: VideoFormat
@@ -142,6 +142,10 @@ class NetworkOutputVideoSession : IOSessionProtocol {
     
     func start() throws {
         Backend.shared.sendVideoSession(to, try format.toNetwork(), true)
+    }
+    
+    func update(_ format: VideoFormat) throws {
+        // TODO: send update format
     }
     
     func stop() {

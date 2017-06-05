@@ -19,6 +19,37 @@ class MediaViewController : UIViewController, VideoOutputProtocol {
     var videoSessionStart: ((_ sid: String, _ format: VideoFormat) throws ->IODataProtocol?)?
     var videoSessionStop: ((_ sid: String)->Void)?
 
+    func start() {
+        guard let watching = self.watching else { return }
+        
+        AV.shared.avCaptureQueue.async {
+            do {
+                var videoSession: AVCaptureSession.Factory? = nil
+                let audio = AV.shared.defaultAudioInput(watching)
+                var video = AV.shared.defaultVideoInput(watching, &videoSession)
+                
+                if video != nil && videoSession != nil {
+                    video = ChatVideoCaptureSession(videoConnection(videoSession)!,
+                                                    AV.shared.defaultVideoOutputFormat(),
+                                                    AVCaptureVideoOrientation.landscapeRight,
+                                                    video)
+
+                    video = ChatVideoPreviewSession(self.previewView.captureLayer,
+                                                    video)
+                    
+                    video = VideoPreview(self.previewView.captureLayer,
+                                         videoSession!,
+                                         video)
+                }
+                
+                try AV.shared.startInput(create([audio, video]));
+            }
+            catch {
+                logIOError(error)
+            }
+        }
+    }
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // UIViewController
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -40,20 +71,9 @@ class MediaViewController : UIViewController, VideoOutputProtocol {
     }
 
     override func viewWillAppear(_ animated: Bool) {
-       
         // start video capture
         
-        if watching != nil {
-            AV.shared.avCaptureQueue.async {
-                do {
-                    try AV.shared.startInput(AV.shared.defaultAudioVideoInput(self.watching!,
-                                                                              self.previewView.captureLayer));
-                }
-                catch {
-                    logIOError(error)
-                }
-            }
-        }
+        start()
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
