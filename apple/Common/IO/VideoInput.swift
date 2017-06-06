@@ -21,27 +21,17 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Video
         self.output = output
         self.outputQueue = outputQueue
         self.device = device
+        
+        super.init()
+        initSession()
     }
     
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // IOSessionProtocol
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    func start() throws {
-        NotificationCenter.default.addObserver(
-            forName: .AVSampleBufferDisplayLayerFailedToDecode,
-            object: nil,
-            queue: nil,
-            using: failureNotification)
-        
-        // capture session
-        
+    func initSession() {
         session = AVCaptureSession()
         
         session!.beginConfiguration()
         session!.sessionPreset = AVCaptureSessionPresetLow
         session!.commitConfiguration()
-        session!.startRunning()
         
         // output
         
@@ -68,7 +58,27 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Video
         }
     }
     
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // IOSessionProtocol
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    func start() throws {
+        NotificationCenter.default.addObserver(
+            forName: .AVSampleBufferDisplayLayerFailedToDecode,
+            object: nil,
+            queue: nil,
+            using: failureNotification)
+        
+        assert_av_capture_queue()
+        
+        dispatch_sync_on_main {
+            session!.startRunning()
+        }
+    }
+    
     func stop() {
+        assert_av_capture_queue()
+
         session?.stopRunning()
         session = nil
     }
@@ -102,10 +112,9 @@ class VideoPreview : VideoSession {
     
     let layer: AVCaptureVideoPreviewLayer
     let session: AVCaptureSession.Factory
-    let next: VideoSessionProtocol?
     
     convenience init(_ layer: AVCaptureVideoPreviewLayer,
-         _ session: @escaping AVCaptureSession.Factory) {
+                     _ session: @escaping AVCaptureSession.Factory) {
         self.init(layer, session, nil)
     }
 
@@ -114,25 +123,25 @@ class VideoPreview : VideoSession {
          _ next: VideoSessionProtocol?) {
         self.layer = layer
         self.session = session
-        self.next = next
+        super.init(next)
     }
 
     override func start() throws {
-        try next?.start()
         
         dispatch_sync_on_main {
             layer.session = session()
             layer.connection.automaticallyAdjustsVideoMirroring = false
             layer.connection.isVideoMirrored = false
         }
+
+        try super.start()
     }
     
     override func stop() {
-        next?.stop()
+        super.stop()
         
         dispatch_sync_on_main {
             layer.session = nil
         }
     }
-    
 }

@@ -25,20 +25,20 @@ class NetworkInput {
     
     private var output = [String: IODataProtocol]()
     
-    func add(_ from: String, _ output: IODataProtocol) {
-        self.output[from] = output
+    func add(_ sid: String, _ output: IODataProtocol) {
+        self.output[sid] = output
     }
     
-    func remove(_ from: String) {
-        output.removeValue(forKey: from)
+    func remove(_ sid: String) {
+        output.removeValue(forKey: sid)
     }
     
     func removeAll() {
         self.output.removeAll()
     }
     
-    func process(_ from: String, _ data: [Int : NSData]) {
-        guard output.keys.contains(from) else { return }
-        output[from]?.process(data)
+    func process(_ sid: String, _ data: [Int : NSData]) {
+        guard output.keys.contains(sid) else { return }
+        output[sid]?.process(data)
     }
 }

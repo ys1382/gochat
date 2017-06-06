@@ -6,56 +6,55 @@ import UIKit
 // ChatVideoInputSession
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class ChatVideoInputSession : VideoSessionProtocol {
+class ChatVideoInputSession : VideoSession {
     
     fileprivate let connection: AVCaptureConnection.Factory
-    fileprivate let next: VideoSessionProtocol?
     
     init(_ connection: @escaping AVCaptureConnection.Factory,
          _ next: VideoSessionProtocol?) {
         self.connection = connection
-        self.next = next
+        super.init(next)
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // VideoSessionProtocol
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    func start() throws {
-        try next?.start()
-        
+    override func start() throws {
         connection()?.automaticallyAdjustsVideoMirroring = false
         connection()?.isVideoMirrored = false
         
-        updateOrientation()
+        updateOrientation(UIDevice.current.orientation)
         
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(didRotate),
                                                name: NSNotification.Name.UIDeviceOrientationDidChange,
                                                object: nil)
+
+        try super.start()
     }
     
-    func stop() {
-        next?.stop()
+    override func stop() {
+        super.stop()
         NotificationCenter.default.removeObserver(self)
     }
     
-    func update(_ outputFormat: VideoFormat) throws {
-        try next?.update(outputFormat)
+    override func update(_ outputFormat: VideoFormat) throws {
+        try super.update(outputFormat)
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Orientation
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    fileprivate func updateOrientation() {
-        guard let orientation = AVCaptureVideoOrientation.Create(UIDevice.current.orientation) else { return }
+    fileprivate func updateOrientation(_ to: UIDeviceOrientation) {
+        guard let orientation = AVCaptureVideoOrientation.Create(to) else { return }
         
-        connection()!.videoOrientation = orientation
+        connection()?.videoOrientation = orientation
     }
 
     @objc fileprivate func didRotate() {
-        updateOrientation()
+        updateOrientation(UIDevice.current.orientation)
     }
 }
 
@@ -99,8 +98,8 @@ class ChatVideoCaptureSession : ChatVideoInputSession {
         if self.orientation.rotates(orientation) {
             var outputFormat = self.outputFormat
             
-            outputFormat.width = outputFormat.height
-            outputFormat.height = outputFormat.width
+            outputFormat.width = self.outputFormat.height
+            outputFormat.height = self.outputFormat.width
 
             if outputFormat != updatedFormat {
                 try! update(outputFormat)
@@ -135,20 +134,12 @@ class ChatVideoPreviewSession : ChatVideoInputSession {
     }
     
     override func start() throws {
-        try next?.start()
         
         dispatch_sync_on_main {
-            let orientation = AVCaptureVideoOrientation.Create(UIDevice.current.orientation)
-            
-            if orientation != nil {
-                self.preview.connection.videoOrientation = orientation!
-            }
+            guard let orientation = AVCaptureVideoOrientation.Create(UIDevice.current.orientation) else { return }
+            self.preview.connection.videoOrientation = orientation
         }
-    }
-    
-    override func updateOrientation() {
-        dispatch_sync_on_main {
-            super.updateOrientation()
-        }
+
+        try super.start()
     }
 }

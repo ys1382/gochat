@@ -37,7 +37,7 @@ class SplitViewController : UISplitViewController {
     }
 
     override func viewDidLoad() {
-        Backend.shared.videoSessionStart = { (_ from: String, _ format: VideoFormat) throws -> IODataProtocol? in
+        Backend.shared.videoSessionStart = { (_ to: String, _ sid: String, _ format: VideoFormat) throws -> IODataProtocol? in
             if self.detailViewController == nil {
                 let detailsID = String(describing: DetailViewController.self)
                 let details = self.storyboard!.instantiateViewController(withIdentifier: String(describing: detailsID))
@@ -47,7 +47,7 @@ class SplitViewController : UISplitViewController {
                 _ = details.view
             }
             
-            return try self.detailViewController!.videoSessionStart?(from, format)
+            return try self.detailViewController!.videoSessionStart?(to, sid, format)
         }
         
         Backend.shared.videoSessionStop = { (_ from: String) in

@@ -3944,11 +3944,15 @@ final public class Avsession : GeneratedMessage {
             return true
         }
         var fieldCheck:Bool = (lhs.hashValue == rhs.hashValue)
+        fieldCheck = fieldCheck && (lhs.hasId == rhs.hasId) && (!lhs.hasId || lhs.id == rhs.id)
         fieldCheck = fieldCheck && (lhs.hasActive == rhs.hasActive) && (!lhs.hasActive || lhs.active == rhs.active)
         fieldCheck = fieldCheck && (lhs.hasData == rhs.hasData) && (!lhs.hasData || lhs.data == rhs.data)
         fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
         return fieldCheck
     }
+
+    public fileprivate(set) var id:String! = nil
+    public fileprivate(set) var hasId:Bool = false
 
     public fileprivate(set) var active:Bool! = nil
     public fileprivate(set) var hasActive:Bool = false
@@ -3963,11 +3967,14 @@ final public class Avsession : GeneratedMessage {
         return true
     }
     override public func writeTo(codedOutputStream: CodedOutputStream) throws {
+        if hasId {
+            try codedOutputStream.writeString(fieldNumber: 1, value:id)
+        }
         if hasActive {
-            try codedOutputStream.writeBool(fieldNumber: 1, value:active)
+            try codedOutputStream.writeBool(fieldNumber: 2, value:active)
         }
         if hasData {
-            try codedOutputStream.writeData(fieldNumber: 2, value:data)
+            try codedOutputStream.writeData(fieldNumber: 3, value:data)
         }
         try unknownFields.writeTo(codedOutputStream: codedOutputStream)
     }
@@ -3978,11 +3985,14 @@ final public class Avsession : GeneratedMessage {
         }
 
         serialize_size = 0
+        if hasId {
+            serialize_size += id.computeStringSize(fieldNumber: 1)
+        }
         if hasActive {
-            serialize_size += active.computeBoolSize(fieldNumber: 1)
+            serialize_size += active.computeBoolSize(fieldNumber: 2)
         }
         if hasData {
-            serialize_size += data.computeDataSize(fieldNumber: 2)
+            serialize_size += data.computeDataSize(fieldNumber: 3)
         }
         serialize_size += unknownFields.serializedSize()
         memoizedSerializedSize = serialize_size
@@ -4012,6 +4022,9 @@ final public class Avsession : GeneratedMessage {
         }
 
         var jsonMap:Dictionary<String,Any> = Dictionary<String,Any>()
+        if hasId {
+            jsonMap["id"] = id
+        }
         if hasActive {
             jsonMap["active"] = active
         }
@@ -4028,6 +4041,9 @@ final public class Avsession : GeneratedMessage {
     }
     override public func getDescription(indent:String) throws -> String {
         var output = ""
+        if hasId {
+            output += "\(indent) id: \(id) \n"
+        }
         if hasActive {
             output += "\(indent) active: \(active) \n"
         }
@@ -4040,6 +4056,9 @@ final public class Avsession : GeneratedMessage {
     override public var hashValue:Int {
         get {
             var hashCode:Int = 7
+            if hasId {
+                hashCode = (hashCode &* 31) &+ id.hashValue
+            }
             if hasActive {
                 hashCode = (hashCode &* 31) &+ active.hashValue
             }
@@ -4070,6 +4089,31 @@ final public class Avsession : GeneratedMessage {
 
         required override public init () {
             super.init()
+        }
+        public var id:String {
+            get {
+                return builderResult.id
+            }
+            set (value) {
+                builderResult.hasId = true
+                builderResult.id = value
+            }
+        }
+        public var hasId:Bool {
+            get {
+                return builderResult.hasId
+            }
+        }
+        @discardableResult
+        public func setId(_ value:String) -> Avsession.Builder {
+            self.id = value
+            return self
+        }
+        @discardableResult
+        public func clearId() -> Avsession.Builder{
+            builderResult.hasId = false
+            builderResult.id = nil
+            return self
         }
         public var active:Bool {
             get {
@@ -4147,6 +4191,9 @@ final public class Avsession : GeneratedMessage {
             if other == Avsession() {
                 return self
             }
+            if other.hasId {
+                id = other.id
+            }
             if other.hasActive {
                 active = other.active
             }
@@ -4170,10 +4217,13 @@ final public class Avsession : GeneratedMessage {
                     self.unknownFields = try unknownFieldsBuilder.build()
                     return self
 
-                case 8:
+                case 10:
+                    id = try codedInputStream.readString()
+
+                case 16:
                     active = try codedInputStream.readBool()
 
-                case 18:
+                case 26:
                     data = try codedInputStream.readData()
 
                 default:
@@ -4186,6 +4236,9 @@ final public class Avsession : GeneratedMessage {
         }
         class override public func decodeToBuilder(jsonMap:Dictionary<String,Any>) throws -> Avsession.Builder {
             let resultDecodedBuilder = Avsession.Builder()
+            if let jsonValueId = jsonMap["id"] as? String {
+                resultDecodedBuilder.id = jsonValueId
+            }
             if let jsonValueActive = jsonMap["active"] as? Bool {
                 resultDecodedBuilder.active = jsonValueActive
             }
@@ -6103,6 +6156,7 @@ extension Avsession: GeneratedMessageProtocol {
     }
     public subscript(key: String) -> Any? {
         switch key {
+        case "id": return self.id
         case "active": return self.active
         case "data": return self.data
         default: return nil
@@ -6113,6 +6167,7 @@ extension Avsession.Builder: GeneratedMessageBuilderProtocol {
     public subscript(key: String) -> Any? {
         get { 
             switch key {
+            case "id": return self.id
             case "active": return self.active
             case "data": return self.data
             default: return nil
@@ -6120,6 +6175,11 @@ extension Avsession.Builder: GeneratedMessageBuilderProtocol {
         }
         set (newSubscriptValue) { 
             switch key {
+            case "id":
+                guard let newSubscriptValue = newSubscriptValue as? String else {
+                    return
+                }
+                self.id = newSubscriptValue
             case "active":
                 guard let newSubscriptValue = newSubscriptValue as? Bool else {
                     return

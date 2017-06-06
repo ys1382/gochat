@@ -60,8 +60,9 @@ message Av {
 }
 
 message AVSession {
-    bool active = 1;
-    bytes data = 2;
+    string id = 1;
+    bool active = 2;
+    bytes data = 3;
 }
 
 message Haber {

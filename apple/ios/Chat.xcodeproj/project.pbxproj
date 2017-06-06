@@ -12,10 +12,12 @@
 		1AB062151E8843E600A841D0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1AB062141E8843E600A841D0 /* Assets.xcassets */; };
 		66C4B5946A64F209719F1358 /* Pods_Chat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ACBFB437F9424A73A5B0830 /* Pods_Chat.framework */; };
 		821F4CC71EDEB03500FA923D /* Dispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821F4CC61EDEB03500FA923D /* Dispatch.swift */; };
+		82203E6D1EE6B44F005AEC49 /* VideoOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82203E6C1EE6B44F005AEC49 /* VideoOutput.swift */; };
 		8260DDE51EE47918004416FF /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8260DDE31EE47918004416FF /* Fabric.framework */; };
 		8260DDE61EE47918004416FF /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8260DDE41EE47918004416FF /* Crashlytics.framework */; };
 		8260DDE81EE55C59004416FF /* !Video.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8260DDE71EE55C59004416FF /* !Video.swift */; };
 		8260DDEA1EE55E04004416FF /* !AVFoundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8260DDE91EE55E04004416FF /* !AVFoundation.swift */; };
+		8275DDA61EE68DB800BF422B /* Sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8275DDA51EE68DB800BF422B /* Sync.swift */; };
 		827C52071EE01E4200340D56 /* !Audio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 827C52061EE01E4200340D56 /* !Audio.swift */; };
 		827C52091EE01EB800340D56 /* CoreAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 827C52081EE01EB800340D56 /* CoreAudio.swift */; };
 		8286E3101EDC1AFF006788B2 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8286E2FE1EDC1AFF006788B2 /* Backend.swift */; };
@@ -52,10 +54,12 @@
 		1AB062141E8843E600A841D0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1AB062191E8843E600A841D0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		821F4CC61EDEB03500FA923D /* Dispatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dispatch.swift; sourceTree = "<group>"; };
+		82203E6C1EE6B44F005AEC49 /* VideoOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoOutput.swift; sourceTree = "<group>"; };
 		8260DDE31EE47918004416FF /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		8260DDE41EE47918004416FF /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		8260DDE71EE55C59004416FF /* !Video.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "!Video.swift"; sourceTree = "<group>"; };
 		8260DDE91EE55E04004416FF /* !AVFoundation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "!AVFoundation.swift"; sourceTree = "<group>"; };
+		8275DDA51EE68DB800BF422B /* Sync.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sync.swift; sourceTree = "<group>"; };
 		827C52061EE01E4200340D56 /* !Audio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "!Audio.swift"; sourceTree = "<group>"; };
 		827C52081EE01EB800340D56 /* CoreAudio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreAudio.swift; sourceTree = "<group>"; };
 		8286E2FE1EDC1AFF006788B2 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Backend.swift; path = ../Common/Backend.swift; sourceTree = "<group>"; };
@@ -187,8 +191,10 @@
 				8286E3011EDC1AFF006788B2 /* AudioInput.swift */,
 				8286E3021EDC1AFF006788B2 /* AudioOutput.swift */,
 				8286E3061EDC1AFF006788B2 /* VideoInput.swift */,
+				82203E6C1EE6B44F005AEC49 /* VideoOutput.swift */,
 				8286E3041EDC1AFF006788B2 /* VideoDecoderH264.swift */,
 				8286E3051EDC1AFF006788B2 /* VideoEncoderH264.swift */,
+				8275DDA51EE68DB800BF422B /* Sync.swift */,
 			);
 			name = IO;
 			path = ../Common/IO;
@@ -268,7 +274,7 @@
 					1AB062071E8843E500A841D0 = {
 						CreatedOnToolsVersion = 8.2.1;
 						LastSwiftMigration = 0830;
-						ProvisioningStyle = Manual;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -388,6 +394,7 @@
 				829A0E791EDC1CE200FEC353 /* SplitViewController.swift in Sources */,
 				829A0EBD1EDD6EFB00FEC353 /* Foundation.swift in Sources */,
 				8286E3121EDC1AFF006788B2 /* AudioInput.swift in Sources */,
+				82203E6D1EE6B44F005AEC49 /* VideoOutput.swift in Sources */,
 				827C52071EE01E4200340D56 /* !Audio.swift in Sources */,
 				8260DDE81EE55C59004416FF /* !Video.swift in Sources */,
 				827C52091EE01EB800340D56 /* CoreAudio.swift in Sources */,
@@ -396,6 +403,7 @@
 				829A0EAF1EDD2C2B00FEC353 /* UI.swift in Sources */,
 				829A0EB31EDD52D400FEC353 /* Audio.swift in Sources */,
 				8286E3111EDC1AFF006788B2 /* IO.swift in Sources */,
+				8275DDA61EE68DB800BF422B /* Sync.swift in Sources */,
 				1AB0620C1E8843E500A841D0 /* AppDelegate.swift in Sources */,
 				821F4CC71EDEB03500FA923D /* Dispatch.swift in Sources */,
 			);
@@ -515,11 +523,16 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				DEVELOPMENT_TEAM = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = CD4E4U2KRU;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = Chat/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = ys1382.Chat;
+				PRODUCT_BUNDLE_IDENTIFIER = fisil.Chat.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -534,12 +547,18 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				DEVELOPMENT_TEAM = "";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				DEVELOPMENT_TEAM = CD4E4U2KRU;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = Chat/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = ys1382.Chat;
+				PRODUCT_BUNDLE_IDENTIFIER = fisil.Chat.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "AV Chat AdHoc";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 3.0;
 			};

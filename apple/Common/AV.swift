@@ -33,9 +33,9 @@ class AV {
     var defaultVideoDimention: CMVideoDimensions? = AVCaptureDevice.chatVideoDevice()?.dimentions
     
     private(set) var activeInput: IOSessionProtocol?
-    
-    private(set) var activeAudioOutput: IOSessionProtocol?
-    private(set) var activeVideoOutput: IOSessionProtocol?
+    private(set) var activeAudioOutput = [String: IOSessionProtocol]()
+    private(set) var activeVideoOutput = [String: IOSessionProtocol]()
+    private(set) var activeIOSync = [String: IOSync]()
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Input
@@ -46,11 +46,13 @@ class AV {
                                     _ x: inout [VideoSessionProtocol]) {
         guard let device = AVCaptureDevice.chatVideoDevice() else { return }
 
+        let sid = Backend.shared.createAVSessionID(to)
+        
         let inpFormat = defaultVideoInputFormat()
         let outFormat = defaultVideoOutputFormat()
         
         let sessionEncoder = VideoEncoderSessionH264(inpFormat.dimentions, outFormat)
-        let sessionNetwork = NetworkOutputVideoSession(to, outFormat)
+        let sessionNetwork = NetworkOutputVideoSession(to, sid, outFormat)
 
         let videoInput =
             VideoInput(
@@ -59,7 +61,7 @@ class AV {
                 VideoEncoderH264(
                     sessionEncoder,
                     NetworkH264Serializer(
-                        NetworkOutputVideo(to))))
+                        NetworkOutputVideo(to, sid))))
         
         session = { () in return videoInput.session }
         x.append(VideoSessionBroadcast([sessionEncoder, videoInput, sessionNetwork]))
@@ -67,15 +69,18 @@ class AV {
 
     private func _defaultAudioInput(_ to: String, _ x: inout [IOSessionProtocol]) {
         
+        let sid =
+            Backend.shared.createAVSessionID(to)
+
         let input =
             AudioInput(
                 AV.defaultAudioFormat,
                 AV.defaultAudioInterval,
                 NetworkAACSerializer(
-                    NetworkOutputAudio(to)))
+                    NetworkOutputAudio(to, sid)))
 
         let sessionNetwork =
-            NetworkOutputAudioSession(to, input.format)
+            NetworkOutputAudioSession(to, sid, input.format)
 
         x.append(IOSessionBroadcast([input, sessionNetwork]))
     }
@@ -130,41 +135,93 @@ class AV {
         return VideoFormat(defaultVideoDimention!)
     }
     
-    func startAudioOutput(_ session: IOSessionProtocol?) throws {
-        activeAudioOutput?.stop()
-        activeAudioOutput = nil
-        try session?.start()
-        activeAudioOutput = session
+    func defaultIOSync(_ sid: String) -> IOSync {
+        let result = activeIOSync[sid]
+        
+        if result != nil {
+            return result!
+        }
+        
+        activeIOSync[sid] = IOSync(.Audio)
+        
+        return activeIOSync[sid]!
+    }
+
+    func startAudioOutput(_ from: String, _ session: IOSessionProtocol) throws {
+        try session.start()
+        activeAudioOutput[from] = session
     }
     
-    func defaultNetworkInputVideo(_ output: VideoOutputProtocol) -> IODataProtocol {
+    func stopAudioOutput(_ from: String) {
+        activeAudioOutput[from]?.stop()
+        activeAudioOutput.removeValue(forKey: from)
+    }
+    
+    func stopAllAudioOutput() {
+        _ = activeAudioOutput.map({ $0.value.stop() })
+        activeAudioOutput.removeAll()
+    }
+    
+    func defaultNetworkInputVideo(_ sid: String,
+                                  _ output: VideoOutputProtocol) -> IODataProtocol {
+        
+        let sync =
+            defaultIOSync(sid)
+        
+        let syncBus =
+            IOSyncBus(
+                IOKind.Video,
+                VideoTimeDeserializer(H264Part.Time.rawValue),
+                sync)
+        
         let result =
             IODataDispatcher(
                 avOutputQueue,
-                NetworkH264Deserializer(
-                    VideoDecoderH264(
-                        output)))
+                syncBus)
         
+        sync.add(
+            IOKind.Video,
+            NetworkH264Deserializer(
+                VideoDecoderH264(
+                    output)))
+
         return result
     }
 
-    func defaultNetworkOutputAudio(_ format: AudioFormat, session: inout IOSessionProtocol?) -> IODataProtocol {
+    func defaultNetworkOutputAudio(_ sid: String,
+                                   _ format: AudioFormat,
+                                   _ session: inout IOSessionProtocol?) -> IODataProtocol {
         let output =
             AudioOutput(format, AV.defaultAudioFormat, AV.defaultAudioInterval)
         
+        let sync =
+            defaultIOSync(sid)
+        
+        let syncBus =
+            IOSyncBus(
+                IOKind.Audio,
+                AudioTimeDeserializer(AACPart.NetworkPacket.rawValue),
+                sync)
+        
         let result =
+            IODataDispatcher(
+                avOutputQueue,
+                syncBus)
+        
+        sync.add(
+            IOKind.Audio,
             NetworkAACDeserializer(
-                output)
+                output))
         
         session = output
         
         return result
     }
     
-    func setupDefaultNetworkInputAudio(_ platformSession: IOSessionProtocol?) {
-        Backend.shared.audioSessionStart = { (_, format: AudioFormat) throws in
+    func setupDefaultNetworkInputAudio(_ platformSession: IOSessionProtocol?) {        
+        let audioSessionStart = { (_ from: String, format: AudioFormat) throws -> IODataProtocol in
             var session: IOSessionProtocol? = nil
-            let result = AV.shared.defaultNetworkOutputAudio(format, session: &session)
+            let result = AV.shared.defaultNetworkOutputAudio(from, format, &session)
             
             if platformSession != nil && session != nil {
                 let shared = session!
@@ -177,13 +234,37 @@ class AV {
                 session = platformSession
             }
             
-            try self.startAudioOutput(session)
+            if session != nil {
+                self.stopAllAudioOutput()
+                try self.startAudioOutput(from, session!)
+            }
             
             return result
         }
         
-        Backend.shared.audioSessionStop = { (_) in
-            try! self.startAudioOutput(nil)
+        let audioSessionStop = { (_ from: String) in
+            self.stopAudioOutput(from)
+        }
+        
+        Backend.shared.audioSessionStart = { (_ from: String, format: AudioFormat) in
+            var result: IODataProtocol?
+            
+            self.avOutputQueue.sync {
+                do {
+                    result = try audioSessionStart(from, format)
+                }
+                catch {
+                    logIOError(error)
+                }
+            }
+            
+            return result
+        }
+        
+        Backend.shared.audioSessionStop = { (_ from: String) in
+            self.avOutputQueue.sync {
+                audioSessionStop(from)
+            }
         }
     }
 }

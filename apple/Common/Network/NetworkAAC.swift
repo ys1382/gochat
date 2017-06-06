@@ -78,9 +78,16 @@ class NetworkAACSerializer : AudioOutputProtocol {
 // NetworkAACDeserializer
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+class NetworkAACTimeDeserializer : AudioTimeDeserializer {
+    init() {
+        super.init(AACPart.NetworkPacket.rawValue)
+    }
+}
+
 class NetworkAACDeserializer : IODataProtocol {
     
     private let output: AudioOutputProtocol?
+    private let dstime = NetworkAACTimeDeserializer()
     
     init(_ output: AudioOutputProtocol) {
         self.output = output
@@ -95,10 +102,7 @@ class NetworkAACDeserializer : IODataProtocol {
         // 1. timestamp
         
         do { let s = MemoryLayout<AudioTimeStamp>.size
-            let x = UnsafeMutablePointer<AudioTimeStamp>.allocate(capacity: s)
-            
-            result.timeStamp = UnsafePointer<AudioTimeStamp>(x)
-            memcpy(x, data.bytes.advanced(by: shift), s)
+            result.timeStamp = dstime.audioTime(packets)
             shift += s
         }
 
@@ -167,13 +171,15 @@ extension AudioFormat {
 class NetworkOutputAudio : IODataProtocol {
     
     let to: String
+    let sid: String
     
-    init(_ to: String) {
+    init(_ to: String, _ sid: String) {
         self.to = to
+        self.sid = sid
     }
     
     func process(_ data: [Int: NSData]) {
-        Backend.shared.sendAudio(to, data[AACPart.NetworkPacket.rawValue]!)
+        Backend.shared.sendAudio(to, sid, data[AACPart.NetworkPacket.rawValue]!)
     }
 }
 
@@ -184,18 +190,20 @@ class NetworkOutputAudio : IODataProtocol {
 class NetworkOutputAudioSession : IOSessionProtocol {
     
     let to: String
+    let sid: String
     let format: AudioFormat.Factory
     
-    init(_ to: String, _ format: @escaping AudioFormat.Factory) {
+    init(_ to: String, _ sid: String, _ format: @escaping AudioFormat.Factory) {
         self.to = to
+        self.sid = sid
         self.format = format
     }
     
     func start() throws {
-        Backend.shared.sendAudioSession(to, try format().toNetwork(), true)
+        Backend.shared.sendAudioSession(to, sid, try format().toNetwork(), true)
     }
     
     func stop() {
-        Backend.shared.sendAudioSession(to, nil, false)
+        Backend.shared.sendAudioSession(to, sid, nil, false)
     }
 }

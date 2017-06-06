@@ -27,6 +27,8 @@ class AudioOutput : AudioOutputProtocol, IOSessionProtocol {
 
     func start() {
         
+        assert_av_output_queue()
+        
         var format = AudioStreamBasicDescription.CreateOutput(self.format, formatID)
         
         do {
@@ -78,6 +80,8 @@ class AudioOutput : AudioOutputProtocol, IOSessionProtocol {
     
     func stop() {
         
+        assert_av_output_queue()
+
         guard let queue = self.queue else { assert(false); return }
         
         do {
@@ -88,6 +92,7 @@ class AudioOutput : AudioOutputProtocol, IOSessionProtocol {
                                               true), "AudioQueueDispose failed")
             
             self.queue = nil
+            self.buffer = nil
         }
         catch {
             logIOError(error)
@@ -99,6 +104,8 @@ class AudioOutput : AudioOutputProtocol, IOSessionProtocol {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     func process(_ data: AudioData) {
+        
+        assert_av_output_queue()
         
         do {
             memcpy(self.buffer!.pointee.mAudioData, data.bytes, Int(data.bytesNum))

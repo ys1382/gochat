@@ -1052,17 +1052,5 @@
             </objects>
             <point key="canvasLocation" x="-142" y="1194"/>
         </scene>
-        <!--View Controller-->
-        <scene sceneID="HAT-nS-iDk">
-            <objects>
-                <viewController id="QgG-Fc-Tbk" sceneMemberID="viewController">
-                    <view key="view" id="pme-Ls-KES">
-                        <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </view>
-                </viewController>
-                <customObject id="S66-lf-Iek" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-            </objects>
-        </scene>
     </scenes>
 </document>

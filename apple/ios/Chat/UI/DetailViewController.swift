@@ -22,7 +22,7 @@ class DetailViewController: UIViewController {
     }
 
     var userMediaViewController: MediaViewController?
-    var videoSessionStart: ((_ sid: String, _ format: VideoFormat) throws ->IODataProtocol?)?
+    var videoSessionStart: ((_ to: String, _ sid: String, _ format: VideoFormat) throws ->IODataProtocol?)?
     var videoSessionStop: ((_ sid: String)->Void)?
 
     func showMedia(_ watching: String?) -> MediaViewController {
@@ -30,7 +30,7 @@ class DetailViewController: UIViewController {
         let media = self.storyboard?.instantiateViewController(withIdentifier: mediaID) as! MediaViewController
         
         userMediaViewController = nil
-        media.watching = watching
+        media.setWatching(watching!)
         self.navigationController?.pushViewController(media,
                                                       animated: true)
         
@@ -48,14 +48,21 @@ class DetailViewController: UIViewController {
         
         // setup video output
         
-        videoSessionStart = { (_ from: String, _ format: VideoFormat) throws -> IODataProtocol? in
+        videoSessionStart = { (_ to: String, _ sid: String, _ format: VideoFormat) throws -> IODataProtocol? in
             
             var media: MediaViewController?
             
             dispatch_sync_on_main {
+                self.title = to
+                Model.shared.watching = to
+                
                 media = self.navigationController?.topViewController as? MediaViewController
                 
-                if media == self.userMediaViewController && from == self.userMediaViewController?.watching {
+                if media == self.userMediaViewController && sid == self.userMediaViewController?.sessionID {
+                    return
+                }
+                
+                if media != nil && (media?.sessionID == sid  || media?.sessionID == String()) {
                     return
                 }
                 
@@ -63,25 +70,26 @@ class DetailViewController: UIViewController {
                     self.navigationController?.popViewController(animated: true)
                 }
                 
-                media = self.showMedia(from)
+                media = self.showMedia(to)
                 _ = media?.view
             }
             
-            return try media?.videoSessionStart?(from, format)
+            return try media?.videoSessionStart?(to, sid, format)
         }
         
-        videoSessionStop = { (_ from: String) in
+        videoSessionStop = { (_ sid: String) in
             
             var media: MediaViewController?
 
             dispatch_sync_on_main {
-                if self.navigationController?.topViewController is MediaViewController {
-                    media = self.navigationController?.topViewController as? MediaViewController
-                    self.navigationController?.popViewController(animated: true)
-                }
+                guard let media_ = self.navigationController?.topViewController as? MediaViewController else { return }
+                guard media_.sessionID == sid else { return }
+
+                self.navigationController?.popViewController(animated: true)
+                media = media_
             }
             
-            media?.videoSessionStop?(from)
+            media?.videoSessionStop?(sid)
         }
     }
 

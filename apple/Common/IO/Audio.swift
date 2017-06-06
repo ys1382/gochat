@@ -2,6 +2,15 @@
 import AVFoundation
 import AudioToolbox
 
+protocol AudioOutputProtocol {
+    
+    func process(_ data: AudioData)
+}
+
+enum AACPart : Int {
+    case NetworkPacket // Time, Packet num, Packets, Data size, Data
+}
+
 struct AudioBus {
     static let input = 0
     static let output = 1
@@ -103,12 +112,25 @@ struct AudioFormat {
     }
 }
 
-protocol AudioOutputProtocol {
+class AudioTimeDeserializer : IOTimeProtocol {
     
-    func process(_ data: AudioData)
-}
-
-enum AACPart : Int {
-    case NetworkPacket // Time, Packet num, Packets, Data size, Data
+    let packetKey: Int
+    
+    init(_ packetKey: Int) {
+        self.packetKey = packetKey
+    }
+    
+    func audioTime(_ packets: [Int: NSData]) -> UnsafePointer<AudioTimeStamp> {
+        let s = MemoryLayout<AudioTimeStamp>.size
+        let x = UnsafeMutablePointer<AudioTimeStamp>.allocate(capacity: s)
+        
+        memcpy(x, packets[packetKey]!.bytes, s)
+        
+        return UnsafePointer<AudioTimeStamp>(x)
+    }
+    
+    func time(_ data: [Int : NSData]) -> Double {
+        return AVAudioTime.seconds(forHostTime: audioTime(data).pointee.mHostTime)
+    }
 }
 

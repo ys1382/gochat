@@ -13,8 +13,9 @@
 		821F4CC51EDE6E6500FA923D /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821F4CC41EDE6E6500FA923D /* SplitViewController.swift */; };
 		821F4CC91EDEB3A100FA923D /* Dispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821F4CC81EDEB3A100FA923D /* Dispatch.swift */; };
 		821F4CCD1EE00D2800FA923D /* CoreAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821F4CCC1EE00D2800FA923D /* CoreAudio.swift */; };
+		82203E6B1EE6B345005AEC49 /* VideoOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82203E6A1EE6B345005AEC49 /* VideoOutput.swift */; };
 		8221F0901EE15F7400FE253A /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8221F08F1EE15F7400FE253A /* ChatViewController.swift */; };
-		827C520B1EE0732F00340D56 /* Pool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 827C520A1EE0732F00340D56 /* Pool.swift */; };
+		8275DDA41EE66E9700BF422B /* Sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8275DDA31EE66E9700BF422B /* Sync.swift */; };
 		829A0E8D1EDC1DB800FEC353 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E7B1EDC1DB800FEC353 /* Backend.swift */; };
 		829A0E8E1EDC1DB800FEC353 /* AudioInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E7D1EDC1DB800FEC353 /* AudioInput.swift */; };
 		829A0E8F1EDC1DB800FEC353 /* AudioOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E7E1EDC1DB800FEC353 /* AudioOutput.swift */; };
@@ -51,8 +52,9 @@
 		821F4CC41EDE6E6500FA923D /* SplitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
 		821F4CC81EDEB3A100FA923D /* Dispatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dispatch.swift; sourceTree = "<group>"; };
 		821F4CCC1EE00D2800FA923D /* CoreAudio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreAudio.swift; sourceTree = "<group>"; };
+		82203E6A1EE6B345005AEC49 /* VideoOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoOutput.swift; sourceTree = "<group>"; };
 		8221F08F1EE15F7400FE253A /* ChatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
-		827C520A1EE0732F00340D56 /* Pool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pool.swift; sourceTree = "<group>"; };
+		8275DDA31EE66E9700BF422B /* Sync.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sync.swift; sourceTree = "<group>"; };
 		829A0E7B1EDC1DB800FEC353 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Backend.swift; path = ../Common/Backend.swift; sourceTree = "<group>"; };
 		829A0E7D1EDC1DB800FEC353 /* AudioInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioInput.swift; sourceTree = "<group>"; };
 		829A0E7E1EDC1DB800FEC353 /* AudioOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioOutput.swift; sourceTree = "<group>"; };
@@ -164,9 +166,10 @@
 				829A0E7E1EDC1DB800FEC353 /* AudioOutput.swift */,
 				829A0EB71EDD54C800FEC353 /* Video.swift */,
 				829A0E821EDC1DB800FEC353 /* VideoInput.swift */,
+				82203E6A1EE6B345005AEC49 /* VideoOutput.swift */,
 				829A0E801EDC1DB800FEC353 /* VideoDecoderH264.swift */,
 				829A0E811EDC1DB800FEC353 /* VideoEncoderH264.swift */,
-				827C520A1EE0732F00340D56 /* Pool.swift */,
+				8275DDA31EE66E9700BF422B /* Sync.swift */,
 			);
 			name = IO;
 			path = ../Common/IO;
@@ -245,7 +248,8 @@
 				TargetAttributes = {
 					1ADE89E01EA1CE0E00E41212 = {
 						CreatedOnToolsVersion = 8.3;
-						ProvisioningStyle = Automatic;
+						DevelopmentTeam = CD4E4U2KRU;
+						ProvisioningStyle = Manual;
 					};
 				};
 			};
@@ -333,6 +337,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				829A0E951EDC1DB800FEC353 /* Network.swift in Sources */,
+				8275DDA41EE66E9700BF422B /* Sync.swift in Sources */,
 				829A0E9A1EDC1DB800FEC353 /* Log.swift in Sources */,
 				829A0EBF1EDD784E00FEC353 /* AV.swift in Sources */,
 				829A0E911EDC1DB800FEC353 /* VideoDecoderH264.swift in Sources */,
@@ -352,7 +357,6 @@
 				829A0E8E1EDC1DB800FEC353 /* AudioInput.swift in Sources */,
 				829A0E9B1EDC1DB800FEC353 /* Wire.proto.swift in Sources */,
 				829A0EB11EDD2CC000FEC353 /* UI.swift in Sources */,
-				827C520B1EE0732F00340D56 /* Pool.swift in Sources */,
 				829A0E981EDC1DB800FEC353 /* AVFoundation.swift in Sources */,
 				829A0E8D1EDC1DB800FEC353 /* Backend.swift in Sources */,
 				829A0E931EDC1DB800FEC353 /* VideoInput.swift in Sources */,
@@ -360,6 +364,7 @@
 				829A0E921EDC1DB800FEC353 /* VideoEncoderH264.swift in Sources */,
 				829A0E8F1EDC1DB800FEC353 /* AudioOutput.swift in Sources */,
 				821F4CCD1EE00D2800FA923D /* CoreAudio.swift in Sources */,
+				82203E6B1EE6B345005AEC49 /* VideoOutput.swift in Sources */,
 				821F4CC91EDEB3A100FA923D /* Dispatch.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -475,12 +480,15 @@
 			baseConfigurationReference = 931CB699F7145BBD7B223700 /* Pods-Chat.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = CD4E4U2KRU;
 				INFOPLIST_FILE = Chat/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				PRODUCT_BUNDLE_IDENTIFIER = ys1382.Chat;
+				PRODUCT_BUNDLE_IDENTIFIER = fisil.Chat.mac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "AV Chat Development";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -490,12 +498,15 @@
 			baseConfigurationReference = 64A385B4166E340653D3B04C /* Pods-Chat.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = CD4E4U2KRU;
 				INFOPLIST_FILE = Chat/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				PRODUCT_BUNDLE_IDENTIFIER = ys1382.Chat;
+				PRODUCT_BUNDLE_IDENTIFIER = fisil.Chat.mac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "AV Chat DeveloperID";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;

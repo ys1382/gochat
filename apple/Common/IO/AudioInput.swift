@@ -30,6 +30,7 @@ class AudioInput : NSObject, IOSessionProtocol
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     func start() throws {
+        assert_av_capture_queue()
         
         // prepare format
 
@@ -91,6 +92,8 @@ class AudioInput : NSObject, IOSessionProtocol
     }
     
     func stop() {
+        assert_av_capture_queue()
+
         guard let queue = self.queue else { assert(false); return }
 
         do {

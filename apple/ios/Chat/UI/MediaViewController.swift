@@ -9,16 +9,21 @@
 import UIKit
 import AVFoundation
 
-class MediaViewController : UIViewController, VideoOutputProtocol {
+class MediaViewController : UIViewController {
 
-    var watching: String?
+    private(set) var sessionID = String()
+    private var watching: String?
 
-    @IBOutlet weak var videoView: SampleBufferDisplayView!
+    @IBOutlet weak var networkView: SampleBufferDisplayView!
     @IBOutlet weak var previewView: CaptureVideoPreviewView!
     
-    var videoSessionStart: ((_ sid: String, _ format: VideoFormat) throws ->IODataProtocol?)?
+    var videoSessionStart: ((_ to: String, _ sid: String, _ format: VideoFormat) throws ->IODataProtocol?)?
     var videoSessionStop: ((_ sid: String)->Void)?
 
+    func setWatching(_ x: String) {
+        watching = x
+    }
+    
     func start() {
         guard let watching = self.watching else { return }
         
@@ -57,34 +62,21 @@ class MediaViewController : UIViewController, VideoOutputProtocol {
     override func viewDidLoad() {
         edgesForExtendedLayout = []
         previewView.captureLayer.videoGravity = AVLayerVideoGravityResizeAspect
-        videoView.sampleLayer.videoGravity = AVLayerVideoGravityResizeAspect
+        networkView.sampleLayer.videoGravity = AVLayerVideoGravityResizeAspect
         
         // setup video output
         
-        videoSessionStart = { (_, _) in
-            return AV.shared.defaultNetworkInputVideo(self)
+        videoSessionStart = { (_, _ sid: String, _) in
+            self.sessionID = sid
+            return AV.shared.defaultNetworkInputVideo(sid, VideoOutput(self.networkView.sampleLayer))
         }
         
         videoSessionStop = { (_) in
-            self.videoView.sampleLayer.flushAndRemoveImage()
+            self.networkView.sampleLayer.flushAndRemoveImage()
         }
     }
 
     override func viewWillAppear(_ animated: Bool) {
-        // start video capture
-        
         start()
     }
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // IOVideoOutputProtocol
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
-    func process(_ data: CMSampleBuffer) {
-        
-        if videoView.sampleLayer.isReadyForMoreMediaData {
-            videoView.sampleLayer.enqueue(data)
-        }
-    }
-
 }

@@ -77,8 +77,11 @@ protocol VideoSessionProtocol : IOSessionProtocol {
 }
 
 class VideoSession : IOSession, VideoSessionProtocol {
-    
-    func update(_ outputFormat: VideoFormat) throws {}
+
+    private let next: VideoSessionProtocol?
+    override init() { next = nil; super.init() }
+    init(_ next: VideoSessionProtocol?) { self.next = next; super.init(next) }
+    func update(_ outputFormat: VideoFormat) throws { try next?.update(outputFormat) }
 }
 
 class VideoSessionBroadcast : IOSessionBroadcast, VideoSessionProtocol {
@@ -92,6 +95,23 @@ class VideoSessionBroadcast : IOSessionBroadcast, VideoSessionProtocol {
     
     func update(_ outputFormat: VideoFormat) throws {
         _ = try x.map({ try $0?.update(outputFormat) })
+    }
+}
+
+class VideoTimeDeserializer : IOTimeProtocol {
+    
+    let packetKey: Int
+    
+    init(_ packetKey: Int) {
+        self.packetKey = packetKey
+    }
+    
+    func videoTime(_ packets: [Int: NSData]) -> CMSampleTimingInfo {
+        return CMSampleTimingInfo(packets[packetKey]!)
+    }
+    
+    func time(_ packets: [Int : NSData]) -> Double {
+        return CMTimeGetSeconds(videoTime(packets).presentationTimeStamp)
     }
 }
 

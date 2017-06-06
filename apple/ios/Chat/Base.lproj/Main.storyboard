@@ -139,7 +139,7 @@
                     <navigationItem key="navigationItem" id="OFy-IY-xOh"/>
                     <connections>
                         <outlet property="previewView" destination="G8B-19-ry2" id="BBf-Md-fUC"/>
-                        <outlet property="videoView" destination="WmK-aK-OcD" id="Dmb-Gr-AEV"/>
+                        <outlet property="networkView" destination="WmK-aK-OcD" id="Dmb-Gr-AEV"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="qeD-uV-RbP" userLabel="First Responder" sceneMemberID="firstResponder"/>

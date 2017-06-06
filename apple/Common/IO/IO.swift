@@ -4,8 +4,13 @@ import AudioToolbox
 import VideoToolbox
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Protocols
+// Simple types
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+enum IOKind : Int {
+    case Audio
+    case Video
+}
 
 protocol IODataProtocol {
     
@@ -17,9 +22,23 @@ protocol IOSessionProtocol {
     func stop()
 }
 
+protocol IOTimeProtocol {
+    func time(_ data: [Int: NSData]) -> Double
+}
+
+class IOData : IODataProtocol {
+    private let next: IODataProtocol?
+    init() { next = nil }
+    init(_ next: IODataProtocol?) { self.next = next }
+    func process(_ data: [Int : NSData]) { next?.process(data) }
+}
+
 class IOSession : IOSessionProtocol {
-    func start() throws {}
-    func stop() {}
+    private let next: IOSessionProtocol?
+    init() { next = nil }
+    init(_ next: IOSessionProtocol?) { self.next = next }
+    func start() throws { try next?.start() }
+    func stop() { next?.stop() }
 }
 
 class IOSessionBroadcast : IOSessionProtocol {
@@ -35,7 +54,7 @@ class IOSessionBroadcast : IOSessionProtocol {
     }
     
     func stop() {
-        _ = x.map({ $0?.stop() })
+        _ = x.reversed().map({ $0?.stop() })
     }
 }
 
@@ -91,7 +110,7 @@ class IODataDispatcher : IODataProtocol {
     }
     
     func process(_ data: [Int : NSData]) {
-        queue.async { self.next.process(data) }
+        queue.sync { self.next.process(data) }
     }
     
 }
