@@ -4,6 +4,7 @@ target 'Chat' do
   use_frameworks!
   pod 'Starscream', :git => 'https://github.com/daltoniam/Starscream', :branch => 'swift3'
   pod 'ProtocolBuffers-Swift'
+  pod 'RNCryptor', '~> 5.0'
 end
 
 post_install do |installer|

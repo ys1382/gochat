@@ -106,13 +106,26 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
   )
   public final File file;
 
+  @WireField(
+      tag = 107,
+      adapter = "red.tel.chat.generated_protobuf.Store#ADAPTER"
+  )
+  public final Store store;
+
+  @WireField(
+      tag = 108,
+      adapter = "red.tel.chat.generated_protobuf.Load#ADAPTER"
+  )
+  public final Load load;
+
   public Haber(Integer version, String sessionId, String from, String to, Which which, Login login,
-      List<Contact> contacts, Text text, Av av, File file) {
-    this(version, sessionId, from, to, which, login, contacts, text, av, file, ByteString.EMPTY);
+      List<Contact> contacts, Text text, Av av, File file, Store store, Load load) {
+    this(version, sessionId, from, to, which, login, contacts, text, av, file, store, load, ByteString.EMPTY);
   }
 
   public Haber(Integer version, String sessionId, String from, String to, Which which, Login login,
-      List<Contact> contacts, Text text, Av av, File file, ByteString unknownFields) {
+      List<Contact> contacts, Text text, Av av, File file, Store store, Load load,
+      ByteString unknownFields) {
     super(ADAPTER, unknownFields);
     this.version = version;
     this.sessionId = sessionId;
@@ -124,6 +137,8 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
     this.text = text;
     this.av = av;
     this.file = file;
+    this.store = store;
+    this.load = load;
   }
 
   @Override
@@ -139,6 +154,8 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
     builder.text = text;
     builder.av = av;
     builder.file = file;
+    builder.store = store;
+    builder.load = load;
     builder.addUnknownFields(unknownFields());
     return builder;
   }
@@ -158,7 +175,9 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
         && contacts.equals(o.contacts)
         && Internal.equals(text, o.text)
         && Internal.equals(av, o.av)
-        && Internal.equals(file, o.file);
+        && Internal.equals(file, o.file)
+        && Internal.equals(store, o.store)
+        && Internal.equals(load, o.load);
   }
 
   @Override
@@ -176,6 +195,8 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
       result = result * 37 + (text != null ? text.hashCode() : 0);
       result = result * 37 + (av != null ? av.hashCode() : 0);
       result = result * 37 + (file != null ? file.hashCode() : 0);
+      result = result * 37 + (store != null ? store.hashCode() : 0);
+      result = result * 37 + (load != null ? load.hashCode() : 0);
       super.hashCode = result;
     }
     return result;
@@ -194,6 +215,8 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
     if (text != null) builder.append(", text=").append(text);
     if (av != null) builder.append(", av=").append(av);
     if (file != null) builder.append(", file=").append(file);
+    if (store != null) builder.append(", store=").append(store);
+    if (load != null) builder.append(", load=").append(load);
     return builder.replace(0, 2, "Haber{").append('}').toString();
   }
 
@@ -217,6 +240,10 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
     public Av av;
 
     public File file;
+
+    public Store store;
+
+    public Load load;
 
     public Builder() {
       contacts = Internal.newMutableList();
@@ -279,9 +306,19 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
       return this;
     }
 
+    public Builder store(Store store) {
+      this.store = store;
+      return this;
+    }
+
+    public Builder load(Load load) {
+      this.load = load;
+      return this;
+    }
+
     @Override
     public Haber build() {
-      return new Haber(version, sessionId, from, to, which, login, contacts, text, av, file, super.buildUnknownFields());
+      return new Haber(version, sessionId, from, to, which, login, contacts, text, av, file, store, load, super.buildUnknownFields());
     }
   }
 
@@ -299,7 +336,11 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
 
     FILE(4),
 
-    AV(5);
+    AV(5),
+
+    STORE(6),
+
+    LOAD(7);
 
     public static final ProtoAdapter<Which> ADAPTER = new ProtoAdapter_Which();
 
@@ -320,6 +361,8 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
         case 3: return TEXT;
         case 4: return FILE;
         case 5: return AV;
+        case 6: return STORE;
+        case 7: return LOAD;
         default: return null;
       }
     }
@@ -358,6 +401,8 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
           + Text.ADAPTER.encodedSizeWithTag(104, value.text)
           + Av.ADAPTER.encodedSizeWithTag(105, value.av)
           + File.ADAPTER.encodedSizeWithTag(106, value.file)
+          + Store.ADAPTER.encodedSizeWithTag(107, value.store)
+          + Load.ADAPTER.encodedSizeWithTag(108, value.load)
           + value.unknownFields().size();
     }
 
@@ -373,6 +418,8 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
       Text.ADAPTER.encodeWithTag(writer, 104, value.text);
       Av.ADAPTER.encodeWithTag(writer, 105, value.av);
       File.ADAPTER.encodeWithTag(writer, 106, value.file);
+      Store.ADAPTER.encodeWithTag(writer, 107, value.store);
+      Load.ADAPTER.encodeWithTag(writer, 108, value.load);
       writer.writeBytes(value.unknownFields());
     }
 
@@ -399,6 +446,8 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
           case 104: builder.text(Text.ADAPTER.decode(reader)); break;
           case 105: builder.av(Av.ADAPTER.decode(reader)); break;
           case 106: builder.file(File.ADAPTER.decode(reader)); break;
+          case 107: builder.store(Store.ADAPTER.decode(reader)); break;
+          case 108: builder.load(Load.ADAPTER.decode(reader)); break;
           default: {
             FieldEncoding fieldEncoding = reader.peekFieldEncoding();
             Object value = fieldEncoding.rawProtoAdapter().decode(reader);
@@ -418,6 +467,8 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
       if (builder.text != null) builder.text = Text.ADAPTER.redact(builder.text);
       if (builder.av != null) builder.av = Av.ADAPTER.redact(builder.av);
       if (builder.file != null) builder.file = File.ADAPTER.redact(builder.file);
+      if (builder.store != null) builder.store = Store.ADAPTER.redact(builder.store);
+      if (builder.load != null) builder.load = Load.ADAPTER.redact(builder.load);
       builder.clearUnknownFields();
       return builder.build();
     }

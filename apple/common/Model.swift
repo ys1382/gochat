@@ -5,7 +5,17 @@ class Model {
 
     static let shared = Model()
 
-    var username: String?
+    private static let usernameKey = "usernamekey"
+    private static let passwordKey = "passwordkey"
+
+//    var username: String?
+
+    struct Credential {
+        let username: String
+        let password: String
+    }
+    static var credential: Credential?
+
     var roster = [String:Contact]()
     var texts = [Haber]()
     var unreads = [String:Int]()
@@ -16,12 +26,13 @@ class Model {
             }
         }
     }
+    var store = [String:Haber]()
 
     func didReceivePresence(_ haber: Haber) {
         for contact in haber.contacts {
             self.roster[contact.name] = contact
         }
-        self.post(about:.presence)
+        EventBus.post(about:.presence)
     }
 
     func didReceiveText(_ haber: Haber) {
@@ -29,7 +40,7 @@ class Model {
             self.unreads[from] = (self.unreads[from] ?? 0) + 1
         }
         self.texts.append(haber)
-        self.post(about:.text)
+        EventBus.post(about:.text)
     }
 
     func didReceiveRoster(_ contacts: [Contact]) {
@@ -38,20 +49,31 @@ class Model {
             dict[contact.name] = contact
             return dict
         }
-        self.post(about:.contacts)
+        EventBus.post(about:.contacts)
     }
 
-    func addListener(about:Haber.Which, didReceive:@escaping (Notification)->Void) {
-        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: about.toString()),
-                                               object: nil,
-                                               queue: nil,
-                                               using: didReceive)
+    func store(key: String, value: Haber) {
+        guard let key2 = key.data(using: .utf8) else {
+            print("could not make key.data")
+            return
+        }
+        self.store[key] = value
+        Backend.store(key: key2, value: value)
+    }
+
+    func didReceiveStore(_ haber: Haber) {
+        guard let key = String(data: haber.store.key, encoding: .utf8),
+                let value = try? Haber.parseFrom(data:haber.store.value)
+                else {
+            print("could not get store")
+            return
+        }
+        self.store[key] = value
+        EventBus.post(forKey: key)
     }
 
     private func post(about:Haber.Which) {
-        NotificationCenter.default.post(name:Notification.Name(rawValue:about.toString()),
-                                        object: nil,
-                                        userInfo:nil)
+        EventBus.post(about: about)
     }
 
     func setContacts(_ names: [String]) {
@@ -64,8 +86,16 @@ class Model {
             }
         }
         self.roster = update
-        Backend.shared.sendContacts(self.roster)
+        Backend.sendContacts(self.roster)
     }
-    
+
+    func credentials() -> (username: String, password: String)? {
+        if let username = UserDefaults.standard.string(forKey: Model.usernameKey),
+            let password = UserDefaults.standard.string(forKey: Model.passwordKey) {
+            return (username, password)
+        }
+        return nil
+    }
+
     private init() {}
 }

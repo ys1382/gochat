@@ -25,6 +25,15 @@ message Av {
     bytes data = 1;
 }
 
+message Store {
+    bytes key = 1;
+    bytes value = 2;
+}
+
+message Load {
+    bytes key = 1;
+}
+
 message Haber {
 
     uint32 version = 1;
@@ -40,6 +49,8 @@ message Haber {
         TEXT = 3;
         FILE = 4;
         AV = 5;
+	STORE = 6;
+	LOAD = 7;
     }
     Which which = 5;
 
@@ -49,4 +60,6 @@ message Haber {
     Text text = 104;
     Av av = 105;
     File file = 106;
+    Store store = 107;
+    Load load = 108;
 }

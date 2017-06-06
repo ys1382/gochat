@@ -10,6 +10,11 @@
 		1A60DFF41EA30FC900BECD73 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A60DFF21EA30FC900BECD73 /* Backend.swift */; };
 		1A60DFF51EA30FC900BECD73 /* Wire.proto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A60DFF31EA30FC900BECD73 /* Wire.proto.swift */; };
 		1A60E0001EA4039400BECD73 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A60DFFF1EA4039400BECD73 /* Model.swift */; };
+		1A7F93F71EE3EA63009BE159 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7F93F61EE3EA63009BE159 /* LoginViewController.swift */; };
+		1A7F93F91EE3EB9B009BE159 /* Crypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7F93F81EE3EB9B009BE159 /* Crypto.swift */; };
+		1A7F93FB1EE49A4D009BE159 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7F93FA1EE49A4D009BE159 /* Network.swift */; };
+		1AC51C511EE4F46C00681864 /* EventBus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC51C501EE4F46C00681864 /* EventBus.swift */; };
+		1AC51C551EE5ED2300681864 /* Login.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AC51C541EE5ED2300681864 /* Login.xib */; };
 		1ADE89E51EA1CE0E00E41212 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADE89E41EA1CE0E00E41212 /* AppDelegate.swift */; };
 		1ADE89E91EA1CE0E00E41212 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1ADE89E81EA1CE0E00E41212 /* Assets.xcassets */; };
 		1ADE89EC1EA1CE0E00E41212 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1ADE89EA1EA1CE0E00E41212 /* Main.storyboard */; };
@@ -22,6 +27,11 @@
 		1A60DFF21EA30FC900BECD73 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Backend.swift; path = ../../common/Backend.swift; sourceTree = "<group>"; };
 		1A60DFF31EA30FC900BECD73 /* Wire.proto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Wire.proto.swift; path = ../../common/Wire.proto.swift; sourceTree = "<group>"; };
 		1A60DFFF1EA4039400BECD73 /* Model.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Model.swift; path = ../../common/Model.swift; sourceTree = "<group>"; };
+		1A7F93F61EE3EA63009BE159 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		1A7F93F81EE3EB9B009BE159 /* Crypto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Crypto.swift; path = ../../common/Crypto.swift; sourceTree = "<group>"; };
+		1A7F93FA1EE49A4D009BE159 /* Network.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Network.swift; path = ../../common/Network.swift; sourceTree = "<group>"; };
+		1AC51C501EE4F46C00681864 /* EventBus.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = EventBus.swift; path = ../../common/EventBus.swift; sourceTree = "<group>"; };
+		1AC51C541EE5ED2300681864 /* Login.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Login.xib; sourceTree = "<group>"; };
 		1ADE89E11EA1CE0E00E41212 /* Chat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1ADE89E41EA1CE0E00E41212 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1ADE89E81EA1CE0E00E41212 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -46,6 +56,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1AC51C561EE5EF4700681864 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				1ADE89E81EA1CE0E00E41212 /* Assets.xcassets */,
+				1ADE89EA1EA1CE0E00E41212 /* Main.storyboard */,
+				1AC51C541EE5ED2300681864 /* Login.xib */,
+				1AF35A941EA30C34002AFC3F /* ContactsViewController.swift */,
+				1A7F93F61EE3EA63009BE159 /* LoginViewController.swift */,
+				1AF35A921EA30BFE002AFC3F /* TextViewController.swift */,
+			);
+			name = UI;
+			sourceTree = "<group>";
+		};
 		1ADE89D81EA1CE0E00E41212 = {
 			isa = PBXGroup;
 			children = (
@@ -68,14 +91,14 @@
 			isa = PBXGroup;
 			children = (
 				1ADE89ED1EA1CE0E00E41212 /* Info.plist */,
-				1ADE89E81EA1CE0E00E41212 /* Assets.xcassets */,
-				1ADE89EA1EA1CE0E00E41212 /* Main.storyboard */,
 				1ADE89E41EA1CE0E00E41212 /* AppDelegate.swift */,
-				1AF35A941EA30C34002AFC3F /* ContactsViewController.swift */,
-				1AF35A921EA30BFE002AFC3F /* TextViewController.swift */,
 				1A60DFF21EA30FC900BECD73 /* Backend.swift */,
+				1A7F93F81EE3EB9B009BE159 /* Crypto.swift */,
+				1AC51C501EE4F46C00681864 /* EventBus.swift */,
 				1A60DFFF1EA4039400BECD73 /* Model.swift */,
+				1A7F93FA1EE49A4D009BE159 /* Network.swift */,
 				1A60DFF31EA30FC900BECD73 /* Wire.proto.swift */,
+				1AC51C561EE5EF4700681864 /* UI */,
 			);
 			path = Chat;
 			sourceTree = "<group>";
@@ -161,6 +184,7 @@
 			files = (
 				1ADE89E91EA1CE0E00E41212 /* Assets.xcassets in Resources */,
 				1ADE89EC1EA1CE0E00E41212 /* Main.storyboard in Resources */,
+				1AC51C551EE5ED2300681864 /* Login.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -219,10 +243,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A7F93F91EE3EB9B009BE159 /* Crypto.swift in Sources */,
+				1AC51C511EE4F46C00681864 /* EventBus.swift in Sources */,
 				1A60DFF41EA30FC900BECD73 /* Backend.swift in Sources */,
 				1AF35A951EA30C34002AFC3F /* ContactsViewController.swift in Sources */,
 				1ADE89E51EA1CE0E00E41212 /* AppDelegate.swift in Sources */,
 				1A60E0001EA4039400BECD73 /* Model.swift in Sources */,
+				1A7F93FB1EE49A4D009BE159 /* Network.swift in Sources */,
+				1A7F93F71EE3EA63009BE159 /* LoginViewController.swift in Sources */,
 				1A60DFF51EA30FC900BECD73 /* Wire.proto.swift in Sources */,
 				1AF35A931EA30BFE002AFC3F /* TextViewController.swift in Sources */,
 			);

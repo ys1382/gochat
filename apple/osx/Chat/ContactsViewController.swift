@@ -7,10 +7,20 @@ class ContactsViewController: NSViewController, NSTableViewDelegate, NSTableView
     @IBOutlet weak var tableView: NSTableView!
 
     @IBAction func didClickAdd(_ sender: Any) {
-        AppDelegate.ask(title: "Add New Contact", subtitle: "Enter contact's username", cancelable: true) { username in
-            if let username = username {
-                self.addContact(username)
-            }
+        let alert = NSAlert()
+
+        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: "Cancel")
+
+        alert.messageText = "Add New Contact"
+        alert.informativeText = "Enter contact's username"
+
+        let textField = NSTextField(frame: NSRect(x: 0, y: 0, width: 200, height: 24))
+        alert.accessoryView = textField
+        alert.window.initialFirstResponder = textField
+
+        if alert.runModal() == NSAlertFirstButtonReturn {
+            self.addContact(textField.stringValue)
         }
     }
 
@@ -27,16 +37,16 @@ class ContactsViewController: NSViewController, NSTableViewDelegate, NSTableView
         tableView.delegate = self
         tableView.dataSource = self
 
-        Model.shared.addListener(about: .contacts) { notification in
+        EventBus.addListener(about: .contacts) { notification in
             self.names = Array(Model.shared.roster.values).map({ contact in return contact.name })
             self.tableView.reloadData()
         }
 
-        Model.shared.addListener(about: .presence) { notification in
+        EventBus.addListener(about: .presence) { notification in
             self.tableView.reloadData()
         }
 
-        Model.shared.addListener(about: .text) { notification in
+        EventBus.addListener(about: .text) { notification in
             self.tableView.reloadData()
         }
     }
