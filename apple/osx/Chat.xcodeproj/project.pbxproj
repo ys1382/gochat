@@ -14,6 +14,8 @@
 		821F4CC91EDEB3A100FA923D /* Dispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821F4CC81EDEB3A100FA923D /* Dispatch.swift */; };
 		821F4CCD1EE00D2800FA923D /* CoreAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821F4CCC1EE00D2800FA923D /* CoreAudio.swift */; };
 		82203E6B1EE6B345005AEC49 /* VideoOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82203E6A1EE6B345005AEC49 /* VideoOutput.swift */; };
+		82203E711EE6F0E2005AEC49 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82203E6F1EE6F0E2005AEC49 /* Fabric.framework */; };
+		82203E721EE6F0E2005AEC49 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82203E701EE6F0E2005AEC49 /* Crashlytics.framework */; };
 		8221F0901EE15F7400FE253A /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8221F08F1EE15F7400FE253A /* ChatViewController.swift */; };
 		8275DDA41EE66E9700BF422B /* Sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8275DDA31EE66E9700BF422B /* Sync.swift */; };
 		829A0E8D1EDC1DB800FEC353 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E7B1EDC1DB800FEC353 /* Backend.swift */; };
@@ -53,6 +55,8 @@
 		821F4CC81EDEB3A100FA923D /* Dispatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dispatch.swift; sourceTree = "<group>"; };
 		821F4CCC1EE00D2800FA923D /* CoreAudio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreAudio.swift; sourceTree = "<group>"; };
 		82203E6A1EE6B345005AEC49 /* VideoOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoOutput.swift; sourceTree = "<group>"; };
+		82203E6F1EE6F0E2005AEC49 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
+		82203E701EE6F0E2005AEC49 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		8221F08F1EE15F7400FE253A /* ChatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		8275DDA31EE66E9700BF422B /* Sync.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sync.swift; sourceTree = "<group>"; };
 		829A0E7B1EDC1DB800FEC353 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Backend.swift; path = ../Common/Backend.swift; sourceTree = "<group>"; };
@@ -88,6 +92,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				D4C11B8E12CA4AE1016CA052 /* Pods_Chat.framework in Frameworks */,
+				82203E721EE6F0E2005AEC49 /* Crashlytics.framework in Frameworks */,
+				82203E711EE6F0E2005AEC49 /* Fabric.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -129,6 +135,8 @@
 		485B0DEBAC60AE9E9504DBAB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				82203E6F1EE6F0E2005AEC49 /* Fabric.framework */,
+				82203E701EE6F0E2005AEC49 /* Crashlytics.framework */,
 				F3DC7F985F75CB41DAED56C7 /* Pods_Chat.framework */,
 			);
 			name = Frameworks;
@@ -226,6 +234,7 @@
 				1ADE89DF1EA1CE0E00E41212 /* Resources */,
 				DFA2681D469153D2783712E1 /* [CP] Embed Pods Frameworks */,
 				7249A186023EE5BC9CB6E59F /* [CP] Copy Pods Resources */,
+				82203E6E1EE6F0CF005AEC49 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -313,6 +322,19 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Chat/Pods-Chat-resources.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		82203E6E1EE6F0CF005AEC49 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./Fabric.framework/run 1f758ae0b6b94e430a3d7ee0d9621977331c23d8 326f7e442e43e1077aeda3ea71968aa0d077986f324a939ca69d2b5a9930305d";
 		};
 		DFA2681D469153D2783712E1 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -483,6 +505,10 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = CD4E4U2KRU;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = Chat/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
@@ -501,6 +527,10 @@
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = CD4E4U2KRU;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = Chat/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;

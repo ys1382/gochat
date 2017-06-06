@@ -1,5 +1,7 @@
 import Cocoa
 import AVFoundation
+import Fabric
+import Crashlytics
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -40,6 +42,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        
+        // fabric
+        
+        Fabric.with([Crashlytics.self])
+        
         // username
             
         if let username = UserDefaults.standard.string(forKey: AppDelegate.usernameKey) {
