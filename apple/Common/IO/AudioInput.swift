@@ -177,7 +177,6 @@ class AudioInput : NSObject, IOSessionProtocol
         
         logIO("audio \(AVAudioTime.seconds(forHostTime: inStartTime.pointee.mHostTime))")
         
-        
         do {
             if (inNumPackets > 0) {
                 var bytes = UnsafeMutablePointer<Int8>.allocate(capacity: Int(inBuffer.pointee.mAudioDataByteSize))

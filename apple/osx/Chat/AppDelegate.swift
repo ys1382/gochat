@@ -45,6 +45,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // fabric
         
+        UserDefaults.standard.register(defaults: ["NSApplicationCrashOnExceptions": true])
         Fabric.with([Crashlytics.self])
         
         // username

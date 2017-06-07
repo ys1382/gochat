@@ -31,8 +31,10 @@ class VideoViewController: NSViewController {
             AV.shared.avCaptureQueue.async {
                 do {
                     if watching != nil {
-                        let audio = AV.shared.defaultAudioInput(watching!)
-                        let video = AV.shared.defaultVideoInput(watching!, previewLayer)
+                        let audioID = IOID(Model.shared.username!, watching!)
+                        let videoID = audioID.groupNew()
+                        let audio = AV.shared.defaultAudioInput(audioID)
+                        let video = AV.shared.defaultVideoInput(videoID, previewLayer)
                         
                         try AV.shared.startInput(create([audio, video]));
                     }
@@ -48,8 +50,8 @@ class VideoViewController: NSViewController {
         
         // setup video output
         
-        Backend.shared.videoSessionStart = { (_, _ sid: String, _) in
-            return AV.shared.defaultNetworkInputVideo(sid, VideoOutput(self.network.sampleLayer))
+        Backend.shared.videoSessionStart = { (_ id: IOID, _) in
+            return AV.shared.defaultNetworkInputVideo(id, VideoOutput(self.network.sampleLayer))
         }
 
         Backend.shared.videoSessionStop = { (_) in

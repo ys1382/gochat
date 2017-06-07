@@ -3,6 +3,35 @@ import AVFoundation
 import AudioToolbox
 import VideoToolbox
 
+struct IOID {
+    let from: String
+    let to:   String
+    let sid:  String // session unique ID
+    let gid:  String // io group (audio + video) ID
+    
+    init(_ from: String, _ to: String, _ sid:  String, _ gid:  String) {
+        self.from = from
+        self.to = to
+        self.sid = sid
+        self.gid = gid
+    }
+
+    init(_ from: String, _ to: String) {
+        self.from = from
+        self.to = to
+        self.sid = IOID.newID(from, to, "sid")
+        self.gid = IOID.newID(from, to, "gid")
+    }
+
+    func groupNew() ->IOID {
+        return IOID(from, to, IOID.newID(from, to, "sid"), gid)
+    }
+    
+    static private func newID(_ from: String, _ to: String, _ kind: String) -> String {
+        return "\(kind) \(from) - \(to) (\(UUID()))"
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Simple types
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

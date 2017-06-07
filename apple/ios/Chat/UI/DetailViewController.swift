@@ -22,8 +22,8 @@ class DetailViewController: UIViewController {
     }
 
     var userMediaViewController: MediaViewController?
-    var videoSessionStart: ((_ to: String, _ sid: String, _ format: VideoFormat) throws ->IODataProtocol?)?
-    var videoSessionStop: ((_ sid: String)->Void)?
+    var videoSessionStart: ((_ id: IOID, _ format: VideoFormat) throws ->IODataProtocol?)?
+    var videoSessionStop: ((_ id: IOID)->Void)?
 
     func showMedia(_ watching: String?) -> MediaViewController {
         let mediaID = String(describing: MediaViewController.self)
@@ -48,21 +48,21 @@ class DetailViewController: UIViewController {
         
         // setup video output
         
-        videoSessionStart = { (_ to: String, _ sid: String, _ format: VideoFormat) throws -> IODataProtocol? in
+        videoSessionStart = { (_ id: IOID, _ format: VideoFormat) throws -> IODataProtocol? in
             
             var media: MediaViewController?
             
             dispatch_sync_on_main {
-                self.title = to
-                Model.shared.watching = to
+                self.title = id.from
+                Model.shared.watching = id.from
                 
                 media = self.navigationController?.topViewController as? MediaViewController
                 
-                if media == self.userMediaViewController && sid == self.userMediaViewController?.sessionID {
+                if media == self.userMediaViewController && id.sid == self.userMediaViewController?.sessionID {
                     return
                 }
                 
-                if media != nil && (media?.sessionID == sid  || media?.sessionID == String()) {
+                if media != nil && (media?.sessionID == id.sid  || media?.sessionID == String()) {
                     return
                 }
                 
@@ -70,26 +70,26 @@ class DetailViewController: UIViewController {
                     self.navigationController?.popViewController(animated: true)
                 }
                 
-                media = self.showMedia(to)
+                media = self.showMedia(id.from)
                 _ = media?.view
             }
             
-            return try media?.videoSessionStart?(to, sid, format)
+            return try media?.videoSessionStart?(id, format)
         }
         
-        videoSessionStop = { (_ sid: String) in
+        videoSessionStop = { (_ id: IOID) in
             
             var media: MediaViewController?
 
             dispatch_sync_on_main {
                 guard let media_ = self.navigationController?.topViewController as? MediaViewController else { return }
-                guard media_.sessionID == sid else { return }
+                guard media_.sessionID == id.sid else { return }
 
                 self.navigationController?.popViewController(animated: true)
                 media = media_
             }
             
-            media?.videoSessionStop?(sid)
+            media?.videoSessionStop?(id)
         }
     }
 

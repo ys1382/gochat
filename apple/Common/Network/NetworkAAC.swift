@@ -170,16 +170,14 @@ extension AudioFormat {
 
 class NetworkOutputAudio : IODataProtocol {
     
-    let to: String
-    let sid: String
+    let id: IOID
     
-    init(_ to: String, _ sid: String) {
-        self.to = to
-        self.sid = sid
+    init(_ id: IOID) {
+        self.id = id
     }
     
     func process(_ data: [Int: NSData]) {
-        Backend.shared.sendAudio(to, sid, data[AACPart.NetworkPacket.rawValue]!)
+        Backend.shared.sendAudio(id, data[AACPart.NetworkPacket.rawValue]!)
     }
 }
 
@@ -189,21 +187,19 @@ class NetworkOutputAudio : IODataProtocol {
 
 class NetworkOutputAudioSession : IOSessionProtocol {
     
-    let to: String
-    let sid: String
+    let id: IOID
     let format: AudioFormat.Factory
     
-    init(_ to: String, _ sid: String, _ format: @escaping AudioFormat.Factory) {
-        self.to = to
-        self.sid = sid
+    init(_ id: IOID, _ format: @escaping AudioFormat.Factory) {
+        self.id = id
         self.format = format
     }
     
     func start() throws {
-        Backend.shared.sendAudioSession(to, sid, try format().toNetwork(), true)
+        Backend.shared.sendAudioSession(id, try format().toNetwork(), true)
     }
     
     func stop() {
-        Backend.shared.sendAudioSession(to, sid, nil, false)
+        Backend.shared.sendAudioSession(id, nil, false)
     }
 }

@@ -17,8 +17,8 @@ class MediaViewController : UIViewController {
     @IBOutlet weak var networkView: SampleBufferDisplayView!
     @IBOutlet weak var previewView: CaptureVideoPreviewView!
     
-    var videoSessionStart: ((_ to: String, _ sid: String, _ format: VideoFormat) throws ->IODataProtocol?)?
-    var videoSessionStop: ((_ sid: String)->Void)?
+    var videoSessionStart: ((_ id: IOID, _ format: VideoFormat) throws ->IODataProtocol?)?
+    var videoSessionStop: ((_ id: IOID)->Void)?
 
     func setWatching(_ x: String) {
         watching = x
@@ -30,8 +30,10 @@ class MediaViewController : UIViewController {
         AV.shared.avCaptureQueue.async {
             do {
                 var videoSession: AVCaptureSession.Factory? = nil
-                let audio = AV.shared.defaultAudioInput(watching)
-                var video = AV.shared.defaultVideoInput(watching, &videoSession)
+                let audioID = IOID(Model.shared.username!, watching)
+                let videoID = audioID.groupNew()
+                let audio = AV.shared.defaultAudioInput(audioID)
+                var video = AV.shared.defaultVideoInput(videoID, &videoSession)
                 
                 if video != nil && videoSession != nil {
                     video = ChatVideoCaptureSession(videoConnection(videoSession)!,
@@ -66,9 +68,9 @@ class MediaViewController : UIViewController {
         
         // setup video output
         
-        videoSessionStart = { (_, _ sid: String, _) in
-            self.sessionID = sid
-            return AV.shared.defaultNetworkInputVideo(sid, VideoOutput(self.networkView.sampleLayer))
+        videoSessionStart = { (_ id: IOID, _) in
+            self.sessionID = id.sid
+            return AV.shared.defaultNetworkInputVideo(id, VideoOutput(self.networkView.sampleLayer))
         }
         
         videoSessionStop = { (_) in

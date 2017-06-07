@@ -3944,15 +3944,19 @@ final public class Avsession : GeneratedMessage {
             return true
         }
         var fieldCheck:Bool = (lhs.hashValue == rhs.hashValue)
-        fieldCheck = fieldCheck && (lhs.hasId == rhs.hasId) && (!lhs.hasId || lhs.id == rhs.id)
+        fieldCheck = fieldCheck && (lhs.hasSid == rhs.hasSid) && (!lhs.hasSid || lhs.sid == rhs.sid)
+        fieldCheck = fieldCheck && (lhs.hasGid == rhs.hasGid) && (!lhs.hasGid || lhs.gid == rhs.gid)
         fieldCheck = fieldCheck && (lhs.hasActive == rhs.hasActive) && (!lhs.hasActive || lhs.active == rhs.active)
         fieldCheck = fieldCheck && (lhs.hasData == rhs.hasData) && (!lhs.hasData || lhs.data == rhs.data)
         fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
         return fieldCheck
     }
 
-    public fileprivate(set) var id:String! = nil
-    public fileprivate(set) var hasId:Bool = false
+    public fileprivate(set) var sid:String! = nil
+    public fileprivate(set) var hasSid:Bool = false
+
+    public fileprivate(set) var gid:String! = nil
+    public fileprivate(set) var hasGid:Bool = false
 
     public fileprivate(set) var active:Bool! = nil
     public fileprivate(set) var hasActive:Bool = false
@@ -3967,14 +3971,17 @@ final public class Avsession : GeneratedMessage {
         return true
     }
     override public func writeTo(codedOutputStream: CodedOutputStream) throws {
-        if hasId {
-            try codedOutputStream.writeString(fieldNumber: 1, value:id)
+        if hasSid {
+            try codedOutputStream.writeString(fieldNumber: 1, value:sid)
+        }
+        if hasGid {
+            try codedOutputStream.writeString(fieldNumber: 2, value:gid)
         }
         if hasActive {
-            try codedOutputStream.writeBool(fieldNumber: 2, value:active)
+            try codedOutputStream.writeBool(fieldNumber: 3, value:active)
         }
         if hasData {
-            try codedOutputStream.writeData(fieldNumber: 3, value:data)
+            try codedOutputStream.writeData(fieldNumber: 4, value:data)
         }
         try unknownFields.writeTo(codedOutputStream: codedOutputStream)
     }
@@ -3985,14 +3992,17 @@ final public class Avsession : GeneratedMessage {
         }
 
         serialize_size = 0
-        if hasId {
-            serialize_size += id.computeStringSize(fieldNumber: 1)
+        if hasSid {
+            serialize_size += sid.computeStringSize(fieldNumber: 1)
+        }
+        if hasGid {
+            serialize_size += gid.computeStringSize(fieldNumber: 2)
         }
         if hasActive {
-            serialize_size += active.computeBoolSize(fieldNumber: 2)
+            serialize_size += active.computeBoolSize(fieldNumber: 3)
         }
         if hasData {
-            serialize_size += data.computeDataSize(fieldNumber: 3)
+            serialize_size += data.computeDataSize(fieldNumber: 4)
         }
         serialize_size += unknownFields.serializedSize()
         memoizedSerializedSize = serialize_size
@@ -4022,8 +4032,11 @@ final public class Avsession : GeneratedMessage {
         }
 
         var jsonMap:Dictionary<String,Any> = Dictionary<String,Any>()
-        if hasId {
-            jsonMap["id"] = id
+        if hasSid {
+            jsonMap["sid"] = sid
+        }
+        if hasGid {
+            jsonMap["gid"] = gid
         }
         if hasActive {
             jsonMap["active"] = active
@@ -4041,8 +4054,11 @@ final public class Avsession : GeneratedMessage {
     }
     override public func getDescription(indent:String) throws -> String {
         var output = ""
-        if hasId {
-            output += "\(indent) id: \(id) \n"
+        if hasSid {
+            output += "\(indent) sid: \(sid) \n"
+        }
+        if hasGid {
+            output += "\(indent) gid: \(gid) \n"
         }
         if hasActive {
             output += "\(indent) active: \(active) \n"
@@ -4056,8 +4072,11 @@ final public class Avsession : GeneratedMessage {
     override public var hashValue:Int {
         get {
             var hashCode:Int = 7
-            if hasId {
-                hashCode = (hashCode &* 31) &+ id.hashValue
+            if hasSid {
+                hashCode = (hashCode &* 31) &+ sid.hashValue
+            }
+            if hasGid {
+                hashCode = (hashCode &* 31) &+ gid.hashValue
             }
             if hasActive {
                 hashCode = (hashCode &* 31) &+ active.hashValue
@@ -4090,29 +4109,54 @@ final public class Avsession : GeneratedMessage {
         required override public init () {
             super.init()
         }
-        public var id:String {
+        public var sid:String {
             get {
-                return builderResult.id
+                return builderResult.sid
             }
             set (value) {
-                builderResult.hasId = true
-                builderResult.id = value
+                builderResult.hasSid = true
+                builderResult.sid = value
             }
         }
-        public var hasId:Bool {
+        public var hasSid:Bool {
             get {
-                return builderResult.hasId
+                return builderResult.hasSid
             }
         }
         @discardableResult
-        public func setId(_ value:String) -> Avsession.Builder {
-            self.id = value
+        public func setSid(_ value:String) -> Avsession.Builder {
+            self.sid = value
             return self
         }
         @discardableResult
-        public func clearId() -> Avsession.Builder{
-            builderResult.hasId = false
-            builderResult.id = nil
+        public func clearSid() -> Avsession.Builder{
+            builderResult.hasSid = false
+            builderResult.sid = nil
+            return self
+        }
+        public var gid:String {
+            get {
+                return builderResult.gid
+            }
+            set (value) {
+                builderResult.hasGid = true
+                builderResult.gid = value
+            }
+        }
+        public var hasGid:Bool {
+            get {
+                return builderResult.hasGid
+            }
+        }
+        @discardableResult
+        public func setGid(_ value:String) -> Avsession.Builder {
+            self.gid = value
+            return self
+        }
+        @discardableResult
+        public func clearGid() -> Avsession.Builder{
+            builderResult.hasGid = false
+            builderResult.gid = nil
             return self
         }
         public var active:Bool {
@@ -4191,8 +4235,11 @@ final public class Avsession : GeneratedMessage {
             if other == Avsession() {
                 return self
             }
-            if other.hasId {
-                id = other.id
+            if other.hasSid {
+                sid = other.sid
+            }
+            if other.hasGid {
+                gid = other.gid
             }
             if other.hasActive {
                 active = other.active
@@ -4218,12 +4265,15 @@ final public class Avsession : GeneratedMessage {
                     return self
 
                 case 10:
-                    id = try codedInputStream.readString()
+                    sid = try codedInputStream.readString()
 
-                case 16:
+                case 18:
+                    gid = try codedInputStream.readString()
+
+                case 24:
                     active = try codedInputStream.readBool()
 
-                case 26:
+                case 34:
                     data = try codedInputStream.readData()
 
                 default:
@@ -4236,8 +4286,11 @@ final public class Avsession : GeneratedMessage {
         }
         class override public func decodeToBuilder(jsonMap:Dictionary<String,Any>) throws -> Avsession.Builder {
             let resultDecodedBuilder = Avsession.Builder()
-            if let jsonValueId = jsonMap["id"] as? String {
-                resultDecodedBuilder.id = jsonValueId
+            if let jsonValueSid = jsonMap["sid"] as? String {
+                resultDecodedBuilder.sid = jsonValueSid
+            }
+            if let jsonValueGid = jsonMap["gid"] as? String {
+                resultDecodedBuilder.gid = jsonValueGid
             }
             if let jsonValueActive = jsonMap["active"] as? Bool {
                 resultDecodedBuilder.active = jsonValueActive
@@ -6156,7 +6209,8 @@ extension Avsession: GeneratedMessageProtocol {
     }
     public subscript(key: String) -> Any? {
         switch key {
-        case "id": return self.id
+        case "sid": return self.sid
+        case "gid": return self.gid
         case "active": return self.active
         case "data": return self.data
         default: return nil
@@ -6167,7 +6221,8 @@ extension Avsession.Builder: GeneratedMessageBuilderProtocol {
     public subscript(key: String) -> Any? {
         get { 
             switch key {
-            case "id": return self.id
+            case "sid": return self.sid
+            case "gid": return self.gid
             case "active": return self.active
             case "data": return self.data
             default: return nil
@@ -6175,11 +6230,16 @@ extension Avsession.Builder: GeneratedMessageBuilderProtocol {
         }
         set (newSubscriptValue) { 
             switch key {
-            case "id":
+            case "sid":
                 guard let newSubscriptValue = newSubscriptValue as? String else {
                     return
                 }
-                self.id = newSubscriptValue
+                self.sid = newSubscriptValue
+            case "gid":
+                guard let newSubscriptValue = newSubscriptValue as? String else {
+                    return
+                }
+                self.gid = newSubscriptValue
             case "active":
                 guard let newSubscriptValue = newSubscriptValue as? Bool else {
                     return

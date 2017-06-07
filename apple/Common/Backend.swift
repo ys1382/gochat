@@ -27,15 +27,11 @@ class Backend: WebSocketDelegate {
         websocket?.connect()
     }
 
-    var videoSessionStart: ((_ to: String, _ sid: String, _ format: VideoFormat) throws ->IODataProtocol?)?
-    var videoSessionStop: ((_ sid: String)->Void)?
+    var videoSessionStart: ((_ id: IOID, _ format: VideoFormat) throws ->IODataProtocol?)?
+    var videoSessionStop: ((_ id: IOID)->Void)?
 
-    var audioSessionStart: ((_ sid: String, _ format: AudioFormat) throws ->IODataProtocol?)?
-    var audioSessionStop: ((_ sid: String)->Void)?
-    
-    func createAVSessionID(_ to: String) ->String {
-        return "\(to) (\(UUID()))"
-    }
+    var audioSessionStart: ((_ id: IOID, _ format: AudioFormat) throws ->IODataProtocol?)?
+    var audioSessionStop: ((_ id: IOID)->Void)?
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Send
@@ -68,37 +64,38 @@ class Backend: WebSocketDelegate {
         Backend.shared.send(haberBuilder)
     }
 
-    private func createAVSession(_ to: String, _ sid: String, _ data: NSData?, _ active: Bool) throws -> Haber.Builder {
+    private func createAVSession(_ id: IOID, _ data: NSData?, _ active: Bool) throws -> Haber.Builder {
         let sessionBuilder = Avsession.Builder()
-            .setId(sid)
+            .setSid(id.sid)
+            .setGid(id.gid)
             .setActive(active)
         
         if data != nil {
             sessionBuilder.setData(data! as Data)
         }
         
-        return Haber.Builder().setAvSession(try sessionBuilder.build()).setTo(to)
+        return Haber.Builder().setAvSession(try sessionBuilder.build()).setTo(id.to)
     }
     
-    func sendVideoSession(_ to: String, _ sid: String, _ data: NSData?, _ active: Bool) {
+    func sendVideoSession(_ id: IOID, _ data: NSData?, _ active: Bool) {
         do {
-            send(try createAVSession(to, sid, data, active).setWhich(.videoSession))
+            send(try createAVSession(id, data, active).setWhich(.videoSession))
         }
         catch {
             logNetworkError(error)
         }
     }
 
-    func sendAudioSession(_ to: String, _ sid: String,_ data: NSData?, _ active: Bool) {
+    func sendAudioSession(_ id: IOID,_ data: NSData?, _ active: Bool) {
         do {
-            send(try createAVSession(to, sid, data, active).setWhich(.audioSession))
+            send(try createAVSession(id, data, active).setWhich(.audioSession))
         }
         catch {
             logNetworkError(error)
         }
     }
 
-    func sendVideo(_ to: String, _ sid: String, _ data: NSData) {
+    func sendVideo(_ id: IOID, _ data: NSData) {
         
         assert_av_capture_queue()
         
@@ -108,10 +105,10 @@ class Backend: WebSocketDelegate {
             let av = try Av.Builder().setVideo(media).build()
             
             let haberBuilder = Haber.Builder()
-                .setTo(to)
+                .setTo(id.to)
                 .setWhich(.av)
                 .setAv(av)
-                .setAvSession(try Avsession.Builder().setId(sid).build())
+                .setAvSession(try Avsession.Builder().setSid(id.sid).build())
             
             Backend.shared.send(haberBuilder, "video")
         }
@@ -120,7 +117,7 @@ class Backend: WebSocketDelegate {
         }
     }
 
-    func sendAudio(_ to: String, _ sid: String, _ data: NSData) {
+    func sendAudio(_ id: IOID, _ data: NSData) {
         
         do {
             let image = try Image.Builder().setData(data as Data).build()
@@ -128,10 +125,10 @@ class Backend: WebSocketDelegate {
             let av = try Av.Builder().setAudio(media).build()
             
             let haberBuilder = Haber.Builder()
-                .setTo(to)
+                .setTo(id.to)
                 .setWhich(.av)
                 .setAv(av)
-                .setAvSession(try Avsession.Builder().setId(sid).build())
+                .setAvSession(try Avsession.Builder().setSid(id.sid).build())
 
             Backend.shared.send(haberBuilder, "audio")
         }
@@ -146,11 +143,11 @@ class Backend: WebSocketDelegate {
     
     func getsAV(_ haber: Haber) {
         if (haber.av.hasAudio) {
-            audio.process(haber.avSession.id, [AACPart.NetworkPacket.rawValue: haber.av.audio.image.data as NSData])
+            audio.process(haber.avSession.sid, [AACPart.NetworkPacket.rawValue: haber.av.audio.image.data as NSData])
         }
         
         if (haber.av.hasVideo) {
-            video.process(haber.avSession.id, [H264Part.NetworkPacket.rawValue: haber.av.video.image.data as NSData])
+            video.process(haber.avSession.sid, [H264Part.NetworkPacket.rawValue: haber.av.video.image.data as NSData])
         }
     }
 
@@ -160,13 +157,13 @@ class Backend: WebSocketDelegate {
                 video.removeAll()
 
                 let format = try VideoFormat.fromNetwork(haber.avSession.data! as NSData)
-                guard let output = try videoSessionStart?(haber.from, haber.avSession.id, format) else { return }
+                guard let output = try videoSessionStart?(haber.avid, format) else { return }
 
-                video.add(haber.avSession.id, output)
+                video.add(haber.avSession.sid, output)
             }
             else {
-                videoSessionStop?(haber.avSession.id)
-                video.remove(haber.avSession.id)
+                videoSessionStop?(haber.avid)
+                video.remove(haber.avSession.sid)
             }
         }
         catch {
@@ -180,13 +177,13 @@ class Backend: WebSocketDelegate {
                 audio.removeAll()
 
                 let format = try AudioFormat.fromNetwork(haber.avSession.data! as NSData)
-                guard let output = try audioSessionStart?(haber.avSession.id, format) else { return }
+                guard let output = try audioSessionStart?(haber.avid, format) else { return }
                 
-                audio.add(haber.avSession.id, output)
+                audio.add(haber.avSession.sid, output)
             }
             else {
-                audioSessionStop?(haber.avSession.id)
-                audio.remove(haber.avSession.id)
+                audioSessionStop?(haber.avid)
+                audio.remove(haber.avSession.sid)
             }
         }
         catch {
@@ -244,6 +241,14 @@ class Backend: WebSocketDelegate {
             getsVideoSession(haber)
         default:
             logNetworkError("did not handle \(haber.which)")
+        }
+    }
+}
+
+extension Haber {
+    var avid: IOID {
+        get {
+            return IOID(from, to, avSession.sid, avSession.gid)
         }
     }
 }

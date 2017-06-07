@@ -115,16 +115,14 @@ extension VideoFormat {
 
 class NetworkOutputVideo : IODataProtocol {
     
-    let to: String
-    let sid: String
+    let id: IOID
     
-    init(_ to: String, _ sid: String) {
-        self.to = to
-        self.sid = sid
+    init(_ id: IOID) {
+        self.id = id
     }
     
     func process(_ data: [Int: NSData]) {
-        Backend.shared.sendVideo(to, sid, data[H264Part.NetworkPacket.rawValue]!)
+        Backend.shared.sendVideo(id, data[H264Part.NetworkPacket.rawValue]!)
     }
 }
 
@@ -134,18 +132,16 @@ class NetworkOutputVideo : IODataProtocol {
 
 class NetworkOutputVideoSession : VideoSessionProtocol {
     
-    let to: String
-    let sid: String
+    let id: IOID
     let format: VideoFormat
     
-    init(_ to: String, _ sid: String, _ format: VideoFormat) {
-        self.to = to
-        self.sid = sid
+    init(_ id: IOID, _ format: VideoFormat) {
+        self.id = id
         self.format = format
     }
     
     func start() throws {
-        Backend.shared.sendVideoSession(to, sid, try format.toNetwork(), true)
+        Backend.shared.sendVideoSession(id, try format.toNetwork(), true)
     }
     
     func update(_ format: VideoFormat) throws {
@@ -153,7 +149,7 @@ class NetworkOutputVideoSession : VideoSessionProtocol {
     }
     
     func stop() {
-        Backend.shared.sendVideoSession(to, sid, nil, false)
+        Backend.shared.sendVideoSession(id, nil, false)
     }
 }
 
