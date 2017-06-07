@@ -130,7 +130,7 @@ class AudioTimeDeserializer : IOTimeProtocol {
     }
     
     func time(_ data: [Int : NSData]) -> Double {
-        return AVAudioTime.seconds(forHostTime: audioTime(data).pointee.mHostTime)
+        return audioTime(data).pointee.seconds()
     }
 }
 

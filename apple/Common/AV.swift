@@ -21,7 +21,7 @@ class AV {
     
     static let shared = AV()
     static let defaultAudioFormat = kAudioFormatMPEG4AAC
-    static let defaultAudioInterval = 0.1
+    static let defaultAudioInterval = 0.25
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // IO
@@ -137,7 +137,7 @@ class AV {
             return result!
         }
         
-        activeIOSync[sid] = IOSync(.Audio)
+        activeIOSync[sid] = IOSync()
         
         return activeIOSync[sid]!
     }
@@ -171,14 +171,14 @@ class AV {
         let result =
             IODataDispatcher(
                 avOutputQueue,
-                syncBus)
+                NetworkH264Deserializer(
+                    syncBus))
         
         sync.add(
             IOKind.Video,
             VideoTimeDeserializer(H264Part.Time.rawValue),
-            NetworkH264Deserializer(
                 VideoDecoderH264(
-                    output)))
+                    output))
 
         return result
     }

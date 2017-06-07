@@ -35,3 +35,10 @@ extension AudioStreamBasicDescription {
         return result
     }
 }
+
+extension AudioTimeStamp {
+    
+    func seconds() -> Double {
+        return Double(mHostTime) / 1000000000.0
+    }
+}

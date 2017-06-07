@@ -175,7 +175,7 @@ class AudioInput : NSObject, IOSessionProtocol
         
         let input = Unmanaged<AudioInput>.fromOpaque(inUserData!).takeUnretainedValue()
         
-        logIO("audio \(AVAudioTime.seconds(forHostTime: inStartTime.pointee.mHostTime))")
+        logIO("audio \(inStartTime.pointee.seconds)")
         
         do {
             if (inNumPackets > 0) {
