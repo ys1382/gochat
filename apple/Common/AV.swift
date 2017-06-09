@@ -5,8 +5,12 @@ import AVFoundation
 // Assertions
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-func assert_av_capture_queue() {
-    assert(ChatDispatchQueue.OnQueue(AV.shared.avCaptureQueue))
+func assert_audio_capture_queue() {
+    assert(ChatDispatchQueue.OnQueue(AV.shared.audioCaptureQueue))
+}
+
+func assert_video_capture_queue() {
+    assert(ChatDispatchQueue.OnQueue(AV.shared.videoCaptureQueue))
 }
 
 func assert_av_output_queue() {
@@ -21,13 +25,14 @@ class AV {
     
     static let shared = AV()
     static let defaultAudioFormat = kAudioFormatMPEG4AAC
-    static let defaultAudioInterval = 0.25
+    static let defaultAudioInterval = 0.1
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // IO
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    let avCaptureQueue = ChatDispatchQueue.CreateCheckable("chat.AVCaptureQueue")
+    let audioCaptureQueue = ChatDispatchQueue.CreateCheckable("chat.AudioCaptureQueue")
+    let videoCaptureQueue = ChatDispatchQueue.CreateCheckable("chat.VideoCaptureQueue")
     let avOutputQueue = ChatDispatchQueue.CreateCheckable("chat.AVOutputQueue")
 
     var defaultVideoDimention: CMVideoDimensions? = AVCaptureDevice.chatVideoDevice()?.dimentions
@@ -49,20 +54,32 @@ class AV {
         let inpFormat = defaultVideoInputFormat()
         let outFormat = defaultVideoOutputFormat()
         
-        let sessionEncoder = VideoEncoderSessionH264(inpFormat.dimentions, outFormat)
+        let sessionEncoder =
+            VideoEncoderSessionH264(
+                inpFormat.dimentions,
+                outFormat,
+                VideoEncoderH264(
+                    NetworkH264Serializer(
+                        NetworkOutputVideo(id))))
         let sessionNetwork = NetworkOutputVideoSession(id, outFormat)
 
         let videoInput =
             VideoInput(
                 device,
-                AV.shared.avCaptureQueue,
-                VideoEncoderH264(
+                AV.shared.videoCaptureQueue,
+                outFormat,
+                sessionEncoder)
+        
+        let result =
+            VideoSessionAsyncDispatcher(
+                videoCaptureQueue,
+                VideoSessionBroadcast([
                     sessionEncoder,
-                    NetworkH264Serializer(
-                        NetworkOutputVideo(id))))
+                    videoInput,
+                    sessionNetwork]))
         
         session = { () in return videoInput.session }
-        x.append(VideoSessionBroadcast([sessionEncoder, videoInput, sessionNetwork]))
+        x.append(result)
     }
 
     private func _defaultAudioInput(_ id: IOID, _ x: inout [IOSessionProtocol]) {
@@ -77,7 +94,14 @@ class AV {
         let sessionNetwork =
             NetworkOutputAudioSession(id, input.format)
 
-        x.append(IOSessionBroadcast([input, sessionNetwork]))
+        let result =
+            IOSessionAsyncDispatcher(
+                audioCaptureQueue,
+                IOSessionBroadcast([
+                    input,
+                    sessionNetwork]))
+        
+        x.append(result)
     }
 
     func startInput(_ x: IOSessionProtocol?) throws {

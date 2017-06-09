@@ -28,7 +28,7 @@ class VideoViewController: NSViewController {
         // setup audio/video input
         
         watchingListener = { (watching: String?) in
-            AV.shared.avCaptureQueue.async {
+            dispatch_sync_on_main {
                 do {
                     if watching != nil {
                         let audioID = IOID(Model.shared.username!, watching!)

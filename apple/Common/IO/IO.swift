@@ -141,5 +141,24 @@ class IODataDispatcher : IODataProtocol {
     func process(_ data: [Int : NSData]) {
         queue.sync { self.next.process(data) }
     }
+}
+
+class IOSessionAsyncDispatcher : IOSessionProtocol {
     
+    let queue: DispatchQueue
+    private let next: IOSessionProtocol
+    
+    init(_ queue: DispatchQueue, _ next: IOSessionProtocol) {
+        self.queue = queue
+        self.next = next
+    }
+    
+    func start() throws {
+        queue.async { do { try self.next.start() } catch { logIOError(error) } }
+    }
+
+    func stop() {
+        queue.async { self.next.stop() }
+    }
+
 }

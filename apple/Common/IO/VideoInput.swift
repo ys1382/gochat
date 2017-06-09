@@ -10,6 +10,7 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Video
     
     public  var session: AVCaptureSession?
    
+    private let format: VideoFormat
     private let output: VideoOutputProtocol?
     private let outputQueue: DispatchQueue?
     private let device: AVCaptureDevice?
@@ -17,10 +18,12 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Video
     
     init(_ device: AVCaptureDevice?,
          _ outputQueue: DispatchQueue?,
+         _ format: VideoFormat,
          _ output: VideoOutputProtocol?) {
         self.output = output
         self.outputQueue = outputQueue
         self.device = device
+        self.format = format
         
         super.init()
         initSession()
@@ -69,7 +72,7 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Video
             queue: nil,
             using: failureNotification)
         
-        assert_av_capture_queue()
+        assert_video_capture_queue()
         
         dispatch_sync_on_main {
             session!.startRunning()
@@ -77,7 +80,7 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Video
     }
     
     func stop() {
-        assert_av_capture_queue()
+        assert_video_capture_queue()
 
         session?.stopRunning()
         session = nil

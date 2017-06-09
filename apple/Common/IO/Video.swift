@@ -98,6 +98,20 @@ class VideoSessionBroadcast : IOSessionBroadcast, VideoSessionProtocol {
     }
 }
 
+class VideoSessionAsyncDispatcher : IOSessionAsyncDispatcher, VideoSessionProtocol {
+    
+    private let next: VideoSessionProtocol
+    
+    init(_ queue: DispatchQueue, _ next: VideoSessionProtocol) {
+        self.next = next
+        super.init(queue, next)
+    }
+
+    func update(_ outputFormat: VideoFormat) throws {
+        queue.async{ do { try self.next.update(outputFormat) } catch { logIOError(error) } }
+    }
+}
+
 class VideoTimeDeserializer : IOTimeProtocol {
     
     let packetKey: Int

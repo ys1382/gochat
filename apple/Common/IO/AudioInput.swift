@@ -30,7 +30,7 @@ class AudioInput : NSObject, IOSessionProtocol
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     func start() throws {
-        assert_av_capture_queue()
+        assert_audio_capture_queue()
         
         // prepare format
 
@@ -92,7 +92,7 @@ class AudioInput : NSObject, IOSessionProtocol
     }
     
     func stop() {
-        assert_av_capture_queue()
+        assert_audio_capture_queue()
 
         guard let queue = self.queue else { assert(false); return }
 
@@ -177,26 +177,28 @@ class AudioInput : NSObject, IOSessionProtocol
         
         logIO("audio \(inStartTime.pointee.seconds)")
         
-        do {
-            if (inNumPackets > 0) {
-                var bytes = UnsafeMutablePointer<Int8>.allocate(capacity: Int(inBuffer.pointee.mAudioDataByteSize))
+        AV.shared.audioCaptureQueue.async {
+            do {
+                if (inNumPackets > 0) {
+                    var bytes = UnsafeMutablePointer<Int8>.allocate(capacity: Int(inBuffer.pointee.mAudioDataByteSize))
+                    
+                    memcpy(bytes, inBuffer.pointee.mAudioData, Int(inBuffer.pointee.mAudioDataByteSize))
+                                        
+                    input.output!.process(AudioData(bytes,
+                                                    inBuffer.pointee.mAudioDataByteSize,
+                                                    inPacketDesc!,
+                                                    inNumPackets,
+                                                    inStartTime))
+                }
                 
-                memcpy(bytes, inBuffer.pointee.mAudioData, Int(inBuffer.pointee.mAudioDataByteSize))
-                
-                input.output!.process(AudioData(bytes,
-                                                  inBuffer.pointee.mAudioDataByteSize,
-                                                  inPacketDesc!,
-                                                  inNumPackets,
-                                                  inStartTime))
+                try checkStatus(AudioQueueEnqueueBuffer(input.queue!,
+                                                        input.buffer!,
+                                                        0,
+                                                        nil), "AudioQueueEnqueueBuffer failed");
             }
-            
-            try checkStatus(AudioQueueEnqueueBuffer(input.queue!,
-                                                    input.buffer!,
-                                                    0,
-                                                    nil), "AudioQueueEnqueueBuffer failed");
-        }
-        catch {
-            logIOError(error)
+            catch {
+                logIOError(error)
+            }
         }
     }
 }

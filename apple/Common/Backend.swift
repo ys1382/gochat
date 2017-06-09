@@ -97,7 +97,7 @@ class Backend: WebSocketDelegate {
 
     func sendVideo(_ id: IOID, _ data: NSData) {
         
-        assert_av_capture_queue()
+        assert_video_capture_queue()
         
         do {
             let image = try Image.Builder().setData(data as Data).build()
@@ -118,6 +118,8 @@ class Backend: WebSocketDelegate {
     }
 
     func sendAudio(_ id: IOID, _ data: NSData) {
+        
+        assert_audio_capture_queue()
         
         do {
             let image = try Image.Builder().setData(data as Data).build()

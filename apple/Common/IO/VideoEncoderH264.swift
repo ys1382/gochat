@@ -9,18 +9,12 @@ import VideoToolbox
 class VideoEncoderH264 : NSObject, VideoOutputProtocol {
     
     private let output: IODataProtocol?
-    private let session: VideoEncoderSessionH264
     
-    init(_ session: VideoEncoderSessionH264,
-         _ output: IODataProtocol) {
+    init(_ output: IODataProtocol) {
         
         self.output = output
-        self.session = session
 
         super.init()
-        
-        session.callback = sessionCallback
-        session.callbackTarget = unsafeBitCast(self, to: UnsafeMutableRawPointer.self)
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,57 +22,14 @@ class VideoEncoderH264 : NSObject, VideoOutputProtocol {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     func process(_ data: CMSampleBuffer) {
-        
-        guard
-            let image:CVImageBuffer = CMSampleBufferGetImageBuffer(data),
-            session.session != nil
-            else {
-            return
-        }
-        
-        encodeImageBuffer(image,
-                          CMSampleBufferGetPresentationTimeStamp(data),
-                          CMSampleBufferGetDuration(data))
+        encode(data)
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Encode to H264
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-    private var sessionCallback:VTCompressionOutputCallback = {(
-        outputCallbackRefCon:UnsafeMutableRawPointer?,
-        sourceFrameRefCon:UnsafeMutableRawPointer?,
-        status:OSStatus,
-        infoFlags:VTEncodeInfoFlags,
-        sampleBuffer:CMSampleBuffer?
-        ) in
-        
-        guard let sampleBuffer:CMSampleBuffer = sampleBuffer, status == noErr else {
-            logIOError("VTCompressionOutputCallback failed with status \(status)")
-            return
-        }
-        
-        let SELF: VideoEncoderH264 = unsafeBitCast(outputCallbackRefCon, to: VideoEncoderH264.self)
-        
-        SELF.encodeSampleBuffer(sampleBuffer)
-    } as VTCompressionOutputCallback
-
-    private func encodeImageBuffer(_ imageBuffer:CVImageBuffer,
-                                   _ presentationTimeStamp:CMTime,
-                                   _ presentationDuration:CMTime) {
-        
-        var flags:VTEncodeInfoFlags = VTEncodeInfoFlags()
-        
-        VTCompressionSessionEncodeFrame(session.session!,
-                                        imageBuffer,
-                                        presentationTimeStamp,
-                                        presentationDuration,
-                                        nil,
-                                        nil,
-                                        &flags)
-    }
-    
-    private func encodeSampleBuffer(_ sampleBuffer: CMSampleBuffer) {
+    private func encode(_ sampleBuffer: CMSampleBuffer) {
 
         var result = [Int: NSData]()
         
@@ -153,7 +104,7 @@ class VideoEncoderH264 : NSObject, VideoOutputProtocol {
 
             // output
             
-            AV.shared.avCaptureQueue.async { self.output?.process(result) }
+            AV.shared.videoCaptureQueue.async { self.output?.process(result) }
         }
         catch {
             logIOError(error)
@@ -165,26 +116,66 @@ class VideoEncoderH264 : NSObject, VideoOutputProtocol {
 // Session
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class VideoEncoderSessionH264 : VideoSessionProtocol {
+class VideoEncoderSessionH264 : VideoSessionProtocol, VideoOutputProtocol {
     
-    public  var session: VTCompressionSession?
-    public  var callback: VTCompressionOutputCallback?
-    public  var callbackTarget: UnsafeMutableRawPointer?
+    public typealias Callback = (VideoEncoderSessionH264) -> Void
+    
+    private var session: VTCompressionSession?
     private let inputDimention: CMVideoDimensions
     private var outputFormat: VideoFormat
+    private let next: VideoOutputProtocol?
+    private let callback: Callback?
 
     init(_ inputDimention: CMVideoDimensions,
-         _ outputFormat: VideoFormat) {
+         _ outputFormat: VideoFormat,
+         _ next: VideoOutputProtocol?) {
         self.inputDimention = inputDimention
         self.outputFormat = outputFormat
+        self.next = next
+        self.callback = nil
     }
+
+    init(_ inputDimention: CMVideoDimensions,
+         _ outputFormat: VideoFormat,
+         _ next: VideoOutputProtocol?,
+         _ callback: @escaping Callback) {
+        self.inputDimention = inputDimention
+        self.outputFormat = outputFormat
+        self.next = next
+        self.callback = callback
+    }
+
+    private var sessionCallback: VTCompressionOutputCallback = {(
+        outputCallbackRefCon:UnsafeMutableRawPointer?,
+        sourceFrameRefCon:UnsafeMutableRawPointer?,
+        status:OSStatus,
+        infoFlags:VTEncodeInfoFlags,
+        sampleBuffer_:CMSampleBuffer?
+        ) in
+
+        let SELF: VideoEncoderSessionH264 = unsafeBitCast(outputCallbackRefCon, to: VideoEncoderSessionH264.self)
+        guard let sampleBuffer = sampleBuffer_ else { logIOError("VideoEncoderSessionH264 nil buffer"); return }
+        
+        do {
+            try checkStatus(status, "VTCompressionSession to H264 failed")
+            
+            AV.shared.videoCaptureQueue.async {
+                SELF.callback?(SELF)
+                SELF.next?.process(sampleBuffer)
+            }
+        }
+        catch {
+            logIOError(error)
+        }
+        
+    } as VTCompressionOutputCallback
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // IOSessionProtocol
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     func start() throws {
-        assert_av_capture_queue()
+        assert_video_capture_queue()
 
         VTCompressionSessionCreate(
             kCFAllocatorDefault,
@@ -194,8 +185,8 @@ class VideoEncoderSessionH264 : VideoSessionProtocol {
             nil,
             attributes as CFDictionary,
             nil,
-            callback,
-            callbackTarget,
+            sessionCallback,
+            unsafeBitCast(self, to: UnsafeMutableRawPointer.self),
             &session)
         
         VTSessionSetProperties(session!, properties as CFDictionary)
@@ -203,9 +194,11 @@ class VideoEncoderSessionH264 : VideoSessionProtocol {
     }
 
     func stop() {
-        assert_av_capture_queue()
-        VTCompressionSessionInvalidate(session!)
-        session = nil
+        assert_video_capture_queue()
+        
+        guard let session = self.session else { return }
+        
+        VTCompressionSessionInvalidate(session)
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -217,6 +210,27 @@ class VideoEncoderSessionH264 : VideoSessionProtocol {
         
         stop()
         try start()
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // VideoOutputProtocol
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    func process(_ data: CMSampleBuffer) {
+        guard let imageBuffer:CVImageBuffer = CMSampleBufferGetImageBuffer(data) else { return }
+        guard let session = self.session else { logIOError("VideoEncoderSessionH264 no session"); return }
+        var flags:VTEncodeInfoFlags = VTEncodeInfoFlags()
+        
+        DispatchQueue.global().async {
+            VTCompressionSessionEncodeFrame(session,
+                                            imageBuffer,
+                                            CMSampleBufferGetPresentationTimeStamp(data),
+                                            CMSampleBufferGetDuration(data),
+                                            nil,
+                                            nil,
+                                            &flags)
+            VTCompressionSessionCompleteFrames(session, kCMTimeInvalid)
+        }
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -247,6 +261,9 @@ class VideoEncoderSessionH264 : VideoSessionProtocol {
             kVTCompressionPropertyKey_AverageBitRate: Int(outputFormat.width * outputFormat.height) as NSObject,
             kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration: NSNumber(value: 1.0 as Double),
             kVTCompressionPropertyKey_AllowFrameReordering: !isBaseline as NSObject,
+//            kVTVideoEncoderSpecification_EnableHardwareAcceleratedVideoEncoder: kCFBooleanTrue,
+//            kVTVideoEncoderSpecification_RequireHardwareAcceleratedVideoEncoder: kCFBooleanTrue,
+//            kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration: NSNumber(value: 0.1 as Double)
 //            kVTCompressionPropertyKey_ExpectedFrameRate: NSNumber(value: 30.0 as Double),
 //            kVTCompressionPropertyKey_PixelTransferProperties: [ "ScalingMode": "Trim" ] as AnyObject
         ]
