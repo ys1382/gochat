@@ -12,7 +12,11 @@ class EventBus {
     }
 
     static func post(about: Haber.Which) {
-        self.post(Event(rawValue: about.toString())!)
+        guard let event = Event(rawValue: about.toString().lowercased()) else {
+            print("no event for " + about.toString())
+            return
+        }
+        post(event)
     }
 
     static func post(_ key: Event) {

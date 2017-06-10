@@ -33,9 +33,9 @@ class Backend {
         shared.send(haberBuilder)
     }
 
-    static func store(key: Data, value: Haber) {
+    static func sendStore(key: Data, value: Data) {
         do {
-            let store = try Store.Builder().setKey(key).setValue(value.data()).build()
+            let store = try Store.Builder().setKey(key).setValue(value).build()
             let haberBuilder = Haber.Builder().setStore(store).setWhich(.store)
             shared.send(haberBuilder)
         } catch {
@@ -43,9 +43,14 @@ class Backend {
         }
     }
 
-    static func load(key: Data) {
-        let haberBuilder = Haber.Builder().setWhich(.load)
-        shared.send(haberBuilder)
+    static func sendLoad(key: Data) {
+        do {
+            let load = try Load.Builder().setKey(key).build()
+            let haberBuilder = Haber.Builder().setWhich(.load).setLoad(load)
+            shared.send(haberBuilder)
+        } catch {
+            print(error.localizedDescription)
+        }
     }
 
     static func register(username: String, password: String) {
@@ -54,6 +59,7 @@ class Backend {
 
     static func login(username: String, password: String) {
         do {
+            Model.shared.credential = Model.Credential(username: username, password: password)
             let login = try Login.Builder().setUsername(username).build()
             let haberBuilder = Haber.Builder().setLogin(login).setWhich(.login)
             shared.send(haberBuilder)
@@ -67,19 +73,18 @@ class Backend {
                 print("Could not deserialize")
                 return
         }
+        if let sid = haber.sessionId, shared.sessionId == nil {
+            shared.sessionId = sid
+            EventBus.post(.authenticated)
+        }
     
         print("read \(data.count) bytes for \(haber.which)")
         switch haber.which {
-        case .contacts:
-            Model.shared.didReceiveRoster(haber.contacts)
-        case .text:
-            Model.shared.didReceiveText(haber)
-        case .presence:
-            Model.shared.didReceivePresence(haber)
-        case .store:
-            Model.shared.didReceiveStore(haber)
-        default:
-            print("did not handle \(haber.which)")
+            case .contacts: Model.shared.didReceiveContacts(haber.contacts)
+            case .text:     Model.shared.didReceiveText(haber, data: data)
+            case .presence: Model.shared.didReceivePresence(haber)
+            case .store:    Model.shared.didReceiveStore(haber)
+            default:        print("did not handle \(haber.which)")
         }
     }
 }

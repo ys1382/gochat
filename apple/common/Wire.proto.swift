@@ -1702,6 +1702,7 @@ final public class Haber : GeneratedMessage {
         fieldCheck = fieldCheck && (lhs.hasFile == rhs.hasFile) && (!lhs.hasFile || lhs.file == rhs.file)
         fieldCheck = fieldCheck && (lhs.hasStore == rhs.hasStore) && (!lhs.hasStore || lhs.store == rhs.store)
         fieldCheck = fieldCheck && (lhs.hasLoad == rhs.hasLoad) && (!lhs.hasLoad || lhs.load == rhs.load)
+        fieldCheck = fieldCheck && (lhs.raw == rhs.raw)
         fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
         return fieldCheck
     }
@@ -1796,6 +1797,7 @@ final public class Haber : GeneratedMessage {
     public fileprivate(set) var hasStore:Bool = false
     public fileprivate(set) var load:Load!
     public fileprivate(set) var hasLoad:Bool = false
+    public fileprivate(set) var raw:Array<Data> = Array<Data>()
     required public init() {
         super.init()
     }
@@ -1838,6 +1840,11 @@ final public class Haber : GeneratedMessage {
         }
         if hasLoad {
             try codedOutputStream.writeMessage(fieldNumber: 108, value:load)
+        }
+        if !raw.isEmpty {
+            for oneValueraw in raw {
+                try codedOutputStream.writeData(fieldNumber: 109, value:oneValueraw)
+            }
         }
         try unknownFields.writeTo(codedOutputStream: codedOutputStream)
     }
@@ -1896,6 +1903,12 @@ final public class Haber : GeneratedMessage {
                 serialize_size += varSizeload
             }
         }
+        var dataSizeRaw:Int32 = 0
+        for oneValueraw in raw {
+            dataSizeRaw += oneValueraw.computeDataSizeNoTag()
+        }
+        serialize_size += dataSizeRaw
+        serialize_size += 2 * Int32(raw.count)
         serialize_size += unknownFields.serializedSize()
         memoizedSerializedSize = serialize_size
         return serialize_size
@@ -1964,6 +1977,13 @@ final public class Haber : GeneratedMessage {
         }
         if hasLoad {
             jsonMap["load"] = try load.encode()
+        }
+        if !raw.isEmpty {
+            var jsonArrayRaw:Array<String> = []
+            for oneValueRaw in raw {
+                jsonArrayRaw.append(oneValueRaw.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0)))
+            }
+            jsonMap["raw"] = jsonArrayRaw
         }
         return jsonMap
     }
@@ -2039,6 +2059,11 @@ final public class Haber : GeneratedMessage {
             }
             output += "\(indent) }\n"
         }
+        var rawElementIndex:Int = 0
+        for oneValueRaw in raw  {
+            output += "\(indent) raw[\(rawElementIndex)]: \(oneValueRaw)\n"
+            rawElementIndex += 1
+        }
         output += unknownFields.getDescription(indent: indent)
         return output
     }
@@ -2092,6 +2117,9 @@ final public class Haber : GeneratedMessage {
                 if let hashValueload = load?.hashValue {
                     hashCode = (hashCode &* 31) &+ hashValueload
                 }
+            }
+            for oneValueRaw in raw {
+                hashCode = (hashCode &* 31) &+ oneValueRaw.hashValue
             }
             hashCode = (hashCode &* 31) &+  unknownFields.hashValue
             return hashCode
@@ -2587,6 +2615,24 @@ final public class Haber : GeneratedMessage {
             builderResult.load = nil
             return self
         }
+        public var raw:Array<Data> {
+            get {
+                return builderResult.raw
+            }
+            set (array) {
+                builderResult.raw = array
+            }
+        }
+        @discardableResult
+        public func setRaw(_ value:Array<Data>) -> Haber.Builder {
+            self.raw = value
+            return self
+        }
+        @discardableResult
+        public func clearRaw() -> Haber.Builder {
+            builderResult.raw.removeAll(keepingCapacity: false)
+            return self
+        }
         override public var internalGetResult:GeneratedMessage {
             get {
                 return builderResult
@@ -2648,6 +2694,9 @@ final public class Haber : GeneratedMessage {
             }
             if (other.hasLoad) {
                 try mergeLoad(value: other.load)
+            }
+            if !other.raw.isEmpty {
+                builderResult.raw += other.raw
             }
             try merge(unknownField: other.unknownFields)
             return self
@@ -2739,6 +2788,9 @@ final public class Haber : GeneratedMessage {
                     try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
                     load = subBuilder.buildPartial()
 
+                case 874:
+                    raw += [try codedInputStream.readData()]
+
                 default:
                     if (!(try parse(codedInputStream:codedInputStream, unknownFields:unknownFieldsBuilder, extensionRegistry:extensionRegistry, tag:protobufTag))) {
                         unknownFields = try unknownFieldsBuilder.build()
@@ -2798,6 +2850,13 @@ final public class Haber : GeneratedMessage {
             if let jsonValueLoad = jsonMap["load"] as? Dictionary<String,Any> {
                 resultDecodedBuilder.load = try Load.Builder.decodeToBuilder(jsonMap:jsonValueLoad).build()
 
+            }
+            if let jsonValueRaw = jsonMap["raw"] as? Array<String> {
+                var jsonArrayRaw:Array<Data> = []
+                for oneValueRaw in jsonValueRaw {
+                    jsonArrayRaw.append(Data(base64Encoded:oneValueRaw, options: Data.Base64DecodingOptions(rawValue:0))!)
+                }
+                resultDecodedBuilder.raw = jsonArrayRaw
             }
             return resultDecodedBuilder
         }
@@ -3268,6 +3327,7 @@ extension Haber: GeneratedMessageProtocol {
         case "file": return self.file
         case "store": return self.store
         case "load": return self.load
+        case "raw": return self.raw
         default: return nil
         }
     }
@@ -3288,6 +3348,7 @@ extension Haber.Builder: GeneratedMessageBuilderProtocol {
             case "file": return self.file
             case "store": return self.store
             case "load": return self.load
+            case "raw": return self.raw
             default: return nil
             }
         }
@@ -3353,6 +3414,11 @@ extension Haber.Builder: GeneratedMessageBuilderProtocol {
                     return
                 }
                 self.load = newSubscriptValue
+            case "raw":
+                guard let newSubscriptValue = newSubscriptValue as? Array<Data> else {
+                    return
+                }
+                self.raw = newSubscriptValue
             default: return
             }
         }
