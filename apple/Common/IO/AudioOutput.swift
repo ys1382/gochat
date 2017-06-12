@@ -10,24 +10,30 @@ class AudioOutput : AudioOutputProtocol, IOSessionProtocol {
     private var queue: AudioQueueRef?
     private var buffer: AudioQueueBufferRef?
     private var packetsToRead: UInt32 = 0
+    private let dqueue: DispatchQueue
 
     let format: AudioFormat
     let formatID: UInt32
     let interval: Double
-
-    init(_ format: AudioFormat, _ formatID: UInt32, _ interval: Double) {
+    
+    init(_ format: AudioFormat, _ formatID: UInt32, _ interval: Double, _ queue: DispatchQueue) {
         self.format = format
         self.formatID = formatID
         self.interval = interval
+        self.dqueue = queue
     }
-    
+
+    convenience init(_ format: AudioFormat, _ formatID: UInt32, _ interval: Double) {
+        self.init(format, formatID, interval, AV.shared.avOutputQueue)
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // IOSessionProtocol
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     func start() {
         
-        assert_av_output_queue()
+        assert(dqueue)
         
         var format = AudioStreamBasicDescription.CreateOutput(self.format, formatID)
         
@@ -80,7 +86,7 @@ class AudioOutput : AudioOutputProtocol, IOSessionProtocol {
     
     func stop() {
         
-        assert_av_output_queue()
+        assert(dqueue)
 
         guard let queue = self.queue else { assert(false); return }
         
@@ -105,7 +111,7 @@ class AudioOutput : AudioOutputProtocol, IOSessionProtocol {
 
     func process(_ data: AudioData) {
         
-        assert_av_output_queue()
+        assert(dqueue)
         
         do {
             memcpy(self.buffer!.pointee.mAudioData, data.bytes, Int(data.bytesNum))

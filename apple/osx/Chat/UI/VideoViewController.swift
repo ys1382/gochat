@@ -33,8 +33,14 @@ class VideoViewController: NSViewController {
                     if watching != nil {
                         let audioID = IOID(Model.shared.username!, watching!)
                         let videoID = audioID.groupNew()
-                        let audio = AV.shared.defaultAudioInput(audioID)
-                        let video = AV.shared.defaultVideoInput(videoID, previewLayer)
+                        let audio =
+                            IOSessionAsyncDispatcher(
+                                AV.shared.audioCaptureQueue,
+                                AV.shared.defaultAudioInput(audioID))
+                        let video =
+                            VideoSessionAsyncDispatcher(
+                                AV.shared.videoCaptureQueue,
+                                AV.shared.defaultVideoInput(videoID, previewLayer))
                         
                         try AV.shared.startInput(create([audio, video]));
                     }

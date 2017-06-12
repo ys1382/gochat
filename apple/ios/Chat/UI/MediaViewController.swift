@@ -27,17 +27,19 @@ class MediaViewController : UIViewController {
     func start() {
         guard let watching = self.watching else { return }
         
-        AV.shared.avCaptureQueue.async {
+        dispatch_sync_on_main {
             do {
-                var videoSession: AVCaptureSession.Factory? = nil
+                var videoSession: AVCaptureSession.Accessor? = nil
+                let orientation = AVCaptureVideoOrientation.Create(UIApplication.shared.statusBarOrientation)
+                let rotated = orientation != nil ? orientation!.isPortrait : false
                 let audioID = IOID(Model.shared.username!, watching)
                 let videoID = audioID.groupNew()
-                let audio = AV.shared.defaultAudioInput(audioID)
-                var video = AV.shared.defaultVideoInput(videoID, &videoSession)
+                var audio = AV.shared.defaultAudioInput(audioID)
+                var video = AV.shared.defaultVideoInput(videoID, rotated, &videoSession)
                 
                 if video != nil && videoSession != nil {
                     video = ChatVideoCaptureSession(videoConnection(videoSession)!,
-                                                    AV.shared.defaultVideoOutputFormat(),
+                                                    AV.shared.defaultVideoOutputFormat!,
                                                     AVCaptureVideoOrientation.landscapeRight,
                                                     video)
 
@@ -47,6 +49,13 @@ class MediaViewController : UIViewController {
                     video = VideoPreview(self.previewView.captureLayer,
                                          videoSession!,
                                          video)
+                    
+                    audio =
+                        ChatAudioSession(
+                            audio)
+                    
+                    audio = IOSessionAsyncDispatcher(AV.shared.audioCaptureQueue, audio!)
+                    video = VideoSessionAsyncDispatcher(AV.shared.videoCaptureQueue, video!)
                 }
                 
                 try AV.shared.startInput(create([audio, video]));
@@ -80,5 +89,9 @@ class MediaViewController : UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         start()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        try! AV.shared.startInput(nil)
     }
 }

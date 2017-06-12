@@ -53,6 +53,7 @@ protocol IOSessionProtocol {
 
 protocol IOTimeProtocol {
     func time(_ data: [Int: NSData]) -> Double
+    func time(_ data: inout [Int: NSData], _ time: Double)
 }
 
 class IOData : IODataProtocol {
@@ -96,6 +97,40 @@ func create(_ x: [IOSessionProtocol?]) -> IOSessionProtocol? {
     }
     
     return IOSessionBroadcast(x)
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Timebase
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class IOTimebase : IODataProtocol {
+    
+    private let time: IOTimeProtocol
+    private let timebase: Double
+    private let next: IODataProtocol?
+    private var zero: Double?
+    
+    init(_ time: IOTimeProtocol, _ timebase: Double, _ next: IODataProtocol?) {
+        self.time = time
+        self.timebase = timebase
+        self.next = next
+    }
+    
+    convenience init(_ time: IOTimeProtocol, _ next: IODataProtocol?) {
+        self.init(time, 0, next)
+    }
+    
+    func process(_ data: [Int : NSData]) {
+        let dataTime = time.time(data)
+        var copy = data
+        
+        if zero == nil {
+            zero = dataTime
+        }
+        
+        time.time(&copy, timebase + dataTime - zero!)
+        next?.process(copy)
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -146,19 +181,19 @@ class IODataDispatcher : IODataProtocol {
 class IOSessionAsyncDispatcher : IOSessionProtocol {
     
     let queue: DispatchQueue
-    private let next: IOSessionProtocol
+    private let next: IOSessionProtocol?
     
-    init(_ queue: DispatchQueue, _ next: IOSessionProtocol) {
+    init(_ queue: DispatchQueue, _ next: IOSessionProtocol?) {
         self.queue = queue
         self.next = next
     }
     
     func start() throws {
-        queue.async { do { try self.next.start() } catch { logIOError(error) } }
+        queue.async { do { try self.next?.start() } catch { logIOError(error) } }
     }
 
     func stop() {
-        queue.async { self.next.stop() }
+        queue.async { self.next?.stop() }
     }
 
 }

@@ -11,6 +11,7 @@ import AVFoundation
 class VideoOutput : VideoOutputProtocol {
     
     let layer: AVSampleBufferDisplayLayer
+    var format: CMFormatDescription?
     
     init(_ layer: AVSampleBufferDisplayLayer) {
         self.layer = layer
@@ -31,16 +32,21 @@ class VideoOutput : VideoOutputProtocol {
     func process(_ data: CMSampleBuffer) {
         assert_av_output_queue()
         
-        DispatchQueue.main.sync {
-            if layer.isReadyForMoreMediaData {
-                layer.enqueue(data)
-            }
-            else {
-                printStatus()
-                layer.flush()
-            }
+        let dataFormat = CMSampleBufferGetFormatDescription(data)
+        
+        if CMFormatDescriptionEqual(format, dataFormat) == false {
+            layer.flush()
         }
-
+        
+        format = dataFormat
+        
+        if self.layer.isReadyForMoreMediaData && self.layer.status != .failed {
+            self.layer.enqueue(data)
+        }
+        else {
+            self.printStatus()
+            self.layer.flush()
+        }
     }
     
 }

@@ -41,4 +41,8 @@ extension AudioTimeStamp {
     func seconds() -> Double {
         return Double(mHostTime) / 1000000000.0
     }
+
+    mutating func seconds(_ x: Double) {
+        mHostTime = UInt64(x * 1000000000.0)
+    }
 }

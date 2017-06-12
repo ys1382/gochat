@@ -1,19 +1,12 @@
 import UIKit
-import Fabric
-import Crashlytics
-import CoreMedia
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
+class AppDelegate: Application, UIApplicationDelegate, UISplitViewControllerDelegate {
 
     var window: UIWindow?
 
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        
-        // fabric
-        
-        Fabric.with([Crashlytics.self])
 
         // enable for Video capture
         
@@ -30,16 +23,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         // Audio
         
         AV.shared.setupDefaultNetworkInputAudio(ChatAudioSession())
-        
-        // Video low res hardcoded
-        
-        if AV.shared.defaultVideoDimention != nil {
-            let k = 640.0 / Double(AV.shared.defaultVideoDimention!.width)
-            let w = Double(AV.shared.defaultVideoDimention!.width) * k
-            let h = Double(AV.shared.defaultVideoDimention!.height) * k
-            AV.shared.defaultVideoDimention = CMVideoDimensions(width: Int32(w),
-                                                                height: Int32(h))
-        }
         
         // done
 

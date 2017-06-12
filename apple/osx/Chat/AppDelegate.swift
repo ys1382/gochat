@@ -4,14 +4,10 @@ import Fabric
 import Crashlytics
 
 @NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: Application, NSApplicationDelegate {
 
     static var shared: AppDelegate!
     static let usernameKey = "usernamekey"
-
-    static let kServerIP = "kServerIP"
-    static let kVideoWidth = "kVideoWidth"
-    static let kVideoHeight = "kVideoHeight"
 
     func login(username: String) {
         Backend.shared.connect(withUsername: username)
@@ -21,32 +17,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         super.init()
         
         AppDelegate.shared = self
-        
-        // server IP
-        
-        let serverIP = UserDefaults.standard.string(forKey: AppDelegate.kServerIP)
-        
-        if (serverIP != nil) {
-            Backend.address = serverIP!
-        }
-        
-        // video dimention
-        
-        let videoWidth = UserDefaults.standard.string(forKey: AppDelegate.kVideoWidth)
-        let videoHeight = UserDefaults.standard.string(forKey: AppDelegate.kVideoHeight)
-        
-        if videoWidth != nil && videoHeight != nil {
-            AV.shared.defaultVideoDimention = CMVideoDimensions(width: Int32(videoWidth!)!,
-                                                                height: Int32(videoHeight!)!)
-        }
     }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        
-        // fabric
-        
-        UserDefaults.standard.register(defaults: ["NSApplicationCrashOnExceptions": true])
-        Fabric.with([Crashlytics.self])
         
         // username
             

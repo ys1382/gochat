@@ -6,15 +6,15 @@ import AVFoundation
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func assert_audio_capture_queue() {
-    assert(ChatDispatchQueue.OnQueue(AV.shared.audioCaptureQueue))
+    assert(DispatchQueue.OnQueue(AV.shared.audioCaptureQueue))
 }
 
 func assert_video_capture_queue() {
-    assert(ChatDispatchQueue.OnQueue(AV.shared.videoCaptureQueue))
+    assert(DispatchQueue.OnQueue(AV.shared.videoCaptureQueue))
 }
 
 func assert_av_output_queue() {
-    assert(ChatDispatchQueue.OnQueue(AV.shared.avOutputQueue))
+    assert(DispatchQueue.OnQueue(AV.shared.avOutputQueue))
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,32 +31,51 @@ class AV {
     // IO
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    let audioCaptureQueue = ChatDispatchQueue.CreateCheckable("chat.AudioCaptureQueue")
-    let videoCaptureQueue = ChatDispatchQueue.CreateCheckable("chat.VideoCaptureQueue")
-    let avOutputQueue = ChatDispatchQueue.CreateCheckable("chat.AVOutputQueue")
+    let audioCaptureQueue = DispatchQueue.CreateCheckable("chat.AudioCaptureQueue")
+    let videoCaptureQueue = DispatchQueue.CreateCheckable("chat.VideoCaptureQueue")
+    let avOutputQueue = DispatchQueue.CreateCheckable("chat.AVOutputQueue")
 
-    var defaultVideoDimention: CMVideoDimensions? = AVCaptureDevice.chatVideoDevice()?.dimentions
-    
     private(set) var activeInput: IOSessionProtocol?
     private(set) var activeAudioOutput = [String: IOSessionProtocol]()
     private(set) var activeVideoOutput = [String: IOSessionProtocol]()
     private(set) var activeIOSync = [String: IOSync]()
     
+    init() {
+        defaultVideoDimension = defaultVideoInputDevice?.activeFormat.dimensions
+    }
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Input
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    var defaultVideoInputDevice: AVCaptureDevice? {
+        return AVCaptureDevice.chatVideoDevice()
+    }
+    
+    var defaultVideoDimension: CMVideoDimensions?
+
+    var defaultVideoInputFormat: AVCaptureDeviceFormat? {
+        get {
+            guard let dimensions = defaultVideoDimension else { return nil }
+            return defaultVideoInputDevice?.inputFormat(width: dimensions.width)
+        }
+    }
+
     private func _defaultVideoInput(_ id: IOID,
-                                    _ session: inout AVCaptureSession.Factory?,
+                                    _ rotated: Bool,
+                                    _ session: inout AVCaptureSession.Accessor?,
                                     _ x: inout [VideoSessionProtocol]) {
         guard let device = AVCaptureDevice.chatVideoDevice() else { return }
-
-        let inpFormat = defaultVideoInputFormat()
-        let outFormat = defaultVideoOutputFormat()
+        guard var outFormat = defaultVideoOutputFormat else { return }
+        guard let inpFormat = defaultVideoInputFormat else { return }
+        
+        if rotated {
+            outFormat.rotate()
+        }
         
         let sessionEncoder =
             VideoEncoderSessionH264(
-                inpFormat.dimentions,
+                inpFormat.dimensions,
                 outFormat,
                 VideoEncoderH264(
                     NetworkH264Serializer(
@@ -67,19 +86,11 @@ class AV {
             VideoInput(
                 device,
                 AV.shared.videoCaptureQueue,
-                outFormat,
+                inpFormat,
                 sessionEncoder)
         
-        let result =
-            VideoSessionAsyncDispatcher(
-                videoCaptureQueue,
-                VideoSessionBroadcast([
-                    sessionEncoder,
-                    videoInput,
-                    sessionNetwork]))
-        
-        session = { () in return videoInput.session }
-        x.append(result)
+        session = videoInput.sessionAccessor
+        x.append(VideoSessionBroadcast([sessionEncoder, videoInput, sessionNetwork]))
     }
 
     private func _defaultAudioInput(_ id: IOID, _ x: inout [IOSessionProtocol]) {
@@ -94,14 +105,7 @@ class AV {
         let sessionNetwork =
             NetworkOutputAudioSession(id, input.format)
 
-        let result =
-            IOSessionAsyncDispatcher(
-                audioCaptureQueue,
-                IOSessionBroadcast([
-                    input,
-                    sessionNetwork]))
-        
-        x.append(result)
+        x.append(IOSessionBroadcast([input, sessionNetwork]))
     }
 
     func startInput(_ x: IOSessionProtocol?) throws {
@@ -109,29 +113,22 @@ class AV {
         activeInput = x
         try activeInput?.start()
     }
-
-    func defaultVideoInputFormat() -> VideoFormat {
-        guard let dimentions = AVCaptureDevice.chatVideoDevice()?.dimentions else {
-            return VideoFormat()
-        }
-        
-        return VideoFormat(dimentions)
-    }
     
     func defaultVideoInput(_ id: IOID,
-                           _ session: inout AVCaptureSession.Factory?) -> VideoSessionProtocol? {
+                           _ rotated: Bool,
+                           _ session: inout AVCaptureSession.Accessor?) -> VideoSessionProtocol? {
         var x = [VideoSessionProtocol]()
         
-        _defaultVideoInput(id, &session, &x)
+        _defaultVideoInput(id, rotated, &session, &x)
         return create(x)
     }
 
     func defaultVideoInput(_ id: IOID,
                            _ preview: AVCaptureVideoPreviewLayer) -> VideoSessionProtocol? {
         var x = [VideoSessionProtocol]()
-        var y: AVCaptureSession.Factory?
+        var y: AVCaptureSession.Accessor?
         
-        _defaultVideoInput(id, &y, &x)
+        _defaultVideoInput(id, false, &y, &x)
         
         if y != nil {
             x.append(VideoPreview(preview, y!))
@@ -150,8 +147,11 @@ class AV {
     // Output
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    func defaultVideoOutputFormat() -> VideoFormat {
-        return VideoFormat(defaultVideoDimention!)
+    var defaultVideoOutputFormat: VideoFormat? {
+        get {
+            guard let dimensions = defaultVideoInputFormat?.dimensions else { return nil }
+            return VideoFormat(dimensions)
+        }
     }
     
     func defaultIOSync(_ sid: String) -> IOSync {
@@ -184,6 +184,9 @@ class AV {
     func defaultNetworkInputVideo(_ id: IOID,
                                   _ output: VideoOutputProtocol) -> IODataProtocol {
         
+        let time =
+            VideoTimeDeserializer(H264Part.Time.rawValue)
+        
         let sync =
             defaultIOSync(id.gid)
         
@@ -196,13 +199,17 @@ class AV {
             IODataDispatcher(
                 avOutputQueue,
                 NetworkH264Deserializer(
-                    syncBus))
+                    IOTimebase(
+                        time,
+                        syncBus)))
         
+        // use VideoDecoderH264 for debugging video decoding problems
         sync.add(
             IOKind.Video,
-            VideoTimeDeserializer(H264Part.Time.rawValue),
-                VideoDecoderH264(
-                    output))
+            time,
+            VideoDecoderH264Data(
+//                VideoDecoderH264(
+                output))
 
         return result
     }
@@ -210,6 +217,9 @@ class AV {
     func defaultNetworkOutputAudio(_ id: IOID,
                                    _ format: AudioFormat,
                                    _ session: inout IOSessionProtocol?) -> IODataProtocol {
+        let time =
+            AudioTimeDeserializer(AACPart.NetworkPacket.rawValue)
+        
         let output =
             AudioOutput(format, AV.defaultAudioFormat, AV.defaultAudioInterval)
         
@@ -224,11 +234,13 @@ class AV {
         let result =
             IODataDispatcher(
                 avOutputQueue,
-                syncBus)
+                IOTimebase(
+                    time,
+                    syncBus))
         
         sync.add(
             IOKind.Audio,
-            AudioTimeDeserializer(AACPart.NetworkPacket.rawValue),
+            time,
             NetworkAACDeserializer(
                 output))
         

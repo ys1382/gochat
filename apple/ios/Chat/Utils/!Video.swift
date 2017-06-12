@@ -8,9 +8,9 @@ import UIKit
 
 class ChatVideoInputSession : VideoSession {
     
-    fileprivate let connection: AVCaptureConnection.Factory
+    fileprivate let connection: AVCaptureConnection.Accessor
     
-    init(_ connection: @escaping AVCaptureConnection.Factory,
+    init(_ connection: @escaping AVCaptureConnection.Accessor,
          _ next: VideoSessionProtocol?) {
         self.connection = connection
         super.init(next)
@@ -21,8 +21,11 @@ class ChatVideoInputSession : VideoSession {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     override func start() throws {
-        connection()?.automaticallyAdjustsVideoMirroring = false
-        connection()?.isVideoMirrored = false
+        
+        try connection { (_ connection: AVCaptureConnection) throws in
+            connection.automaticallyAdjustsVideoMirroring = false
+            connection.isVideoMirrored = false
+        }
         
         updateOrientation(UIDevice.current.orientation)
         
@@ -50,7 +53,15 @@ class ChatVideoInputSession : VideoSession {
     fileprivate func updateOrientation(_ to: UIDeviceOrientation) {
         guard let orientation = AVCaptureVideoOrientation.Create(to) else { return }
         
-        connection()?.videoOrientation = orientation
+        try! connection { (_ connection: AVCaptureConnection) throws in
+            connection.videoOrientation = orientation
+        }
+    }
+
+    fileprivate func updateOrientation(_ to: AVCaptureVideoOrientation) {
+        try! connection { (_ connection: AVCaptureConnection) throws in
+            connection.videoOrientation = to
+        }
     }
 
     @objc fileprivate func didRotate() {
@@ -68,7 +79,7 @@ class ChatVideoCaptureSession : ChatVideoInputSession {
     private var updatedFormat: VideoFormat
     private var orientation: AVCaptureVideoOrientation
 
-    init(_ connection: @escaping AVCaptureConnection.Factory,
+    init(_ connection: @escaping AVCaptureConnection.Accessor,
          _ outputFormat: VideoFormat,
          _ orientation: AVCaptureVideoOrientation,
          _ next: VideoSessionProtocol?) {
@@ -79,31 +90,50 @@ class ChatVideoCaptureSession : ChatVideoInputSession {
         super.init(connection, next)
     }
 
+    override func start() throws {
+        try super.start()
+        
+        guard
+            let orientation = AVCaptureVideoOrientation.Create(UIApplication.shared.statusBarOrientation)
+            else { return }
+        
+        if self.orientation.rotates(orientation) {
+            self.outputFormat.rotate()
+            self.orientation = orientation
+            updateOrientation(orientation)
+        }
+    }
+    
     override func update(_ outputFormat: VideoFormat) throws {
+        assert_video_capture_queue()
+        
         updatedFormat = outputFormat
 
-        AV.shared.avCaptureQueue.async {
-            do {
-                try super.update(outputFormat)
-            }
-            catch {
-                logIOError(error)
-            }
-        }
+        try super.update(outputFormat)
     }
     
     func updateFormat(_ to: UIDeviceOrientation) {
         guard let orientation = AVCaptureVideoOrientation.Create(to) else { return }
+        updateFormat(orientation)
+    }
+
+    func updateFormat(_ orientation: AVCaptureVideoOrientation) {
 
         if self.orientation.rotates(orientation) {
             var outputFormat = self.outputFormat
             
-            outputFormat.width = self.outputFormat.height
-            outputFormat.height = self.outputFormat.width
+            outputFormat.rotate()
 
             if outputFormat != updatedFormat {
-                try! update(outputFormat)
-                self.outputFormat = outputFormat
+                AV.shared.videoCaptureQueue.async {
+                    do {
+                        try self.update(outputFormat)
+                        self.outputFormat = outputFormat
+                    }
+                    catch {
+                        logIOError(error)
+                    }
+                }
             }
         }
         

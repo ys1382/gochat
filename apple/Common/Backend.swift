@@ -4,9 +4,6 @@ import Starscream
 class Backend: WebSocketDelegate {
 
     static var address = "107.170.4.248"
-//    static var address = "localhost"
-//    static var address = "192.168.0.100"
-
     static let shared = Backend()
 
     private var audio = NetworkInput()
@@ -159,9 +156,11 @@ class Backend: WebSocketDelegate {
                 video.removeAll()
 
                 let format = try VideoFormat.fromNetwork(haber.avSession.data! as NSData)
-                guard let output = try videoSessionStart?(haber.avid, format) else { return }
-
-                video.add(haber.avSession.sid, output)
+                
+                try dispatch_sync_on_main {
+                    guard let output = try videoSessionStart?(haber.avid, format) else { return }
+                    video.add(haber.avSession.sid, output)
+                }
             }
             else {
                 videoSessionStop?(haber.avid)
@@ -179,9 +178,11 @@ class Backend: WebSocketDelegate {
                 audio.removeAll()
 
                 let format = try AudioFormat.fromNetwork(haber.avSession.data! as NSData)
-                guard let output = try audioSessionStart?(haber.avid, format) else { return }
                 
-                audio.add(haber.avSession.sid, output)
+                try dispatch_sync_on_main {
+                    guard let output = try audioSessionStart?(haber.avid, format) else { return }
+                    audio.add(haber.avSession.sid, output)
+                }
             }
             else {
                 audioSessionStop?(haber.avid)

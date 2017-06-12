@@ -36,7 +36,8 @@ class NetworkAACSerializer : AudioOutputProtocol {
         // 1. timestamp
         
         do { let s = MemoryLayout<AudioTimeStamp>.size
-            memcpy(result.advanced(by: shift), data.timeStamp, s)
+            var timeStamp = data.timeStamp
+            memcpy(result.advanced(by: shift), &timeStamp, s)
             shift += s
         }
         
@@ -102,7 +103,7 @@ class NetworkAACDeserializer : IODataProtocol {
         // 1. timestamp
         
         do { let s = MemoryLayout<AudioTimeStamp>.size
-            result.timeStamp = dstime.audioTime(packets)
+            result.timeStamp = dstime.audioTime(packets).pointee
             shift += s
         }
 

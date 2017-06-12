@@ -21,11 +21,11 @@ struct VideoFormat : Equatable {
         data = [String: Any]()
     }
     
-    init(_ dimention: CMVideoDimensions) {
+    init(_ dimension: CMVideoDimensions) {
         self.init()
         
-        width = UInt32(dimention.width)
-        height = UInt32(dimention.height)
+        width = UInt32(dimension.width)
+        height = UInt32(dimension.height)
     }
     
     init(_ data: [String: Any]) {
@@ -59,10 +59,14 @@ struct VideoFormat : Equatable {
         }
     }
 
-    var dimentions: CMVideoDimensions {
+    var dimensions: CMVideoDimensions {
         get {
             return CMVideoDimensions(width: Int32(width), height: Int32(height))
         }
+    }
+    
+    mutating func rotate() {
+        swap(&width, &height)
     }
 }
 
@@ -100,15 +104,15 @@ class VideoSessionBroadcast : IOSessionBroadcast, VideoSessionProtocol {
 
 class VideoSessionAsyncDispatcher : IOSessionAsyncDispatcher, VideoSessionProtocol {
     
-    private let next: VideoSessionProtocol
+    private let next: VideoSessionProtocol?
     
-    init(_ queue: DispatchQueue, _ next: VideoSessionProtocol) {
+    init(_ queue: DispatchQueue, _ next: VideoSessionProtocol?) {
         self.next = next
         super.init(queue, next)
     }
 
     func update(_ outputFormat: VideoFormat) throws {
-        queue.async{ do { try self.next.update(outputFormat) } catch { logIOError(error) } }
+        queue.async{ do { try self.next?.update(outputFormat) } catch { logIOError(error) } }
     }
 }
 
@@ -123,9 +127,19 @@ class VideoTimeDeserializer : IOTimeProtocol {
     func videoTime(_ packets: [Int: NSData]) -> CMSampleTimingInfo {
         return CMSampleTimingInfo(packets[packetKey]!)
     }
-    
+
+    func videoTime(_ packets: inout [Int: NSData], _ time: CMSampleTimingInfo) {
+        packets[packetKey] = time.toNSData()
+    }
+
     func time(_ packets: [Int : NSData]) -> Double {
         return CMTimeGetSeconds(videoTime(packets).presentationTimeStamp)
+    }
+    
+    func time(_ data: inout [Int: NSData], _ time: Double) {
+        var videoTime = self.videoTime(data)
+        CMTimeSetSeconds(&videoTime.presentationTimeStamp, time)
+        self.videoTime(&data, videoTime)
     }
 }
 

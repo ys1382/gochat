@@ -21,7 +21,7 @@ struct AudioData {
     var bytesNum: UInt32 = 0
     var packetDesc: UnsafePointer<AudioStreamPacketDescription>!
     var packetNum: UInt32 = 0
-    var timeStamp: UnsafePointer<AudioTimeStamp>!
+    var timeStamp: AudioTimeStamp!
     
     init () {
         
@@ -31,7 +31,7 @@ struct AudioData {
          _ bytesNum: UInt32,
          _ packetDesc: UnsafePointer<AudioStreamPacketDescription>,
          _ packetNum: UInt32,
-         _ timeStamp: UnsafePointer<AudioTimeStamp>) {
+         _ timeStamp: AudioTimeStamp) {
         self.bytes = bytes
         self.bytesNum = bytesNum
         self.packetDesc = packetDesc
@@ -112,6 +112,15 @@ struct AudioFormat {
     }
 }
 
+class AudioPipe : AudioOutputProtocol {
+    
+    var next: AudioOutputProtocol?
+
+    func process(_ data: AudioData) {
+        next?.process(data)
+    }
+}
+
 class AudioTimeDeserializer : IOTimeProtocol {
     
     let packetKey: Int
@@ -129,8 +138,20 @@ class AudioTimeDeserializer : IOTimeProtocol {
         return UnsafePointer<AudioTimeStamp>(x)
     }
     
+    func audioTime(_ packets: [Int: NSData], _ time: UnsafePointer<AudioTimeStamp>) {
+        memcpy(UnsafeMutableRawPointer(mutating: packets[packetKey]!.bytes),
+               time,
+               MemoryLayout<AudioTimeStamp>.size)
+    }
+
     func time(_ data: [Int : NSData]) -> Double {
         return audioTime(data).pointee.seconds()
+    }
+    
+    func time(_ data: inout [Int: NSData], _ time: Double) {
+        let audioTime = UnsafeMutablePointer<AudioTimeStamp>(mutating: self.audioTime(data))
+        audioTime.pointee.seconds(time)
+        self.audioTime(data, audioTime)
     }
 }
 

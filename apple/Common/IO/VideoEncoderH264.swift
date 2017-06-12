@@ -63,7 +63,6 @@ class VideoEncoderH264 : NSObject, VideoOutputProtocol {
                                                                                nil),
                             "An Error occured while getting h264 sps parameter")
             
-            
             assert(count.pointee == 2) // sps and pps
             
             result[H264Part.SPS.rawValue] = NSData(bytes: sps.pointee!, length: spsLength.pointee)
@@ -121,25 +120,25 @@ class VideoEncoderSessionH264 : VideoSessionProtocol, VideoOutputProtocol {
     public typealias Callback = (VideoEncoderSessionH264) -> Void
     
     private var session: VTCompressionSession?
-    private let inputDimention: CMVideoDimensions
+    private let inputDimension: CMVideoDimensions
     private var outputFormat: VideoFormat
     private let next: VideoOutputProtocol?
     private let callback: Callback?
 
-    init(_ inputDimention: CMVideoDimensions,
+    init(_ inputDimension: CMVideoDimensions,
          _ outputFormat: VideoFormat,
          _ next: VideoOutputProtocol?) {
-        self.inputDimention = inputDimention
+        self.inputDimension = inputDimension
         self.outputFormat = outputFormat
         self.next = next
         self.callback = nil
     }
 
-    init(_ inputDimention: CMVideoDimensions,
+    init(_ inputDimension: CMVideoDimensions,
          _ outputFormat: VideoFormat,
          _ next: VideoOutputProtocol?,
          _ callback: @escaping Callback) {
-        self.inputDimention = inputDimention
+        self.inputDimension = inputDimension
         self.outputFormat = outputFormat
         self.next = next
         self.callback = callback
@@ -198,6 +197,7 @@ class VideoEncoderSessionH264 : VideoSessionProtocol, VideoOutputProtocol {
         
         guard let session = self.session else { return }
         
+        VTCompressionSessionCompleteFrames(session, kCMTimeInvalid)
         VTCompressionSessionInvalidate(session)
     }
 
@@ -221,16 +221,14 @@ class VideoEncoderSessionH264 : VideoSessionProtocol, VideoOutputProtocol {
         guard let session = self.session else { logIOError("VideoEncoderSessionH264 no session"); return }
         var flags:VTEncodeInfoFlags = VTEncodeInfoFlags()
         
-        DispatchQueue.global().async {
-            VTCompressionSessionEncodeFrame(session,
-                                            imageBuffer,
-                                            CMSampleBufferGetPresentationTimeStamp(data),
-                                            CMSampleBufferGetDuration(data),
-                                            nil,
-                                            nil,
-                                            &flags)
-            VTCompressionSessionCompleteFrames(session, kCMTimeInvalid)
-        }
+        VTCompressionSessionEncodeFrame(session,
+                                        imageBuffer,
+                                        CMSampleBufferGetPresentationTimeStamp(data),
+                                        CMSampleBufferGetDuration(data),
+                                        nil,
+                                        nil,
+                                        &flags)
+        VTCompressionSessionCompleteFrames(session, kCMTimeInvalid)
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -239,16 +237,14 @@ class VideoEncoderSessionH264 : VideoSessionProtocol, VideoOutputProtocol {
     
     let defaultAttributes:[NSString: AnyObject] = [
         kCVPixelBufferPixelFormatTypeKey: Int(kCVPixelFormatType_32BGRA) as AnyObject,
-        kCVPixelBufferIOSurfacePropertiesKey: [:] as AnyObject,
-        kCVPixelBufferOpenGLCompatibilityKey: true as AnyObject,
         ]
     fileprivate var width:Int32!
     fileprivate var height:Int32!
     
     fileprivate var attributes:[NSString: AnyObject] {
         var attributes:[NSString: AnyObject] = defaultAttributes
-        attributes[kCVPixelBufferHeightKey] = inputDimention.height as AnyObject
-        attributes[kCVPixelBufferWidthKey] = inputDimention.width as AnyObject
+        attributes[kCVPixelBufferHeightKey] = inputDimension.height as AnyObject
+        attributes[kCVPixelBufferWidthKey] = inputDimension.width as AnyObject
         return attributes
     }
     
@@ -261,11 +257,6 @@ class VideoEncoderSessionH264 : VideoSessionProtocol, VideoOutputProtocol {
             kVTCompressionPropertyKey_AverageBitRate: Int(outputFormat.width * outputFormat.height) as NSObject,
             kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration: NSNumber(value: 1.0 as Double),
             kVTCompressionPropertyKey_AllowFrameReordering: !isBaseline as NSObject,
-//            kVTVideoEncoderSpecification_EnableHardwareAcceleratedVideoEncoder: kCFBooleanTrue,
-//            kVTVideoEncoderSpecification_RequireHardwareAcceleratedVideoEncoder: kCFBooleanTrue,
-//            kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration: NSNumber(value: 0.1 as Double)
-//            kVTCompressionPropertyKey_ExpectedFrameRate: NSNumber(value: 30.0 as Double),
-//            kVTCompressionPropertyKey_PixelTransferProperties: [ "ScalingMode": "Trim" ] as AnyObject
         ]
         if (!isBaseline) {
             properties[kVTCompressionPropertyKey_H264EntropyMode] = kVTH264EntropyMode_CABAC

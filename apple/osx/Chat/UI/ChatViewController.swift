@@ -15,10 +15,21 @@ class ChatViewController : NSViewController {
     @IBOutlet weak var textFieldVideoWidth: NSTextField!
     @IBOutlet weak var textFieldVideoHeight: NSTextField!
     
+    func updateVideo(_ format: AVCaptureDeviceFormat) {
+        AV.shared.defaultVideoDimension = format.dimensions
+        
+        textFieldVideoWidth.stringValue = String(AV.shared.defaultVideoDimension!.width)
+        textFieldVideoHeight.stringValue = String(AV.shared.defaultVideoDimension!.height)
+        
+        UserDefaults.standard.set(textFieldVideoWidth.stringValue, forKey: AppDelegate.kVideoWidth)
+        UserDefaults.standard.set(textFieldVideoHeight.stringValue, forKey: AppDelegate.kVideoHeight)
+        UserDefaults.standard.synchronize()
+    }
+
     override func viewDidLoad() {
         textFieldServerIP.stringValue = Backend.address
         
-        if let x = AV.shared.defaultVideoDimention {
+        if let x = AV.shared.defaultVideoDimension {
             textFieldVideoWidth.stringValue = String(x.width)
             textFieldVideoHeight.stringValue = String(x.height)
         }
@@ -39,38 +50,18 @@ class ChatViewController : NSViewController {
     }
     
     @IBAction func textFieldVideoWidthAction(_ sender: Any) {
-        guard let dimention = AVCaptureDevice.chatVideoDevice()?.dimentions else { return }
-        guard var width = Int32(textFieldVideoWidth.stringValue) else { return }
-
-        if width > AVCaptureDevice.chatVideoDevice()!.dimentions.width {
-            width = AVCaptureDevice.chatVideoDevice()!.dimentions.width
-        }
+        let text = textFieldVideoWidth.stringValue
+        guard let width = Int32(text) else { return }
+        guard let format = AV.shared.defaultVideoInputDevice?.inputFormat(width: width) else { return }
         
-        AV.shared.defaultVideoDimention?.height = width * dimention.height / dimention.width
-        AV.shared.defaultVideoDimention?.width = width
-        
-        textFieldVideoWidth.stringValue = String(AV.shared.defaultVideoDimention!.width)
-        textFieldVideoHeight.stringValue = String(AV.shared.defaultVideoDimention!.height)
-
-        UserDefaults.standard.set(textFieldVideoWidth.stringValue, forKey: AppDelegate.kVideoWidth)
-        UserDefaults.standard.set(textFieldVideoHeight.stringValue, forKey: AppDelegate.kVideoHeight)
+        updateVideo(format)
     }
     
     @IBAction func textFieldVideoHeightAction(_ sender: Any) {
-        guard let dimention = AVCaptureDevice.chatVideoDevice()?.dimentions else { return }
-        guard var height = Int32(textFieldVideoHeight.stringValue) else { return }
+        let text = textFieldVideoHeight.stringValue
+        guard let height = Int32(text) else { return }
+        guard let format = AV.shared.defaultVideoInputDevice?.inputFormat(height: height) else { return }
         
-        if height > AVCaptureDevice.chatVideoDevice()!.dimentions.height {
-            height = AVCaptureDevice.chatVideoDevice()!.dimentions.height
-        }
-
-        AV.shared.defaultVideoDimention?.width = height * dimention.width / dimention.height
-        AV.shared.defaultVideoDimention?.height = height
-
-        textFieldVideoWidth.stringValue = String(AV.shared.defaultVideoDimention!.width)
-        textFieldVideoHeight.stringValue = String(AV.shared.defaultVideoDimention!.height)
-
-        UserDefaults.standard.set(textFieldVideoWidth.stringValue, forKey: AppDelegate.kVideoWidth)
-        UserDefaults.standard.set(textFieldVideoHeight.stringValue, forKey: AppDelegate.kVideoHeight)
+        updateVideo(format)
     }
 }

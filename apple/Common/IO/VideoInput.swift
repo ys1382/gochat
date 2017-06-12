@@ -8,9 +8,21 @@ import VideoToolbox
 
 class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, VideoSessionProtocol {
     
-    public  var session: AVCaptureSession?
-   
-    private let format: VideoFormat
+    var sessionAccessor: AVCaptureSession.Accessor {
+        get {
+            weak var SELFW = self
+            
+            return { (_ x: (AVCaptureSession) throws -> Void) in
+                guard let SELF = SELFW else { return }
+                guard let session = SELF.session else { return }
+                
+                try x(session)
+            }
+        }
+    }
+    
+    private  var session: AVCaptureSession?
+    private let format: AVCaptureDeviceFormat
     private let output: VideoOutputProtocol?
     private let outputQueue: DispatchQueue?
     private let device: AVCaptureDevice?
@@ -18,7 +30,7 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Video
     
     init(_ device: AVCaptureDevice?,
          _ outputQueue: DispatchQueue?,
-         _ format: VideoFormat,
+         _ format: AVCaptureDeviceFormat,
          _ output: VideoOutputProtocol?) {
         self.output = output
         self.outputQueue = outputQueue
@@ -30,11 +42,9 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Video
     }
     
     func initSession() {
+        guard let device = self.device else { return }
+
         session = AVCaptureSession()
-        
-        session!.beginConfiguration()
-        session!.sessionPreset = AVCaptureSessionPresetLow
-        session!.commitConfiguration()
         
         // output
         
@@ -44,6 +54,13 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Video
             if (session!.canAddInput(videoDeviceInput) == true) {
                 session!.addInput(videoDeviceInput)
             }
+            
+            try device.lockForConfiguration()
+            let fps = CMTime(value: 1, timescale: 10)
+            device.activeFormat = format
+            device.activeVideoMinFrameDuration = fps
+            device.activeVideoMaxFrameDuration = fps
+            device.unlockForConfiguration()
             
             let videoDataOutput = AVCaptureVideoDataOutput()
             
@@ -74,8 +91,12 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Video
         
         assert_video_capture_queue()
         
-        dispatch_sync_on_main {
-            session!.startRunning()
+        try device?.lockForConfiguration()
+
+        try dispatch_sync_on_main {
+            try sessionAccessor({ (_ session: AVCaptureSession) throws in
+                session.startRunning()
+            })
         }
     }
     
@@ -84,22 +105,30 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Video
 
         session?.stopRunning()
         session = nil
+        device?.unlockForConfiguration()
     }
     
     func update(_ outputFormat: VideoFormat) throws {
-        // don't change input dimentions because we also showing preview
+        // don't change input dimensions because we also showing preview
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // AVCaptureVideoDataOutputSampleBufferDelegate and failure notification
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+    
+    func formatNotChanged(_ sampleBuffer: CMSampleBuffer) -> Bool {
+        let sampleDimentions = CMVideoFormatDescriptionGetDimensions(CMSampleBufferGetFormatDescription(sampleBuffer)!)
+        
+        return format.dimensions == sampleDimentions || format.dimensions == sampleDimentions.turn()
+    }
+    
     func captureOutput(_ captureOutput: AVCaptureOutput!,
                        didOutputSampleBuffer sampleBuffer: CMSampleBuffer!,
                        from connection: AVCaptureConnection!) {
        
-        logIO("video \(CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer)))")
-        output?.process(sampleBuffer)
+        assert(formatNotChanged(sampleBuffer))
+        
+        self.output?.process(sampleBuffer)
     }
     
     func failureNotification(notification: Notification) {
@@ -114,15 +143,15 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Video
 class VideoPreview : VideoSession {
     
     let layer: AVCaptureVideoPreviewLayer
-    let session: AVCaptureSession.Factory
+    let session: AVCaptureSession.Accessor
     
     convenience init(_ layer: AVCaptureVideoPreviewLayer,
-                     _ session: @escaping AVCaptureSession.Factory) {
+                     _ session: @escaping AVCaptureSession.Accessor) {
         self.init(layer, session, nil)
     }
 
     init(_ layer: AVCaptureVideoPreviewLayer,
-         _ session: @escaping AVCaptureSession.Factory,
+         _ session: @escaping AVCaptureSession.Accessor,
          _ next: VideoSessionProtocol?) {
         self.layer = layer
         self.session = session
@@ -131,10 +160,12 @@ class VideoPreview : VideoSession {
 
     override func start() throws {
         
-        dispatch_sync_on_main {
-            layer.session = session()
-            layer.connection.automaticallyAdjustsVideoMirroring = false
-            layer.connection.isVideoMirrored = false
+        try dispatch_sync_on_main {
+            try session({ (session: AVCaptureSession) in
+                layer.session = session
+                layer.connection.automaticallyAdjustsVideoMirroring = false
+                layer.connection.isVideoMirrored = false
+            })
         }
 
         try super.start()

@@ -13,6 +13,8 @@
 		66C4B5946A64F209719F1358 /* Pods_Chat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ACBFB437F9424A73A5B0830 /* Pods_Chat.framework */; };
 		821F4CC71EDEB03500FA923D /* Dispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821F4CC61EDEB03500FA923D /* Dispatch.swift */; };
 		82203E6D1EE6B44F005AEC49 /* VideoOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82203E6C1EE6B44F005AEC49 /* VideoOutput.swift */; };
+		825E1AF11EEA7FFB00C26112 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 825E1AF01EEA7FFB00C26112 /* SettingsViewController.swift */; };
+		825E1AF31EEB179E00C26112 /* Thread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 825E1AF21EEB179E00C26112 /* Thread.swift */; };
 		8260DDE51EE47918004416FF /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8260DDE31EE47918004416FF /* Fabric.framework */; };
 		8260DDE61EE47918004416FF /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8260DDE41EE47918004416FF /* Crashlytics.framework */; };
 		8260DDE81EE55C59004416FF /* !Video.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8260DDE71EE55C59004416FF /* !Video.swift */; };
@@ -35,6 +37,7 @@
 		8286E31D1EDC1AFF006788B2 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8286E30E1EDC1AFF006788B2 /* Log.swift */; };
 		8286E31E1EDC1AFF006788B2 /* Wire.proto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8286E30F1EDC1AFF006788B2 /* Wire.proto.swift */; };
 		8286E3201EDC1B1D006788B2 /* NetworkH264.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8286E31F1EDC1B1D006788B2 /* NetworkH264.swift */; };
+		828E30271EEC0FAE00597EB8 /* Application.swift in Sources */ = {isa = PBXBuildFile; fileRef = 828E30261EEC0FAE00597EB8 /* Application.swift */; };
 		829A0E771EDC1CE200FEC353 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E741EDC1CE200FEC353 /* DetailViewController.swift */; };
 		829A0E781EDC1CE200FEC353 /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E751EDC1CE200FEC353 /* MasterViewController.swift */; };
 		829A0E791EDC1CE200FEC353 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E761EDC1CE200FEC353 /* SplitViewController.swift */; };
@@ -44,6 +47,7 @@
 		829A0EBD1EDD6EFB00FEC353 /* Foundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0EBC1EDD6EFB00FEC353 /* Foundation.swift */; };
 		829A0EC11EDD936C00FEC353 /* AV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0EC01EDD936C00FEC353 /* AV.swift */; };
 		82A68C0C1EDBDE0500049AD9 /* MediaViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82A68C0B1EDBDE0500049AD9 /* MediaViewController.swift */; };
+		82DECAAB1EEB1A25008199AC /* Defs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82DECAAA1EEB1A25008199AC /* Defs.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,6 +59,8 @@
 		1AB062191E8843E600A841D0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		821F4CC61EDEB03500FA923D /* Dispatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dispatch.swift; sourceTree = "<group>"; };
 		82203E6C1EE6B44F005AEC49 /* VideoOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoOutput.swift; sourceTree = "<group>"; };
+		825E1AF01EEA7FFB00C26112 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
+		825E1AF21EEB179E00C26112 /* Thread.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Thread.swift; sourceTree = "<group>"; };
 		8260DDE31EE47918004416FF /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		8260DDE41EE47918004416FF /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		8260DDE71EE55C59004416FF /* !Video.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "!Video.swift"; sourceTree = "<group>"; };
@@ -77,6 +83,7 @@
 		8286E30E1EDC1AFF006788B2 /* Log.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 		8286E30F1EDC1AFF006788B2 /* Wire.proto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Wire.proto.swift; path = ../Common/Wire.proto.swift; sourceTree = "<group>"; };
 		8286E31F1EDC1B1D006788B2 /* NetworkH264.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkH264.swift; sourceTree = "<group>"; };
+		828E30261EEC0FAE00597EB8 /* Application.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Application.swift; path = ../Common/Application.swift; sourceTree = "<group>"; };
 		829A0E741EDC1CE200FEC353 /* DetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
 		829A0E751EDC1CE200FEC353 /* MasterViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MasterViewController.swift; sourceTree = "<group>"; };
 		829A0E761EDC1CE200FEC353 /* SplitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
@@ -87,6 +94,7 @@
 		829A0EC01EDD936C00FEC353 /* AV.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AV.swift; path = ../Common/AV.swift; sourceTree = "<group>"; };
 		82A68C0B1EDBDE0500049AD9 /* MediaViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MediaViewController.swift; sourceTree = "<group>"; };
 		82A68C451EDC18D200049AD9 /* libChatLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libChatLib.a; path = "../common/build/Debug-iphoneos/libChatLib.a"; sourceTree = "<group>"; };
+		82DECAAA1EEB1A25008199AC /* Defs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Defs.swift; sourceTree = "<group>"; };
 		C5A48039D30C2E9ECC041BE6 /* Pods-Chat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chat.release.xcconfig"; path = "Pods/Target Support Files/Pods-Chat/Pods-Chat.release.xcconfig"; sourceTree = "<group>"; };
 		F1950861D287C0179BA10F15 /* Pods-Chat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chat.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Chat/Pods-Chat.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -178,6 +186,7 @@
 				8286E2FE1EDC1AFF006788B2 /* Backend.swift */,
 				8286E3071EDC1AFF006788B2 /* Model.swift */,
 				8286E30F1EDC1AFF006788B2 /* Wire.proto.swift */,
+				828E30261EEC0FAE00597EB8 /* Application.swift */,
 			);
 			name = Lib;
 			sourceTree = "<group>";
@@ -214,6 +223,7 @@
 		8286E30B1EDC1AFF006788B2 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				82DECAAA1EEB1A25008199AC /* Defs.swift */,
 				829A0EBC1EDD6EFB00FEC353 /* Foundation.swift */,
 				8286E30C1EDC1AFF006788B2 /* AVFoundation.swift */,
 				8286E30D1EDC1AFF006788B2 /* CoreMedia.swift */,
@@ -221,6 +231,7 @@
 				8286E30E1EDC1AFF006788B2 /* Log.swift */,
 				829A0EAE1EDD2C2B00FEC353 /* UI.swift */,
 				821F4CC61EDEB03500FA923D /* Dispatch.swift */,
+				825E1AF21EEB179E00C26112 /* Thread.swift */,
 			);
 			name = Utils;
 			path = ../Common/Utils;
@@ -233,6 +244,7 @@
 				829A0E751EDC1CE200FEC353 /* MasterViewController.swift */,
 				829A0E761EDC1CE200FEC353 /* SplitViewController.swift */,
 				82A68C0B1EDBDE0500049AD9 /* MediaViewController.swift */,
+				825E1AF01EEA7FFB00C26112 /* SettingsViewController.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -274,7 +286,7 @@
 					1AB062071E8843E500A841D0 = {
 						CreatedOnToolsVersion = 8.2.1;
 						LastSwiftMigration = 0830;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 					};
 				};
 			};
@@ -374,8 +386,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				828E30271EEC0FAE00597EB8 /* Application.swift in Sources */,
 				8286E3161EDC1AFF006788B2 /* VideoEncoderH264.swift in Sources */,
 				8286E3201EDC1B1D006788B2 /* NetworkH264.swift in Sources */,
+				825E1AF11EEA7FFB00C26112 /* SettingsViewController.swift in Sources */,
 				8286E31A1EDC1AFF006788B2 /* NetworkAAC.swift in Sources */,
 				8286E3131EDC1AFF006788B2 /* AudioOutput.swift in Sources */,
 				8286E3191EDC1AFF006788B2 /* Network.swift in Sources */,
@@ -384,6 +398,7 @@
 				8286E31B1EDC1AFF006788B2 /* AVFoundation.swift in Sources */,
 				8286E3101EDC1AFF006788B2 /* Backend.swift in Sources */,
 				829A0E771EDC1CE200FEC353 /* DetailViewController.swift in Sources */,
+				825E1AF31EEB179E00C26112 /* Thread.swift in Sources */,
 				8286E3181EDC1AFF006788B2 /* Model.swift in Sources */,
 				8286E31C1EDC1AFF006788B2 /* CoreMedia.swift in Sources */,
 				829A0EB51EDD52DE00FEC353 /* Video.swift in Sources */,
@@ -394,6 +409,7 @@
 				829A0E791EDC1CE200FEC353 /* SplitViewController.swift in Sources */,
 				829A0EBD1EDD6EFB00FEC353 /* Foundation.swift in Sources */,
 				8286E3121EDC1AFF006788B2 /* AudioInput.swift in Sources */,
+				82DECAAB1EEB1A25008199AC /* Defs.swift in Sources */,
 				82203E6D1EE6B44F005AEC49 /* VideoOutput.swift in Sources */,
 				827C52071EE01E4200340D56 /* !Audio.swift in Sources */,
 				8260DDE81EE55C59004416FF /* !Video.swift in Sources */,
@@ -523,8 +539,8 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = CD4E4U2KRU;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Joseph Saib (DKB5TKKSCU)";
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -534,6 +550,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = fisil.Chat.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "AV Chat Dev";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
@@ -547,8 +564,8 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				DEVELOPMENT_TEAM = CD4E4U2KRU;
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Fisil LLC (CD4E4U2KRU)";
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",

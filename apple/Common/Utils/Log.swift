@@ -1,6 +1,10 @@
 
 import Foundation
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Pipe: Messages
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 func logMessage(_ message: String) {
     print(message)
 }
@@ -9,12 +13,16 @@ func logMessage(_ scope: String, _ message: String) {
     logMessage((scope + ": ").padding(toLength: 10, withPad: " ", startingAt: 0) + message)
 }
 
-func logError(_ scope: String, _ error: Error) {
-    logMessage("Error in " + scope + ": " + String(describing: error))
-}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Pipe: Errors
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func logError(_ scope: String, _ message: String) {
-    logMessage("Error in " + scope + ": " + message)
+    print("Error in " + scope + ": " + message)
+}
+
+func logError(_ scope: String, _ error: Error) {
+    logError("Error in " + scope + ": " + String(describing: error))
 }
 
 func logError(_ message: String) {

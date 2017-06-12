@@ -25,12 +25,13 @@ class DetailViewController: UIViewController {
     var videoSessionStart: ((_ id: IOID, _ format: VideoFormat) throws ->IODataProtocol?)?
     var videoSessionStop: ((_ id: IOID)->Void)?
 
-    func showMedia(_ watching: String?) -> MediaViewController {
+    func showMedia(_ watching_: String?) -> MediaViewController? {
+        guard let watching = watching_ else { return nil }
         let mediaID = String(describing: MediaViewController.self)
         let media = self.storyboard?.instantiateViewController(withIdentifier: mediaID) as! MediaViewController
         
         userMediaViewController = nil
-        media.setWatching(watching!)
+        media.setWatching(watching)
         self.navigationController?.pushViewController(media,
                                                       animated: true)
         
