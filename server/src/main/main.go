@@ -166,63 +166,111 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
         return
       }
 
+      if haber.GetWhich() == Haber_LOGIN {
+        receivedUsername(conn, haber.GetLogin().GetUsername())
+        continue
+      }
       sessionId = haber.GetSessionId()
       if sessionId != "" {
         fmt.Println("\nsessionId is " + sessionId)
         updatePresence(sessionId, true)
       }
+      client, ok := chat.clients[sessionId]
+      if !ok {
+        fmt.Println("no client for " + sessionId)
+        return
+      }
 
       switch haber.GetWhich() {
-      case Haber_LOGIN:
-        sessionId = receivedUsername(conn, haber.GetLogin().GetUsername())
       case Haber_CONTACTS:
-        receivedContacts(sessionId, haber)
+        receivedContacts(client, haber)
+      case Haber_STORE:
+        receivedStore(client, haber)
+      case Haber_LOAD:
+        receivedLoad(client, haber)
       case Haber_TEXT:
         fallthrough
       case Haber_FILE:
-        if _,ok := chat.clients[sessionId]; ok {
-          forward(sessionId, haber)
-        }
+          forward(client, haber)
       }
     }
   }()
 }
 
+func receivedLoad(client *Client, haber *Haber) {
+  chat.db.View(func(tx *bolt.Tx) error {
+    b := tx.Bucket([]byte(client.name))
+    if b == nil {
+      fmt.Println("no bucket for " + client.name)
+      return nil
+    }
+    key := haber.Load.GetKey()
+    data := b.Get(key)
+    if data == nil {
+      fmt.Println("data is nil for " + string(key[:]))
+      return nil
+    }
+    store := &Store{
+      Key:   key,
+      Value: data,
+    }
+    update := &Haber{
+      Which: Haber_STORE,
+      Store: store,
+      To:    client.name,
+    }
+    chat.queue <- *update
+    return nil
+  })
+}
+
+func receivedStore(client *Client, haber *Haber) {
+  chat.db.Update(func(tx *bolt.Tx) error {
+    b, err := tx.CreateBucketIfNotExists([]byte(client.name))
+    if err != nil {
+      fmt.Println("Error opening bucket:", err)
+    }
+    return b.Put(haber.Store.Key, haber.GetStore().GetValue())
+  })
+}
+
 func updatePresence(sessionId string, online bool) {
-  if client, ok := chat.clients[sessionId]; ok {
-    if online == client.online {
-      fmt.Printf("updatePresence: %s is already %t\n", client.name, client.online)
-      return
-    }
-    fmt.Println("updatePresence sessionId=" + sessionId)
-    client.online = online
-    chat.clients[sessionId] = client
-    // inform subscribers
-    from := client.name
-    fmt.Println("\t from=" + from)
-    contact := &Contact{
-      Name: from,
-      Online: online,
-    }
-    for _,subscriber := range chat.presenceSubscribers[from] {
-      fmt.Println("\t subscriber name =" + subscriber)
-      update := &Haber {
-        Which: Haber_PRESENCE,
-        Contacts: []*Contact{contact},
-        To: subscriber,
-      }
-      fmt.Printf("\t contacts length = %d\n", len(update.GetContacts()))
-      chat.queue <- *update
-    }
-    client.subscribeToContacts()
-  } else {
-    fmt.Println("\t can't find client")
+  client, ok := chat.clients[sessionId]
+  if !ok {
+    fmt.Println("\t can't find " + sessionId)
   }
+
+  if online == client.online {
+    fmt.Printf("updatePresence: %s is already %t\n", client.name, client.online)
+    return
+  } else {
+    fmt.Println("updatePresence sessionId=" + sessionId)
+  }
+  client.online = online
+  chat.clients[sessionId] = client
+
+  // inform subscribers
+  from := client.name
+  contact := &Contact{
+    Name: from,
+    Online: online,
+  }
+  for _,subscriber := range chat.presenceSubscribers[from] {
+    fmt.Println("\t subscriber name =" + subscriber)
+    update := &Haber {
+      Which: Haber_PRESENCE,
+      Contacts: []*Contact{contact},
+      To: subscriber,
+    }
+    fmt.Printf("\t contacts length = %d\n", len(update.GetContacts()))
+    chat.queue <- *update
+  }
+  client.subscribeToContacts()
 }
 
 func (cl *Client)subscribeToContacts() {
   from := cl.name
-  fmt.Println("subscribeToContacts from=" + from)
+  fmt.Println("subscribeToContacts from " + from)
   for _,contact := range cl.contacts {
     contactName := contact.GetName()
     fmt.Println("\t contactName=" + contactName)
@@ -250,7 +298,7 @@ func remove(s []string, r string) []string {
   return s
 }
 
-func receivedUsername(conn *websocket.Conn, username string) string {
+func receivedUsername(conn *websocket.Conn, username string) {
   fmt.Println("\nreceivedUsername: " + username)
   defer chat.clientsMtx.Unlock()
   chat.clientsMtx.Lock()
@@ -264,7 +312,7 @@ func receivedUsername(conn *websocket.Conn, username string) string {
     client = &Client{
       name:     username,
       sessions: make(map[string]*websocket.Conn),
-      online: false,
+      online:   true,
     }
   }
   client.sessions[sessionId] = conn
@@ -274,8 +322,6 @@ func receivedUsername(conn *websocket.Conn, username string) string {
   chat.clients[sessionId] = client
   sendContacts(client, sessionId)
   updatePresence(sessionId, true)
-
-  return sessionId
 }
 
 func sendContacts(client *Client, sessionId string) {
@@ -293,19 +339,24 @@ func sendContacts(client *Client, sessionId string) {
   chat.queue <- *buds
 }
 
-func forward(sessionId string, haber *Haber) {
-  sourceClient := chat.clients[sessionId]
-  haber.From = sourceClient.name
-  chat.queue <- *haber  // forward to all devices with source's and destination's names
+func forward(client *Client, haber *Haber) {
+  haber.From = client.name
+  chat.queue <- *haber // forward to all devices with source's and destination's names
 }
 
-func receivedContacts(sessionId string, haber *Haber) {
-  fmt.Println("receivedContacts for session " + sessionId)
-  client := chat.clients[sessionId]
+func receivedContacts(client *Client, haber *Haber) {
+  fmt.Println("receivedContacts for " + client.name)
   client.contacts = haber.GetContacts()
   client.subscribeToContacts()
   client.Save(chat.db, haber)
-  forward(sessionId, haber)
+
+  for _,contact := range haber.Contacts {
+    if c, ok := chat.namedClients[contact.Name]; ok {
+      contact.Online = c.online
+    }
+  }
+  haber.To = client.name
+  forward(client, haber)
 }
 
 func createSessionId() string{
