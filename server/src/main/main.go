@@ -42,19 +42,20 @@ func (cr *ChatRoom) Init(db *bolt.DB) {
       client, ok := cr.namedClients[to]
       if ok == false {
         fmt.Println("Can't find " + to)
-      } else {
-        which := message.Which
-        if which != Haber_CONTACTS { // don't forward sessionId
-          message.SessionId = ""
-        }
-        fmt.Println("Send " + message.GetWhich().String() + " from " + message.From + " to " + message.To)
-        client.Send(&message)
+        return
+      }
 
-        if (which == Haber_TEXT || which == Haber_FILE) && (message.To != message.From) {
-          message.To = message.From
-          fmt.Println("\t also send " + message.GetWhich().String() + " from " + message.From + " to " + message.To)
-          cr.queue <- message
-        }
+      which := message.Which
+      if which != Haber_CONTACTS { // don't forward sessionId
+        message.SessionId = ""
+      }
+      fmt.Printf("Send %s from %s to %s\n", message.GetWhich().String(), message.From, message.To);
+      client.Send(&message)
+
+      if (which == Haber_TEXT || which == Haber_FILE) && (message.To != message.From) {
+        message.To = message.From
+        fmt.Println("\t also send " + message.GetWhich().String() + " from " + message.From + " to " + message.To)
+        cr.queue <- message
       }
     }
   }()
@@ -109,20 +110,16 @@ func (cl *Client) isOnline() (bool) {
 }
 
 func (cl *Client) Send(haber *Haber) {
-  cl.SendToSession(haber, "")
-}
-
-func (cl *Client) SendToSession(haber *Haber, sessionId string) {
+  fmt.Println("Client.Send " + haber.Which.String())
   data, err := proto.Marshal(haber)
   if err != nil || data == nil {
     fmt.Println("Error marshalling:", err)
   }  else if cl == nil {
     fmt.Println("Send - cl is nil")
   } else {
-    for id,conn := range cl.sessions {
-      if sessionId == "" || sessionId == id {
-        conn.WriteMessage(websocket.BinaryMessage, data)
-      }
+    fmt.Printf("\t there are %d connections\n", len(cl.sessions))
+    for _,conn := range cl.sessions {
+      conn.WriteMessage(websocket.BinaryMessage, data)
     }
   }
 }
@@ -140,7 +137,7 @@ var upgrader = websocket.Upgrader {
 }
 
 func wsHandler(w http.ResponseWriter, r *http.Request) {
-  fmt.Println("New connection")
+  fmt.Println("\nNew connection\n")
   conn, err := upgrader.Upgrade(w, r, nil)
   if err != nil {
     fmt.Println("Error upgrading to websocket:", err)
@@ -238,8 +235,8 @@ func updatePresence(sessionId string, online bool) {
   client, ok := chat.clients[sessionId]
   if !ok {
     fmt.Println("\t can't find " + sessionId)
+    return
   }
-
   if online == client.online {
     fmt.Printf("updatePresence: %s is already %t\n", client.name, client.online)
     return
@@ -299,7 +296,7 @@ func remove(s []string, r string) []string {
 }
 
 func receivedUsername(conn *websocket.Conn, username string) {
-  fmt.Println("\nreceivedUsername: " + username)
+  fmt.Println("receivedUsername: " + username)
   defer chat.clientsMtx.Unlock()
   chat.clientsMtx.Lock()
 
@@ -312,12 +309,12 @@ func receivedUsername(conn *websocket.Conn, username string) {
     client = &Client{
       name:     username,
       sessions: make(map[string]*websocket.Conn),
-      online:   true,
+      online:   false,
     }
   }
   client.sessions[sessionId] = conn
   chat.namedClients[username] = client
-  fmt.Println("new client name=" + client.name + " session=" + sessionId)
+  fmt.Printf("new client name=%s, session=%s, len=%d\n", client.name, sessionId, len(client.sessions))
   client.Load(chat.db)
   chat.clients[sessionId] = client
   sendContacts(client, sessionId)
