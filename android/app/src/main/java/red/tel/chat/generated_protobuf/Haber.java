@@ -118,14 +118,22 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
   )
   public final Load load;
 
+  @WireField(
+      tag = 109,
+      adapter = "com.squareup.wire.ProtoAdapter#BYTES",
+      label = WireField.Label.REPEATED
+  )
+  public final List<ByteString> raw;
+
   public Haber(Integer version, String sessionId, String from, String to, Which which, Login login,
-      List<Contact> contacts, Text text, Av av, File file, Store store, Load load) {
-    this(version, sessionId, from, to, which, login, contacts, text, av, file, store, load, ByteString.EMPTY);
+      List<Contact> contacts, Text text, Av av, File file, Store store, Load load,
+      List<ByteString> raw) {
+    this(version, sessionId, from, to, which, login, contacts, text, av, file, store, load, raw, ByteString.EMPTY);
   }
 
   public Haber(Integer version, String sessionId, String from, String to, Which which, Login login,
       List<Contact> contacts, Text text, Av av, File file, Store store, Load load,
-      ByteString unknownFields) {
+      List<ByteString> raw, ByteString unknownFields) {
     super(ADAPTER, unknownFields);
     this.version = version;
     this.sessionId = sessionId;
@@ -139,6 +147,7 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
     this.file = file;
     this.store = store;
     this.load = load;
+    this.raw = Internal.immutableCopyOf("raw", raw);
   }
 
   @Override
@@ -156,6 +165,7 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
     builder.file = file;
     builder.store = store;
     builder.load = load;
+    builder.raw = Internal.copyOf("raw", raw);
     builder.addUnknownFields(unknownFields());
     return builder;
   }
@@ -177,7 +187,8 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
         && Internal.equals(av, o.av)
         && Internal.equals(file, o.file)
         && Internal.equals(store, o.store)
-        && Internal.equals(load, o.load);
+        && Internal.equals(load, o.load)
+        && raw.equals(o.raw);
   }
 
   @Override
@@ -197,6 +208,7 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
       result = result * 37 + (file != null ? file.hashCode() : 0);
       result = result * 37 + (store != null ? store.hashCode() : 0);
       result = result * 37 + (load != null ? load.hashCode() : 0);
+      result = result * 37 + raw.hashCode();
       super.hashCode = result;
     }
     return result;
@@ -217,6 +229,7 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
     if (file != null) builder.append(", file=").append(file);
     if (store != null) builder.append(", store=").append(store);
     if (load != null) builder.append(", load=").append(load);
+    if (!raw.isEmpty()) builder.append(", raw=").append(raw);
     return builder.replace(0, 2, "Haber{").append('}').toString();
   }
 
@@ -245,8 +258,11 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
 
     public Load load;
 
+    public List<ByteString> raw;
+
     public Builder() {
       contacts = Internal.newMutableList();
+      raw = Internal.newMutableList();
     }
 
     public Builder version(Integer version) {
@@ -316,9 +332,15 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
       return this;
     }
 
+    public Builder raw(List<ByteString> raw) {
+      Internal.checkElementsNotNull(raw);
+      this.raw = raw;
+      return this;
+    }
+
     @Override
     public Haber build() {
-      return new Haber(version, sessionId, from, to, which, login, contacts, text, av, file, store, load, super.buildUnknownFields());
+      return new Haber(version, sessionId, from, to, which, login, contacts, text, av, file, store, load, raw, super.buildUnknownFields());
     }
   }
 
@@ -403,6 +425,7 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
           + File.ADAPTER.encodedSizeWithTag(106, value.file)
           + Store.ADAPTER.encodedSizeWithTag(107, value.store)
           + Load.ADAPTER.encodedSizeWithTag(108, value.load)
+          + ProtoAdapter.BYTES.asRepeated().encodedSizeWithTag(109, value.raw)
           + value.unknownFields().size();
     }
 
@@ -420,6 +443,7 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
       File.ADAPTER.encodeWithTag(writer, 106, value.file);
       Store.ADAPTER.encodeWithTag(writer, 107, value.store);
       Load.ADAPTER.encodeWithTag(writer, 108, value.load);
+      ProtoAdapter.BYTES.asRepeated().encodeWithTag(writer, 109, value.raw);
       writer.writeBytes(value.unknownFields());
     }
 
@@ -448,6 +472,7 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
           case 106: builder.file(File.ADAPTER.decode(reader)); break;
           case 107: builder.store(Store.ADAPTER.decode(reader)); break;
           case 108: builder.load(Load.ADAPTER.decode(reader)); break;
+          case 109: builder.raw.add(ProtoAdapter.BYTES.decode(reader)); break;
           default: {
             FieldEncoding fieldEncoding = reader.peekFieldEncoding();
             Object value = fieldEncoding.rawProtoAdapter().decode(reader);

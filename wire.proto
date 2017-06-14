@@ -62,4 +62,5 @@ message Haber {
     File file = 106;
     Store store = 107;
     Load load = 108;
+    repeated bytes raw = 109;
 }

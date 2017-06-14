@@ -16,7 +16,7 @@ class TextViewController: NSViewController {
 
     @IBAction func didClickSend(_ sender: Any) {
         let body = input.stringValue
-        Backend.sendText(body, to: Model.shared.watching!)
+        Backend.shared.sendText(body, to: Model.shared.watching!)
         input.stringValue = ""
     }
 
@@ -35,7 +35,7 @@ class TextViewController: NSViewController {
     private func updateTranscript() {
         if let whom = Model.shared.watching {
             self.transcript.string = Model.shared.texts
-                .filter({ haber in haber.from == Model.shared.credential?.username || haber.from == whom })
+                .filter({ haber in haber.from == Backend.shared.credential?.username || haber.from == whom })
                 .reduce("", { text,haber in text! + haber.from + ": " + haber.text.body + "\n"} )
         }
     }

@@ -2,12 +2,35 @@ import Foundation
 
 class Backend {
 
-    private static let shared = Backend()
+    static let shared = Backend()
     private let network = Network()
     private var sessionId: String?
+    private var crypto: Crypto?
+
+    private enum Key: String {
+        case username
+        case password
+    }
+
+    struct Credential {
+        let username: String
+        let password: String
+    }
+    var credential: Credential?
+
+    private init() {
+
+//        UserDefaults.standard.set(nil, forKey: Key.username.rawValue)
+//        UserDefaults.standard.set(nil, forKey: Key.password.rawValue)
+
+        if let username = UserDefaults.standard.string(forKey: Key.username.rawValue),
+            let password = UserDefaults.standard.string(forKey: Key.password.rawValue) {
+            self.credential = Credential(username: username, password: password)
+        }
+    }
 
     private func send(_ haberBuilder:Haber.Builder) {
-        guard let haber = try? haberBuilder.setSessionId(self.sessionId ?? "").build() else {
+        guard let haber = try? haberBuilder.setSessionId(sessionId ?? "").build() else {
             print("could not create haber")
             return
         }
@@ -15,67 +38,78 @@ class Backend {
         self.network.send(haber.data())
     }
 
-    static func connect() {
-        shared.network.connect()
+    func connect() {
+        network.connect()
     }
 
-    static func sendText(_ body: String, to: String) {
+    func sendText(_ body: String, to: String) {
         guard let update = try? Text.Builder().setBody(body).build() else {
             print("could not create Text")
             return
         }
         let haberBuilder = Haber.Builder().setText(update).setWhich(.text).setTo(to)
-        shared.send(haberBuilder)
+        send(haberBuilder)
     }
 
-    static func sendContacts(_ contacts: [String:Contact]) {
+    func sendContacts(_ contacts: [String:Contact]) {
         let haberBuilder = Haber.Builder().setContacts(Array(contacts.values)).setWhich(.contacts)
-        shared.send(haberBuilder)
+        send(haberBuilder)
     }
 
-    static func sendStore(key: Data, value: Data) {
+    func sendStore(key: Data, value: Data) {
         do {
-            let store = try Store.Builder().setKey(key).setValue(value).build()
+            guard let encrypted = crypto?.encrypt(data: value) else {
+                print("could not encrypt store")
+                return
+            }
+            let store = try Store.Builder().setKey(key).setValue(encrypted).build()
             let haberBuilder = Haber.Builder().setStore(store).setWhich(.store)
-            shared.send(haberBuilder)
+            send(haberBuilder)
         } catch {
             print(error.localizedDescription)
         }
     }
 
-    static func sendLoad(key: Data) {
+    private func didReceiveStore(_ haber: Haber) {
+        guard let value = crypto?.decrypt(ciphertext: haber.store.value) else {
+            print("could not decrypt store")
+            return
+        }
+        Model.shared.didReceiveStore(key: haber.store.key, value: value)
+    }
+
+    func sendLoad(key: Data) {
         do {
             let load = try Load.Builder().setKey(key).build()
             let haberBuilder = Haber.Builder().setWhich(.load).setLoad(load)
-            shared.send(haberBuilder)
+            send(haberBuilder)
         } catch {
             print(error.localizedDescription)
         }
     }
 
-    static func register(username: String, password: String) {
+    func register(username: String, password: String) {
         print("register not implemented")
     }
 
-    static func login(username: String, password: String) {
+    func login(username: String, password: String) {
         do {
-            Model.shared.credential = Model.Credential(username: username, password: password)
+            credential = Credential(username: username, password: password)
             let login = try Login.Builder().setUsername(username).build()
             let haberBuilder = Haber.Builder().setLogin(login).setWhich(.login)
-            shared.send(haberBuilder)
+            send(haberBuilder)
         } catch {
             print(error.localizedDescription)
         }
     }
 
-    static func didReceiveData(_ data: Data) {
+    func didReceiveData(_ data: Data) {
         guard let haber = try? Haber.parseFrom(data:data) else {
                 print("Could not deserialize")
                 return
         }
-        if let sid = haber.sessionId, shared.sessionId == nil {
-            shared.sessionId = sid
-            EventBus.post(.authenticated)
+        if let sid = haber.sessionId, sessionId == nil {
+            authenticated(sessionId: sid)
         }
     
         print("read \(data.count) bytes for \(haber.which)")
@@ -83,8 +117,22 @@ class Backend {
             case .contacts: Model.shared.didReceiveContacts(haber.contacts)
             case .text:     Model.shared.didReceiveText(haber, data: data)
             case .presence: Model.shared.didReceivePresence(haber)
-            case .store:    Model.shared.didReceiveStore(haber)
+            case .store:    didReceiveStore(haber)
             default:        print("did not handle \(haber.which)")
         }
+    }
+
+    private func authenticated(sessionId sid: String) {
+        sessionId = sid
+
+        guard let username = self.credential?.username, let password = credential?.password else {
+            print("authentication without credentials")
+            return
+        }
+        UserDefaults.standard.set(username, forKey: Key.username.rawValue)
+        UserDefaults.standard.set(password, forKey: Key.password.rawValue)
+        crypto = Crypto(password: password)
+
+        EventBus.post(.authenticated)
     }
 }

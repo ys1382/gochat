@@ -6,8 +6,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
 
         EventBus.addListener(about: .connected, didReceive: { notification in
-            if let credential = Model.shared.credential {
-                Backend.login(username: credential.username, password: credential.password)
+            if let credential = Backend.shared.credential {
+                Backend.shared.login(username: credential.username, password: credential.password)
             } else {
                 LoginViewController.popup()
             }
@@ -21,6 +21,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             alert.runModal()
         })
 
-        Backend.connect()
+        Backend.shared.connect()
     }
 }

@@ -17,16 +17,16 @@ class MasterViewController: UITableViewController {
             self.detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
         }
 
-        Model.shared.addListener(about: .contacts) { notification in
+        EventBus.addListener(about: .contacts) { notification in
             self.names = Array(Model.shared.roster.values).map({ contact in return contact.name })
             self.tableView.reloadData()
         }
 
-        Model.shared.addListener(about: .presence) { notification in
+        EventBus.addListener(about: .presence) { notification in
             self.tableView.reloadData()
         }
 
-        Model.shared.addListener(about: .text) { notification in
+        EventBus.addListener(about: .text) { notification in
             self.tableView.reloadData()
         }
     }
@@ -47,9 +47,23 @@ class MasterViewController: UITableViewController {
     }
 
     func askContact(_ sender: Any) {
-        SplitViewController.askString(title:"Add a contact", cancellable: true) { username in
-            self.addContact(username)
+        let alertController = UIAlertController(title: nil,
+                                                message: "Add a Contact",
+                                                preferredStyle: UIAlertControllerStyle.alert)
+        let okAction = UIAlertAction(title: "OK", style: .default) { (action) in
+            if let text = alertController.textFields?[0].text {
+                self.addContact(text)
+            }
         }
+        alertController.addAction(okAction)
+
+        let cancelAction = UIAlertAction(title: "CANCEL", style: .cancel)
+        alertController.addAction(cancelAction)
+
+        alertController.addTextField { (textField : UITextField!) -> Void in
+            textField.placeholder = "New contact name"
+        }
+        self.present(alertController, animated: true, completion: nil)
     }
 
     // table

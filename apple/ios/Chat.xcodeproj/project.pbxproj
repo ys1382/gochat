@@ -8,8 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		1A60DFF81EA30FEA00BECD73 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A60DFF61EA30FEA00BECD73 /* Backend.swift */; };
-		1A60DFF91EA30FEA00BECD73 /* Wire.proto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A60DFF71EA30FEA00BECD73 /* Wire.proto.swift */; };
 		1A60E0021EA4039F00BECD73 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A60E0011EA4039F00BECD73 /* Model.swift */; };
+		1A709A441EEEF204003C2699 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A709A431EEEF204003C2699 /* LoginViewController.swift */; };
+		1A709A481EEF29EC003C2699 /* Crypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A709A451EEF29EC003C2699 /* Crypto.swift */; };
+		1A709A491EEF29EC003C2699 /* EventBus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A709A461EEF29EC003C2699 /* EventBus.swift */; };
+		1A709A4A1EEF29EC003C2699 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A709A471EEF29EC003C2699 /* Network.swift */; };
+		1A709A4E1EEF8837003C2699 /* Wire.proto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A709A4D1EEF8837003C2699 /* Wire.proto.swift */; };
 		1AA0003B1EAD9A36006B9EE7 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA0003A1EAD9A36006B9EE7 /* SplitViewController.swift */; };
 		1AB0620C1E8843E500A841D0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB0620B1E8843E500A841D0 /* AppDelegate.swift */; };
 		1AB0620E1E8843E500A841D0 /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB0620D1E8843E500A841D0 /* MasterViewController.swift */; };
@@ -22,8 +26,12 @@
 /* Begin PBXFileReference section */
 		0ACBFB437F9424A73A5B0830 /* Pods_Chat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Chat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A60DFF61EA30FEA00BECD73 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Backend.swift; path = ../../common/Backend.swift; sourceTree = "<group>"; };
-		1A60DFF71EA30FEA00BECD73 /* Wire.proto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Wire.proto.swift; path = ../../common/Wire.proto.swift; sourceTree = "<group>"; };
 		1A60E0011EA4039F00BECD73 /* Model.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Model.swift; path = ../../common/Model.swift; sourceTree = "<group>"; };
+		1A709A431EEEF204003C2699 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		1A709A451EEF29EC003C2699 /* Crypto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Crypto.swift; path = ../../common/Crypto.swift; sourceTree = "<group>"; };
+		1A709A461EEF29EC003C2699 /* EventBus.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = EventBus.swift; path = ../../common/EventBus.swift; sourceTree = "<group>"; };
+		1A709A471EEF29EC003C2699 /* Network.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Network.swift; path = ../../common/Network.swift; sourceTree = "<group>"; };
+		1A709A4D1EEF8837003C2699 /* Wire.proto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Wire.proto.swift; path = ../../common/Wire.proto.swift; sourceTree = "<group>"; };
 		1AA0003A1EAD9A36006B9EE7 /* SplitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
 		1AB062081E8843E500A841D0 /* Chat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AB0620B1E8843E500A841D0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -65,6 +73,32 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		1A709A421EEEF10A003C2699 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				1AB062141E8843E600A841D0 /* Assets.xcassets */,
+				1AB062111E8843E600A841D0 /* Main.storyboard */,
+				1AB0620F1E8843E500A841D0 /* DetailViewController.swift */,
+				1A709A431EEEF204003C2699 /* LoginViewController.swift */,
+				1AB0620D1E8843E500A841D0 /* MasterViewController.swift */,
+				1AA0003A1EAD9A36006B9EE7 /* SplitViewController.swift */,
+			);
+			name = UI;
+			sourceTree = "<group>";
+		};
+		1A709A4B1EEF29F8003C2699 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				1A709A451EEF29EC003C2699 /* Crypto.swift */,
+				1A709A461EEF29EC003C2699 /* EventBus.swift */,
+				1A709A471EEF29EC003C2699 /* Network.swift */,
+				1A60DFF61EA30FEA00BECD73 /* Backend.swift */,
+				1A60E0011EA4039F00BECD73 /* Model.swift */,
+				1A709A4D1EEF8837003C2699 /* Wire.proto.swift */,
+			);
+			name = Common;
+			sourceTree = "<group>";
+		};
 		1AB061FF1E8843E500A841D0 = {
 			isa = PBXGroup;
 			children = (
@@ -87,14 +121,8 @@
 			isa = PBXGroup;
 			children = (
 				1AB0620B1E8843E500A841D0 /* AppDelegate.swift */,
-				1AA0003A1EAD9A36006B9EE7 /* SplitViewController.swift */,
-				1AB0620D1E8843E500A841D0 /* MasterViewController.swift */,
-				1AB0620F1E8843E500A841D0 /* DetailViewController.swift */,
-				1A60DFF61EA30FEA00BECD73 /* Backend.swift */,
-				1A60E0011EA4039F00BECD73 /* Model.swift */,
-				1A60DFF71EA30FEA00BECD73 /* Wire.proto.swift */,
-				1AB062111E8843E600A841D0 /* Main.storyboard */,
-				1AB062141E8843E600A841D0 /* Assets.xcassets */,
+				1A709A4B1EEF29F8003C2699 /* Common */,
+				1A709A421EEEF10A003C2699 /* UI */,
 				1AB062191E8843E600A841D0 /* Info.plist */,
 			);
 			path = Chat;
@@ -224,11 +252,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A60DFF81EA30FEA00BECD73 /* Backend.swift in Sources */,
+				1A709A491EEF29EC003C2699 /* EventBus.swift in Sources */,
 				1AA0003B1EAD9A36006B9EE7 /* SplitViewController.swift in Sources */,
 				1AB062101E8843E500A841D0 /* DetailViewController.swift in Sources */,
+				1A709A481EEF29EC003C2699 /* Crypto.swift in Sources */,
+				1A709A4A1EEF29EC003C2699 /* Network.swift in Sources */,
+				1A709A4E1EEF8837003C2699 /* Wire.proto.swift in Sources */,
 				1AB0620E1E8843E500A841D0 /* MasterViewController.swift in Sources */,
+				1A709A441EEEF204003C2699 /* LoginViewController.swift in Sources */,
 				1A60E0021EA4039F00BECD73 /* Model.swift in Sources */,
-				1A60DFF91EA30FEA00BECD73 /* Wire.proto.swift in Sources */,
 				1AB0620C1E8843E500A841D0 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -56,6 +56,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1A709A4C1EEF2A0D003C2699 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				1A60DFF21EA30FC900BECD73 /* Backend.swift */,
+				1A7F93F81EE3EB9B009BE159 /* Crypto.swift */,
+				1AC51C501EE4F46C00681864 /* EventBus.swift */,
+				1A60DFFF1EA4039400BECD73 /* Model.swift */,
+				1A7F93FA1EE49A4D009BE159 /* Network.swift */,
+				1A60DFF31EA30FC900BECD73 /* Wire.proto.swift */,
+			);
+			name = Common;
+			sourceTree = "<group>";
+		};
 		1AC51C561EE5EF4700681864 /* UI */ = {
 			isa = PBXGroup;
 			children = (
@@ -90,14 +103,9 @@
 		1ADE89E31EA1CE0E00E41212 /* Chat */ = {
 			isa = PBXGroup;
 			children = (
+				1A709A4C1EEF2A0D003C2699 /* Common */,
 				1ADE89ED1EA1CE0E00E41212 /* Info.plist */,
 				1ADE89E41EA1CE0E00E41212 /* AppDelegate.swift */,
-				1A60DFF21EA30FC900BECD73 /* Backend.swift */,
-				1A7F93F81EE3EB9B009BE159 /* Crypto.swift */,
-				1AC51C501EE4F46C00681864 /* EventBus.swift */,
-				1A60DFFF1EA4039400BECD73 /* Model.swift */,
-				1A7F93FA1EE49A4D009BE159 /* Network.swift */,
-				1A60DFF31EA30FC900BECD73 /* Wire.proto.swift */,
 				1AC51C561EE5EF4700681864 /* UI */,
 			);
 			path = Chat;

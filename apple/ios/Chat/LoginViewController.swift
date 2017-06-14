@@ -1,9 +1,20 @@
-//
-//  LoginViewController.swift
-//  Chat
-//
-//  Created by Yusuf Saib on 6/12/17.
-//  Copyright © 2017 ys1382. All rights reserved.
-//
+import UIKit
 
-import Foundation
+class LoginViewController: UIViewController {
+    @IBOutlet weak var username: UITextField!
+    @IBOutlet weak var password: UITextField!
+
+    override func viewDidLoad() {
+        EventBus.addListener(about: .authenticated) {_ in 
+            self.dismiss(animated: true, completion: {})
+        }
+    }
+
+    @IBAction func didClickLogin(_ sender: Any) {
+        Backend.shared.login(username: username.text!, password: password.text!)
+    }
+    
+    @IBAction func didClickRegister(_ sender: Any) {
+        Backend.shared.register(username: username.text!, password: password.text!)
+    }
+}
