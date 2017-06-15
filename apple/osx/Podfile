@@ -5,6 +5,7 @@ target 'Chat' do
   pod 'Starscream', :git => 'https://github.com/daltoniam/Starscream', :branch => 'swift3'
   pod 'ProtocolBuffers-Swift'
   pod 'RNCryptor', '~> 5.0'
+  pod 'SignalProtocolObjC'
 end
 
 post_install do |installer|
