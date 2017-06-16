@@ -58,7 +58,7 @@ class Backend {
 
     func sendStore(key: Data, value: Data) {
         do {
-            guard let encrypted = crypto?.encrypt(data: value) else {
+            guard let encrypted = crypto?.keyDerivationEncrypt(data: value) else {
                 print("could not encrypt store")
                 return
             }
@@ -71,7 +71,7 @@ class Backend {
     }
 
     private func didReceiveStore(_ haber: Haber) {
-        guard let value = crypto?.decrypt(ciphertext: haber.store.value) else {
+        guard let value = crypto?.keyDerivationDecrypt(ciphertext: haber.store.value) else {
             print("could not decrypt store")
             return
         }
