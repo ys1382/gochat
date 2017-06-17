@@ -5,9 +5,6 @@ class Model {
 
     static let shared = Model()
 
-    private enum Key: String {
-        case texts
-    }
     private var textsStorage = [Data]()
 
     var roster = [String:Contact]()

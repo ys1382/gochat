@@ -7,11 +7,6 @@ class Backend {
     private var sessionId: String?
     private var crypto: Crypto?
 
-    private enum Key: String {
-        case username
-        case password
-    }
-
     struct Credential {
         let username: String
         let password: String

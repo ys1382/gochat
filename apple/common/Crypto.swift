@@ -4,10 +4,6 @@ import SignalProtocolC
 
 class Crypto {
 
-    private enum Key: String {
-        case signalClientInstallTime
-    }
-
     private let password: String
     private static var lock = NSRecursiveLock()
 
