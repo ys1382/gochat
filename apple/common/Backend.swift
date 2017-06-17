@@ -18,8 +18,8 @@ class Backend {
 //        UserDefaults.standard.set(nil, forKey: Key.username.rawValue)
 //        UserDefaults.standard.set(nil, forKey: Key.password.rawValue)
 
-        if let username = UserDefaults.standard.string(forKey: Key.username.rawValue),
-            let password = UserDefaults.standard.string(forKey: Key.password.rawValue) {
+        if let username = LocalStorage.loadString(forKey: .username),
+            let password = LocalStorage.loadString(forKey: .password) {
             self.credential = Credential(username: username, password: password)
         }
     }
@@ -65,12 +65,16 @@ class Backend {
         }
     }
 
-    private func didReceiveStore(_ haber: Haber) {
+    private func didReceiveStore(_ haber: Haber) throws {
         guard let value = crypto?.keyDerivationDecrypt(ciphertext: haber.store.value) else {
             print("could not decrypt store")
             return
         }
-        Model.shared.didReceiveStore(key: haber.store.key, value: value)
+        try Model.shared.didReceiveStore(key: haber.store.key, value: value)
+    }
+
+    func sendLoad(key: LocalStorage.Key) {
+        sendLoad(key: key.toData())
     }
 
     func sendLoad(key: Data) {
@@ -108,12 +112,16 @@ class Backend {
         }
     
         print("read \(data.count) bytes for \(haber.which)")
-        switch haber.which {
-            case .contacts: Model.shared.didReceiveContacts(haber.contacts)
-            case .text:     Model.shared.didReceiveText(haber, data: data)
-            case .presence: Model.shared.didReceivePresence(haber)
-            case .store:    didReceiveStore(haber)
-            default:        print("did not handle \(haber.which)")
+        do {
+            switch haber.which {
+                case .contacts: Model.shared.didReceiveContacts(haber.contacts)
+                case .text:     Model.shared.didReceiveText(haber, data: data)
+                case .presence: Model.shared.didReceivePresence(haber)
+                case .store:    try didReceiveStore(haber)
+                default:        print("did not handle \(haber.which)")
+            }
+        } catch {
+            print(error.localizedDescription)
         }
     }
 
@@ -124,8 +132,9 @@ class Backend {
             print("authentication without credentials")
             return
         }
-        UserDefaults.standard.set(username, forKey: Key.username.rawValue)
-        UserDefaults.standard.set(password, forKey: Key.password.rawValue)
+
+        LocalStorage.store(username, forKey: .username)
+        LocalStorage.store(password, forKey: .password)
         crypto = Crypto(password: password)
 
         EventBus.post(.authenticated)

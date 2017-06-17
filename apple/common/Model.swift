@@ -18,10 +18,14 @@ class Model {
         }
     }
 
+    private enum ModelError: Error {
+        case keyNotHandled
+    }
+
+
     private init() {
         EventBus.addListener(about: .authenticated, didReceive: { notification in
-            let key = Key.texts.rawValue.data(using: String.Encoding.utf8)!
-            Backend.shared.sendLoad(key: key)
+            Backend.shared.sendLoad(key: .texts)
         })
     }
 
@@ -46,7 +50,7 @@ class Model {
         textsStorage.append(data)
         do {
             let allTexts = try Haber.Builder().setRaw(textsStorage).build().data()
-            let key = Key.texts.rawValue.data(using: String.Encoding.utf8)!
+            let key = LocalStorage.Key.texts.toData()
             Backend.shared.sendStore(key: key, value: allTexts)
         } catch {
             print(error.localizedDescription)
@@ -62,23 +66,15 @@ class Model {
         EventBus.post(about:.contacts)
     }
 
-    func didReceiveStore(key keyData: Data, value: Data) {
-        guard let key = String(data: keyData, encoding: .utf8) else {
-            print("could not get store")
-            return
+    func didReceiveStore(key keyData: Data, value: Data) throws {
+        let key = try LocalStorage.Key(keyData)
+        guard key == .texts else {
+            throw ModelError.keyNotHandled
         }
-        guard key == Key.texts.rawValue else {
-            print("Unexpected key " + key)
-            return
-        }
-        do {
-            let parsed = try Haber.parseFrom(data: value)
-            textsStorage = parsed.raw
-            texts = previousTexts()
-            EventBus.post(forKey: key)
-        } catch {
-            print(error.localizedDescription)
-        }
+        let parsed = try Haber.parseFrom(data: value)
+        textsStorage = parsed.raw
+        texts = previousTexts()
+        EventBus.post(.texts)
     }
 
     private func previousTexts() -> [Haber] {

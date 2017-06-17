@@ -9,6 +9,7 @@ class EventBus {
         case contacts
         case presence
         case text
+        case texts
     }
 
     static func post(about: Haber.Which) {

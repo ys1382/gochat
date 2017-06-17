@@ -125,10 +125,10 @@ class Crypto {
 
     func signalClientInstallTime(globalContext: OpaquePointer?) {
 
-        if UserDefaults.standard.bool(forKey: Key.signalClientInstallTime.rawValue) {
+        if LocalStorage.loadBoolean(forKey: .signalClientInstallTime) {
             return
         }
-        UserDefaults.standard.set(true, forKey: Key.signalClientInstallTime.rawValue)
+        LocalStorage.store(true, forKey: .signalClientInstallTime)
 
         var result: Int32
         var identityKeyPair: OpaquePointer?

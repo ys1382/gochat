@@ -1,19 +1,39 @@
 import Foundation
 import SignalProtocolC
 
-class Storage {
+class LocalStorage {
 
     enum Key: String {
         case username
         case password
         case signalClientInstallTime
         case texts
+
+        func toData() -> Data {
+            return self.rawValue.data(using: String.Encoding.utf8)!
+        }
+
+        init(_ data: Data) throws {
+            guard let string = String(data: data, encoding: .utf8), let key = Key(rawValue: string) else {
+                throw LocalStorageError.invalidKey
+            }
+            self = key
+        }
     }
 
-    enum StorageError: Error {
+    enum LocalStorageError: Error {
         case invalidAddress
         case nullRecord
         case failedToLoadData
+        case invalidKey
+    }
+
+    static func store(_ string: String, forKey key:Key) {
+        UserDefaults.standard.set (string, forKey: key.rawValue)
+    }
+
+    static func store(_ boolean: Bool, forKey key:Key) {
+        UserDefaults.standard.set(boolean, forKey: key.rawValue)
     }
 
     static func store(data: Data, forKey key: Key) {
@@ -24,11 +44,11 @@ class Storage {
         UserDefaults.standard.set(data, forKey: key)
     }
 
-    func loadString(forKey key: Key) -> String? {
+    static func loadString(forKey key: Key) -> String? {
         return UserDefaults.standard.string(forKey: key.rawValue)
     }
 
-    func loadBoolean(forKey key: Key) -> Bool {
+    static func loadBoolean(forKey key: Key) -> Bool {
         return UserDefaults.standard.bool(forKey: key.rawValue)
     }
 
@@ -36,14 +56,14 @@ class Storage {
 
     private static func addressToKey(_ address: UnsafePointer<signal_protocol_address>?) throws -> String {
         guard let name = address?.pointee.name, let deviceId = address?.pointee.device_id else {
-            throw StorageError.invalidAddress
+            throw LocalStorageError.invalidAddress
         }
         return String(format: "%s-%d", name, deviceId)
     }
 
     private static func recordToData(_ record: UnsafeMutablePointer<UInt8>?, _ size: Int) throws -> Data {
         guard record != nil else {
-            throw StorageError.nullRecord
+            throw LocalStorageError.nullRecord
         }
         return Data(bytes: record!, count: size)
     }
@@ -56,16 +76,11 @@ class Storage {
 
     static func load(record: UnsafeMutablePointer<OpaquePointer?>?,
                      forAddress address: UnsafePointer<signal_protocol_address>?) throws {
-        var data = UserDefaults.standard.data(forKey: try addressToKey(address))
-        if data == nil {
-            throw StorageError.failedToLoadData
+        guard let data = UserDefaults.standard.data(forKey: try addressToKey(address)) else {
+            throw LocalStorageError.failedToLoadData
         }
-
-        let start0 = UnsafeMutablePointer<UInt8>.allocate(capacity: (data?.count)!)
-        data?.copyBytes(to: start0, count: (data?.count)!)
-
-        let a = OpaquePointer(data!.bytes)
-
-        record?.pointee = UnsafeMutableRawBufferPointer(start: data?.bytes, count: data.count)
+        record?.pointee = data.withUnsafeBytes { (ptr: UnsafePointer<OpaquePointer>) -> OpaquePointer in
+            return ptr.pointee
+        }
     }
 }
