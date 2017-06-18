@@ -1,6 +1,7 @@
 import Foundation
 import RNCryptor
 import SignalProtocolC
+//import SignalProtocolObjC
 
 class Crypto {
 
@@ -25,7 +26,17 @@ class Crypto {
         }
     }
 
+    func signalSetup() {
+
+//        public init(sessionStore: SignalSessionStore, preKeyStore: SignalPreKeyStore, signedPreKeyStore: SignalSignedPreKeyStore, identityKeyStore: SignalIdentityKeyStore, senderKeyStore: SignalSenderKeyStore)
+
+//        var sessionStore = SignalSessionStore()
+//        var signalStore = SignalStore(sessionStore, preKeyStore, signedPreKeyStore, identityKeyStore, senderKeyStore)
+//        var signalContext = SignalContext(storage: signalStore)
+    }
+
     func setupSignal() {
+
         let globalContext = signalLibraryInitialization()
         signalClientInstallTime(globalContext: globalContext)
         signalBuildSession(globalContext: globalContext)
@@ -34,26 +45,27 @@ class Crypto {
     func signalBuildSession(globalContext: OpaquePointer?) {
         var storeContext: OpaquePointer?
         signal_protocol_store_context_create(&storeContext, globalContext)
-
         var sessionStore = signal_protocol_session_store()
+
+        sessionStore.store_session_func = { address, record, recordLen, userData in
+            return LocalStorage.store(record: record, size: recordLen, forAddress: address)
+        }
         sessionStore.load_session_func = { record, address, userData in
             return LocalStorage.load(record: record, forAddress: address)
         }
         sessionStore.get_sub_device_sessions_func = { sessions, name, nameLen, userData in
             return 0
         }
-        sessionStore.store_session_func = { address, record, recordLen, userData in
-            return 0
-        }
         sessionStore.contains_session_func = { address, userData in
-            return 0
+            return LocalStorage.contains(address: address)
         }
         sessionStore.delete_session_func = { address, userData in
-            return 0
+            return LocalStorage.delete(address: address)
         }
         sessionStore.delete_all_sessions_func = { name, nameLen, userData in
-            return 0
+            return LocalStorage.deleteAll(name: name, nameLen: nameLen)
         }
+
         sessionStore.destroy_func = { userData in }
         sessionStore.user_data = nil
         signal_protocol_store_context_set_session_store(storeContext, &sessionStore)

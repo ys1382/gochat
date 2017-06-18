@@ -55,8 +55,10 @@ class LocalStorage {
     // signal
 
     enum SignalResult {
-        static let success = Int32(0)
-        static let failure = Int32(99)
+        static let success      = Int32(0)
+        static let failure      = Int32(-99)
+        static let exists       = Int32(1)
+        static let doesNotExist = Int32(0)
     }
 
     private static func addressToKey(_ address: UnsafePointer<signal_protocol_address>?) throws -> String {
@@ -75,13 +77,17 @@ class LocalStorage {
 
     static func store(record: UnsafeMutablePointer<UInt8>?,
                       size: Int,
-                      forAddress address:UnsafePointer<signal_protocol_address>?) throws {
-        store(data: try recordToData(record, size), forKey: try addressToKey(address))
+                      forAddress address:UnsafePointer<signal_protocol_address>?) -> Int32 {
+        do {
+            store(data: try recordToData(record, size), forKey: try addressToKey(address))
+            return SignalResult.success
+        } catch {
+            return SignalResult.failure
+        }
     }
 
     static func load(record: UnsafeMutablePointer<OpaquePointer?>?,
                      forAddress address: UnsafePointer<signal_protocol_address>?) -> Int32 {
-
         do {
             guard let data = UserDefaults.standard.data(forKey: try addressToKey(address)) else {
                 return SignalResult.failure
@@ -97,5 +103,22 @@ class LocalStorage {
         } catch {
             return SignalResult.failure
         }
+    }
+
+    static func contains(address: UnsafePointer<signal_protocol_address>?) -> Int32 {
+        do {
+            if UserDefaults.standard.object(forKey: try addressToKey(address)) != nil {
+                return SignalResult.exists
+            }
+        } catch {}
+        return SignalResult.doesNotExist
+    }
+
+    static func delete(address: UnsafePointer<signal_protocol_address>?) -> Int32 {
+        do {
+            UserDefaults.standard.removeObject(forKey: try addressToKey(address))
+            return SignalResult.success
+        } catch {}
+        return SignalResult.failure
     }
 }
