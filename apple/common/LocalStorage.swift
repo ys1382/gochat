@@ -54,6 +54,11 @@ class LocalStorage {
 
     // signal
 
+    enum SignalResult {
+        static let success = Int32(0)
+        static let failure = Int32(99)
+    }
+
     private static func addressToKey(_ address: UnsafePointer<signal_protocol_address>?) throws -> String {
         guard let name = address?.pointee.name, let deviceId = address?.pointee.device_id else {
             throw LocalStorageError.invalidAddress
@@ -75,12 +80,22 @@ class LocalStorage {
     }
 
     static func load(record: UnsafeMutablePointer<OpaquePointer?>?,
-                     forAddress address: UnsafePointer<signal_protocol_address>?) throws {
-        guard let data = UserDefaults.standard.data(forKey: try addressToKey(address)) else {
-            throw LocalStorageError.failedToLoadData
-        }
-        record?.pointee = data.withUnsafeBytes { (ptr: UnsafePointer<OpaquePointer>) -> OpaquePointer in
-            return ptr.pointee
+                     forAddress address: UnsafePointer<signal_protocol_address>?) -> Int32 {
+
+        do {
+            guard let data = UserDefaults.standard.data(forKey: try addressToKey(address)) else {
+                return SignalResult.failure
+            }
+            let bytes = data.withUnsafeBytes { (ptr: UnsafePointer<UInt8>) -> UnsafePointer<UInt8> in
+                return ptr
+            }
+            let signalBuffer = signal_buffer_create(bytes, data.count)
+
+            record?.pointee = signalBuffer
+            return SignalResult.success
+
+        } catch {
+            return SignalResult.failure
         }
     }
 }

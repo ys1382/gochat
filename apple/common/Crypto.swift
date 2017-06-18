@@ -37,7 +37,7 @@ class Crypto {
 
         var sessionStore = signal_protocol_session_store()
         sessionStore.load_session_func = { record, address, userData in
-            return 0
+            return LocalStorage.load(record: record, forAddress: address)
         }
         sessionStore.get_sub_device_sessions_func = { sessions, name, nameLen, userData in
             return 0
