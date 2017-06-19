@@ -24,7 +24,7 @@ func assert_av_output_queue() {
 class AV {
     
     static let shared = AV()
-    static let defaultAudioFormat = kAudioFormatMPEG4AAC
+    static let defaultAudioFormatID = kAudioFormatMPEG4AAC
     static let defaultAudioInterval = 0.1
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,6 +61,14 @@ class AV {
         }
     }
 
+    var defaultAudioInputFormat: AudioStreamBasicDescription? {
+        guard let inputFormat = AVAudioEngine().inputNode?.inputFormat(forBus: AudioBus.input) else { return nil }
+
+        return AudioStreamBasicDescription.CreateVBR(AV.defaultAudioFormatID,
+                                                           inputFormat.sampleRate/*8000*/,
+                                                           1/*inputFormat.channelCount*/)
+    }
+
     private func _defaultVideoInput(_ id: IOID,
                                     _ rotated: Bool,
                                     _ session: inout AVCaptureSession.Accessor?,
@@ -95,9 +103,11 @@ class AV {
 
     private func _defaultAudioInput(_ id: IOID, _ x: inout [IOSessionProtocol]) {
         
+        guard let format = defaultAudioInputFormat else { return }
+        
         let input =
             AudioInput(
-                AV.defaultAudioFormat,
+                format,
                 AV.defaultAudioInterval,
                 NetworkAACSerializer(
                     NetworkOutputAudio(id)))
@@ -153,21 +163,23 @@ class AV {
             return VideoFormat(dimensions)
         }
     }
-    
-    func defaultIOSync(_ sid: String) -> IOSync {
-        let result = activeIOSync[sid]
+
+    func defaultIOSync(_ gid: String) -> IOSync {
+        let result = activeIOSync[gid]
         
         if result != nil {
             return result!
         }
         
-        activeIOSync[sid] = IOSync()
+        activeIOSync[gid] = IOSync()
         
-        return activeIOSync[sid]!
+        return activeIOSync[gid]!
     }
 
     func startAudioOutput(_ id: IOID, _ session: IOSessionProtocol) throws {
+        try defaultIOSync(id.gid).start()
         try session.start()
+        
         activeAudioOutput[id.from] = session
     }
     
@@ -181,8 +193,8 @@ class AV {
         activeAudioOutput.removeAll()
     }
     
-    func defaultNetworkInputVideo(_ id: IOID,
-                                  _ output: VideoOutputProtocol) -> IODataProtocol {
+    func defaultNetworkVideoOutput(_ id: IOID,
+                                   _ output: VideoOutputProtocol) -> IODataProtocol {
         
         let time =
             VideoTimeDeserializer(H264Part.Time.rawValue)
@@ -214,17 +226,26 @@ class AV {
         return result
     }
 
-    func defaultNetworkOutputAudio(_ id: IOID,
+    func defaultNetworkAudioOutput(_ id: IOID,
                                    _ format: AudioFormat,
                                    _ session: inout IOSessionProtocol?) -> IODataProtocol {
         let time =
             AudioTimeDeserializer(AACPart.NetworkPacket.rawValue)
         
         let output =
-            AudioOutput(format, AV.defaultAudioFormat, AV.defaultAudioInterval)
+            AudioOutput(
+                factory(format),
+                avOutputQueue)
+        
+        let decoder =
+            AudioDecoder(
+                factory(format),
+                output.format,
+                output)
         
         let sync =
-            defaultIOSync(id.gid)
+            defaultIOSync(
+                id.gid)
         
         let syncBus =
             IOSyncBus(
@@ -242,17 +263,17 @@ class AV {
             IOKind.Audio,
             time,
             NetworkAACDeserializer(
-                output))
+                decoder))
         
-        session = output
+        session = create([output, decoder])
         
         return result
     }
     
-    func setupDefaultNetworkInputAudio(_ platformSession: IOSessionProtocol?) {        
+    func setupDefaultNetworkAudioOutput(_ platformSession: IOSessionProtocol?) {        
         let audioSessionStart = { (_ id: IOID, format: AudioFormat) throws -> IODataProtocol in
             var session: IOSessionProtocol? = nil
-            let result = AV.shared.defaultNetworkOutputAudio(id, format, &session)
+            let result = AV.shared.defaultNetworkAudioOutput(id, format, &session)
             
             if platformSession != nil && session != nil {
                 let shared = session!
@@ -296,6 +317,70 @@ class AV {
             self.avOutputQueue.sync {
                 audioSessionStop(id)
             }
+        }
+    }
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Playback
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    var defaultAudioInputUncompressedFormat: AudioStreamBasicDescription? {
+        guard let inputFormat = AVAudioEngine().inputNode?.inputFormat(forBus: AudioBus.input) else { return nil }
+        var format = inputFormat.streamDescription.pointee
+        
+        format.mChannelsPerFrame = 1
+        return format
+    }
+
+    func startAudioUncompressedPlayback() throws {
+        guard let format = defaultAudioInputUncompressedFormat else { return }
+        
+        let input =
+            AudioInput(
+                format,
+                AV.defaultAudioInterval)
+        
+        let output =
+            AudioOutput(
+                input.format,
+                AV.shared.audioCaptureQueue)
+        
+        input.output =
+            NetworkAACSerializer(
+                NetworkAACDeserializer(
+                    output))
+        
+        try audioCaptureQueue.sync {
+            try AV.shared.startInput(create([output, input]))
+        }
+    }
+
+    func startAudioCompressedPlayback() throws {
+        guard let format = defaultAudioInputFormat else { return }
+
+        let input =
+            AudioInput(
+                format,
+                AV.defaultAudioInterval)
+        
+        let output =
+            AudioOutput(
+                input.format,
+                AV.shared.audioCaptureQueue)
+        
+        let decoder =
+            AudioDecoder(
+                input.format,
+                output.format,
+                output)
+        
+        input.output =
+            NetworkAACSerializer(
+                NetworkAACDeserializer(
+                    decoder))
+        
+        try audioCaptureQueue.sync {
+            try AV.shared.startInput(create([input, output, decoder]))
         }
     }
 }

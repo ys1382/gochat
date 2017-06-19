@@ -2,6 +2,10 @@
 import AVFoundation
 import AudioToolbox
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Simple types
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 protocol AudioOutputProtocol {
     
     func process(_ data: AudioData)
@@ -19,7 +23,7 @@ struct AudioBus {
 struct AudioData {
     var bytes: UnsafePointer<Int8>!
     var bytesNum: UInt32 = 0
-    var packetDesc: UnsafePointer<AudioStreamPacketDescription>!
+    var packetDesc: UnsafePointer<AudioStreamPacketDescription>?
     var packetNum: UInt32 = 0
     var timeStamp: AudioTimeStamp!
     
@@ -29,7 +33,7 @@ struct AudioData {
     
     init(_ bytes: UnsafePointer<Int8>,
          _ bytesNum: UInt32,
-         _ packetDesc: UnsafePointer<AudioStreamPacketDescription>,
+         _ packetDesc: UnsafePointer<AudioStreamPacketDescription>?,
          _ packetNum: UInt32,
          _ timeStamp: AudioTimeStamp) {
         self.bytes = bytes
@@ -40,30 +44,43 @@ struct AudioData {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// AudioFormat
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 struct AudioFormat {
     
     typealias Factory = () -> AudioFormat
     
+    private static let kFormatID = "kFormatID"
     private static let kFlags = "kFlags"
     private static let kSampleRate = "kSampleRate"
     private static let kChannelCount = "kChannelCount"
     private static let kFramesPerPacket = "kFramesPerPacket"
-    private static let kPacketMaxSize = "kPacketMaxSize"
 
     private(set) var data: [String: Any]
 
-    init(_ x: AudioStreamBasicDescription, _ packetMaxSize: UInt32) {
+    init(_ x: AudioStreamBasicDescription) {
         data = [String: Any]()
         
+        self.formatID = x.mFormatID
         self.flags = x.mFormatFlags
         self.sampleRate = x.mSampleRate
         self.channelCount =  x.mChannelsPerFrame
         self.framesPerPacket = x.mFramesPerPacket
-        self.packetMaxSize = packetMaxSize
     }
     
     init(_ data: [String: Any]) {
         self.data = data
+    }
+
+    var formatID: UInt32 {
+        get {
+            return data.keys.contains(AudioFormat.kFormatID) ? data[AudioFormat.kFormatID] as! UInt32 : 0
+        }
+        set {
+            data[AudioFormat.kFormatID] = newValue
+        }
     }
 
     var flags: UInt32 {
@@ -101,16 +118,17 @@ struct AudioFormat {
             data[AudioFormat.kFramesPerPacket] = newValue
         }
     }
+}
 
-    var packetMaxSize: UInt32 {
-        get {
-            return data.keys.contains(AudioFormat.kPacketMaxSize) ? data[AudioFormat.kPacketMaxSize] as! UInt32 : 0
-        }
-        set {
-            data[AudioFormat.kPacketMaxSize] = newValue
-        }
+func factory(_ value: AudioFormat) -> AudioFormat.Factory {
+    return { () in
+        return value
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Protocols adapters
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class AudioPipe : AudioOutputProtocol {
     
@@ -138,7 +156,7 @@ class AudioTimeDeserializer : IOTimeProtocol {
         return UnsafePointer<AudioTimeStamp>(x)
     }
     
-    func audioTime(_ packets: [Int: NSData], _ time: UnsafePointer<AudioTimeStamp>) {
+    func audioTime(_ packets: inout [Int: NSData], _ time: UnsafePointer<AudioTimeStamp>) {
         memcpy(UnsafeMutableRawPointer(mutating: packets[packetKey]!.bytes),
                time,
                MemoryLayout<AudioTimeStamp>.size)
@@ -151,7 +169,74 @@ class AudioTimeDeserializer : IOTimeProtocol {
     func time(_ data: inout [Int: NSData], _ time: Double) {
         let audioTime = UnsafeMutablePointer<AudioTimeStamp>(mutating: self.audioTime(data))
         audioTime.pointee.seconds(time)
-        self.audioTime(data, audioTime)
+        self.audioTime(&data, audioTime)
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// AudioDataBuffer
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class AudioDataReader {
+    
+    var data = [AudioData]()
+    var capacity: Int
+    var current: AudioData?
+    var currentIndex: Int = 0
+    
+    init(capacity: Int) {
+        self.capacity = capacity
+    }
+    
+    func push(_ data: AudioData) {
+        self.data.append(data)
+        
+        if self.data.count > capacity {
+            self.data.removeLast()
+        }
+    }
+    
+    private func popFirst() -> AudioData? {
+        let result = data.first
+        
+        if data.count != 0 {
+            data.removeFirst()
+        }
+        
+        return result
+    }
+    
+    func pop(_ count: Int, _ outData: UnsafeMutableRawPointer) {
+        
+        if current == nil {
+            current = popFirst()
+            currentIndex = 0
+        }
+        
+        if current == nil {
+            memset(outData, 0, count)
+            return
+        }
+        
+        var countRead = min(count, Int(current!.bytesNum) - currentIndex)
+        var outIndex = 0
+        
+        while current != nil && countRead > 0 {
+            memcpy(outData.advanced(by: outIndex), current?.bytes.advanced(by: currentIndex), countRead)
+            currentIndex += countRead
+            outIndex += countRead
+            
+            if currentIndex == Int(current!.bytesNum) {
+                current = popFirst()
+                currentIndex = 0
+            }
+            
+            if current != nil {
+                countRead = min(count - outIndex, Int(current!.bytesNum) - currentIndex)
+            }
+            else {
+                memset(outData.advanced(by: outIndex), 0, count - outIndex)
+            }
+        }
+    }
+}

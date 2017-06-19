@@ -124,6 +124,8 @@ class VideoTimeDeserializer : IOTimeProtocol {
         self.packetKey = packetKey
     }
     
+    static let Size = UInt32(MemoryLayout<CMSampleTimingInfo>.size)
+    
     func videoTime(_ packets: [Int: NSData]) -> CMSampleTimingInfo {
         return CMSampleTimingInfo(packets[packetKey]!)
     }

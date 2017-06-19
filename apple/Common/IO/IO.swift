@@ -128,6 +128,11 @@ class IOTimebase : IODataProtocol {
             zero = dataTime
         }
         
+        else if zero! > dataTime {
+            assert(false)
+            return
+        }
+        
         time.time(&copy, timebase + dataTime - zero!)
         next?.process(copy)
     }
@@ -156,6 +161,15 @@ func logIOError(_ error: String) {
 func checkStatus(_ status: OSStatus, _ message: String) throws {
     guard status == 0 else {
         throw ErrorIO.Error(message + ", status code \(status)")
+    }
+}
+
+func checkIO(_ x: FuncVVT) {
+    do {
+        try x()
+    }
+    catch {
+        logIOError(error)
     }
 }
 

@@ -12,6 +12,10 @@ class ChatThread : Thread {
         self.name = name
     }
     
+    convenience init<T>(_ type: T) {
+        self.init(typeName(type))
+    }
+    
     override func main() {
         runLoop = RunLoop.current
         runLoop!.add(NSMachPort(), forMode: .defaultRunLoopMode)
@@ -20,6 +24,11 @@ class ChatThread : Thread {
         while running {
             runLoop!.run(until: Date().addingTimeInterval(1))
         }
+    }
+    
+    override func start() {
+        super.start()
+        sync { /* wait for RunLoop initialization */ }
     }
     
     override func cancel() {

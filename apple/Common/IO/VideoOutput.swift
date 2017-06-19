@@ -40,12 +40,14 @@ class VideoOutput : VideoOutputProtocol {
         
         format = dataFormat
         
-        if self.layer.isReadyForMoreMediaData && self.layer.status != .failed {
-            self.layer.enqueue(data)
-        }
-        else {
-            self.printStatus()
-            self.layer.flush()
+        dispatch_sync_on_main {
+            if self.layer.isReadyForMoreMediaData && self.layer.status != .failed {
+                self.layer.enqueue(data)
+            }
+            else {
+                self.printStatus()
+                self.layer.flush()
+            }
         }
     }
     

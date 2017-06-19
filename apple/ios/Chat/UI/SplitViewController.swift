@@ -38,7 +38,7 @@ class SplitViewController : UISplitViewController {
 
     override func viewDidLoad() {
         Backend.shared.videoSessionStart = { (_ id: IOID, _ format: VideoFormat) throws -> IODataProtocol? in
-            assert_main_queue()
+            assert_main()
 
             if self.detailViewController == nil {
                 let detailsID = String(describing: DetailViewController.self)

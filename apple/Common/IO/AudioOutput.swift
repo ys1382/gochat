@@ -7,24 +7,29 @@ import AudioToolbox
 
 class AudioOutput : AudioOutputProtocol, IOSessionProtocol {
     
-    private var queue: AudioQueueRef?
-    private var buffer: AudioQueueBufferRef?
-    private var packetsToRead: UInt32 = 0
     private let dqueue: DispatchQueue
+    private var squeue: DispatchQueue?
+    private var unit: AppleAudioUnit?
 
-    let format: AudioFormat
-    let formatID: UInt32
-    let interval: Double
-    
-    init(_ format: AudioFormat, _ formatID: UInt32, _ interval: Double, _ queue: DispatchQueue) {
-        self.format = format
-        self.formatID = formatID
-        self.interval = interval
+    private var buffer = AudioDataReader(capacity: 2)
+    private var bufferFrames = 0
+
+    private let formatInput: AudioFormat.Factory
+    private var formatDescription: AudioStreamBasicDescription?
+
+    var packets: Int = 0
+
+    init(_ format: @escaping AudioFormat.Factory, _ queue: DispatchQueue) {
         self.dqueue = queue
+        self.formatInput = format
     }
 
-    convenience init(_ format: AudioFormat, _ formatID: UInt32, _ interval: Double) {
-        self.init(format, formatID, interval, AV.shared.avOutputQueue)
+    var format: AudioStreamBasicDescription.Factory {
+        get {
+            return { () in
+                return self.formatDescription
+            }
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,49 +40,24 @@ class AudioOutput : AudioOutputProtocol, IOSessionProtocol {
         
         assert(dqueue)
         
-        var format = AudioStreamBasicDescription.CreateOutput(self.format, formatID)
-        
         do {
-            // create queue
+            packets = 0
+            squeue = DispatchQueue.CreateCheckable("chat.AudioOutput")
+            
+            var callback = AURenderCallbackStruct(inputProc: self.callback,
+                                                  inputProcRefCon: Unmanaged.passUnretained(self).toOpaque())
+            
+            #if os(iOS)
+            unit = try AppleAudioUnit(kAudioUnitType_Output, kAudioUnitSubType_RemoteIO)
+            #else
+            unit = try AppleAudioUnit(kAudioUnitType_Output, kAudioUnitSubType_VoiceProcessingIO)
+            #endif
 
-            try checkStatus(AudioQueueNewOutput(&format,
-                                                callback,
-                                                Unmanaged.passUnretained(self).toOpaque(),
-                                                CFRunLoopGetMain(),
-                                                CFRunLoopMode.commonModes.rawValue,
-                                                0,
-                                                &queue), "AudioQueueNew failed")
-            
-            // we need to calculate how many packets we read at a time, and how big a buffer we need
-            // we base this on the size of the packets in the file and an approximate duration for each buffer
-            // first check to see what the max size of a packet is - if it is bigger
-            // than our allocation default size, that needs to become larger
-            
-            // adjust buffer size to represent about a half second of audio based on this format
-            var bufferByteSize: UInt32 = 0
-            
-            _calculateBytesForTime (format,
-                                    self.format.packetMaxSize,
-                                    interval,
-                                    &bufferByteSize,
-                                    &packetsToRead)
-            
-            let isFormatVBR = format.mBytesPerPacket == 0 || format.mFramesPerPacket == 0
-            
-            try checkStatus(AudioQueueAllocateBufferWithPacketDescriptions(queue!,
-                                                                           bufferByteSize,
-                                                                           isFormatVBR ? packetsToRead : 0,
-                                                                           &buffer), "AudioQueueAllocateBuffer failed")
-            
-            // set the volume of the queue
-            try checkStatus(AudioQueueSetParameter(queue!,
-                                                   kAudioQueueParam_Volume,
-                                                   1.0), "Set queue volume failed");
-            
-            // start queue
-            
-            try checkStatus(AudioQueueStart(queue!,
-                                            nil), "AudioQueueStart failed")
+            try unit!.getFormat(kAudioUnitScope_Input, AudioBus.input, &formatDescription)
+            try unit!.setIOEnabled(kAudioUnitScope_Input, AudioBus.output, true)
+            try unit!.setRenderer(kAudioUnitScope_Input, AudioBus.input, &callback)
+            try unit!.initialize()
+            try unit!.start()
         }
         catch {
             logIOError(error)
@@ -87,18 +67,10 @@ class AudioOutput : AudioOutputProtocol, IOSessionProtocol {
     func stop() {
         
         assert(dqueue)
-
-        guard let queue = self.queue else { assert(false); return }
         
         do {
-            try checkStatus(AudioQueueStop(queue,
-                                           true), "AudioQueueStop failed")
-            
-            try checkStatus(AudioQueueDispose(queue,
-                                              true), "AudioQueueDispose failed")
-            
-            self.queue = nil
-            self.buffer = nil
+            try unit!.stop()
+            squeue = nil
         }
         catch {
             logIOError(error)
@@ -108,68 +80,42 @@ class AudioOutput : AudioOutputProtocol, IOSessionProtocol {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // AudioOutputProtocol
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+    
     func process(_ data: AudioData) {
-        
         assert(dqueue)
         
-        do {
-            memcpy(self.buffer!.pointee.mAudioData, data.bytes, Int(data.bytesNum))
-            self.buffer!.pointee.mAudioDataByteSize = data.bytesNum
-
-            try checkStatus(AudioQueueEnqueueBuffer(self.queue!,
-                                                    self.buffer!,
-                                                    data.packetNum,
-                                                    data.packetDesc), "AudioQueueEnqueueBuffer failed")
-        }
-        catch {
-            logIOError(error)
+        // first few packets plays with artefacts, so skip it
+        packets += 1
+        guard packets > 10 else { return }
+        
+        squeue!.sync {
+            buffer.push(data)
         }
     }
     
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Utils
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    var lastTime: Double = 0
+    
+    private let callback: AURenderCallback = {(
+        inRefCon: UnsafeMutableRawPointer,
+        ioActionFlags: UnsafeMutablePointer<AudioUnitRenderActionFlags>,
+        inTimeStamp: UnsafePointer<AudioTimeStamp>,
+        inBusNumber: UInt32,
+        inNumberFrames: UInt32,
+        ioData: UnsafeMutablePointer<AudioBufferList>?) in
 
-    private func _calculateBytesForTime(_ inDesc: AudioStreamBasicDescription,
-                                        _ inpacketMaxSize: UInt32,
-                                        _ inSeconds: Double,
-                                        _ outBufferSize: inout UInt32,
-                                        _ outNumPackets: inout UInt32)
-    {
-        // we only use time here as a guideline
-        // we're really trying to get somewhere between 16K and 64K buffers,
-        // but not allocate too much if we don't need it
-        let maxBufferSize: UInt32 = 0x10000; // limit size to 64K
-        let minBufferSize: UInt32 = 0x4000; // limit size to 16K
+        let SELF = Unmanaged<AudioOutput>.fromOpaque(inRefCon).takeUnretainedValue()
+        let buffers = UnsafeBufferPointer<AudioBuffer>(start: &ioData!.pointee.mBuffers,
+                                                       count: Int(ioData!.pointee.mNumberBuffers))
 
-        if (inDesc.mFramesPerPacket != 0) {
-            let numPacketsForTime = inDesc.mSampleRate / Double(inDesc.mFramesPerPacket) * inSeconds
-            outBufferSize = UInt32(numPacketsForTime * Double(inpacketMaxSize))
-        }
-        else {
-            // if frames per packet is zero, then the codec has no predictable packet == time
-            // so we can't tailor this (we don't know how many Packets represent a time period
-            // we'll just return a default buffer size
-            outBufferSize = maxBufferSize > inpacketMaxSize ? maxBufferSize : inpacketMaxSize;
+        SELF.squeue!.sync {
+            SELF.buffer.pop(Int(inNumberFrames * SELF.formatDescription!.mBytesPerFrame),
+                            buffers[0].mData!)
+            
+            for i in 1 ..< Int(ioData!.pointee.mNumberBuffers) {
+                memcpy(buffers[i].mData!, buffers[0].mData!, Int(buffers[0].mDataByteSize))
+            }
         }
         
-        // we're going to limit our size to our default
-        if (outBufferSize > maxBufferSize && outBufferSize > inpacketMaxSize) {
-            outBufferSize = maxBufferSize
-        }
-        else if (outBufferSize < minBufferSize) {
-            // also make sure we're not too small - we don't want to go the disk for too small chunks
-            outBufferSize = minBufferSize;
-        }
-        
-        outNumPackets = outBufferSize / inpacketMaxSize;
-    }
-
-    private let callback: AudioQueueOutputCallback = {
-        (inUserData: UnsafeMutableRawPointer?,
-        inAQ: AudioQueueRef,
-        inBuffer: AudioQueueBufferRef) in
-        
+        return 0
     }
 }

@@ -1,4 +1,5 @@
 import UIKit
+import AVFoundation
 
 @UIApplicationMain
 class AppDelegate: Application, UIApplicationDelegate, UISplitViewControllerDelegate {
@@ -22,8 +23,16 @@ class AppDelegate: Application, UIApplicationDelegate, UISplitViewControllerDele
         
         // Audio
         
-        AV.shared.setupDefaultNetworkInputAudio(ChatAudioSession())
-        
+        do {
+            try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayAndRecord)
+            try AVAudioSession.sharedInstance().setActive(true)
+
+            AV.shared.setupDefaultNetworkAudioOutput(nil)
+        }
+        catch {
+            logIOError(error)
+        }
+
         // done
 
         return true

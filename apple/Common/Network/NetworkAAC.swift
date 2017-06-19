@@ -72,6 +72,7 @@ class NetworkAACSerializer : AudioOutputProtocol {
         // output
         
         output?.process([AACPart.NetworkPacket.rawValue: NSData(bytes: result, length: size)])
+        result.deallocate(capacity: size)
     }
 }
 

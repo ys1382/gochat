@@ -29,9 +29,11 @@ class NetworkH264Serializer : IODataProtocol {
             ? data[part.rawValue]!.length
             : 0)
         
-        result.append(&size, length: MemoryLayout<UInt32>.size)
+        if part != H264Part.Time {
+            result.append(&size, length: MemoryLayout<UInt32>.size)
+        }
         
-        if (size != 0) {
+        if size != 0 {
             result.append(data[part.rawValue]! as Data)
         }
     }
@@ -55,34 +57,40 @@ class NetworkH264Deserializer : IODataProtocol {
         let packet = data[H264Part.NetworkPacket.rawValue]!
         var result = [Int: NSData]()
 
-        if let part = _process(data: packet, shift: &shift) {
+        if let part = _process(data: packet, knownSize: VideoTimeDeserializer.Size, shift: &shift) {
             result[H264Part.Time.rawValue] = part
         }
 
-        if let part = _process(data: packet, shift: &shift) {
+        if let part = _process(data: packet, knownSize: 0, shift: &shift) {
             result[H264Part.SPS.rawValue] = part
         }
 
-        if let part = _process(data: packet, shift: &shift) {
+        if let part = _process(data: packet, knownSize: 0, shift: &shift) {
             result[H264Part.PPS.rawValue] = part
         }
 
-        if let part = _process(data: packet, shift: &shift) {
+        if let part = _process(data: packet, knownSize: 0, shift: &shift) {
             result[H264Part.Data.rawValue] = part
         }
         
         next?.process(result)
     }
     
-    func _process(data: NSData, shift: inout Int) -> NSData? {
+    func _process(data: NSData, knownSize: UInt32, shift: inout Int) -> NSData? {
         
         var size: UInt32 = 0
-        
-        data.getBytes(&size, range: NSRange(location: shift, length: MemoryLayout<UInt32>.size))
-        shift += MemoryLayout<UInt32>.size
-        
-        if (size == 0) {
-            return nil
+
+        if knownSize == 0 {
+            data.getBytes(&size, range: NSRange(location: shift, length: MemoryLayout<UInt32>.size))
+            shift += MemoryLayout<UInt32>.size
+            
+            if (size == 0) {
+                assert(false)
+                return nil
+            }
+        }
+        else {
+            size = knownSize
         }
 
         let result = NSData(bytes: data.bytes.advanced(by: shift), length: Int(size))

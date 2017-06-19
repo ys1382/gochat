@@ -5,6 +5,9 @@ import Fabric
 import Crashlytics
 
 class Application : AppleApplicationDelegate {
+
+    static let kCompressedPlayback = false
+    static let kUncompressedPlayback = false
     
     static let kServerIP = "kServerIP"
     static let kVideoWidth = "kVideoWidth"
@@ -36,6 +39,19 @@ class Application : AppleApplicationDelegate {
         if videoWidth != nil && videoHeight != nil {
             AV.shared.defaultVideoDimension = CMVideoDimensions(width: Int32(videoWidth!)!,
                                                                 height: Int32(videoHeight!)!)
+        }
+        
+        // playback testing
+        
+        checkIO {
+            
+            if Application.kCompressedPlayback {
+                try AV.shared.startAudioCompressedPlayback()
+            }
+            
+            if Application.kUncompressedPlayback {
+                try AV.shared.startAudioUncompressedPlayback()
+            }
         }
     }
 }

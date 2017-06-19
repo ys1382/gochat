@@ -2,32 +2,55 @@
 import CoreAudio
 
 extension AudioStreamBasicDescription {
+
+    typealias Factory = () throws -> AudioStreamBasicDescription?
     
-    static func CreateInput(_ formatID: UInt32,
-                            _ sampleRate: Double,
-                            _ channelCount: UInt32) -> AudioStreamBasicDescription {
+    // constant bit rate
+    static func CreateCBR(_ formatID: UInt32,
+                          _ sampleRate: Double,
+                          _ channelCount: UInt32) -> AudioStreamBasicDescription {
         var result = AudioStreamBasicDescription()
         
         result.mSampleRate = sampleRate;
         result.mChannelsPerFrame = channelCount;
         result.mFormatID = formatID;
         
-        if (formatID == kAudioFormatLinearPCM)
-        {
-            // if we want pcm, default to signed 16-bit little-endian
-            result.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked;
-            result.mBitsPerChannel = 16;
-            result.mBytesPerFrame = (result.mBitsPerChannel / 8) * result.mChannelsPerFrame;
-            result.mBytesPerPacket = result.mBytesPerFrame
-            result.mFramesPerPacket = 1;
-        }
+        // if we want pcm, default to signed 16-bit little-endian
+        result.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsPacked
+        result.mBitsPerChannel = 16;
+        result.mBytesPerFrame = (result.mBitsPerChannel / 8) * result.mChannelsPerFrame
+        result.mBytesPerPacket = result.mBytesPerFrame
+        result.mFramesPerPacket = 1;
+        
+        return result
+    }
+
+    // constant bit rate
+    static func CreateCBR(_ format: AudioFormat) -> AudioStreamBasicDescription {
+        var result = AudioStreamBasicDescription.CreateCBR(format.formatID, format.sampleRate, format.channelCount)
+        
+        result.mFormatFlags = format.flags
+        result.mFramesPerPacket = format.framesPerPacket
+        
+        return result
+    }
+
+    // variable bit rate
+    static func CreateVBR(_ formatID: UInt32,
+                          _ sampleRate: Double,
+                          _ channelCount: UInt32) -> AudioStreamBasicDescription {
+        var result = AudioStreamBasicDescription()
+        
+        result.mSampleRate = sampleRate
+        result.mChannelsPerFrame = channelCount
+        result.mFormatID = formatID
         
         return result
     }
     
-    static func CreateOutput(_ format: AudioFormat,
-                             _ formatID: UInt32) -> AudioStreamBasicDescription {
-        var result = AudioStreamBasicDescription.CreateInput(formatID, format.sampleRate, format.channelCount)
+    // variable bit rate
+    static func CreateVBR(_ format: AudioFormat) -> AudioStreamBasicDescription {
+        var result = AudioStreamBasicDescription.CreateVBR(format.formatID, format.sampleRate, format.channelCount)
         
         result.mFormatFlags = format.flags
         result.mFramesPerPacket = format.framesPerPacket
@@ -39,10 +62,10 @@ extension AudioStreamBasicDescription {
 extension AudioTimeStamp {
     
     func seconds() -> Double {
-        return Double(mHostTime) / 1000000000.0
+        return mach_absolute_seconds(mHostTime)
     }
 
     mutating func seconds(_ x: Double) {
-        mHostTime = UInt64(x * 1000000000.0)
+        mHostTime = mach_absolute_time(seconds: x)
     }
 }

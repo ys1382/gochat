@@ -50,12 +50,11 @@ class MediaViewController : UIViewController {
                                          videoSession!,
                                          video)
                     
-                    audio =
-                        ChatAudioSession(
-                            audio)
-                    
-                    audio = IOSessionAsyncDispatcher(AV.shared.audioCaptureQueue, audio!)
                     video = VideoSessionAsyncDispatcher(AV.shared.videoCaptureQueue, video!)
+                }
+                
+                if audio != nil {
+                    audio = IOSessionAsyncDispatcher(AV.shared.audioCaptureQueue, audio!)
                 }
                 
                 try AV.shared.startInput(create([audio, video]));
@@ -77,13 +76,17 @@ class MediaViewController : UIViewController {
         
         // setup video output
         
-        videoSessionStart = { (_ id: IOID, _) in
+        videoSessionStart = { (_ id: IOID, _) throws in
             self.sessionID = id.sid
-            return AV.shared.defaultNetworkInputVideo(id, VideoOutput(self.networkView.sampleLayer))
+            
+            let result = AV.shared.defaultNetworkVideoOutput(id, VideoOutput(self.networkView.sampleLayer))
+            try AV.shared.defaultIOSync(id.gid).start()
+            return result
         }
         
-        videoSessionStop = { (_) in
+        videoSessionStop = { (_ id: IOID) in
             self.networkView.sampleLayer.flushAndRemoveImage()
+            try! AV.shared.defaultIOSync(id.gid).stop()
         }
     }
 

@@ -36,7 +36,7 @@ class AppDelegate: Application, NSApplicationDelegate {
             }
         }
         
-        AV.shared.setupDefaultNetworkInputAudio(nil)
+        AV.shared.setupDefaultNetworkAudioOutput(nil)
     }
 
     static func ask(title: String, subtitle: String, cancelable: Bool, done:(String?)->Void) {

@@ -4,14 +4,16 @@ import AVFoundation
 
 class AudioInput : NSObject, IOSessionProtocol
 {
-    private var audioFormat: AudioFormat?
+    private static let kBuffersCount = 3
+
+    public var output: AudioOutputProtocol?
 
     private var queue: AudioQueueRef?
-    private var	buffer: AudioQueueBufferRef?
+    private var	buffers = [AudioQueueBufferRef]()
     private var stopping: Bool = false
 
-    private let output: AudioOutputProtocol?
-    private let formatID: UInt32
+    private var formatDescription: AudioStreamBasicDescription
+    private var formatChat: AudioFormat?
     private let interval: Double
     
     private var thread: ChatThread?
@@ -19,59 +21,58 @@ class AudioInput : NSObject, IOSessionProtocol
 
     public var format: AudioFormat.Factory {
         get {
-            return { () in self.audioFormat! }
+            return { () in self.formatChat! }
         }
     }
 
-    init(_ formatID: UInt32, _ interval: Double, _ queue: DispatchQueue, _ output: AudioOutputProtocol?) {
-        self.output = output
-        self.formatID = formatID
+    init(_ format: AudioStreamBasicDescription,
+         _ interval: Double,
+         _ queue: DispatchQueue,
+         _ output: AudioOutputProtocol?) {
+        self.formatDescription = format
         self.interval = interval
         self.dqueue = queue
+        self.output = output
     }
 
-    convenience init(_ formatID: UInt32, _ interval: Double, _ output: AudioOutputProtocol?) {
-        self.init(formatID, interval, AV.shared.audioCaptureQueue, output)
+    convenience init(_ format: AudioStreamBasicDescription,
+                     _ interval: Double,
+                     _ output: AudioOutputProtocol?) {
+        self.init(format, interval, AV.shared.audioCaptureQueue, output)
+    }
+
+    convenience init(_ format: AudioStreamBasicDescription,
+                     _ interval: Double) {
+        self.init(format, interval, nil)
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // IOSessionProtocol
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    var tap: AudioQueueProcessingTapRef?
     
     func start() throws {
         assert(dqueue)
 
         // thread
         
-        thread = ChatThread("Audio Input")
+        thread = ChatThread(AudioInput.self)
         thread!.start()
 
-        // prepare format
-
-        let engine = AVAudioEngine()
-        let inputFormat = engine.inputNode!.inputFormat(forBus: AudioBus.input)
-        var format = AudioStreamBasicDescription.CreateInput(formatID,
-                                                             8000/*inputFormat.sampleRate*/,
-            1/*inputFormat.channelCount*/)
-        var packetMaxSize: UInt32 = 0
-        
         // start queue
         
+        var packetMaxSize: UInt32 = 0
         var bufferByteSize: UInt32
         var size: UInt32
 
         // create the queue
         
         try checkStatus(AudioQueueNewInput(
-            &format,
+            &formatDescription,
             callback,
             Unmanaged.passUnretained(self).toOpaque() /* userData */,
             thread!.runLoop.getCFRunLoop(), CFRunLoopMode.defaultMode.rawValue,
             0 /* flags */,
             &queue), "AudioQueueNewInput failed")
-        
         
         // get the record format back from the queue's audio converter --
         // the file may require a more specific stream description than was necessary to create the encoder.
@@ -79,23 +80,27 @@ class AudioInput : NSObject, IOSessionProtocol
         size = UInt32(MemoryLayout<AudioStreamBasicDescription>.size)
         try checkStatus(AudioQueueGetProperty(queue!,
                                               kAudioQueueProperty_StreamDescription,
-                                              &format,
+                                              &formatDescription,
                                               &size), "couldn't get queue's format");
         
         // allocate and enqueue buffers
         
-        bufferByteSize = computeBufferSize(format,
+        bufferByteSize = computeBufferSize(formatDescription,
                                            interval,
                                            &packetMaxSize);	// enough bytes for kBufferDurationSeconds
-        
-        try checkStatus(AudioQueueAllocateBuffer(queue!,
-                                                 bufferByteSize,
-                                                 &buffer), "AudioQueueAllocateBuffer failed");
-        
-        try checkStatus(AudioQueueEnqueueBuffer(queue!,
-                                                buffer!,
-                                                0,
-                                                nil), "AudioQueueEnqueueBuffer failed");
+
+        for _ in 0 ..< AudioInput.kBuffersCount {
+            var buffer: AudioQueueBufferRef?
+            
+            try checkStatus(AudioQueueAllocateBuffer(queue!,
+                                                     bufferByteSize,
+                                                     &buffer), "AudioQueueAllocateBuffer failed");
+
+            try checkStatus(AudioQueueEnqueueBuffer(queue!,
+                                                    buffer!,
+                                                    0,
+                                                    nil), "AudioQueueEnqueueBuffer failed");
+        }
         
         // start the queue
         
@@ -104,7 +109,7 @@ class AudioInput : NSObject, IOSessionProtocol
         
         // audio format
         
-        audioFormat = AudioFormat(format, packetMaxSize)
+        formatChat = AudioFormat(formatDescription)
     }
     
     func stop() {
@@ -116,7 +121,6 @@ class AudioInput : NSObject, IOSessionProtocol
         
         thread?.sync {
             do {
-                
                 // end recording
                 try checkStatus(AudioQueueStop(queue,
                                                true), "AudioQueueStop failed")
@@ -137,6 +141,81 @@ class AudioInput : NSObject, IOSessionProtocol
         stopping = false
     }
     
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Utils
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private let callback: AudioQueueInputCallback = {
+        (inUserData: UnsafeMutableRawPointer?,
+        inAQ: AudioQueueRef,
+        inBuffer: AudioQueueBufferRef,
+        inStartTime: UnsafePointer<AudioTimeStamp>,
+        inNumPackets: UInt32,
+        inPacketDesc: UnsafePointer<AudioStreamPacketDescription>?) in
+        
+        let input = Unmanaged<AudioInput>.fromOpaque(inUserData!).takeUnretainedValue()
+        
+        guard input.stopping == false else { return }
+        
+        logIO("audio input \(inStartTime.pointee.seconds())")
+        
+        do {
+            guard let queue = input.queue else { return }
+            
+            if (inNumPackets > 0) {
+                var bytesSize = inBuffer.pointee.mAudioDataByteSize
+                var bytes = UnsafeMutablePointer<Int8>
+                    .allocate(capacity: Int(bytesSize))
+                var packetDesc = UnsafeMutablePointer<AudioStreamPacketDescription>
+                    .allocate(capacity: Int(inPacketDesc != nil ? inNumPackets : 0))
+                var time = inStartTime.pointee
+                
+                memcpy(bytes,
+                       inBuffer.pointee.mAudioData,
+                       Int(inBuffer.pointee.mAudioDataByteSize))
+                
+                if inPacketDesc != nil {
+                    memcpy(packetDesc,
+                           inPacketDesc,
+                           MemoryLayout<AudioStreamPacketDescription>.size * Int(inNumPackets))
+                }
+                
+                // process input
+                
+                AV.shared.audioCaptureQueue.async {
+                    input.output!.process(AudioData(bytes,
+                                                    bytesSize,
+                                                    packetDesc,
+                                                    inNumPackets,
+                                                    time))
+                }
+
+                // simulate gaps
+                
+//                DispatchQueue.global().async {
+//                    let x = arc4random_uniform(1000000)
+//                    print("sleep \(Double(x) / 1000000.0)")
+//                    usleep(x)
+//                    AV.shared.audioCaptureQueue.async {
+//                        input.output!.process(AudioData(bytes,
+//                                                        bytesSize,
+//                                                        packetDesc,
+//                                                        inNumPackets,
+//                                                        time))
+//                    }
+//                }
+            }
+            
+            try checkStatus(AudioQueueEnqueueBuffer(input.queue!,
+                                                    inBuffer,
+                                                    0,
+                                                    nil), "AudioQueueEnqueueBuffer failed");
+        }
+        catch {
+            logIOError(error)
+        }
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Utils
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -190,58 +269,4 @@ class AudioInput : NSObject, IOSessionProtocol
         return bytes;
     }
 
-    private let callback: AudioQueueInputCallback = {
-        (inUserData: UnsafeMutableRawPointer?,
-        inAQ: AudioQueueRef,
-        inBuffer: AudioQueueBufferRef,
-        inStartTime: UnsafePointer<AudioTimeStamp>,
-        inNumPackets: UInt32,
-        inPacketDesc: UnsafePointer<AudioStreamPacketDescription>?) in
-        
-        let input = Unmanaged<AudioInput>.fromOpaque(inUserData!).takeUnretainedValue()
-        
-        guard input.stopping == false else { return }
-        
-
-        logIO("audio \(inStartTime.pointee.seconds)")
-        
-        do {
-            guard let queue = input.queue else { return }
-            
-            if (inNumPackets > 0) {
-                var bytesSize = inBuffer.pointee.mAudioDataByteSize
-                var bytes = UnsafeMutablePointer<Int8>
-                    .allocate(capacity: Int(bytesSize))
-                var packetDesc = UnsafeMutablePointer<AudioStreamPacketDescription>
-                    .allocate(capacity: Int(inPacketDesc != nil ? inNumPackets : 0))
-                var time = inStartTime.pointee
-                
-                memcpy(bytes,
-                       inBuffer.pointee.mAudioData,
-                       Int(inBuffer.pointee.mAudioDataByteSize))
-                
-                if inPacketDesc != nil {
-                    memcpy(packetDesc,
-                           inPacketDesc,
-                           MemoryLayout<AudioStreamPacketDescription>.size * Int(inNumPackets))
-                }
-                
-                AV.shared.audioCaptureQueue.async {
-                    input.output!.process(AudioData(bytes,
-                                                    bytesSize,
-                                                    packetDesc,
-                                                    inNumPackets,
-                                                    time))
-                }
-            }
-            
-            try checkStatus(AudioQueueEnqueueBuffer(input.queue!,
-                                                    input.buffer!,
-                                                    0,
-                                                    nil), "AudioQueueEnqueueBuffer failed");
-        }
-        catch {
-            logIOError(error)
-        }
-    }
 }
