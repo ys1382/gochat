@@ -1,7 +1,6 @@
 import Foundation
 import RNCryptor
 import SignalProtocolC
-//import SignalProtocolObjC
 
 class Crypto {
 
@@ -26,17 +25,7 @@ class Crypto {
         }
     }
 
-    func signalSetup() {
-
-//        public init(sessionStore: SignalSessionStore, preKeyStore: SignalPreKeyStore, signedPreKeyStore: SignalSignedPreKeyStore, identityKeyStore: SignalIdentityKeyStore, senderKeyStore: SignalSenderKeyStore)
-
-//        var sessionStore = SignalSessionStore()
-//        var signalStore = SignalStore(sessionStore, preKeyStore, signedPreKeyStore, identityKeyStore, senderKeyStore)
-//        var signalContext = SignalContext(storage: signalStore)
-    }
-
     func setupSignal() {
-
         let globalContext = signalLibraryInitialization()
         signalClientInstallTime(globalContext: globalContext)
         signalBuildSession(globalContext: globalContext)
@@ -54,7 +43,7 @@ class Crypto {
             return LocalStorage.load(record: record, forAddress: address)
         }
         sessionStore.get_sub_device_sessions_func = { sessions, name, nameLen, userData in
-            return 0
+            return LocalStorage.getSubDeviceSessions(sessions: sessions, name: name, nameLen: nameLen)
         }
         sessionStore.contains_session_func = { address, userData in
             return LocalStorage.contains(address: address)
@@ -71,34 +60,34 @@ class Crypto {
         signal_protocol_store_context_set_session_store(storeContext, &sessionStore)
 
         var preKeyStore = signal_protocol_pre_key_store()
-        preKeyStore.load_pre_key = { record, preKeyId, userData in
-            return 0
-        }
         preKeyStore.store_pre_key = { preKeyId, record, recordLen, userData in
-            return 0
+            return LocalStorage.store(record: record, recordLen: recordLen, forPreKeyId: preKeyId)
+        }
+        preKeyStore.load_pre_key = { record, preKeyId, userData in
+            return LocalStorage.load(record: record, preKeyId: preKeyId)
         }
         preKeyStore.contains_pre_key = { preKeyId, userData in
-            return 0
+            return LocalStorage.contains(preKeyId: preKeyId)
         }
         preKeyStore.remove_pre_key = { preKeyId, userData in
-            return 0
+            return LocalStorage.delete(preKeyId: preKeyId)
         }
         preKeyStore.destroy_func = { userData in }
         preKeyStore.user_data = nil
         signal_protocol_store_context_set_pre_key_store(storeContext, &preKeyStore);
 
         var signedPreKeyStore = signal_protocol_signed_pre_key_store()
-        signedPreKeyStore.load_signed_pre_key = { record, preKeyId, userData in
-            return 0
+        signedPreKeyStore.store_signed_pre_key = { signedPreKeyId, record, recordLen, userData in
+            return LocalStorage.store(record: record, recordLen: recordLen, forSignedPreKeyId: signedPreKeyId)
         }
-        signedPreKeyStore.store_signed_pre_key = { preKeyId, record, recordLen, userData in
-            return 0
+        signedPreKeyStore.load_signed_pre_key = { record, signedPreKeyId, userData in
+            return LocalStorage.load(record: record, signedPreKeyId: signedPreKeyId)
         }
-        signedPreKeyStore.contains_signed_pre_key = { preKeyId, userData in
-            return 0
+        signedPreKeyStore.contains_signed_pre_key = { signedPreKeyId, userData in
+            return LocalStorage.contains(signedPreKeyId: signedPreKeyId)
         }
-        signedPreKeyStore.remove_signed_pre_key = { preKeyId, userData in
-            return 0
+        signedPreKeyStore.remove_signed_pre_key = { signedPreKeyId, userData in
+            return LocalStorage.delete(signedPreKeyId: signedPreKeyId)
         }
         signedPreKeyStore.destroy_func = { userData in }
         signedPreKeyStore.user_data = nil
