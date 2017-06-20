@@ -183,7 +183,6 @@ class IOTimebaseReset : IODataProtocol {
         }
         
         else if timebase.zero! > dataTime {
-            assert(false)
             return
         }
         
@@ -202,6 +201,10 @@ enum ErrorIO : Error {
 
 func logIO(_ message: String) {
     logMessage("IO", message)
+}
+
+func logIOPrior(_ message: String) {
+    logPrior("IO", message)
 }
 
 func logIOError(_ error: Error) {

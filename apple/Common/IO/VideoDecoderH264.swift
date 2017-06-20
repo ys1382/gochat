@@ -7,12 +7,20 @@ import VideoToolbox
 // VideoDecoderH264Data
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class VideoDecoderH264Data : IODataProtocol {
+class VideoDecoderH264Data : IODataProtocol, IOSyncedDataProtocol {
     
     private let output: VideoOutputProtocol?
 
     init(_ output: VideoOutputProtocol?) {
         self.output = output
+    }
+    
+    func tuning(_ data: [Int : NSData]) {
+        process(data)
+    }
+    
+    func belated(_ data: [Int : NSData]) {
+        process(data)
     }
     
     func process(_ data: [Int: NSData]) {

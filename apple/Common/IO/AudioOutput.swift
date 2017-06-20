@@ -69,6 +69,8 @@ class AudioOutput : AudioOutputProtocol, IOSessionProtocol {
         assert(dqueue)
         
         do {
+            try unit!.reset(kAudioUnitScope_Input, AudioBus.input)
+            try unit!.uninitialize()
             try unit!.stop()
             squeue = nil
         }
@@ -83,10 +85,6 @@ class AudioOutput : AudioOutputProtocol, IOSessionProtocol {
     
     func process(_ data: AudioData) {
         assert(dqueue)
-        
-        // first few packets plays with artefacts, so skip it
-        packets += 1
-        guard packets > 10 else { return }
         
         squeue!.sync {
             buffer.push(data)

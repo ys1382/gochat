@@ -18,6 +18,13 @@ extension CMVideoDimensions : Equatable {
     
 }
 
+extension CMSampleBuffer {
+    
+    func seconds() -> Double {
+        return CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(self))
+    }
+}
+
 func CMTimeSetSeconds(_ time: inout CMTime, _ seconds: Float64) {
     time.value = CMTimeValue(seconds * Float64(time.timescale))
 }

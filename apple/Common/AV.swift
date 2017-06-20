@@ -186,13 +186,13 @@ class AV {
         activeIOSync.removeValue(forKey: gid)
     }
 
-    func startOutput(_ id: IOID, _ session: IOSessionProtocol) throws {
+    func startOutput(_ id: IOID, _ kind: IOKind, _ session: IOSessionProtocol) throws {
         try session.start()
-        activeOutput[id.from] = session
+        activeOutput[id.from + String(describing: kind)] = session
     }
     
-    func stopOutput(_ id: IOID) {
-        activeOutput[id.from]?.stop()
+    func stopOutput(_ id: IOID, _ kind: IOKind) {
+        activeOutput[id.from + String(describing: kind)]?.stop()
         activeOutput.removeValue(forKey: id.from)
         cleanupSync(id.gid)
     }
@@ -228,13 +228,12 @@ class AV {
                         time,
                         syncBus)))
         
-        // use VideoDecoderH264 for debugging video decoding problems
         sync.add(
             IOKind.Video,
             time,
             VideoDecoderH264Data(
-//                VideoDecoderH264(
-                output))
+                VideoDecoderH264(
+                output)))
 
         session = create([syncBus])
         
@@ -242,12 +241,13 @@ class AV {
     }
 
     func startDefaultNetworkVideoOutput(_ id: IOID,
-                                        _ output: VideoOutputProtocol) throws -> IODataProtocol {
-        var session: IOSessionProtocol?
-        let result = AV.shared.defaultNetworkVideoOutput(id, output, &session)
+                                        _ output: VideoOutputProtocol,
+                                        _ session: IOSessionProtocol?) throws -> IODataProtocol {
+        var session2: IOSessionProtocol?
+        let result = AV.shared.defaultNetworkVideoOutput(id, output, &session2)
         
-        if session != nil {
-            try startOutput(id, session!)
+        if session2 != nil {
+            try startOutput(id, IOKind.Video, create([session, session2])!)
         }
         
         return result
@@ -317,14 +317,14 @@ class AV {
             
             if session != nil {
                 self.stopAllOutput()
-                try self.startOutput(id, session!)
+                try self.startOutput(id, IOKind.Audio, session!)
             }
             
             return result
         }
         
         let audioSessionStop = { (_ id: IOID) in
-            self.stopOutput(id)
+            self.stopOutput(id, IOKind.Audio)
         }
         
         Backend.shared.audioSessionStart = { (_ id: IOID, format: AudioFormat) in

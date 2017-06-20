@@ -26,7 +26,7 @@ class VideoViewController: NSViewController {
         preview.captureLayer.videoGravity = AVLayerVideoGravityResizeAspect
         
         // setup audio/video input
-        
+                
         watchingListener = { (watching: String?) in
             dispatch_sync_on_main {
                 do {
@@ -57,12 +57,14 @@ class VideoViewController: NSViewController {
         // setup video output
         
         Backend.shared.videoSessionStart = { (id: IOID, _) throws in
-            return try AV.shared.startDefaultNetworkVideoOutput(id, VideoOutput(self.network.sampleLayer))
+            return try AV.shared.startDefaultNetworkVideoOutput(id,
+                                                                VideoOutput(self.network.sampleLayer),
+                                                                nil)
         }
 
         Backend.shared.videoSessionStop = { (id: IOID) in
             self.network.sampleLayer.flushAndRemoveImage()
-            AV.shared.stopOutput(id)
+            AV.shared.stopOutput(id, IOKind.Video)
         }
     }
 }

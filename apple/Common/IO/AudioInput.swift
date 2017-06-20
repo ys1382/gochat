@@ -179,15 +179,11 @@ class AudioInput : NSObject, IOSessionProtocol
                 // simulate gaps
                 
 //                DispatchQueue.global().async {
-//                    let x = arc4random_uniform(1000000)
-//                    print("sleep \(Double(x) / 1000000.0)")
+//                    let x = arc4random_uniform(5000000)
+//                    print("sleep \(Double(x) / 5000000.0)")
 //                    usleep(x)
 //                    AV.shared.audioCaptureQueue.async {
-//                        input.output!.process(AudioData(bytes,
-//                                                        bytesSize,
-//                                                        packetDesc,
-//                                                        inNumPackets,
-//                                                        time))
+//                        input.output!.process(AudioData(time, data, desc))
 //                    }
 //                }
             }

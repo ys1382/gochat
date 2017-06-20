@@ -3,7 +3,36 @@ import Foundation
 import CoreMedia
 
 func logIOSync(_ message: String) {
-//    print("Sync: \(message)")
+    logIO("Sync: \(message)")
+}
+
+func logIOSyncPrior(_ message: String) {
+    logIOPrior("Sync: \(message)")
+}
+
+protocol IOSyncedDataProtocol : IODataProtocol {
+    
+    func tuning(_ data: [Int: NSData])
+    func belated(_ data: [Int: NSData])
+}
+
+class IOSyncedDataSkip : IOSyncedDataProtocol {
+    
+    let next: IODataProtocol?
+    
+    init(_ next: IODataProtocol?) {
+        self.next = next
+    }
+
+    func tuning(_ data: [Int : NSData]) {
+    }
+    
+    func belated(_ data: [Int : NSData]) {
+    }
+    
+    func process(_ data: [Int : NSData]) {
+        next?.process(data)
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +107,7 @@ class IOSync : IOTimebaseProtocol {
     private var nextID: Int { get { id += 1; return id } }
 
     private var sessions = [String: Any]()
-    private var output = [IOKind: IODataProtocol?]()
+    private var output = [IOKind: IOSyncedDataProtocol?]()
     private var timing = [IOKind: IOTimeSerializerProtocol]()
     
     private let gap: IOSyncGap
@@ -103,8 +132,12 @@ class IOSync : IOTimebaseProtocol {
     init() {
         self.gap = IOSyncGap()
     }
-    
+
     func add(_ kind: IOKind, _ time: IOTimeSerializerProtocol, _ output: IODataProtocol?) {
+        add(kind, time, IOSyncedDataSkip(output))
+    }
+    
+    func add(_ kind: IOKind, _ time: IOTimeSerializerProtocol, _ output: IOSyncedDataProtocol?) {
         self.output[kind] = output
         self.timing[kind] = time
     }
@@ -146,6 +179,8 @@ class IOSync : IOTimebaseProtocol {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     private func _enqueue(_ kind: IOKind, _ data: [Int : NSData]) {
+        guard active else { return }
+        
         thread!.sync({
             let id = self.nextID
             let remoteTime = self.timing[kind]!.time(data)
@@ -161,11 +196,16 @@ class IOSync : IOTimebaseProtocol {
                 logIOSync("Resheduling with shift \(shift)")
             }
             
-            let zombie: FuncVV = {
-                logIOSync("Belated \(kind) data with id \(id) lost")
+            let zombie: FuncDV = { (gap: Double) in
+                self.output[kind]??.belated(data)
+                logIOSyncPrior("Belated \(kind) data with gap \(gap) lost")
             }
-            
-            self.gap.process(remoteTime, shedule: shedule, reshedule: reshedule, zombie: zombie)
+
+            let tuning: FuncVV = {
+                self.output[kind]??.tuning(data)
+            }
+
+            self.gap.process(remoteTime, shedule: shedule, reshedule: reshedule, zombie: zombie, tuning: tuning)
         })
     }
     
@@ -203,7 +243,7 @@ class IOSync : IOTimebaseProtocol {
     private func _output(_ x: _TimerItem) {
       
         AV.shared.avOutputQueue.async {
-            self.output[x.kind]!?.process(x.data)
+            self.output[x.kind]??.process(x.data)
         }
     }
     
@@ -221,6 +261,9 @@ class IOSyncGap {
     // Shedule argument - local time to shedule
     // Reshedule argument - time shift in seconds for sheduled data
     typealias Shedule = (Double) -> Void
+    
+    static let kMaxGap = 3.0 // in seconds
+    static let kTuneCount = 10 // number packets for tuning
     
     private var localZero: Double?
     private var remoteZero: Double?
@@ -242,7 +285,8 @@ class IOSyncGap {
     func process(_ remoteTime: Double,
                  shedule: @escaping Shedule,
                  reshedule: @escaping Shedule,
-                 zombie: @escaping FuncVV) {
+                 zombie: @escaping FuncDV,
+                 tuning: @escaping FuncVV) {
         let localTime = self.localTime
         var callback: FuncVV?
 
@@ -273,7 +317,7 @@ class IOSyncGap {
         // belated
         
         if _belated(remoteTime, localTime) {
-            callback = { zombie() }
+            callback = { logIOSyncPrior("global gap: \(self.gap)"); zombie(gap) }
         }
         
         // reshedule + shedule
@@ -288,8 +332,11 @@ class IOSyncGap {
             callback = { shedule_(sheduleTime) }
         }
 
-        if packets > 10 {
+        if packets > IOSyncGap.kTuneCount {
             callback!()
+        }
+        else {
+            tuning()
         }
     }
     
@@ -309,7 +356,7 @@ class IOSyncGap {
             shedule.removeValue(forKey: i)
         }
         
-        return remoteTime < remoteLast
+        return nano(remoteTime) <= nano(remoteLast)
     }
     
     private func _calc() -> Double {
@@ -325,7 +372,7 @@ class IOSyncGap {
             index -= 1
         }
         
-        return gapSorted[index]
+        return min(gapSorted[index], IOSyncGap.kMaxGap)
     }
     
     private func _updateGap(_ gap: Double) {
@@ -337,7 +384,7 @@ class IOSyncGap {
 
         self.gap = _calc()
         
-        print("gap \(self.gap)")
+        logMessage("gap \(self.gap)")
     }
 }
 

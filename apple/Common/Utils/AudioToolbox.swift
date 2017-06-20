@@ -39,6 +39,16 @@ class AppleAudioUnit {
                         "AudioUnitInitialize")
     }
 
+    func uninitialize() throws {
+        try checkStatus(AudioUnitUninitialize(unit),
+                        "AudioUnitUninitialize")
+    }
+
+    func reset(_ inScope: AudioUnitScope, _ inElement: Int) throws {
+        try checkStatus(AudioUnitReset(unit, inScope, AudioUnitElement(inElement)),
+                        "AudioUnitReset")
+    }
+
     func start() throws {
         try checkStatus(AudioOutputUnitStart(unit),
                         "AudioOutputUnitStart")
