@@ -2,12 +2,14 @@
 import AVFoundation
 import VideoToolbox
 
+enum VideoPart : Int {
+    case NetworkPacket = 8 // Time, SPS size, SPS, PPS size, PPS, Data size, Data
+}
+
 enum H264Part : Int {
-    case Time
-    case SPS
-    case PPS
-    case Data
-    case NetworkPacket // Time, SPS size, SPS, PPS size, PPS, Data size, Data
+    case SPS = 64
+    case PPS = 128
+    case Data = 256
 }
 
 struct VideoFormat : Equatable {
@@ -116,35 +118,6 @@ class VideoSessionAsyncDispatcher : IOSessionAsyncDispatcher, VideoSessionProtoc
     }
 }
 
-class VideoTimeDeserializer : IOTimeProtocol {
-    
-    let packetKey: Int
-    
-    init(_ packetKey: Int) {
-        self.packetKey = packetKey
-    }
-    
-    static let Size = UInt32(MemoryLayout<CMSampleTimingInfo>.size)
-    
-    func videoTime(_ packets: [Int: NSData]) -> CMSampleTimingInfo {
-        return CMSampleTimingInfo(packets[packetKey]!)
-    }
-
-    func videoTime(_ packets: inout [Int: NSData], _ time: CMSampleTimingInfo) {
-        packets[packetKey] = time.toNSData()
-    }
-
-    func time(_ packets: [Int : NSData]) -> Double {
-        return CMTimeGetSeconds(videoTime(packets).presentationTimeStamp)
-    }
-    
-    func time(_ data: inout [Int: NSData], _ time: Double) {
-        var videoTime = self.videoTime(data)
-        CMTimeSetSeconds(&videoTime.presentationTimeStamp, time)
-        self.videoTime(&data, videoTime)
-    }
-}
-
 func create(_ x: [VideoSessionProtocol]) -> VideoSessionProtocol? {
     if (x.count == 0) {
         return nil
@@ -155,4 +128,47 @@ func create(_ x: [VideoSessionProtocol]) -> VideoSessionProtocol? {
     
     return VideoSessionBroadcast(x)
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Time
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct VideoTime : IOTimeProtocol {
+    let time: IOTime
+    let timeScale: Int32
+    
+    init() {
+        time = IOTime()
+        timeScale = 0
+    }
+    
+    init(_ hostSeconds: Float64, _ timeScale: Int32) {
+        self.time = IOTime(hostSeconds)
+        self.timeScale = timeScale
+    }
+    
+    func copy(time: IOTime) -> VideoTime {
+        return VideoTime(time.hostSeconds, timeScale)
+    }
+}
+
+extension VideoTime {
+    
+    init(_ x: CMSampleTimingInfo) {
+        self.init(CMTimeGetSeconds(x.presentationTimeStamp), x.presentationTimeStamp.timescale)
+    }
+    
+    func ToCMSampleTimingInfo() -> CMSampleTimingInfo {
+        var result = CMSampleTimingInfo()
+        result.presentationTimeStamp.flags = .valid
+        result.presentationTimeStamp.timescale = timeScale
+        CMTimeSetSeconds(&result.presentationTimeStamp, time.hostSeconds)
+        
+        return result
+    }
+}
+
+extension VideoTime : InitProtocol {}
+extension VideoTime : SerializableProtocol {}
+typealias VideoTimeSerializer = IOTimeSerializer<AudioTime>
 

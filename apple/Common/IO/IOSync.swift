@@ -10,14 +10,24 @@ func logIOSync(_ message: String) {
 // IOSyncBus
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class IOSyncBus : IODataProtocol {
+class IOSyncBus : IOSessionProtocol, IODataProtocol {
     
+    private let sid: String
     private let kind: IOKind
     private let sync: IOSync
     
-    init(_ kind: IOKind, _ sync: IOSync) {
+    init(_ sid: String, _ kind: IOKind, _ sync: IOSync) {
+        self.sid = sid
         self.kind = kind
         self.sync = sync
+    }
+
+    func start() throws {
+        try sync.start(sid)
+    }
+    
+    func stop() {
+        sync.stop(sid)
     }
     
     func process(_ data: [Int : NSData]) {
@@ -29,7 +39,7 @@ class IOSyncBus : IODataProtocol {
 // IOSync
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class IOSync : IOSessionProtocol {
+class IOSync : IOTimebaseProtocol {
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Internal Structs
@@ -67,13 +77,20 @@ class IOSync : IOSessionProtocol {
     private var id: Int = 0
     private var nextID: Int { get { id += 1; return id } }
 
+    private var sessions = [String: Any]()
     private var output = [IOKind: IODataProtocol?]()
-    private var timing = [IOKind: IOTimeProtocol]()
+    private var timing = [IOKind: IOTimeSerializerProtocol]()
     
     private let gap: IOSyncGap
     
     private var thread: ChatThread?
     private var queue = [Int: _QueueItem]()
+    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // IOTimebaseProtocol
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    var zero: Double?
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Interface
@@ -87,28 +104,41 @@ class IOSync : IOSessionProtocol {
         self.gap = IOSyncGap()
     }
     
-    func add(_ kind: IOKind, _ time: IOTimeProtocol, _ output: IODataProtocol?) {
+    func add(_ kind: IOKind, _ time: IOTimeSerializerProtocol, _ output: IODataProtocol?) {
         self.output[kind] = output
         self.timing[kind] = time
     }
     
-    func start() throws {
+    var active: Bool {
+        get {
+            return started
+        }
+    }
+    
+    func start(_ sid: String) throws {
         guard started == false else { return }
 
+        sessions[sid] = nil
+        
         thread = ChatThread(IOSync.self)
         thread!.start()
         started = true
     }
     
-    func stop() {
+    func stop(_ sid: String) {
+        guard started == true else { return }
+        
+        sessions.removeValue(forKey: sid)
+        
+        guard sessions.count == 0 else { return }
+        
         thread!.cancel()
         thread = nil
         started = false
     }
     
     func process(_ kind: IOKind, _ data: [Int : NSData]) {
-        output[kind]!?.process(data)
-//        _enqueue(kind, data)
+        _enqueue(kind, data)
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -335,12 +365,12 @@ class IOSyncTest : IOSync {
     }
 
     func test() -> Bool {
-        try! start()
+        try! start(UUID().uuidString)
         return success
     }
     
-    override func start() throws {
-        try super.start()
+    override func start(_ sid: String) throws {
+        try super.start(sid)
         
         _test(.Video, 0.05, 0.2) // 0.07
         _test(.Video, 0.10, 0.2) // 0.12
@@ -358,8 +388,8 @@ class IOSyncTest : IOSync {
         _test(.Audio, 0.50, 0.2) // 0.52
     }
     
-    override func stop() {
-        super.stop()
+    override func stop(_ sid: String) {
+        super.stop(sid)
     }
     
     override func sheduleTimer(_ timer: Timer) {
@@ -387,7 +417,7 @@ class IOSyncTestGap : IOSyncGap {
     }
 }
 
-class IOSyncTestTime : IOTimeProtocol {
+class IOSyncTestTime : IOTimeSerializerProtocol {
 
     static let kTime: Int = 0
     

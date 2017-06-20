@@ -41,6 +41,10 @@ enum IOKind : Int {
     case Video
 }
 
+enum IOPart : Int {
+    case Timestamp = 2 // IOTime structure
+}
+
 protocol IODataProtocol {
     
     func process(_ data: [Int: NSData])
@@ -49,11 +53,6 @@ protocol IODataProtocol {
 protocol IOSessionProtocol {
     func start () throws
     func stop()
-}
-
-protocol IOTimeProtocol {
-    func time(_ data: [Int: NSData]) -> Double
-    func time(_ data: inout [Int: NSData], _ time: Double)
 }
 
 class IOData : IODataProtocol {
@@ -100,40 +99,95 @@ func create(_ x: [IOSessionProtocol?]) -> IOSessionProtocol? {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Timebase
+// Time
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class IOTimebase : IODataProtocol {
+struct IOTime {
     
-    private let time: IOTimeProtocol
-    private let timebase: Double
+    let hostSeconds: Float64
+    
+    init() {
+        hostSeconds = 0
+    }
+    
+    init(_ hostSeconds: Float64) {
+        self.hostSeconds = hostSeconds
+    }
+}
+
+protocol IOTimeProtocol {
+    var time: IOTime { get }
+    func copy(time: IOTime) -> Self
+}
+
+protocol IOTimeSerializerProtocol {
+    func time(_ data: [Int: NSData]) -> Double
+    func time(_ data: inout [Int: NSData], _ time: Double)
+}
+
+class IOTimeSerializer<T: IOTimeProtocol & InitProtocol> : IOTimeSerializerProtocol {
+    
+    private let serializer: PacketsSerializer<T>
+    
+    init(_ key: Int) {
+        serializer = PacketsSerializer<T>(key)
+    }
+
+    init(_ key: Int, _ shift: Int) {
+        serializer = PacketsSerializer<T>(key, shift)
+    }
+    
+    func concreteTime(_ data: [Int : NSData]) -> T {
+        var result = T()
+        serializer.getValue(data, &result)
+        return result
+    }
+    
+    func concreteTime(_ data: inout [Int : NSData], _ time: T) {
+        serializer.setValue(&data, time)
+    }
+    
+    func time(_ data: [Int : NSData]) -> Double {
+        return concreteTime(data).time.hostSeconds
+    }
+    
+    func time(_ data: inout [Int : NSData], _ time: Double) {
+        concreteTime(&data, concreteTime(data).copy(time: IOTime(time)))
+    }
+}
+
+protocol IOTimebaseProtocol {
+    var zero: Double? { get set }
+}
+
+class IOTimebaseReset : IODataProtocol {
+    
+    private let time: IOTimeSerializerProtocol
+    private var timebase: IOTimebaseProtocol
     private let next: IODataProtocol?
-    private var zero: Double?
     
-    init(_ time: IOTimeProtocol, _ timebase: Double, _ next: IODataProtocol?) {
+    init(_ timebase: IOTimebaseProtocol,
+         _ time: IOTimeSerializerProtocol,
+         _ next: IODataProtocol?) {
         self.time = time
         self.timebase = timebase
         self.next = next
-    }
-    
-    convenience init(_ time: IOTimeProtocol, _ next: IODataProtocol?) {
-        self.init(time, 0, next)
     }
     
     func process(_ data: [Int : NSData]) {
         let dataTime = time.time(data)
         var copy = data
         
-        if zero == nil {
-            zero = dataTime
+        if timebase.zero == nil {
+            timebase.zero = dataTime
         }
         
-        else if zero! > dataTime {
+        else if timebase.zero! > dataTime {
             assert(false)
             return
         }
         
-        time.time(&copy, timebase + dataTime - zero!)
+        time.time(&copy, dataTime - timebase.zero!)
         next?.process(copy)
     }
 }

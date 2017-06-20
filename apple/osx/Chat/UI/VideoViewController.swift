@@ -56,14 +56,13 @@ class VideoViewController: NSViewController {
         
         // setup video output
         
-        Backend.shared.videoSessionStart = { (_ id: IOID, _) in
-            let result = AV.shared.defaultNetworkVideoOutput(id, VideoOutput(self.network.sampleLayer))
-            try! AV.shared.defaultIOSync(id.gid).start()
-            return result
+        Backend.shared.videoSessionStart = { (id: IOID, _) throws in
+            return try AV.shared.startDefaultNetworkVideoOutput(id, VideoOutput(self.network.sampleLayer))
         }
 
-        Backend.shared.videoSessionStop = { (_) in
+        Backend.shared.videoSessionStop = { (id: IOID) in
             self.network.sampleLayer.flushAndRemoveImage()
+            AV.shared.stopOutput(id)
         }
     }
 }

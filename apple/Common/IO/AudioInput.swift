@@ -125,6 +125,9 @@ class AudioInput : NSObject, IOSessionProtocol
                 try checkStatus(AudioQueueStop(queue,
                                                true), "AudioQueueStop failed")
                 
+                // free buffers
+                _ = self.buffers.map({ AudioQueueFreeBuffer(queue, $0) })
+
                 // a codec may update its cookie at the end of an encoding session, so reapply it to the file now
                 try checkStatus(AudioQueueDispose(queue,
                                                   true), "AudioQueueDispose failed")
@@ -163,31 +166,14 @@ class AudioInput : NSObject, IOSessionProtocol
             guard let queue = input.queue else { return }
             
             if (inNumPackets > 0) {
-                var bytesSize = inBuffer.pointee.mAudioDataByteSize
-                var bytes = UnsafeMutablePointer<Int8>
-                    .allocate(capacity: Int(bytesSize))
-                var packetDesc = UnsafeMutablePointer<AudioStreamPacketDescription>
-                    .allocate(capacity: Int(inPacketDesc != nil ? inNumPackets : 0))
-                var time = inStartTime.pointee
-                
-                memcpy(bytes,
-                       inBuffer.pointee.mAudioData,
-                       Int(inBuffer.pointee.mAudioDataByteSize))
-                
-                if inPacketDesc != nil {
-                    memcpy(packetDesc,
-                           inPacketDesc,
-                           MemoryLayout<AudioStreamPacketDescription>.size * Int(inNumPackets))
-                }
+                let time = inStartTime.pointee
+                let data = NSData(bytes: inBuffer.pointee.mAudioData, length: Int(inBuffer.pointee.mAudioDataByteSize))
+                let desc = inPacketDesc != nil ? AudioStreamPacketDescription.ToArray(inPacketDesc!, inNumPackets) : nil
                 
                 // process input
                 
                 AV.shared.audioCaptureQueue.async {
-                    input.output!.process(AudioData(bytes,
-                                                    bytesSize,
-                                                    packetDesc,
-                                                    inNumPackets,
-                                                    time))
+                    input.output!.process(AudioData(time, data, desc))
                 }
 
                 // simulate gaps

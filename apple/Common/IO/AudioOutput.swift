@@ -108,12 +108,14 @@ class AudioOutput : AudioOutputProtocol, IOSessionProtocol {
                                                        count: Int(ioData!.pointee.mNumberBuffers))
 
         SELF.squeue!.sync {
-            SELF.buffer.pop(Int(inNumberFrames * SELF.formatDescription!.mBytesPerFrame),
-                            buffers[0].mData!)
-            
-            for i in 1 ..< Int(ioData!.pointee.mNumberBuffers) {
-                memcpy(buffers[i].mData!, buffers[0].mData!, Int(buffers[0].mDataByteSize))
-            }
+            autoreleasepool(invoking: {
+                SELF.buffer.pop(Int(inNumberFrames * SELF.formatDescription!.mBytesPerFrame),
+                                buffers[0].mData!)
+                
+                for i in 1 ..< Int(ioData!.pointee.mNumberBuffers) {
+                    memcpy(buffers[i].mData!, buffers[0].mData!, Int(buffers[0].mDataByteSize))
+                }
+            })
         }
         
         return 0

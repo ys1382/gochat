@@ -10,6 +10,7 @@
 		1ADE89E51EA1CE0E00E41212 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADE89E41EA1CE0E00E41212 /* AppDelegate.swift */; };
 		1ADE89E91EA1CE0E00E41212 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1ADE89E81EA1CE0E00E41212 /* Assets.xcassets */; };
 		1ADE89EC1EA1CE0E00E41212 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1ADE89EA1EA1CE0E00E41212 /* Main.storyboard */; };
+		82168CA91EF7F86000E052FE /* Serialization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82168CA81EF7F86000E052FE /* Serialization.swift */; };
 		821D05181EF1BD070020E1BA /* AudioDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821D05171EF1BD070020E1BA /* AudioDecoder.swift */; };
 		821F4CC51EDE6E6500FA923D /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821F4CC41EDE6E6500FA923D /* SplitViewController.swift */; };
 		821F4CC91EDEB3A100FA923D /* Dispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 821F4CC81EDEB3A100FA923D /* Dispatch.swift */; };
@@ -30,7 +31,7 @@
 		829A0E931EDC1DB800FEC353 /* VideoInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E821EDC1DB800FEC353 /* VideoInput.swift */; };
 		829A0E941EDC1DB800FEC353 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E831EDC1DB800FEC353 /* Model.swift */; };
 		829A0E951EDC1DB800FEC353 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E851EDC1DB800FEC353 /* Network.swift */; };
-		829A0E961EDC1DB800FEC353 /* NetworkAAC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E861EDC1DB800FEC353 /* NetworkAAC.swift */; };
+		829A0E961EDC1DB800FEC353 /* NetworkAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E861EDC1DB800FEC353 /* NetworkAudio.swift */; };
 		829A0E971EDC1DB800FEC353 /* NetworkH264.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E871EDC1DB800FEC353 /* NetworkH264.swift */; };
 		829A0E981EDC1DB800FEC353 /* AVFoundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E891EDC1DB800FEC353 /* AVFoundation.swift */; };
 		829A0E991EDC1DB800FEC353 /* CoreMedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E8A1EDC1DB800FEC353 /* CoreMedia.swift */; };
@@ -57,6 +58,7 @@
 		1ADE89EB1EA1CE0E00E41212 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		1ADE89ED1EA1CE0E00E41212 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		64A385B4166E340653D3B04C /* Pods-Chat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chat.release.xcconfig"; path = "Pods/Target Support Files/Pods-Chat/Pods-Chat.release.xcconfig"; sourceTree = "<group>"; };
+		82168CA81EF7F86000E052FE /* Serialization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Serialization.swift; sourceTree = "<group>"; };
 		821D05171EF1BD070020E1BA /* AudioDecoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioDecoder.swift; sourceTree = "<group>"; };
 		821F4CC41EDE6E6500FA923D /* SplitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
 		821F4CC81EDEB3A100FA923D /* Dispatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dispatch.swift; sourceTree = "<group>"; };
@@ -77,7 +79,7 @@
 		829A0E821EDC1DB800FEC353 /* VideoInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoInput.swift; sourceTree = "<group>"; };
 		829A0E831EDC1DB800FEC353 /* Model.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Model.swift; path = ../Common/Model.swift; sourceTree = "<group>"; };
 		829A0E851EDC1DB800FEC353 /* Network.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
-		829A0E861EDC1DB800FEC353 /* NetworkAAC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkAAC.swift; sourceTree = "<group>"; };
+		829A0E861EDC1DB800FEC353 /* NetworkAudio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkAudio.swift; sourceTree = "<group>"; };
 		829A0E871EDC1DB800FEC353 /* NetworkH264.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkH264.swift; sourceTree = "<group>"; };
 		829A0E891EDC1DB800FEC353 /* AVFoundation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVFoundation.swift; sourceTree = "<group>"; };
 		829A0E8A1EDC1DB800FEC353 /* CoreMedia.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreMedia.swift; sourceTree = "<group>"; };
@@ -201,7 +203,7 @@
 			isa = PBXGroup;
 			children = (
 				829A0E851EDC1DB800FEC353 /* Network.swift */,
-				829A0E861EDC1DB800FEC353 /* NetworkAAC.swift */,
+				829A0E861EDC1DB800FEC353 /* NetworkAudio.swift */,
 				829A0E871EDC1DB800FEC353 /* NetworkH264.swift */,
 			);
 			name = Network;
@@ -222,6 +224,7 @@
 				829A0EB01EDD2CC000FEC353 /* UI.swift */,
 				829A0E8B1EDC1DB800FEC353 /* Log.swift */,
 				82B8A8801EEEAFE1006002FD /* System.swift */,
+				82168CA81EF7F86000E052FE /* Serialization.swift */,
 			);
 			name = Utils;
 			path = ../Common/Utils;
@@ -382,8 +385,9 @@
 				829A0EBF1EDD784E00FEC353 /* AV.swift in Sources */,
 				829A0E911EDC1DB800FEC353 /* VideoDecoderH264.swift in Sources */,
 				829A0EA61EDC209A00FEC353 /* TextViewController.swift in Sources */,
+				82168CA91EF7F86000E052FE /* Serialization.swift in Sources */,
 				829A0EA71EDC209A00FEC353 /* VideoViewController.swift in Sources */,
-				829A0E961EDC1DB800FEC353 /* NetworkAAC.swift in Sources */,
+				829A0E961EDC1DB800FEC353 /* NetworkAudio.swift in Sources */,
 				829A0EB81EDD54C800FEC353 /* Audio.swift in Sources */,
 				829A0EBB1EDD6EED00FEC353 /* Foundation.swift in Sources */,
 				829A0EB91EDD54C800FEC353 /* Video.swift in Sources */,

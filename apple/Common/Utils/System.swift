@@ -1,6 +1,10 @@
 
 import Foundation
 
+protocol InitProtocol {
+    init()
+}
+
 fileprivate class HostTimeInfo {
     static let shared = HostTimeInfo()
     

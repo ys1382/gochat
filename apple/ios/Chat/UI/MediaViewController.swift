@@ -78,15 +78,12 @@ class MediaViewController : UIViewController {
         
         videoSessionStart = { (_ id: IOID, _) throws in
             self.sessionID = id.sid
-            
-            let result = AV.shared.defaultNetworkVideoOutput(id, VideoOutput(self.networkView.sampleLayer))
-            try AV.shared.defaultIOSync(id.gid).start()
-            return result
+            return try AV.shared.startDefaultNetworkVideoOutput(id, VideoOutput(self.networkView.sampleLayer))
         }
         
         videoSessionStop = { (_ id: IOID) in
             self.networkView.sampleLayer.flushAndRemoveImage()
-            try! AV.shared.defaultIOSync(id.gid).stop()
+            AV.shared.stopOutput(id)
         }
     }
 

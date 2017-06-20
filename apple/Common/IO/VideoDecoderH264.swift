@@ -20,7 +20,7 @@ class VideoDecoderH264Data : IODataProtocol {
         let h264SPS  = data[H264Part.SPS.rawValue]!
         let h264PPS  = data[H264Part.PPS.rawValue]!
         let h264Data = data[H264Part.Data.rawValue]!
-        let h264Time = data[H264Part.Time.rawValue]!
+        let h264Time = data[IOPart.Timestamp.rawValue]!
 
         do {
             // format description
@@ -58,8 +58,7 @@ class VideoDecoderH264Data : IODataProtocol {
             
             // timing info
             
-            let timingInfo = UnsafeMutablePointer<CMSampleTimingInfo>.allocate(capacity: 1)
-            timingInfo[0] = CMSampleTimingInfo(h264Time)
+            var timingInfo = VideoTime(deserialize: h264Time).ToCMSampleTimingInfo()
 
             // sample buffer
             
@@ -69,7 +68,7 @@ class VideoDecoderH264Data : IODataProtocol {
                                                       formatDescription,
                                                       1,
                                                       1,
-                                                      timingInfo,
+                                                      &timingInfo,
                                                       0,
                                                       nil,
                                                       &sampleBuffer), "CMSampleBufferCreateReady failed")

@@ -142,11 +142,11 @@ class Backend: WebSocketDelegate {
     
     func getsAV(_ haber: Haber) {
         if (haber.av.hasAudio) {
-            audio.process(haber.avSession.sid, [AACPart.NetworkPacket.rawValue: haber.av.audio.image.data as NSData])
+            audio.process(haber.avSession.sid, [AudioPart.NetworkPacket.rawValue: haber.av.audio.image.data as NSData])
         }
         
         if (haber.av.hasVideo) {
-            video.process(haber.avSession.sid, [H264Part.NetworkPacket.rawValue: haber.av.video.image.data as NSData])
+            video.process(haber.avSession.sid, [VideoPart.NetworkPacket.rawValue: haber.av.video.image.data as NSData])
         }
     }
 

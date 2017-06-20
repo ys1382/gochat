@@ -22,7 +22,9 @@ class ChatThread : Thread {
         running = true
         
         while running {
-            runLoop!.run(until: Date().addingTimeInterval(1))
+            autoreleasepool(invoking: {
+                runLoop!.run(until: Date().addingTimeInterval(1))
+            })
         }
     }
     

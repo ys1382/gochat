@@ -40,49 +40,49 @@ class VideoEncoderH264 : NSObject, VideoOutputProtocol {
 
             // timing info
             
-            let timingInfo = UnsafeMutablePointer<CMSampleTimingInfo>.allocate(capacity: 1)
+            var timingInfo = CMSampleTimingInfo()
             
             try checkStatus(CMSampleBufferGetSampleTimingInfo(sampleBuffer,
                                                               0,
-                                                              timingInfo),
+                                                              &timingInfo),
                             "CMSampleBufferGetSampleTimingInfo failed")
 
-            result[H264Part.Time.rawValue] = timingInfo.pointee.toNSData()
+            result[IOPart.Timestamp.rawValue] = VideoTime(timingInfo).ToNSData()
             
             // H264 description (SPS)
             
-            let sps = UnsafeMutablePointer<UnsafePointer<UInt8>?>.allocate(capacity:  1)
-            let spsLength = UnsafeMutablePointer<Int>.allocate(capacity:  1)
-            let count = UnsafeMutablePointer<Int>.allocate(capacity:  1)
+            var sps: UnsafePointer<UInt8>?
+            var spsLength: Int = 0
+            var count: Int = 0
             
             try checkStatus(CMVideoFormatDescriptionGetH264ParameterSetAtIndex(formatDescription,
                                                                                0,
-                                                                               sps,
-                                                                               spsLength,
-                                                                               count,
+                                                                               &sps,
+                                                                               &spsLength,
+                                                                               &count,
                                                                                nil),
                             "An Error occured while getting h264 sps parameter")
             
-            assert(count.pointee == 2) // sps and pps
+            assert(count == 2) // sps and pps
             
-            result[H264Part.SPS.rawValue] = NSData(bytes: sps.pointee!, length: spsLength.pointee)
+            result[H264Part.SPS.rawValue] = NSData(bytes: sps!, length: spsLength)
            
             // H264 description (PPS)
 
-            let pps = UnsafeMutablePointer<UnsafePointer<UInt8>?>.allocate(capacity:  1)
-            let ppsLength = UnsafeMutablePointer<Int>.allocate(capacity:  1)
+            var pps: UnsafePointer<UInt8>?
+            var ppsLength: Int = 0
 
             try checkStatus(CMVideoFormatDescriptionGetH264ParameterSetAtIndex(formatDescription,
                                                                                1,
-                                                                               pps,
-                                                                               ppsLength,
-                                                                               count,
+                                                                               &pps,
+                                                                               &ppsLength,
+                                                                               &count,
                                                                                nil),
                             "An Error occured while getting h264 pps parameter")
 
-            assert(count.pointee == 2) // sps and pps
+            assert(count == 2) // sps and pps
 
-            result[H264Part.PPS.rawValue] = NSData(bytes: pps.pointee!, length: ppsLength.pointee)
+            result[H264Part.PPS.rawValue] = NSData(bytes: pps!, length: ppsLength)
 
             // H264 data
             

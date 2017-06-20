@@ -69,3 +69,17 @@ extension AudioTimeStamp {
         mHostTime = mach_absolute_time(seconds: x)
     }
 }
+
+extension AudioStreamPacketDescription : InitProtocol {
+    
+    static func ToArray(_ ptr: UnsafePointer<AudioStreamPacketDescription>,
+                        _ num: UInt32) -> [AudioStreamPacketDescription] {
+        var result = [AudioStreamPacketDescription]()
+        
+        for i in 0 ..< num {
+            result.append(ptr.advanced(by: Int(i)).pointee)
+        }
+        
+        return result
+    }
+}

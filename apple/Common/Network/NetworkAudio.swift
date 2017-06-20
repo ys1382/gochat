@@ -1,79 +1,81 @@
 
-import Foundation
+import AudioToolbox
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NetworkH264Serializer
+// NetworkAudioSerializer
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class NetworkH264Serializer : IODataProtocol {
+class NetworkAudioSerializer : AudioOutputProtocol {
+ 
+    private let output: IODataProtocol?
     
-    private var next: IODataProtocol?
+    init(_ output: IODataProtocol?) {
+        self.output = output
+    }
     
-    init(_ next: IODataProtocol?) {
-        self.next = next
+    func process(_ packet: AudioData) {
+    
+        let s = PacketSerializer()
+        var t = AudioTime(packet.time)
+        
+        s.push(&t, MemoryLayout<AudioTime>.size)
+        s.push(packet.data.bytes, packet.data.length)
+        s.push(array: packet.desc)
+        
+        output?.process([AudioPart.NetworkPacket.rawValue: s.data])
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// NetworkAudioDeserializer
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class NetworkAudioDeserializer : IODataProtocol {
+    
+    private let output: AudioOutputProtocol?
+    
+    init(_ output: AudioOutputProtocol) {
+        self.output = output
     }
     
     func process(_ packets: [Int: NSData]) {
-        let s = PacketSerializer()
         
-        s.push(data: packets[IOPart.Timestamp.rawValue]!)
-        s.push(data: packets[H264Part.SPS.rawValue]!)
-        s.push(data: packets[H264Part.PPS.rawValue]!)
-        s.push(data: packets[H264Part.Data.rawValue]!)
+        let deserializer = PacketDeserializer(packets[AudioPart.NetworkPacket.rawValue]!)
+        var time = AudioTime()
+        var data: NSData?
+        var desc: [AudioStreamPacketDescription]?
         
-        next?.process([VideoPart.NetworkPacket.rawValue: s.data])
+        deserializer.pop(&time)
+        deserializer.pop(data: &data)
+        deserializer.pop(array: &desc)
+
+        output?.process(AudioData(time.ToAudioTimeStamp(), data!, desc))
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NetworkH264Deserializer
+// Audio format
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class NetworkH264Deserializer : IODataProtocol {
-    
-    private var next: IODataProtocol?
-    
-    init(_ next: IODataProtocol?) {
-        self.next = next
-    }
-
-    func process(_ data: [Int: NSData]) {
-
-        let d = PacketDeserializer(data[VideoPart.NetworkPacket.rawValue]!)
-        var result = [Int: NSData]()
-        
-        result[IOPart.Timestamp.rawValue] = d.popData()
-        result[H264Part.SPS.rawValue] = d.popData()
-        result[H264Part.PPS.rawValue] = d.popData()
-        result[H264Part.Data.rawValue] = d.popData()
-        
-        next?.process(result)
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Video format
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-extension VideoFormat {
+extension AudioFormat {
     
     func toNetwork() throws -> NSData {
         return try JSONSerialization.data(withJSONObject: data,
                                           options: JSONSerialization.defaultWritingOptions) as NSData
     }
-
-    static func fromNetwork(_ data: NSData) throws -> VideoFormat {
+    
+    static func fromNetwork(_ data: NSData) throws -> AudioFormat {
         let json = try JSONSerialization.jsonObject(with: data as Data,
                                                     options: JSONSerialization.ReadingOptions()) as! [String: Any]
-        return VideoFormat(json)
+        return AudioFormat(json)
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NetworkOutputVideo
+// NetworkOutputAudio
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class NetworkOutputVideo : IODataProtocol {
+class NetworkOutputAudio : IODataProtocol {
     
     let id: IOID
     
@@ -82,34 +84,29 @@ class NetworkOutputVideo : IODataProtocol {
     }
     
     func process(_ data: [Int: NSData]) {
-        Backend.shared.sendVideo(id, data[VideoPart.NetworkPacket.rawValue]!)
+        Backend.shared.sendAudio(id, data[AudioPart.NetworkPacket.rawValue]!)
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NetworkOutputVideoSession
+// NetworkOutputAudioSession
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class NetworkOutputVideoSession : VideoSessionProtocol {
+class NetworkOutputAudioSession : IOSessionProtocol {
     
     let id: IOID
-    let format: VideoFormat
+    let format: AudioFormat.Factory
     
-    init(_ id: IOID, _ format: VideoFormat) {
+    init(_ id: IOID, _ format: @escaping AudioFormat.Factory) {
         self.id = id
         self.format = format
     }
     
     func start() throws {
-        Backend.shared.sendVideoSession(id, try format.toNetwork(), true)
-    }
-    
-    func update(_ format: VideoFormat) throws {
-        // TODO: send update format
+        Backend.shared.sendAudioSession(id, try format().toNetwork(), true)
     }
     
     func stop() {
-        Backend.shared.sendVideoSession(id, nil, false)
+        Backend.shared.sendAudioSession(id, nil, false)
     }
 }
-

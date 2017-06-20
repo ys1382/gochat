@@ -11,8 +11,9 @@ protocol AudioOutputProtocol {
     func process(_ data: AudioData)
 }
 
-enum AACPart : Int {
-    case NetworkPacket // Time, Packet num, Packets, Data size, Data
+enum AudioPart : Int {
+    case Timestamp = 2
+    case NetworkPacket = 8 // Time, Packet num, Packets, Data size, Data
 }
 
 struct AudioBus {
@@ -21,26 +22,16 @@ struct AudioBus {
 }
 
 struct AudioData {
-    var bytes: UnsafePointer<Int8>!
-    var bytesNum: UInt32 = 0
-    var packetDesc: UnsafePointer<AudioStreamPacketDescription>?
-    var packetNum: UInt32 = 0
-    var timeStamp: AudioTimeStamp!
+    let time: AudioTimeStamp!
+    let data: NSData!
+    let desc: [AudioStreamPacketDescription]?
     
-    init () {
-        
-    }
-    
-    init(_ bytes: UnsafePointer<Int8>,
-         _ bytesNum: UInt32,
-         _ packetDesc: UnsafePointer<AudioStreamPacketDescription>?,
-         _ packetNum: UInt32,
-         _ timeStamp: AudioTimeStamp) {
-        self.bytes = bytes
-        self.bytesNum = bytesNum
-        self.packetDesc = packetDesc
-        self.packetNum = packetNum
-        self.timeStamp = timeStamp
+    init(_ time: AudioTimeStamp,
+         _ data: NSData,
+         _ desc: [AudioStreamPacketDescription]?) {
+        self.time = time
+        self.data = data
+        self.desc = desc
     }
 }
 
@@ -127,6 +118,49 @@ func factory(_ value: AudioFormat) -> AudioFormat.Factory {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Time
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct AudioTime : IOTimeProtocol {
+    let time: IOTime
+    let sampleTime: Float64
+    
+    init() {
+        time = IOTime()
+        sampleTime = 0
+    }
+    
+    init(_ hostSeconds: Float64, _ sampleTime: Float64) {
+        self.time = IOTime(hostSeconds)
+        self.sampleTime = sampleTime
+    }
+    
+    func copy(time: IOTime) -> AudioTime {
+        return AudioTime(time.hostSeconds, sampleTime)
+    }
+}
+
+extension AudioTime {
+    
+    init(_ x: AudioTimeStamp) {
+        self.init(x.seconds(), x.mSampleTime)
+    }
+    
+    func ToAudioTimeStamp() -> AudioTimeStamp {
+        var result = AudioTimeStamp()
+        
+        result.mHostTime = mach_absolute_time(seconds: time.hostSeconds)
+        result.mSampleTime = sampleTime
+        result.mFlags = AudioTimeStampFlags.sampleTimeValid.intersection(.hostTimeValid)
+        
+        return result
+    }
+}
+
+extension AudioTime : InitProtocol {}
+typealias AudioTimeSerializer = IOTimeSerializer<AudioTime>
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Protocols adapters
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -136,40 +170,6 @@ class AudioPipe : AudioOutputProtocol {
 
     func process(_ data: AudioData) {
         next?.process(data)
-    }
-}
-
-class AudioTimeDeserializer : IOTimeProtocol {
-    
-    let packetKey: Int
-    
-    init(_ packetKey: Int) {
-        self.packetKey = packetKey
-    }
-    
-    func audioTime(_ packets: [Int: NSData]) -> UnsafePointer<AudioTimeStamp> {
-        let s = MemoryLayout<AudioTimeStamp>.size
-        let x = UnsafeMutablePointer<AudioTimeStamp>.allocate(capacity: s)
-        
-        memcpy(x, packets[packetKey]!.bytes, s)
-        
-        return UnsafePointer<AudioTimeStamp>(x)
-    }
-    
-    func audioTime(_ packets: inout [Int: NSData], _ time: UnsafePointer<AudioTimeStamp>) {
-        memcpy(UnsafeMutableRawPointer(mutating: packets[packetKey]!.bytes),
-               time,
-               MemoryLayout<AudioTimeStamp>.size)
-    }
-
-    func time(_ data: [Int : NSData]) -> Double {
-        return audioTime(data).pointee.seconds()
-    }
-    
-    func time(_ data: inout [Int: NSData], _ time: Double) {
-        let audioTime = UnsafeMutablePointer<AudioTimeStamp>(mutating: self.audioTime(data))
-        audioTime.pointee.seconds(time)
-        self.audioTime(&data, audioTime)
     }
 }
 
@@ -218,21 +218,21 @@ class AudioDataReader {
             return
         }
         
-        var countRead = min(count, Int(current!.bytesNum) - currentIndex)
+        var countRead = min(count, Int(current!.data.length) - currentIndex)
         var outIndex = 0
         
         while current != nil && countRead > 0 {
-            memcpy(outData.advanced(by: outIndex), current?.bytes.advanced(by: currentIndex), countRead)
+            memcpy(outData.advanced(by: outIndex), current?.data.bytes.advanced(by: currentIndex), countRead)
             currentIndex += countRead
             outIndex += countRead
             
-            if currentIndex == Int(current!.bytesNum) {
+            if currentIndex == Int(current!.data.length) {
                 current = popFirst()
                 currentIndex = 0
             }
             
             if current != nil {
-                countRead = min(count - outIndex, Int(current!.bytesNum) - currentIndex)
+                countRead = min(count - outIndex, Int(current!.data.length) - currentIndex)
             }
             else {
                 memset(outData.advanced(by: outIndex), 0, count - outIndex)
