@@ -235,13 +235,16 @@ class IOSync : IOTimebaseProtocol {
     
     @objc private func _output(timer: Timer) {
         let id = timer.userInfo as! Int
+        print("timer with \(id)")
         
-        _output(queue[id]!.data)
+        assert(queue[id] != nil)
+        guard let data = queue[id]?.data else { return }
+        
+        _output(data)
         queue.removeValue(forKey: id)
     }
     
     private func _output(_ x: _TimerItem) {
-      
         AV.shared.avOutputQueue.async {
             self.output[x.kind]??.process(x.data)
         }

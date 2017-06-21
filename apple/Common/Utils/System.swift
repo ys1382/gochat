@@ -5,6 +5,14 @@ protocol InitProtocol {
     init()
 }
 
+func typeName(_ some: Any) -> String {
+    return (some is Any.Type) ? "\(some)" : "\(type(of: some))"
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Time
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 fileprivate class HostTimeInfo {
     static let shared = HostTimeInfo()
     
@@ -56,6 +64,34 @@ func mach_absolute_time(seconds: Double) -> UInt64 {
             seconds * Double(HostTimeInfo.shared.denom) / Double(HostTimeInfo.shared.numer)))
 }
 
-func typeName(_ some: Any) -> String {
-    return (some is Any.Type) ? "\(some)" : "\(type(of: some))"
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Path
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+extension URL {
+    
+    static var appDocuments: URL {
+        get {
+            return FileManager.default.urls(for: .documentDirectory,
+                                            in: .userDomainMask).first!
+        }
+    }
+
+    static var appLogs: URL {
+        get {
+            return URL.appDocuments.appendingPathComponent("logs")
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Stream
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+extension OutputStream {
+    
+    func write(_ x: String) {
+        let data = x.utf8ToData() as NSData
+        write(UnsafePointer<UInt8>(OpaquePointer(data.bytes)), maxLength: data.length)
+    }
 }
