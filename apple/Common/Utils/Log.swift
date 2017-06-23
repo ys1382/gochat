@@ -12,7 +12,7 @@ fileprivate extension OutputStream {
     static func CreateLog() -> OutputStream? {
         let url = URL
             .appLogs
-            .appendingPathComponent("\(Date().description).txt")
+            .appendingPathComponent("\(Date().description) - \(deviceModel()).txt")
         
         if FileManager.default.fileExists(atPath: URL.appLogs.path) == false {
             try! FileManager.default.createDirectory(at: URL.appLogs,
@@ -66,11 +66,11 @@ func logPrior(_ scope: String, _ message: String) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func logError(_ scope: String, _ message: String) {
-    logWrite("Error in " + scope + ": " + message)
+    logWrite(scope + " error" + ": " + message)
 }
 
 func logError(_ scope: String, _ error: Error) {
-    logError("Error in " + scope + ": " + String(describing: error))
+    logError(scope + " error" + ": " + String(describing: error))
 }
 
 func logError(_ message: String) {

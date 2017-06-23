@@ -19,19 +19,20 @@ class VideoOutput : VideoOutputProtocol {
     
     func printStatus() {
         if layer.status == .failed {
-            logIO("AVQueuedSampleBufferRenderingStatus failed")
+            logIOError("AVQueuedSampleBufferRenderingStatus failed")
         }
         if let error = layer.error {
-            logIO(error.localizedDescription)
+            logIOError(error.localizedDescription)
         }
         if !layer.isReadyForMoreMediaData {
-            logIO("Video layer not ready for more media data")
+            logIOError("Video layer not ready for more media data")
         }
     }
 
     func process(_ data: CMSampleBuffer) {
         assert_av_output_queue()
-        
+        logIO("video output \(data.seconds())")
+
         let dataFormat = CMSampleBufferGetFormatDescription(data)
         
         if CMFormatDescriptionEqual(format, dataFormat) == false {

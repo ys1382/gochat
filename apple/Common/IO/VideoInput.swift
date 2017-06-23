@@ -129,7 +129,8 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Video
                        from connection: AVCaptureConnection!) {
        
         assert(formatNotChanged(sampleBuffer))
-        
+        logIO("video input \(sampleBuffer.seconds())")
+
         self.output?.process(sampleBuffer)
     }
     

@@ -235,7 +235,6 @@ class IOSync : IOTimebaseProtocol {
     
     @objc private func _output(timer: Timer) {
         let id = timer.userInfo as! Int
-        print("timer with \(id)")
         
         assert(queue[id] != nil)
         guard let data = queue[id]?.data else { return }
@@ -388,7 +387,7 @@ class IOSyncGap {
 
         self.gap = _calc() + IOSyncGap.kPlusGap
         
-        logMessage("gap \(self.gap)")
+        logIOSync("gap \(self.gap)")
     }
 }
 
