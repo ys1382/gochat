@@ -184,6 +184,18 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
         fallthrough
       case Haber_TEXT:
         fallthrough
+      case Haber_CALL_PROPOSAL:
+        fallthrough
+      case Haber_CALL_CANCEL:
+        fallthrough
+      case Haber_CALL_ACCEPT:
+        fallthrough
+      case Haber_CALL_DECLINE:
+        fallthrough
+      case Haber_CALL_START:
+        fallthrough
+      case Haber_CALL_STOP:
+        fallthrough
       case Haber_FILE:
         if _,ok := chat.clients[sessionId]; ok {
           forward(sessionId, haber)

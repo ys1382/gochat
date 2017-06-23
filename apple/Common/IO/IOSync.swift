@@ -267,6 +267,7 @@ class IOSyncGap {
     
     static let kMaxGap = 3.0 // in seconds
     static let kTuneCount = 10 // number packets for tuning
+    static let kPlusGap = 0.1 // number packets for tuning
     
     private var localZero: Double?
     private var remoteZero: Double?
@@ -385,7 +386,7 @@ class IOSyncGap {
             gapLog.removeFirst()
         }
 
-        self.gap = _calc()
+        self.gap = _calc() + IOSyncGap.kPlusGap
         
         logMessage("gap \(self.gap)")
     }

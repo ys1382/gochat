@@ -2,7 +2,7 @@
 import AVFoundation
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Assertions
+// Queue
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func assert_audio_capture_queue() {
@@ -15,6 +15,15 @@ func assert_video_capture_queue() {
 
 func assert_av_output_queue() {
     assert(DispatchQueue.OnQueue(AV.shared.avOutputQueue))
+}
+
+func dispatch_sync_av_output(_ block: FuncVV) {
+    if DispatchQueue.OnQueue(AV.shared.avOutputQueue) {
+        block()
+    }
+    else {
+        AV.shared.avOutputQueue.sync { block() }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -152,6 +161,56 @@ class AV {
         return create(x)
     }
 
+    func captureAudio(_ to: String) {
+        do {
+            let id = IOID(Model.shared.username!, to)
+            let audio =
+                IOSessionAsyncDispatcher(
+                    AV.shared.audioCaptureQueue,
+                    AV.shared.defaultAudioInput(id))
+            
+            try AV.shared.startInput(audio)
+        }
+        catch {
+            logIOError(error)
+        }
+    }
+    
+    func captureVideo(_ to: String, preview: AVCaptureVideoPreviewLayer) {
+        do {
+            let id = IOID(Model.shared.username!, to)
+            let video =
+                VideoSessionAsyncDispatcher(
+                    AV.shared.videoCaptureQueue,
+                    AV.shared.defaultVideoInput(id, preview))
+            
+            try AV.shared.startInput(video)
+        }
+        catch {
+            logIOError(error)
+        }
+    }
+    
+    func captureAV(_ to: String, preview: AVCaptureVideoPreviewLayer) {
+        do {
+            let audioID = IOID(Model.shared.username!, to)
+            let videoID = audioID.groupNew()
+            let audio =
+                IOSessionAsyncDispatcher(
+                    AV.shared.audioCaptureQueue,
+                    AV.shared.defaultAudioInput(audioID))
+            let video =
+                VideoSessionAsyncDispatcher(
+                    AV.shared.videoCaptureQueue,
+                    AV.shared.defaultVideoInput(videoID, preview))
+            
+            try AV.shared.startInput(create([audio, video]));
+        }
+        catch {
+            logIOError(error)
+        }
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Output
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -198,9 +257,11 @@ class AV {
     }
     
     func stopAllOutput() {
-        _ = activeOutput.values.map({ $0.stop() })
-        activeOutput.removeAll()
-        cleanupSync()
+        dispatch_sync_av_output {
+            _ = activeOutput.map({ $0.value.stop() })
+            activeOutput.removeAll()
+            cleanupSync()
+        }
     }
     
     func defaultNetworkVideoOutput(_ id: IOID,
@@ -251,6 +312,13 @@ class AV {
         }
         
         return result
+    }
+    
+    func startDefaultNetworkVideoOutput(_ id: IOID,
+                                        _ layer: AVSampleBufferDisplayLayer) throws -> IODataProtocol {
+        return try AV.shared.startDefaultNetworkVideoOutput(id,
+                                                            VideoOutput(layer),
+                                                            nil)
     }
     
     func defaultNetworkAudioOutput(_ id: IOID,

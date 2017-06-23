@@ -61,6 +61,30 @@ class Backend: WebSocketDelegate {
         Backend.shared.send(haberBuilder)
     }
 
+    func sendCallProposal(_ to: String, _ info: NetworkCallInfo) {
+        send(try! Haber.Create(.callProposal, to, info))
+    }
+
+    func sendCallCancel(_ to: String, _ info: NetworkCallInfo) {
+        send(try! Haber.Create(.callCancel, to, info))
+    }
+
+    func sendCallAccept(_ to: String, _ info: NetworkCallInfo) {
+        send(try! Haber.Create(.callAccept, to, info))
+    }
+
+    func sendCallDecline(_ to: String, _ info: NetworkCallInfo) {
+        send(try! Haber.Create(.callDecline, to, info))
+    }
+
+    func sendCallStart(_ to: String, _ info: NetworkCallInfo) {
+        send(try! Haber.Create(.callStart, to, info))
+    }
+    
+    func sendCallStop(_ to: String, _ info: NetworkCallInfo) {
+        send(try! Haber.Create(.callStop, to, info))
+    }
+
     private func createAVSession(_ id: IOID, _ data: NSData?, _ active: Bool) throws -> Haber.Builder {
         let sessionBuilder = Avsession.Builder()
             .setSid(id.sid)
@@ -140,6 +164,32 @@ class Backend: WebSocketDelegate {
     // Receive
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
+    func getsCallProposal(_ haber: Haber) {
+        NetworkCallProposalController.incoming?.start(haber.callInfo)
+    }
+    
+    func getsCallCancel(_ haber: Haber) {
+        NetworkCallProposalController.incoming?.stop(haber.call.key)
+        NetworkCallProposalController.outgoing?.stop(haber.call.key)
+    }
+    
+    func getsCallAccept(_ haber: Haber) {
+        NetworkCallProposalController.outgoing?.accept(haber.callInfo)
+    }
+    
+    func getsCallDecline(_ haber: Haber) {
+        NetworkCallProposalController.outgoing?.decline(haber.call.key)
+    }
+
+    func getsCallStart(_ haber: Haber) {
+        NetworkCallController.incoming?.start(haber.callInfo)
+    }
+    
+    func getsCallStop(_ haber: Haber) {
+        NetworkCallController.incoming?.stop(haber.call.key)
+        NetworkCallController.outgoing?.stop(haber.call.key)
+    }
+
     func getsAV(_ haber: Haber) {
         if (haber.av.hasAudio) {
             audio.process(haber.avSession.sid, [AudioPart.NetworkPacket.rawValue: haber.av.audio.image.data as NSData])
@@ -242,6 +292,18 @@ class Backend: WebSocketDelegate {
             getsAudioSession(haber)
         case .videoSession:
             getsVideoSession(haber)
+        case .callProposal:
+            dispatch_async_network_call { self.getsCallProposal(haber) }
+        case .callCancel:
+            dispatch_async_network_call { self.getsCallCancel(haber) }
+        case .callAccept:
+            dispatch_async_network_call { self.getsCallAccept(haber) }
+        case .callDecline:
+            dispatch_async_network_call { self.getsCallDecline(haber) }
+        case .callStart:
+            dispatch_async_network_call { self.getsCallStart(haber) }
+        case .callStop:
+            dispatch_async_network_call { self.getsCallStop(haber) }
         default:
             logNetworkError("did not handle \(haber.which)")
         }
@@ -249,9 +311,37 @@ class Backend: WebSocketDelegate {
 }
 
 extension Haber {
+    
+    static func Create(_ which: Haber.Which,
+                       _ to: String,
+                       _ call: NetworkCallInfo) throws -> Haber.Builder {
+        let call = try Call.Builder()
+            .setKey(call.id)
+            .setFrom(call.from)
+            .setTo(call.to)
+            .setAudio(call.audio)
+            .setVideo(call.video).build()
+        
+        return Haber.Builder()
+            .setWhich(which)
+            .setTo(to)
+            .setFrom(Model.shared.username!)
+            .setCall(call)
+    }
+    
     var avid: IOID {
         get {
             return IOID(from, to, avSession.sid, avSession.gid)
+        }
+    }
+    
+    var callInfo: NetworkCallInfo {
+        get {
+            return NetworkCallInfo(self.call.key,
+                                   self.call.from,
+                                   self.call.to,
+                                   self.call.hasAudio ? self.call.audio : false,
+                                   self.call.hasVideo ? self.call.video : false)
         }
     }
 }

@@ -10,3 +10,11 @@ extension JSONSerialization {
     }
     
 }
+
+extension Array where Element: AnyObject {
+    mutating func remove(_ object: Element) {
+        if let index = index(where: { object === $0 }) {
+            remove(at: index)
+        }
+    }
+}

@@ -83,13 +83,14 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Video
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     func start() throws {
+        assert_video_capture_queue()
+        logIOPrior("video input start")
+
         NotificationCenter.default.addObserver(
             forName: .AVSampleBufferDisplayLayerFailedToDecode,
             object: nil,
             queue: nil,
             using: failureNotification)
-        
-        assert_video_capture_queue()
         
         try device?.lockForConfiguration()
 
@@ -102,6 +103,7 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Video
     
     func stop() {
         assert_video_capture_queue()
+        logIOPrior("video input stop")
 
         session?.stopRunning()
         session = nil
@@ -159,7 +161,8 @@ class VideoPreview : VideoSession {
     }
 
     override func start() throws {
-        
+        logIOPrior("video preview start")
+
         try dispatch_sync_on_main {
             try session({ (session: AVCaptureSession) in
                 layer.session = session
@@ -172,6 +175,8 @@ class VideoPreview : VideoSession {
     }
     
     override func stop() {
+        logIOPrior("video preview stop")
+
         super.stop()
         
         dispatch_sync_on_main {

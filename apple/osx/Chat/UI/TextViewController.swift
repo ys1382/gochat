@@ -10,8 +10,7 @@ class TextViewController: NSViewController, AVCaptureVideoDataOutputSampleBuffer
     @IBOutlet weak var input: NSTextField!
     @IBOutlet weak var sendButton: NSButton!
 
-    func reload() {
-        _ = [scrollView, input, sendButton].map({ view in view.isHidden = Model.shared.watching == nil })
+    func update(_ watching: String?) {
         updateTranscript()
     }
 

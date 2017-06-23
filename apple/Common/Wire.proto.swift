@@ -985,6 +985,433 @@ final public class File : GeneratedMessage {
 
 }
 
+final public class Call : GeneratedMessage {
+
+    public static func == (lhs: Call, rhs: Call) -> Bool {
+        if lhs === rhs {
+            return true
+        }
+        var fieldCheck:Bool = (lhs.hashValue == rhs.hashValue)
+        fieldCheck = fieldCheck && (lhs.hasKey == rhs.hasKey) && (!lhs.hasKey || lhs.key == rhs.key)
+        fieldCheck = fieldCheck && (lhs.hasTo == rhs.hasTo) && (!lhs.hasTo || lhs.to == rhs.to)
+        fieldCheck = fieldCheck && (lhs.hasFrom == rhs.hasFrom) && (!lhs.hasFrom || lhs.from == rhs.from)
+        fieldCheck = fieldCheck && (lhs.hasAudio == rhs.hasAudio) && (!lhs.hasAudio || lhs.audio == rhs.audio)
+        fieldCheck = fieldCheck && (lhs.hasVideo == rhs.hasVideo) && (!lhs.hasVideo || lhs.video == rhs.video)
+        fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
+        return fieldCheck
+    }
+
+    public fileprivate(set) var key:String! = nil
+    public fileprivate(set) var hasKey:Bool = false
+
+    public fileprivate(set) var to:String! = nil
+    public fileprivate(set) var hasTo:Bool = false
+
+    public fileprivate(set) var from:String! = nil
+    public fileprivate(set) var hasFrom:Bool = false
+
+    public fileprivate(set) var audio:Bool! = nil
+    public fileprivate(set) var hasAudio:Bool = false
+
+    public fileprivate(set) var video:Bool! = nil
+    public fileprivate(set) var hasVideo:Bool = false
+
+    required public init() {
+        super.init()
+    }
+    override public func isInitialized() -> Bool {
+        return true
+    }
+    override public func writeTo(codedOutputStream: CodedOutputStream) throws {
+        if hasKey {
+            try codedOutputStream.writeString(fieldNumber: 1, value:key)
+        }
+        if hasTo {
+            try codedOutputStream.writeString(fieldNumber: 2, value:to)
+        }
+        if hasFrom {
+            try codedOutputStream.writeString(fieldNumber: 3, value:from)
+        }
+        if hasAudio {
+            try codedOutputStream.writeBool(fieldNumber: 4, value:audio)
+        }
+        if hasVideo {
+            try codedOutputStream.writeBool(fieldNumber: 5, value:video)
+        }
+        try unknownFields.writeTo(codedOutputStream: codedOutputStream)
+    }
+    override public func serializedSize() -> Int32 {
+        var serialize_size:Int32 = memoizedSerializedSize
+        if serialize_size != -1 {
+         return serialize_size
+        }
+
+        serialize_size = 0
+        if hasKey {
+            serialize_size += key.computeStringSize(fieldNumber: 1)
+        }
+        if hasTo {
+            serialize_size += to.computeStringSize(fieldNumber: 2)
+        }
+        if hasFrom {
+            serialize_size += from.computeStringSize(fieldNumber: 3)
+        }
+        if hasAudio {
+            serialize_size += audio.computeBoolSize(fieldNumber: 4)
+        }
+        if hasVideo {
+            serialize_size += video.computeBoolSize(fieldNumber: 5)
+        }
+        serialize_size += unknownFields.serializedSize()
+        memoizedSerializedSize = serialize_size
+        return serialize_size
+    }
+    public class func getBuilder() -> Call.Builder {
+        return Call.classBuilder() as! Call.Builder
+    }
+    public func getBuilder() -> Call.Builder {
+        return classBuilder() as! Call.Builder
+    }
+    override public class func classBuilder() -> ProtocolBuffersMessageBuilder {
+        return Call.Builder()
+    }
+    override public func classBuilder() -> ProtocolBuffersMessageBuilder {
+        return Call.Builder()
+    }
+    public func toBuilder() throws -> Call.Builder {
+        return try Call.builderWithPrototype(prototype:self)
+    }
+    public class func builderWithPrototype(prototype:Call) throws -> Call.Builder {
+        return try Call.Builder().mergeFrom(other:prototype)
+    }
+    override public func encode() throws -> Dictionary<String,Any> {
+        guard isInitialized() else {
+            throw ProtocolBuffersError.invalidProtocolBuffer("Uninitialized Message")
+        }
+
+        var jsonMap:Dictionary<String,Any> = Dictionary<String,Any>()
+        if hasKey {
+            jsonMap["key"] = key
+        }
+        if hasTo {
+            jsonMap["to"] = to
+        }
+        if hasFrom {
+            jsonMap["from"] = from
+        }
+        if hasAudio {
+            jsonMap["audio"] = audio
+        }
+        if hasVideo {
+            jsonMap["video"] = video
+        }
+        return jsonMap
+    }
+    override class public func decode(jsonMap:Dictionary<String,Any>) throws -> Call {
+        return try Call.Builder.decodeToBuilder(jsonMap:jsonMap).build()
+    }
+    override class public func fromJSON(data:Data) throws -> Call {
+        return try Call.Builder.fromJSONToBuilder(data:data).build()
+    }
+    override public func getDescription(indent:String) throws -> String {
+        var output = ""
+        if hasKey {
+            output += "\(indent) key: \(key) \n"
+        }
+        if hasTo {
+            output += "\(indent) to: \(to) \n"
+        }
+        if hasFrom {
+            output += "\(indent) from: \(from) \n"
+        }
+        if hasAudio {
+            output += "\(indent) audio: \(audio) \n"
+        }
+        if hasVideo {
+            output += "\(indent) video: \(video) \n"
+        }
+        output += unknownFields.getDescription(indent: indent)
+        return output
+    }
+    override public var hashValue:Int {
+        get {
+            var hashCode:Int = 7
+            if hasKey {
+                hashCode = (hashCode &* 31) &+ key.hashValue
+            }
+            if hasTo {
+                hashCode = (hashCode &* 31) &+ to.hashValue
+            }
+            if hasFrom {
+                hashCode = (hashCode &* 31) &+ from.hashValue
+            }
+            if hasAudio {
+                hashCode = (hashCode &* 31) &+ audio.hashValue
+            }
+            if hasVideo {
+                hashCode = (hashCode &* 31) &+ video.hashValue
+            }
+            hashCode = (hashCode &* 31) &+  unknownFields.hashValue
+            return hashCode
+        }
+    }
+
+
+    //Meta information declaration start
+
+    override public class func className() -> String {
+        return "Call"
+    }
+    override public func className() -> String {
+        return "Call"
+    }
+    //Meta information declaration end
+
+    final public class Builder : GeneratedMessageBuilder {
+        fileprivate var builderResult:Call = Call()
+        public func getMessage() -> Call {
+            return builderResult
+        }
+
+        required override public init () {
+            super.init()
+        }
+        public var key:String {
+            get {
+                return builderResult.key
+            }
+            set (value) {
+                builderResult.hasKey = true
+                builderResult.key = value
+            }
+        }
+        public var hasKey:Bool {
+            get {
+                return builderResult.hasKey
+            }
+        }
+        @discardableResult
+        public func setKey(_ value:String) -> Call.Builder {
+            self.key = value
+            return self
+        }
+        @discardableResult
+        public func clearKey() -> Call.Builder{
+            builderResult.hasKey = false
+            builderResult.key = nil
+            return self
+        }
+        public var to:String {
+            get {
+                return builderResult.to
+            }
+            set (value) {
+                builderResult.hasTo = true
+                builderResult.to = value
+            }
+        }
+        public var hasTo:Bool {
+            get {
+                return builderResult.hasTo
+            }
+        }
+        @discardableResult
+        public func setTo(_ value:String) -> Call.Builder {
+            self.to = value
+            return self
+        }
+        @discardableResult
+        public func clearTo() -> Call.Builder{
+            builderResult.hasTo = false
+            builderResult.to = nil
+            return self
+        }
+        public var from:String {
+            get {
+                return builderResult.from
+            }
+            set (value) {
+                builderResult.hasFrom = true
+                builderResult.from = value
+            }
+        }
+        public var hasFrom:Bool {
+            get {
+                return builderResult.hasFrom
+            }
+        }
+        @discardableResult
+        public func setFrom(_ value:String) -> Call.Builder {
+            self.from = value
+            return self
+        }
+        @discardableResult
+        public func clearFrom() -> Call.Builder{
+            builderResult.hasFrom = false
+            builderResult.from = nil
+            return self
+        }
+        public var audio:Bool {
+            get {
+                return builderResult.audio
+            }
+            set (value) {
+                builderResult.hasAudio = true
+                builderResult.audio = value
+            }
+        }
+        public var hasAudio:Bool {
+            get {
+                return builderResult.hasAudio
+            }
+        }
+        @discardableResult
+        public func setAudio(_ value:Bool) -> Call.Builder {
+            self.audio = value
+            return self
+        }
+        @discardableResult
+        public func clearAudio() -> Call.Builder{
+            builderResult.hasAudio = false
+            builderResult.audio = nil
+            return self
+        }
+        public var video:Bool {
+            get {
+                return builderResult.video
+            }
+            set (value) {
+                builderResult.hasVideo = true
+                builderResult.video = value
+            }
+        }
+        public var hasVideo:Bool {
+            get {
+                return builderResult.hasVideo
+            }
+        }
+        @discardableResult
+        public func setVideo(_ value:Bool) -> Call.Builder {
+            self.video = value
+            return self
+        }
+        @discardableResult
+        public func clearVideo() -> Call.Builder{
+            builderResult.hasVideo = false
+            builderResult.video = nil
+            return self
+        }
+        override public var internalGetResult:GeneratedMessage {
+            get {
+                return builderResult
+            }
+        }
+        @discardableResult
+        override public func clear() -> Call.Builder {
+            builderResult = Call()
+            return self
+        }
+        override public func clone() throws -> Call.Builder {
+            return try Call.builderWithPrototype(prototype:builderResult)
+        }
+        override public func build() throws -> Call {
+            try checkInitialized()
+            return buildPartial()
+        }
+        public func buildPartial() -> Call {
+            let returnMe:Call = builderResult
+            return returnMe
+        }
+        @discardableResult
+        public func mergeFrom(other:Call) throws -> Call.Builder {
+            if other == Call() {
+                return self
+            }
+            if other.hasKey {
+                key = other.key
+            }
+            if other.hasTo {
+                to = other.to
+            }
+            if other.hasFrom {
+                from = other.from
+            }
+            if other.hasAudio {
+                audio = other.audio
+            }
+            if other.hasVideo {
+                video = other.video
+            }
+            try merge(unknownField: other.unknownFields)
+            return self
+        }
+        @discardableResult
+        override public func mergeFrom(codedInputStream: CodedInputStream) throws -> Call.Builder {
+            return try mergeFrom(codedInputStream: codedInputStream, extensionRegistry:ExtensionRegistry())
+        }
+        @discardableResult
+        override public func mergeFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> Call.Builder {
+            let unknownFieldsBuilder:UnknownFieldSet.Builder = try UnknownFieldSet.builderWithUnknownFields(copyFrom:self.unknownFields)
+            while (true) {
+                let protobufTag = try codedInputStream.readTag()
+                switch protobufTag {
+                case 0: 
+                    self.unknownFields = try unknownFieldsBuilder.build()
+                    return self
+
+                case 10:
+                    key = try codedInputStream.readString()
+
+                case 18:
+                    to = try codedInputStream.readString()
+
+                case 26:
+                    from = try codedInputStream.readString()
+
+                case 32:
+                    audio = try codedInputStream.readBool()
+
+                case 40:
+                    video = try codedInputStream.readBool()
+
+                default:
+                    if (!(try parse(codedInputStream:codedInputStream, unknownFields:unknownFieldsBuilder, extensionRegistry:extensionRegistry, tag:protobufTag))) {
+                        unknownFields = try unknownFieldsBuilder.build()
+                        return self
+                    }
+                }
+            }
+        }
+        class override public func decodeToBuilder(jsonMap:Dictionary<String,Any>) throws -> Call.Builder {
+            let resultDecodedBuilder = Call.Builder()
+            if let jsonValueKey = jsonMap["key"] as? String {
+                resultDecodedBuilder.key = jsonValueKey
+            }
+            if let jsonValueTo = jsonMap["to"] as? String {
+                resultDecodedBuilder.to = jsonValueTo
+            }
+            if let jsonValueFrom = jsonMap["from"] as? String {
+                resultDecodedBuilder.from = jsonValueFrom
+            }
+            if let jsonValueAudio = jsonMap["audio"] as? Bool {
+                resultDecodedBuilder.audio = jsonValueAudio
+            }
+            if let jsonValueVideo = jsonMap["video"] as? Bool {
+                resultDecodedBuilder.video = jsonValueVideo
+            }
+            return resultDecodedBuilder
+        }
+        override class public func fromJSONToBuilder(data:Data) throws -> Call.Builder {
+            let jsonData = try JSONSerialization.jsonObject(with:data, options: JSONSerialization.ReadingOptions(rawValue: 0))
+            guard let jsDataCast = jsonData as? Dictionary<String,Any> else {
+              throw ProtocolBuffersError.invalidProtocolBuffer("Invalid JSON data")
+            }
+            return try Call.Builder.decodeToBuilder(jsonMap:jsDataCast)
+        }
+    }
+
+}
+
 final public class Time : GeneratedMessage {
 
     public static func == (lhs: Time, rhs: Time) -> Bool {
@@ -4329,6 +4756,7 @@ final public class Haber : GeneratedMessage {
         fieldCheck = fieldCheck && (lhs.hasAv == rhs.hasAv) && (!lhs.hasAv || lhs.av == rhs.av)
         fieldCheck = fieldCheck && (lhs.hasAvSession == rhs.hasAvSession) && (!lhs.hasAvSession || lhs.avSession == rhs.avSession)
         fieldCheck = fieldCheck && (lhs.hasFile == rhs.hasFile) && (!lhs.hasFile || lhs.file == rhs.file)
+        fieldCheck = fieldCheck && (lhs.hasCall == rhs.hasCall) && (!lhs.hasCall || lhs.call == rhs.call)
         fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
         return fieldCheck
     }
@@ -4347,6 +4775,12 @@ final public class Haber : GeneratedMessage {
             case av = 5
             case audioSession = 6
             case videoSession = 7
+            case callProposal = 8
+            case callCancel = 9
+            case callAccept = 10
+            case callDecline = 11
+            case callStart = 12
+            case callStop = 13
             public func toString() -> String {
                 switch self {
                 case .login: return "LOGIN"
@@ -4357,6 +4791,12 @@ final public class Haber : GeneratedMessage {
                 case .av: return "AV"
                 case .audioSession: return "AudioSession"
                 case .videoSession: return "VideoSession"
+                case .callProposal: return "CALL_PROPOSAL"
+                case .callCancel: return "CALL_CANCEL"
+                case .callAccept: return "CALL_ACCEPT"
+                case .callDecline: return "CALL_DECLINE"
+                case .callStart: return "CALL_START"
+                case .callStop: return "CALL_STOP"
                 }
             }
             public static func fromString(_ str:String) throws -> Haber.Which {
@@ -4369,6 +4809,12 @@ final public class Haber : GeneratedMessage {
                 case "AV":    return .av
                 case "AudioSession":    return .audioSession
                 case "VideoSession":    return .videoSession
+                case "CALL_PROPOSAL":    return .callProposal
+                case "CALL_CANCEL":    return .callCancel
+                case "CALL_ACCEPT":    return .callAccept
+                case "CALL_DECLINE":    return .callDecline
+                case "CALL_START":    return .callStart
+                case "CALL_STOP":    return .callStop
                 default: throw ProtocolBuffersError.invalidProtocolBuffer("Conversion failed.")
                 }
             }
@@ -4384,6 +4830,12 @@ final public class Haber : GeneratedMessage {
                 case .av: return ".av"
                 case .audioSession: return ".audioSession"
                 case .videoSession: return ".videoSession"
+                case .callProposal: return ".callProposal"
+                case .callCancel: return ".callCancel"
+                case .callAccept: return ".callAccept"
+                case .callDecline: return ".callDecline"
+                case .callStart: return ".callStart"
+                case .callStop: return ".callStop"
                 }
             }
             public var hashValue:Int {
@@ -4421,6 +4873,8 @@ final public class Haber : GeneratedMessage {
     public fileprivate(set) var hasAvSession:Bool = false
     public fileprivate(set) var file:File!
     public fileprivate(set) var hasFile:Bool = false
+    public fileprivate(set) var call:Call!
+    public fileprivate(set) var hasCall:Bool = false
     required public init() {
         super.init()
     }
@@ -4441,7 +4895,7 @@ final public class Haber : GeneratedMessage {
             try codedOutputStream.writeString(fieldNumber: 4, value:to)
         }
         if hasWhich {
-            try codedOutputStream.writeEnum(fieldNumber: 7, value:which.rawValue)
+            try codedOutputStream.writeEnum(fieldNumber: 13, value:which.rawValue)
         }
         if hasLogin {
             try codedOutputStream.writeMessage(fieldNumber: 101, value:login)
@@ -4460,6 +4914,9 @@ final public class Haber : GeneratedMessage {
         }
         if hasFile {
             try codedOutputStream.writeMessage(fieldNumber: 107, value:file)
+        }
+        if hasCall {
+            try codedOutputStream.writeMessage(fieldNumber: 108, value:call)
         }
         try unknownFields.writeTo(codedOutputStream: codedOutputStream)
     }
@@ -4483,7 +4940,7 @@ final public class Haber : GeneratedMessage {
             serialize_size += to.computeStringSize(fieldNumber: 4)
         }
         if (hasWhich) {
-            serialize_size += which.rawValue.computeEnumSize(fieldNumber: 7)
+            serialize_size += which.rawValue.computeEnumSize(fieldNumber: 13)
         }
         if hasLogin {
             if let varSizelogin = login?.computeMessageSize(fieldNumber: 101) {
@@ -4511,6 +4968,11 @@ final public class Haber : GeneratedMessage {
         if hasFile {
             if let varSizefile = file?.computeMessageSize(fieldNumber: 107) {
                 serialize_size += varSizefile
+            }
+        }
+        if hasCall {
+            if let varSizecall = call?.computeMessageSize(fieldNumber: 108) {
+                serialize_size += varSizecall
             }
         }
         serialize_size += unknownFields.serializedSize()
@@ -4579,6 +5041,9 @@ final public class Haber : GeneratedMessage {
         if hasFile {
             jsonMap["file"] = try file.encode()
         }
+        if hasCall {
+            jsonMap["call"] = try call.encode()
+        }
         return jsonMap
     }
     override class public func decode(jsonMap:Dictionary<String,Any>) throws -> Haber {
@@ -4646,6 +5111,13 @@ final public class Haber : GeneratedMessage {
             }
             output += "\(indent) }\n"
         }
+        if hasCall {
+            output += "\(indent) call {\n"
+            if let outDescCall = call {
+                output += try outDescCall.getDescription(indent: "\(indent)  ")
+            }
+            output += "\(indent) }\n"
+        }
         output += unknownFields.getDescription(indent: indent)
         return output
     }
@@ -4693,6 +5165,11 @@ final public class Haber : GeneratedMessage {
             if hasFile {
                 if let hashValuefile = file?.hashValue {
                     hashCode = (hashCode &* 31) &+ hashValuefile
+                }
+            }
+            if hasCall {
+                if let hashValuecall = call?.hashValue {
+                    hashCode = (hashCode &* 31) &+ hashValuecall
                 }
             }
             hashCode = (hashCode &* 31) &+  unknownFields.hashValue
@@ -5135,6 +5612,60 @@ final public class Haber : GeneratedMessage {
             builderResult.file = nil
             return self
         }
+        public var call:Call! {
+            get {
+                if callBuilder_ != nil {
+                    builderResult.call = callBuilder_.getMessage()
+                }
+                return builderResult.call
+            }
+            set (value) {
+                builderResult.hasCall = true
+                builderResult.call = value
+            }
+        }
+        public var hasCall:Bool {
+            get {
+                return builderResult.hasCall
+            }
+        }
+        fileprivate var callBuilder_:Call.Builder! {
+            didSet {
+                builderResult.hasCall = true
+            }
+        }
+        public func getCallBuilder() -> Call.Builder {
+            if callBuilder_ == nil {
+                callBuilder_ = Call.Builder()
+                builderResult.call = callBuilder_.getMessage()
+                if call != nil {
+                    try! callBuilder_.mergeFrom(other: call)
+                }
+            }
+            return callBuilder_
+        }
+        @discardableResult
+        public func setCall(_ value:Call!) -> Haber.Builder {
+            self.call = value
+            return self
+        }
+        @discardableResult
+        public func mergeCall(value:Call) throws -> Haber.Builder {
+            if builderResult.hasCall {
+                builderResult.call = try Call.builderWithPrototype(prototype:builderResult.call).mergeFrom(other: value).buildPartial()
+            } else {
+                builderResult.call = value
+            }
+            builderResult.hasCall = true
+            return self
+        }
+        @discardableResult
+        public func clearCall() -> Haber.Builder {
+            callBuilder_ = nil
+            builderResult.hasCall = false
+            builderResult.call = nil
+            return self
+        }
         override public var internalGetResult:GeneratedMessage {
             get {
                 return builderResult
@@ -5194,6 +5725,9 @@ final public class Haber : GeneratedMessage {
             if (other.hasFile) {
                 try mergeFile(value: other.file)
             }
+            if (other.hasCall) {
+                try mergeCall(value: other.call)
+            }
             try merge(unknownField: other.unknownFields)
             return self
         }
@@ -5223,12 +5757,12 @@ final public class Haber : GeneratedMessage {
                 case 34:
                     to = try codedInputStream.readString()
 
-                case 56:
+                case 104:
                     let valueIntwhich = try codedInputStream.readEnum()
                     if let enumswhich = Haber.Which(rawValue:valueIntwhich){
                         which = enumswhich
                     } else {
-                        try unknownFieldsBuilder.mergeVarintField(fieldNumber: 7, value:Int64(valueIntwhich))
+                        try unknownFieldsBuilder.mergeVarintField(fieldNumber: 13, value:Int64(valueIntwhich))
                     }
 
                 case 810:
@@ -5275,6 +5809,14 @@ final public class Haber : GeneratedMessage {
                     }
                     try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
                     file = subBuilder.buildPartial()
+
+                case 866:
+                    let subBuilder:Call.Builder = Call.Builder()
+                    if hasCall {
+                        try subBuilder.mergeFrom(other: call)
+                    }
+                    try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
+                    call = subBuilder.buildPartial()
 
                 default:
                     if (!(try parse(codedInputStream:codedInputStream, unknownFields:unknownFieldsBuilder, extensionRegistry:extensionRegistry, tag:protobufTag))) {
@@ -5330,6 +5872,10 @@ final public class Haber : GeneratedMessage {
             }
             if let jsonValueFile = jsonMap["file"] as? Dictionary<String,Any> {
                 resultDecodedBuilder.file = try File.Builder.decodeToBuilder(jsonMap:jsonValueFile).build()
+
+            }
+            if let jsonValueCall = jsonMap["call"] as? Dictionary<String,Any> {
+                resultDecodedBuilder.call = try Call.Builder.decodeToBuilder(jsonMap:jsonValueCall).build()
 
             }
             return resultDecodedBuilder
@@ -5578,6 +6124,90 @@ extension File.Builder: GeneratedMessageBuilderProtocol {
                     return
                 }
                 self.data = newSubscriptValue
+            default: return
+            }
+        }
+    }
+}
+extension Call: GeneratedMessageProtocol {
+    public class func parseArrayDelimitedFrom(inputStream: InputStream) throws -> Array<Call> {
+        var mergedArray = Array<Call>()
+        while let value = try parseDelimitedFrom(inputStream: inputStream) {
+          mergedArray.append(value)
+        }
+        return mergedArray
+    }
+    public class func parseDelimitedFrom(inputStream: InputStream) throws -> Call? {
+        return try Call.Builder().mergeDelimitedFrom(inputStream: inputStream)?.build()
+    }
+    public class func parseFrom(data: Data) throws -> Call {
+        return try Call.Builder().mergeFrom(data: data, extensionRegistry:WireRoot.default.extensionRegistry).build()
+    }
+    public class func parseFrom(data: Data, extensionRegistry:ExtensionRegistry) throws -> Call {
+        return try Call.Builder().mergeFrom(data: data, extensionRegistry:extensionRegistry).build()
+    }
+    public class func parseFrom(inputStream: InputStream) throws -> Call {
+        return try Call.Builder().mergeFrom(inputStream: inputStream).build()
+    }
+    public class func parseFrom(inputStream: InputStream, extensionRegistry:ExtensionRegistry) throws -> Call {
+        return try Call.Builder().mergeFrom(inputStream: inputStream, extensionRegistry:extensionRegistry).build()
+    }
+    public class func parseFrom(codedInputStream: CodedInputStream) throws -> Call {
+        return try Call.Builder().mergeFrom(codedInputStream: codedInputStream).build()
+    }
+    public class func parseFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> Call {
+        return try Call.Builder().mergeFrom(codedInputStream: codedInputStream, extensionRegistry:extensionRegistry).build()
+    }
+    public subscript(key: String) -> Any? {
+        switch key {
+        case "key": return self.key
+        case "to": return self.to
+        case "from": return self.from
+        case "audio": return self.audio
+        case "video": return self.video
+        default: return nil
+        }
+    }
+}
+extension Call.Builder: GeneratedMessageBuilderProtocol {
+    public subscript(key: String) -> Any? {
+        get { 
+            switch key {
+            case "key": return self.key
+            case "to": return self.to
+            case "from": return self.from
+            case "audio": return self.audio
+            case "video": return self.video
+            default: return nil
+            }
+        }
+        set (newSubscriptValue) { 
+            switch key {
+            case "key":
+                guard let newSubscriptValue = newSubscriptValue as? String else {
+                    return
+                }
+                self.key = newSubscriptValue
+            case "to":
+                guard let newSubscriptValue = newSubscriptValue as? String else {
+                    return
+                }
+                self.to = newSubscriptValue
+            case "from":
+                guard let newSubscriptValue = newSubscriptValue as? String else {
+                    return
+                }
+                self.from = newSubscriptValue
+            case "audio":
+                guard let newSubscriptValue = newSubscriptValue as? Bool else {
+                    return
+                }
+                self.audio = newSubscriptValue
+            case "video":
+                guard let newSubscriptValue = newSubscriptValue as? Bool else {
+                    return
+                }
+                self.video = newSubscriptValue
             default: return
             }
         }
@@ -6297,6 +6927,7 @@ extension Haber: GeneratedMessageProtocol {
         case "av": return self.av
         case "avSession": return self.avSession
         case "file": return self.file
+        case "call": return self.call
         default: return nil
         }
     }
@@ -6316,6 +6947,7 @@ extension Haber.Builder: GeneratedMessageBuilderProtocol {
             case "av": return self.av
             case "avSession": return self.avSession
             case "file": return self.file
+            case "call": return self.call
             default: return nil
             }
         }
@@ -6376,6 +7008,11 @@ extension Haber.Builder: GeneratedMessageBuilderProtocol {
                     return
                 }
                 self.file = newSubscriptValue
+            case "call":
+                guard let newSubscriptValue = newSubscriptValue as? Call else {
+                    return
+                }
+                self.call = newSubscriptValue
             default: return
             }
         }

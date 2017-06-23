@@ -1,67 +1,32 @@
-//
-//  MainViewController.swift
-//  Chat
-//
-//  Created by Ivan Khvorostinin on 02/06/2017.
-//  Copyright © 2017 ys1382. All rights reserved.
-//
 
 import Cocoa
-import AVFoundation
 
-class ChatViewController : NSViewController {
+class ChatViewController : NSSplitViewController {
     
-    @IBOutlet weak var textFieldServerIP: NSTextField!
-    @IBOutlet weak var textFieldVideoWidth: NSTextField!
-    @IBOutlet weak var textFieldVideoHeight: NSTextField!
-    
-    func updateVideo(_ format: AVCaptureDeviceFormat) {
-        AV.shared.defaultVideoDimension = format.dimensions
-        
-        textFieldVideoWidth.stringValue = String(AV.shared.defaultVideoDimension!.width)
-        textFieldVideoHeight.stringValue = String(AV.shared.defaultVideoDimension!.height)
-        
-        UserDefaults.standard.set(textFieldVideoWidth.stringValue, forKey: AppDelegate.kVideoWidth)
-        UserDefaults.standard.set(textFieldVideoHeight.stringValue, forKey: AppDelegate.kVideoHeight)
-        UserDefaults.standard.synchronize()
+    @IBOutlet private weak var itemContacts: NSSplitViewItem!
+    @IBOutlet private weak var itemConversation: NSSplitViewItem!
+
+    private var contacts: ContactsViewController? {
+        get {
+            return itemContacts.viewController as? ContactsViewController
+        }
+    }
+
+    private var conversation: ConversationViewController? {
+        get {
+            return itemConversation.viewController as? ConversationViewController
+        }
     }
 
     override func viewDidLoad() {
-        textFieldServerIP.stringValue = Backend.address
+        super.viewDidLoad()
         
-        if let x = AV.shared.defaultVideoDimension {
-            textFieldVideoWidth.stringValue = String(x.width)
-            textFieldVideoHeight.stringValue = String(x.height)
+        contacts?.watchingListener = { (watching: String?) in
+            self.update(watching)
         }
     }
     
-    @IBAction func btnRestartAction(_ sender: Any) {
-        let url = URL(fileURLWithPath: Bundle.main.resourcePath!)
-        let path = url.deletingLastPathComponent().deletingLastPathComponent().absoluteString
-        let task = Process()
-        task.launchPath = "/usr/bin/open"
-        task.arguments = [path]
-        task.launch()
-        exit(0)
-    }
-   
-    @IBAction func textFieldServerIPAction(_ sender: Any) {
-        UserDefaults.standard.set(textFieldServerIP.stringValue, forKey: AppDelegate.kServerIP)
-    }
-    
-    @IBAction func textFieldVideoWidthAction(_ sender: Any) {
-        let text = textFieldVideoWidth.stringValue
-        guard let width = Int32(text) else { return }
-        guard let format = AV.shared.defaultVideoInputDevice?.inputFormat(width: width) else { return }
-        
-        updateVideo(format)
-    }
-    
-    @IBAction func textFieldVideoHeightAction(_ sender: Any) {
-        let text = textFieldVideoHeight.stringValue
-        guard let height = Int32(text) else { return }
-        guard let format = AV.shared.defaultVideoInputDevice?.inputFormat(height: height) else { return }
-        
-        updateVideo(format)
+    func update(_ watching: String?) {
+        conversation?.update(watching)
     }
 }

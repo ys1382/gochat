@@ -78,7 +78,6 @@ class ContactsViewController: NSViewController, NSTableViewDelegate, NSTableView
     func tableViewSelectionDidChange(_ notification: Notification) {
         let table = notification.object as! NSTableView
         Model.shared.watching = table.selectedRow >= 0 ? self.names[table.selectedRow] : nil
-        TextViewController.shared?.reload()
         watchingListener?(Model.shared.watching)
     }
 }

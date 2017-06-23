@@ -50,10 +50,7 @@ protocol IODataProtocol {
     func process(_ data: [Int: NSData])
 }
 
-protocol IOSessionProtocol {
-    func start () throws
-    func stop()
-}
+typealias IOSessionProtocol = SessionProtocol
 
 class IOData : IODataProtocol {
     private let next: IODataProtocol?

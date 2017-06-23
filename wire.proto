@@ -20,6 +20,14 @@ message File {
     bytes data = 2;
 }
 
+message Call {
+    string key = 1;
+    string to = 2;
+    string from = 3;
+    bool audio = 4;
+    bool video = 5;
+}
+
 message Time {
     int64 value = 1;
     int32 scale = 2;
@@ -83,8 +91,14 @@ message Haber {
         AV = 5;
         AudioSession = 6;
         VideoSession = 7;
+	CALL_PROPOSAL = 8;
+	CALL_CANCEL = 9;
+	CALL_ACCEPT = 10;
+	CALL_DECLINE = 11;
+	CALL_START = 12;
+	CALL_STOP = 13;
     }
-    Which which = 7;
+    Which which = 13;
 
     // One of the following will be filled in
     Login login = 101;
@@ -93,4 +107,5 @@ message Haber {
     Av av = 105;
     AVSession avSession = 106;
     File file = 107;
+    Call call = 108;
 }

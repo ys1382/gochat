@@ -52,6 +52,7 @@ class AudioInput : NSObject, IOSessionProtocol
     
     func start() throws {
         assert(dqueue)
+        logIOPrior("audio input start")
 
         // thread
         
@@ -114,6 +115,7 @@ class AudioInput : NSObject, IOSessionProtocol
     
     func stop() {
         assert(dqueue)
+        logIOPrior("audio input stop")
 
         guard let queue = self.queue else { assert(false); return }
 

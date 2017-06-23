@@ -37,8 +37,8 @@ class AudioOutput : AudioOutputProtocol, IOSessionProtocol {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     func start() {
-        
         assert(dqueue)
+        logIOPrior("audio output start")
         
         do {
             packets = 0
@@ -65,8 +65,8 @@ class AudioOutput : AudioOutputProtocol, IOSessionProtocol {
     }
     
     func stop() {
-        
         assert(dqueue)
+        logIOPrior("audio output stop")
         
         do {
             try unit!.reset(kAudioUnitScope_Input, AudioBus.input)
