@@ -24,6 +24,12 @@ extension DispatchQueue {
     static func OnQueue(_ x: DispatchQueue) -> Bool {
         return DispatchQueue.getSpecific(key: DispatchQueue.keyID)?.x == x.label
     }
+    
+    func asyncAfter0_5(_ block: @escaping FuncVV) {
+        asyncAfter(deadline: .now() + 5) {
+            block()
+        }
+    }
 }
 
 func assert(_ onQueue: DispatchQueue) {

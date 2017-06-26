@@ -131,7 +131,11 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Video
         assert(formatNotChanged(sampleBuffer))
         logIO("video input \(sampleBuffer.seconds())")
 
+//        #if os(iOS)
         self.output?.process(sampleBuffer)
+//        #else
+//        AV.shared.videoCaptureQueue.asyncAfter0_5 { self.output?.process(sampleBuffer) }
+//        #endif
     }
     
     func failureNotification(notification: Notification) {

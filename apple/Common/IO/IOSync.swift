@@ -16,7 +16,7 @@ protocol IOSyncedDataProtocol : IODataProtocol {
     func belated(_ data: [Int: NSData])
 }
 
-class IOSyncedDataSkip : IOSyncedDataProtocol {
+class IOSyncSubdataSkip : IOSyncedDataProtocol {
     
     let next: IODataProtocol?
     
@@ -32,6 +32,24 @@ class IOSyncedDataSkip : IOSyncedDataProtocol {
     
     func process(_ data: [Int : NSData]) {
         next?.process(data)
+    }
+}
+
+class IOSyncedDataDispatcher : IODataAsyncDispatcher, IOSyncedDataProtocol {
+
+    let next: IOSyncedDataProtocol
+    
+    init(_ queue: DispatchQueue, _ next: IOSyncedDataProtocol) {
+        self.next = next
+        super.init(queue, next)
+    }
+    
+    func tuning(_ data: [Int : NSData]) {
+        queue.async { self.next.tuning(data) }
+    }
+    
+    func belated(_ data: [Int : NSData]) {
+        queue.async { self.next.belated(data) }
     }
 }
 
@@ -133,10 +151,6 @@ class IOSync : IOTimebaseProtocol {
         self.gap = IOSyncGap()
     }
 
-    func add(_ kind: IOKind, _ time: IOTimeSerializerProtocol, _ output: IODataProtocol?) {
-        add(kind, time, IOSyncedDataSkip(output))
-    }
-    
     func add(_ kind: IOKind, _ time: IOTimeSerializerProtocol, _ output: IOSyncedDataProtocol?) {
         self.output[kind] = output
         self.timing[kind] = time

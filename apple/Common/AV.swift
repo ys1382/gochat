@@ -281,7 +281,7 @@ class AV {
                 sync)
         
         let result =
-            IODataDispatcher(
+            IODataAsyncDispatcher(
                 avOutputQueue,
                 NetworkH264Deserializer(
                     IOTimebaseReset(
@@ -292,9 +292,11 @@ class AV {
         sync.add(
             IOKind.Video,
             time,
-            VideoDecoderH264Data(
-                VideoDecoderH264(
-                output)))
+            IOSyncedDataDispatcher(
+                avOutputQueue,
+                VideoDecoderH264Data(
+//                VideoDecoderH264(
+                    output)))
 
         session = create([syncBus])
         
@@ -349,7 +351,7 @@ class AV {
                 sync)
         
         let result =
-            IODataDispatcher(
+            IODataAsyncDispatcher(
                 avOutputQueue,
                 IOTimebaseReset(
                     sync,
@@ -359,8 +361,9 @@ class AV {
         sync.add(
             IOKind.Audio,
             time,
-            NetworkAudioDeserializer(
-                decoder))
+            IOSyncSubdataSkip(
+                NetworkAudioDeserializer(
+                    decoder)))
         
         session = create([output, decoder, syncBus])
         

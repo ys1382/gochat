@@ -231,10 +231,10 @@ func checkIO(_ x: FuncVVT) {
 // IOData dispatcher
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class IODataDispatcher : IODataProtocol {
+class IODataAsyncDispatcher : IODataProtocol {
     
     let queue: DispatchQueue
-    let next: IODataProtocol
+    private let next: IODataProtocol
     
     init(_ queue: DispatchQueue, _ next: IODataProtocol) {
         self.queue = queue
@@ -242,7 +242,7 @@ class IODataDispatcher : IODataProtocol {
     }
     
     func process(_ data: [Int : NSData]) {
-        queue.sync { self.next.process(data) }
+        queue.async { self.next.process(data) }
     }
 }
 
