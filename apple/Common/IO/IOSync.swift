@@ -196,6 +196,8 @@ class IOSync : IOTimebaseProtocol {
         guard active else { return }
         
         thread!.sync({
+            guard self.active else { return }
+
             let id = self.nextID
             let remoteTime = self.timing[kind]!.time(data)
             let timerItem = _TimerItem(id, kind, data)
