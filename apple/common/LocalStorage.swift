@@ -4,6 +4,8 @@ import SignalProtocolC
 class LocalStorage {
 
     private static var addressRecords = [SignalProtocolAddress: Data]()
+    private static var addressIdentityKeys = [SignalProtocolAddress: Data]()
+    private static var addressKeys = [SignalProtocolAddress: Data]()
     private static var addresses = [Data: [SignalProtocolAddress]]()
     private static var preKeyRecords = [UInt32: Data]()
     private static var signedPreKeyRecords = [UInt32: Data]()
@@ -223,5 +225,22 @@ class LocalStorage {
             return SignalResult.exists
         }
         return SignalResult.doesNotExist
+    }
+
+    static func save(keyData: UnsafeMutablePointer<UInt8>?,
+                     keyLen: Int,
+                     forAddress address: UnsafePointer<signal_protocol_address>?) -> Int32 {
+        let signalProtocolAddress = SignalProtocolAddress(address!.pointee)
+        addressIdentityKeys[signalProtocolAddress] = recordToData(keyData, keyLen)
+        return SignalResult.success
+    }
+
+    static func isTrusted(keyData: UnsafeMutablePointer<UInt8>?,
+                          keyLen: Int,
+                          forAddress address: UnsafePointer<signal_protocol_address>?) -> Int32 {
+        let signalProtocolAddress = SignalProtocolAddress(address!.pointee)
+        let existingKey = addressIdentityKeys[signalProtocolAddress]
+        let newKey = recordToData(keyData, keyLen)
+        return existingKey == newKey ? SignalResult.success : SignalResult.failure
     }
 }

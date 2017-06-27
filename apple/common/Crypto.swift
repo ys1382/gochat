@@ -31,6 +31,20 @@ class Crypto {
         signalBuildSession(globalContext: globalContext)
     }
 
+//    let load2: @convention(c) (UnsafeMutablePointer<OpaquePointer?>?,
+//               UnsafePointer<signal_protocol_address>?,
+//               UnsafeMutableRawPointer?) -> Int32 = { a,b,c in
+//        return 0
+//    }
+//    var x = signal_protocol_session_store(load_session_func: load2,
+//                                          get_sub_device_sessions_func: LocalStorage.getSubDeviceSessions,
+//                                          store_session_func: LocalStorage.store1,
+//                                          contains_session_func: LocalStorage.contains1,
+//                                          delete_session_func: LocalStorage.delete1,
+//                                          delete_all_sessions_func: LocalStorage.deleteAll,
+//                                          destroy_func: nil,
+//                                          user_data: nil)
+
     func signalBuildSession(globalContext: OpaquePointer?) {
         var storeContext: OpaquePointer?
         signal_protocol_store_context_create(&storeContext, globalContext)
@@ -94,23 +108,19 @@ class Crypto {
         signal_protocol_store_context_set_signed_pre_key_store(storeContext, &signedPreKeyStore);
 
         var identityKeyStore = signal_protocol_identity_key_store()
-        identityKeyStore.get_identity_key_pair = { publicData, privateData, userData in
-            return 0
-        }
-        identityKeyStore.get_local_registration_id = { userData, registrationId in
-            return 0
-        }
         identityKeyStore.save_identity = { address, keyData, keyLen, userData in
-            return 0
+            return LocalStorage.save(keyData: keyData, keyLen: keyLen, forAddress: address)
         }
         identityKeyStore.is_trusted_identity = { address, keyData, keyLen, userData in
-            return 0
+            return LocalStorage.isTrusted(keyData: keyData, keyLen: keyLen, forAddress: address)
         }
         identityKeyStore.destroy_func = { userData in }
         identityKeyStore.user_data = nil
         signal_protocol_store_context_set_identity_key_store(storeContext, &identityKeyStore);
 
-        var address = signal_protocol_address(name: "+14159998888", name_len: 12, device_id: 1)
+
+
+        var address = signal_protocol_address(name: "alice", name_len: 5, device_id: 1)
         var builder: OpaquePointer?
         session_builder_create(&builder, storeContext, &address, globalContext);
 
