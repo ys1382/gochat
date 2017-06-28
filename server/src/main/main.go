@@ -39,7 +39,10 @@ func (cr *ChatRoom) Init(db *bolt.DB) {
         return
       }
 
+      chat.clientsMtx.Lock()
       client, ok := cr.namedClients[to]
+      chat.clientsMtx.Unlock()
+
       if ok == false {
         fmt.Println("Can't find " + to)
       } else {
