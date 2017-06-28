@@ -1,36 +1,25 @@
 
 import Cocoa
 
-class OutgoingCallViewController: NSViewController {
+class OutgoingCallViewController: NSViewController, NetworkCallProposalReceiverProtocol {
    
-    var info: NetworkCallInfo?
+    @IBOutlet weak var lblTitle: NSTextField!
+    private var titleText = ""
 
-    private func call(_ to: String, _ audio: Bool, _ video: Bool) {
-        let info = NetworkCallInfo(UUID().uuidString,
-                                   Model.shared.username!,
-                                   to,
-                                   audio,
-                                   video)
-        self.info = info
-        
+    override func viewDidLoad() {
+        titleText = lblTitle.stringValue
+    }
+    
+    @IBAction func btnCancelPressed(_ sender: Any) {
         dispatch_async_network_call {
-            NetworkCallProposalController.outgoing?.start(info)
+            NetworkCallProposalController.outgoing?.stop(self.callInfo!)
         }
     }
     
-    func callAudio(_ to: String) {
-        call(to, true, false)
-    }
-
-    func callVideo(_ to: String) {
-        call(to, true, true)
-    }
-
-    @IBAction func btnCancelPressed(_ sender: Any) {
-        let info = self.info!
-      
-        dispatch_async_network_call {
-            NetworkCallProposalController.outgoing?.stop(info.id)
+    var callInfo: NetworkCallProposalInfo? {
+        didSet {
+            guard callInfo != nil else { return }
+            lblTitle.stringValue = titleText + callInfo!.to
         }
     }
 }

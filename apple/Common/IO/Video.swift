@@ -14,6 +14,8 @@ enum H264Part : Int {
 
 struct VideoFormat : Equatable {
     
+    typealias Factory = () throws -> VideoFormat
+    
     private static let kWidth = "width"
     private static let kHeight = "height"
     

@@ -44,11 +44,11 @@ class ConversationViewController : NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        NetworkCallProposalController.incoming = NetworkCallProposalController { (info: NetworkCallInfo) in
+        NetworkCallProposalController.incoming = NetworkCallProposalController { (info: NetworkCallProposalInfo) in
             return NetworkIncomingCallProposalUI(info, self)
         }
 
-        NetworkCallProposalController.outgoing = NetworkCallProposalController { (info: NetworkCallInfo) in
+        NetworkCallProposalController.outgoing = NetworkCallProposalController { (info: NetworkCallProposalInfo) in
             return NetworkOutgoingCallProposalUI(info, self)
         }
 
@@ -59,24 +59,16 @@ class ConversationViewController : NSViewController {
         NetworkCallController.outgoing = NetworkCallController { (info: NetworkCallInfo) in
             return NetworkOutgoingCallUI(info, self)
         }
-
-        Backend.shared.videoSessionStart = { (id: IOID, format: VideoFormat) throws in
-            try self.videoViewController?.videoSessionStart?(id, format)
-        }
-        
-        Backend.shared.videoSessionStop = { (id: IOID) in
-            self.videoViewController?.videoSessionStop?(id)
-        }
     }
     
     @IBAction func btnAudioCallPressed(_ sender: Any) {
         _onCallStarted()
-        outgoingCallViewController.callAudio(watching!)
+        _ = Chat.callAudioAsync(watching!)
     }
     
     @IBAction func btnVideoCallPressed(_ sender: Any) {
         _onCallStarted()
-        outgoingCallViewController.callVideo(watching!)
+        _ = Chat.callVideoAsync(watching!)
     }
 
     @IBAction func btnVideoCallStop(_ sender: Any) {
@@ -94,7 +86,7 @@ class ConversationViewController : NSViewController {
     }
 
     private func _onCallStoppped() {
-        _enableCall()
+        enableCall()
         
         dispatch_async_network_call {
             NetworkCallController.incoming?.stop()
@@ -102,13 +94,6 @@ class ConversationViewController : NSViewController {
         }
     }
 
-    private func _enableCall() {
-        btnAudioCallStop.isHidden = true
-        btnVideoCallStop.isHidden = true
-        btnAudioCall.isEnabled = true
-        btnVideoCall.isEnabled = true
-    }
-    
     func update(_ watching: String?) {
         self.watching = watching
         
@@ -132,7 +117,8 @@ class ConversationViewController : NSViewController {
         outgoingCallContainerView.isHidden = false
     }
 
-    func showIncomingCall() {
+    func showIncomingCall(_ from: String) {
+        update(from)
         _hideAll()
         incomingCallContainerView.isHidden = false
     }
@@ -150,6 +136,9 @@ class ConversationViewController : NSViewController {
     }
     
     func enableCall() {
-        _enableCall()
+        btnAudioCallStop.isHidden = true
+        btnVideoCallStop.isHidden = true
+        btnAudioCall.isEnabled = true
+        btnVideoCall.isEnabled = true
     }
 }

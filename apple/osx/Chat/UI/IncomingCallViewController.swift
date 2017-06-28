@@ -1,23 +1,17 @@
 
 import Cocoa
 
-class IncomingCallViewController : NSViewController {
+class IncomingCallViewController : NSViewController, NetworkCallProposalReceiverProtocol {
+
     @IBOutlet weak var lblTitle: NSTextField!
-    
     private var titleText = ""
-    private var info: NetworkCallInfo?
     
     override func viewDidLoad() {
         titleText = lblTitle.stringValue
     }
     
-    func showCall(_ info: NetworkCallInfo) {
-        self.info = info
-        self.lblTitle.stringValue = titleText + info.from
-    }
-    
     @IBAction func btnAcceptPressed(_ sender: Any) {
-        let info = self.info!
+        let info = self.callInfo!
         
         dispatch_async_network_call {
             NetworkCallProposalController.incoming?.accept(info)
@@ -25,10 +19,18 @@ class IncomingCallViewController : NSViewController {
     }
 
     @IBAction func btnDeclinePressed(_ sender: Any) {
-        let info = self.info!
+        let info = self.callInfo!
 
         dispatch_async_network_call {
-            NetworkCallProposalController.incoming?.decline(info.id)
+            NetworkCallProposalController.incoming?.decline(info)
         }
     }
+    
+    var callInfo: NetworkCallProposalInfo? {
+        didSet {
+            guard callInfo != nil else { return }
+            self.lblTitle.stringValue = titleText + callInfo!.from
+        }
+    }
+
 }

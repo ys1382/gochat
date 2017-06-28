@@ -32,28 +32,29 @@ class SplitViewController : UISplitViewController {
         }
     }
 
-    private func login(username: String) {
-        Backend.shared.connect(withUsername: username)
+    private var detailViewControllerOnTop: Bool {
+        return self.navController?.topViewController == self.detailViewController
     }
 
     override func viewDidLoad() {
-        Backend.shared.videoSessionStart = { (_ id: IOID, _ format: VideoFormat) throws -> IODataProtocol? in
-            assert_main()
-
-            if self.detailViewController == nil {
-                let detailsID = String(describing: DetailViewController.self)
-                let details = self.storyboard!.instantiateViewController(withIdentifier: String(describing: detailsID))
-                              as! DetailViewController
-                
-                self.navController?.pushViewController(details, animated: false)
-                _ = details.view
-            }
-            
-            return try self.detailViewController!.videoSessionStart?(id, format)
+        // setup call
+        
+        NetworkCallProposalController.incoming = NetworkCallProposalController { (info: NetworkCallProposalInfo) in
+            let vc:IncomingCallViewController  = instantiateViewController(self.storyboard!)
+            return NetworkIncomingCallProposalUI(info, self, vc)
         }
         
-        Backend.shared.videoSessionStop = { (_ id: IOID) in
-            self.detailViewController?.videoSessionStop?(id)
+        NetworkCallProposalController.outgoing = NetworkCallProposalController { (info: NetworkCallProposalInfo) in
+            let vc: OutgoingCallViewController = instantiateViewController(self.storyboard!)
+            return NetworkOutgoingCallProposalUI(info, self, vc)
+        }
+        
+        NetworkCallController.incoming = NetworkCallController { (info: NetworkCallInfo) in
+            return NetworkIncomingCallUI(info, self)
+        }
+        
+        NetworkCallController.outgoing = NetworkCallController { (info: NetworkCallInfo) in
+            return NetworkOutgoingCallUI(info, self)
         }
     }
     
@@ -65,7 +66,32 @@ class SplitViewController : UISplitViewController {
             askName()
         }
     }
+    
+    func showDetailsIfNeeded() -> DetailViewController {
+        if detailViewController == nil {
+            performSegue(withIdentifier: "showDetail" , sender:self)
+        }
+        
+        return detailViewController!
+    }
+    
+    func showVideoIfNeeded() -> VideoViewController {
+        if self.navController?.topViewController is VideoViewController {
+            return self.navController?.topViewController as! VideoViewController
+        }
+        
+        self.showDetailsIfNeeded().navigationController!.performSegue(withIdentifier: "pushVideo", sender: self)
+        return self.detailViewController?.navigationController?.topViewController as! VideoViewController
+    }
+    
+    func popToDetailsIfNeededAnimated() -> DetailViewController? {
+        guard let detailViewController = self.detailViewController else { return nil }
+        
+        self.navigationController?.popToViewController(detailViewController, animated: true)
 
+        return detailViewController
+    }
+    
     static func askString(title: String, cancellable: Bool, done:@escaping (String)->Void) {
         let alertController = UIAlertController(title: nil,
                                                 message: title,
@@ -86,6 +112,10 @@ class SplitViewController : UISplitViewController {
             textField.placeholder = "New contact name"
         }
         SplitViewController.shared?.present(alertController, animated: true, completion: nil)
+    }
+
+    private func login(username: String) {
+        Backend.shared.connect(withUsername: username)
     }
 
     private func askName() {

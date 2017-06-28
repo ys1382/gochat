@@ -24,11 +24,11 @@ class Backend: WebSocketDelegate {
         websocket?.connect()
     }
 
-    var videoSessionStart: ((_ id: IOID, _ format: VideoFormat) throws ->IODataProtocol?)?
-    var videoSessionStop: ((_ id: IOID)->Void)?
+    var videoSessionStart: ((NetworkVideoSessionInfo) throws ->IODataProtocol?)?
+    var videoSessionStop: ((IOID)->Void)?
 
-    var audioSessionStart: ((_ id: IOID, _ format: AudioFormat) throws ->IODataProtocol?)?
-    var audioSessionStop: ((_ id: IOID)->Void)?
+    var audioSessionStart: ((NetworkAudioSessionInfo) throws ->IODataProtocol?)?
+    var audioSessionStop: ((IOID)->Void)?
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Send
@@ -61,59 +61,40 @@ class Backend: WebSocketDelegate {
         Backend.shared.send(haberBuilder)
     }
 
-    func sendCallProposal(_ to: String, _ info: NetworkCallInfo) {
+    func sendCallProposal(_ to: String, _ info: NetworkCallProposalInfo) {
         send(try! Haber.Create(.callProposal, to, info))
     }
 
-    func sendCallCancel(_ to: String, _ info: NetworkCallInfo) {
+    func sendCallCancel(_ to: String, _ info: NetworkCallProposalInfo) {
         send(try! Haber.Create(.callCancel, to, info))
     }
 
-    func sendCallAccept(_ to: String, _ info: NetworkCallInfo) {
+    func sendCallAccept(_ to: String, _ info: NetworkCallProposalInfo) {
         send(try! Haber.Create(.callAccept, to, info))
     }
 
-    func sendCallDecline(_ to: String, _ info: NetworkCallInfo) {
+    func sendCallDecline(_ to: String, _ info: NetworkCallProposalInfo) {
         send(try! Haber.Create(.callDecline, to, info))
     }
 
-    func sendCallStart(_ to: String, _ info: NetworkCallInfo) {
-        send(try! Haber.Create(.callStart, to, info))
+    func sendOutgoingCallStart(_ to: String, _ info: NetworkCallInfo) {
+        send(try! Haber.Create(.callStartOutgoing, to, info))
     }
-    
+
+    func sendIncomingCallStart(_ to: String, _ info: NetworkCallInfo) {
+        send(try! Haber.Create(.callStartIncoming, to, info))
+    }
+
     func sendCallStop(_ to: String, _ info: NetworkCallInfo) {
         send(try! Haber.Create(.callStop, to, info))
     }
-
-    private func createAVSession(_ id: IOID, _ data: NSData?, _ active: Bool) throws -> Haber.Builder {
-        let sessionBuilder = Avsession.Builder()
-            .setSid(id.sid)
-            .setGid(id.gid)
-            .setActive(active)
-        
-        if data != nil {
-            sessionBuilder.setData(data! as Data)
-        }
-        
-        return Haber.Builder().setAvSession(try sessionBuilder.build()).setTo(id.to)
-    }
     
-    func sendVideoSession(_ id: IOID, _ data: NSData?, _ active: Bool) {
-        do {
-            send(try createAVSession(id, data, active).setWhich(.videoSession))
-        }
-        catch {
-            logNetworkError(error)
-        }
+    func sendVideoSession(_ session: NetworkVideoSessionInfo, _ active: Bool) {
+        send(try! Haber.Create(.videoSession, session, active).setWhich(.videoSession))
     }
 
-    func sendAudioSession(_ id: IOID,_ data: NSData?, _ active: Bool) {
-        do {
-            send(try createAVSession(id, data, active).setWhich(.audioSession))
-        }
-        catch {
-            logNetworkError(error)
-        }
+    func sendAudioSession(_ session: NetworkAudioSessionInfo, _ active: Bool) {
+        send(try! Haber.Create(.audioSession, session, active).setWhich(.audioSession))
     }
 
     func sendVideo(_ id: IOID, _ data: NSData) {
@@ -129,7 +110,7 @@ class Backend: WebSocketDelegate {
                 .setTo(id.to)
                 .setWhich(.av)
                 .setAv(av)
-                .setAvSession(try Avsession.Builder().setSid(id.sid).build())
+                .setVideoSession(try Avsession.Builder().setSid(id.sid).build())
             
             Backend.shared.send(haberBuilder, "video")
         }
@@ -151,7 +132,7 @@ class Backend: WebSocketDelegate {
                 .setTo(id.to)
                 .setWhich(.av)
                 .setAv(av)
-                .setAvSession(try Avsession.Builder().setSid(id.sid).build())
+                .setAudioSession(try Avsession.Builder().setSid(id.sid).build())
 
             Backend.shared.send(haberBuilder, "audio")
         }
@@ -165,56 +146,67 @@ class Backend: WebSocketDelegate {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     func getsCallProposal(_ haber: Haber) {
-        NetworkCallProposalController.incoming?.start(haber.callInfo)
+        NetworkCallProposalController.incoming?.start(haber.callProposalInfo)
     }
     
     func getsCallCancel(_ haber: Haber) {
-        NetworkCallProposalController.incoming?.stop(haber.call.key)
-        NetworkCallProposalController.outgoing?.stop(haber.call.key)
+        NetworkCallProposalController.incoming?.stop(haber.callProposalInfo)
+        NetworkCallProposalController.outgoing?.stop(haber.callProposalInfo)
     }
     
     func getsCallAccept(_ haber: Haber) {
-        NetworkCallProposalController.outgoing?.accept(haber.callInfo)
+        NetworkCallProposalController.outgoing?.accept(haber.callProposalInfo)
     }
     
     func getsCallDecline(_ haber: Haber) {
-        NetworkCallProposalController.outgoing?.decline(haber.call.key)
+        NetworkCallProposalController.outgoing?.decline(haber.callProposalInfo)
     }
 
-    func getsCallStart(_ haber: Haber) {
-        NetworkCallController.incoming?.start(haber.callInfo)
+    func getsOutgoingCallStart(_ haber: Haber) {
+        NetworkCallController.incoming?.start(try! haber.callInfo())
+        startCallOutput(haber, NetworkCallController.incoming, audio, video)
     }
-    
+
+    func getsIncomingCallStart(_ haber: Haber) {
+        startCallOutput(haber, NetworkCallController.outgoing, audio, video)
+    }
+
     func getsCallStop(_ haber: Haber) {
-        NetworkCallController.incoming?.stop(haber.call.key)
-        NetworkCallController.outgoing?.stop(haber.call.key)
+        NetworkCallController.incoming?.stop(try! haber.callInfo())
+        NetworkCallController.outgoing?.stop(try! haber.callInfo())
+        
+        if haber.hasAudioSession {
+            audio.remove(haber.audioSession.sid)
+        }
+        
+        if haber.hasVideoSession {
+            video.remove(haber.videoSession.sid)
+        }
     }
 
     func getsAV(_ haber: Haber) {
         if (haber.av.hasAudio) {
-            audio.process(haber.avSession.sid, [AudioPart.NetworkPacket.rawValue: haber.av.audio.image.data as NSData])
+            audio.process(haber.audioSession.sid, [AudioPart.NetworkPacket.rawValue: haber.av.audio.image.data as NSData])
         }
         
         if (haber.av.hasVideo) {
-            video.process(haber.avSession.sid, [VideoPart.NetworkPacket.rawValue: haber.av.video.image.data as NSData])
+            video.process(haber.videoSession.sid, [VideoPart.NetworkPacket.rawValue: haber.av.video.image.data as NSData])
         }
     }
 
     func getsVideoSession(_ haber: Haber) {
         do {
-            if haber.avSession.hasActive && haber.avSession.active {
+            if haber.videoSession.hasActive && haber.videoSession.active {
                 video.removeAll()
 
-                let format = try VideoFormat.fromNetwork(haber.avSession.data! as NSData)
-                
                 try dispatch_sync_on_main {
-                    guard let output = try videoSessionStart?(haber.avid, format) else { return }
-                    video.add(haber.avSession.sid, output)
+                    guard let output = try videoSessionStart?(try haber.videoSessionInfo()!) else { return }
+                    video.add(haber.videoSession.sid, output)
                 }
             }
             else {
-                videoSessionStop?(haber.avid)
-                video.remove(haber.avSession.sid)
+                videoSessionStop?(haber.videoSessionID!)
+                video.remove(haber.videoSession.sid)
             }
         }
         catch {
@@ -224,19 +216,17 @@ class Backend: WebSocketDelegate {
 
     func getsAudioSession(_ haber: Haber) {
         do {
-            if haber.avSession.hasActive && haber.avSession.active {
+            if haber.audioSession.hasActive && haber.audioSession.active {
                 audio.removeAll()
 
-                let format = try AudioFormat.fromNetwork(haber.avSession.data! as NSData)
-                
                 try dispatch_sync_on_main {
-                    guard let output = try audioSessionStart?(haber.avid, format) else { return }
-                    audio.add(haber.avSession.sid, output)
+                    guard let output = try audioSessionStart?(try haber.audioSessionInfo()!) else { return }
+                    audio.add(haber.audioSession.sid, output)
                 }
             }
             else {
-                audioSessionStop?(haber.avid)
-                audio.remove(haber.avSession.sid)
+                audioSessionStop?(haber.audioSessionID!)
+                audio.remove(haber.audioSession.sid)
             }
         }
         catch {
@@ -300,8 +290,10 @@ class Backend: WebSocketDelegate {
             dispatch_async_network_call { self.getsCallAccept(haber) }
         case .callDecline:
             dispatch_async_network_call { self.getsCallDecline(haber) }
-        case .callStart:
-            dispatch_async_network_call { self.getsCallStart(haber) }
+        case .callStartOutgoing:
+            dispatch_async_network_call { self.getsOutgoingCallStart(haber) }
+        case .callStartIncoming:
+            dispatch_async_network_call { self.getsIncomingCallStart(haber) }
         case .callStop:
             dispatch_async_network_call { self.getsCallStop(haber) }
         default:
@@ -310,38 +302,148 @@ class Backend: WebSocketDelegate {
     }
 }
 
-extension Haber {
+
+extension Haber.Builder {
     
-    static func Create(_ which: Haber.Which,
-                       _ to: String,
-                       _ call: NetworkCallInfo) throws -> Haber.Builder {
-        let call = try Call.Builder()
+    func Fill(_ call: NetworkCallProposalInfo) throws -> Haber.Builder {
+        return setCall(try Call.Builder()
             .setKey(call.id)
             .setFrom(call.from)
             .setTo(call.to)
             .setAudio(call.audio)
-            .setVideo(call.video).build()
+            .setVideo(call.video).build())
+    }
+
+    func Fill(_ session: NetworkAudioSessionInfo?, _ active: Bool) throws -> Haber.Builder {
+        guard session != nil else { return self }
+        return setAudioSession(try Avsession.Create(session, active))
+    }
+
+    func Fill(_ session: NetworkVideoSessionInfo?, _ active: Bool) throws -> Haber.Builder {
+        guard session != nil else { return self }
+        return setVideoSession(try Avsession.Create(session, active))
+    }
+}
+
+extension Avsession {
+    static func Create(_ session_: NetworkIOSessionInfo?, _ active: Bool) throws -> Avsession? {
+        guard let session = session_ else { return nil }
+
+        let sessionBuilder = Avsession.Builder()
+            .setSid(session.id.sid)
+            .setGid(session.id.gid)
+            .setActive(active)
         
-        return Haber.Builder()
+        if session.formatData != nil {
+            sessionBuilder.setData(try session.formatData!() as Data)
+        }
+        
+        return try sessionBuilder.build()
+    }
+}
+
+extension Haber {
+    
+    static func Create(_ which: Haber.Which,
+                       _ data: NetworkAudioSessionInfo,
+                       _ active: Bool) throws -> Haber.Builder {
+        return try Haber.Builder()
+            .setWhich(which)
+            .setTo(data.id.to)
+            .setFrom(data.id.from)
+            .Fill(data, active)
+    }
+
+    static func Create(_ which: Haber.Which,
+                       _ data: NetworkVideoSessionInfo,
+                       _ active: Bool) throws -> Haber.Builder {
+        return try Haber.Builder()
+            .setWhich(which)
+            .setTo(data.id.to)
+            .setFrom(data.id.from)
+            .Fill(data, active)
+    }
+
+    static func Create(_ which: Haber.Which,
+                       _ to: String,
+                       _ data: NetworkCallProposalInfo) throws -> Haber.Builder {
+        
+        return try Haber.Builder()
             .setWhich(which)
             .setTo(to)
             .setFrom(Model.shared.username!)
-            .setCall(call)
+            .Fill(data)
+    }
+
+    static func Create(_ which: Haber.Which,
+                       _ to: String,
+                       _ data: NetworkCallInfo) throws -> Haber.Builder {
+        return try Haber.Builder()
+            .setWhich(which)
+            .setTo(to)
+            .setFrom(Model.shared.username!)
+            .Fill(data.proposal)
+            .Fill(data.audioSession, true)
+            .Fill(data.videoSession, true)
     }
     
-    var avid: IOID {
+    var audioSessionID: IOID? {
         get {
-            return IOID(from, to, avSession.sid, avSession.gid)
+            guard hasAudioSession else { return nil }
+            return IOID(from, to, audioSession.sid, audioSession.gid)
         }
     }
-    
-    var callInfo: NetworkCallInfo {
+
+    var videoSessionID: IOID? {
         get {
-            return NetworkCallInfo(self.call.key,
-                                   self.call.from,
-                                   self.call.to,
-                                   self.call.hasAudio ? self.call.audio : false,
-                                   self.call.hasVideo ? self.call.video : false)
+            guard hasVideoSession else { return nil }
+            return IOID(from, to, videoSession.sid, videoSession.gid)
         }
+    }
+
+    func audioSessionInfo() throws -> NetworkAudioSessionInfo? {
+        guard hasAudioSession else { return nil }
+        return NetworkAudioSessionInfo(audioSessionID!,
+                                       audioSession.hasData ? factory(audioSession.data as NSData) : nil)
+    }
+
+    func videoSessionInfo() throws -> NetworkVideoSessionInfo? {
+        guard hasVideoSession else { return nil }
+        return NetworkVideoSessionInfo(videoSessionID!,
+                                       videoSession.hasData ? factory(videoSession.data as NSData) : nil)
+    }
+
+    func callInfo() throws -> NetworkCallInfo {
+        return NetworkCallInfo(callProposalInfo, try audioSessionInfo(), try videoSessionInfo())
+    }
+    
+    var callProposalInfo: NetworkCallProposalInfo {
+        get {
+            return NetworkCallProposalInfo(self.call.key,
+                                           self.call.from,
+                                           self.call.to,
+                                           self.call.hasAudio ? self.call.audio : false,
+                                           self.call.hasVideo ? self.call.video : false)
+        }
+    }
+}
+
+func startCallOutput(_ haber: Haber, _ call: NetworkCallController?, _ audio: NetworkInput, _ video: NetworkInput) {
+    var audio_: IODataProtocol?
+    var video_: IODataProtocol?
+    
+    do {
+        try call?.startOutput(try! haber.callInfo(), &audio_, &video_)
+    }
+    catch {
+        logNetworkError(error)
+    }
+    
+    if audio_ != nil {
+        audio.add(haber.audioSession.sid, audio_!)
+    }
+    
+    if video_ != nil {
+        video.add(haber.videoSession.sid, video_!)
     }
 }

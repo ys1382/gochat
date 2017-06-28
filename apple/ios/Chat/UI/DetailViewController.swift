@@ -6,7 +6,23 @@ class DetailViewController: UIViewController {
     @IBOutlet weak var detailDescriptionLabel: UILabel!
     @IBOutlet weak var input: UITextField!
     @IBOutlet weak var transcript: UITextView!
-    @IBOutlet weak var cameraBarButtonItem: UIBarButtonItem!
+    @IBOutlet weak var videoBarButtonItem: UIBarButtonItem!
+    @IBOutlet weak var audioBarButtonItem: UIBarButtonItem!
+    
+    var callInfo: NetworkCallInfo? {
+        didSet {
+            if callInfo == nil {
+                audioBarButtonItem.tintColor = nil
+                videoBarButtonItem.tintColor = nil
+                audioBarButtonItem.isEnabled = true
+                videoBarButtonItem.isEnabled = true
+            } else if callInfo!.proposal.video {
+                videoBarButtonItem.tintColor = UIColor.red
+            } else if callInfo!.proposal.audio {
+                audioBarButtonItem.tintColor = UIColor.red
+            }
+        }
+    }
 
     @IBAction func sendClicked(_ sender: Any) {
         guard let body = input.text, let whom = Model.shared.watching else {
@@ -17,80 +33,35 @@ class DetailViewController: UIViewController {
         input.text = ""
     }
 
-    @IBAction func cameraBarButtonItemAction(_ sender: UIBarButtonItem) {
-        userMediaViewController = showMedia(Model.shared.watching)
+    @IBAction func videoBarButtonItemAction(_ sender: UIBarButtonItem) {
+        if stopCallIfNeeded(videoBarButtonItem) == false {
+            _ = callVideoAsync(Model.shared.watching!)
+        }
     }
 
-    var userMediaViewController: MediaViewController?
-    var videoSessionStart: ((_ id: IOID, _ format: VideoFormat) throws ->IODataProtocol?)?
-    var videoSessionStop: ((_ id: IOID)->Void)?
-
-    func showMedia(_ watching_: String?) -> MediaViewController? {
-        guard let watching = watching_ else { return nil }
-        let mediaID = String(describing: MediaViewController.self)
-        let media = self.storyboard?.instantiateViewController(withIdentifier: mediaID) as! MediaViewController
-        
-        userMediaViewController = nil
-        media.setWatching(watching)
-        self.navigationController?.pushViewController(media,
-                                                      animated: true)
-        
-        return media
+    @IBAction func audioBarButtonItemAction(_ sender: UIBarButtonItem) {
+        if stopCallIfNeeded(audioBarButtonItem) == false {
+            _ = callAudioAsync(Model.shared.watching!)
+        }
     }
     
+    private func stopCallIfNeeded(_ button: UIBarButtonItem) -> Bool {
+        guard button.tintColor == UIColor.red else { return false }
+
+        stopCallAsync(self.callInfo!)
+        callInfo = nil
+        
+        return true
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         self.title = Model.shared.watching
         self.updateTranscript()
+       
         Model.shared.addListener(about: .text) { notification in
             self.updateTranscript()
-        }
-        
-        // setup video output
-        
-        videoSessionStart = { (_ id: IOID, _ format: VideoFormat) throws -> IODataProtocol? in
-            
-            var media: MediaViewController?
-            
-            dispatch_sync_on_main {
-                self.title = id.from
-                Model.shared.watching = id.from
-                
-                media = self.navigationController?.topViewController as? MediaViewController
-                
-                if media == self.userMediaViewController && id.sid == self.userMediaViewController?.sessionID {
-                    return
-                }
-                
-                if media != nil && (media?.sessionID == id.sid  || media?.sessionID == String()) {
-                    return
-                }
-                
-                if media != nil {
-                    self.navigationController?.popViewController(animated: true)
-                }
-                
-                media = self.showMedia(id.from)
-                _ = media?.view
-            }
-            
-            return try media?.videoSessionStart?(id, format)
-        }
-        
-        videoSessionStop = { (_ id: IOID) in
-            
-            var media: MediaViewController?
-
-            dispatch_sync_on_main {
-                guard let media_ = self.navigationController?.topViewController as? MediaViewController else { return }
-                guard media_.sessionID == id.sid else { return }
-
-                self.navigationController?.popViewController(animated: true)
-                media = media_
-            }
-            
-            media?.videoSessionStop?(id)
         }
     }
 

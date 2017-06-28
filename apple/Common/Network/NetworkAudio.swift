@@ -1,6 +1,30 @@
 
 import AudioToolbox
 
+class NetworkAudioSessionInfo : NetworkIOSessionInfo {
+    let format: AudioFormat.Factory?
+    
+    init(_ id: IOID, _ format: @escaping AudioFormat.Factory) {
+        self.format = format
+        super.init(id, data(format))
+    }
+
+    override init(_ id: IOID) {
+        format = nil
+        super.init(id)
+    }
+
+    override init(_ id: IOID, _ format: NSData.Factory?) {
+        if format != nil {
+            self.format = audioFormat(format!)
+        }
+        else {
+            self.format = nil
+        }
+        super.init(id, format)
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NetworkAudioSerializer
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,6 +95,14 @@ extension AudioFormat {
     }
 }
 
+func data(_ src: @escaping AudioFormat.Factory) -> NSData.Factory {
+    return { return try src().toNetwork() }
+}
+
+func audioFormat(_ src: @escaping NSData.Factory) -> AudioFormat.Factory {
+    return { return try AudioFormat.fromNetwork(src()) }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NetworkOutputAudio
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,19 +126,17 @@ class NetworkOutputAudio : IODataProtocol {
 
 class NetworkOutputAudioSession : IOSessionProtocol {
     
-    let id: IOID
-    let format: AudioFormat.Factory
+    let info: NetworkAudioSessionInfo
     
-    init(_ id: IOID, _ format: @escaping AudioFormat.Factory) {
-        self.id = id
-        self.format = format
+    init(_ info: NetworkAudioSessionInfo) {
+        self.info = info
     }
     
     func start() throws {
-        Backend.shared.sendAudioSession(id, try format().toNetwork(), true)
+        Backend.shared.sendAudioSession(info, true)
     }
     
     func stop() {
-        Backend.shared.sendAudioSession(id, nil, false)
+        Backend.shared.sendAudioSession(info, false)
     }
 }

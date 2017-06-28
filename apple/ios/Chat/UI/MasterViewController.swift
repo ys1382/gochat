@@ -29,25 +29,7 @@ class MasterViewController: UITableViewController {
 
         Model.shared.addListener(about: .text) { notification in
             self.tableView.reloadData()
-        }
-        
-        // setup call
-        
-        NetworkCallProposalController.incoming = NetworkCallProposalController { (info: NetworkCallInfo) in
-            return NetworkIncomingCallProposalUI(info, nil)
-        }
-        
-        NetworkCallProposalController.outgoing = NetworkCallProposalController { (info: NetworkCallInfo) in
-            return NetworkOutgoingCallProposalUI(info, nil)
-        }
-        
-        NetworkCallController.incoming = NetworkCallController { (info: NetworkCallInfo) in
-            return NetworkIncomingCallUI(info, nil)
-        }
-        
-        NetworkCallController.outgoing = NetworkCallController { (info: NetworkCallInfo) in
-            return NetworkOutgoingCallUI(info, nil)
-        }
+        }        
     }
 
     override func viewWillAppear(_ animated: Bool) {

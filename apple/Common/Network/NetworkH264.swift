@@ -1,6 +1,30 @@
 
 import Foundation
 
+class NetworkVideoSessionInfo : NetworkIOSessionInfo {
+    let format: VideoFormat.Factory?
+    
+    init(_ id: IOID, _ format: @escaping VideoFormat.Factory) {
+        self.format = format
+        super.init(id, data(format))
+    }
+
+    override init(_ id: IOID) {
+        format = nil
+        super.init(id)
+    }
+    
+    override init(_ id: IOID, _ format: NSData.Factory?) {
+        if format != nil {
+            self.format = videoFormat(format!)
+        }
+        else  {
+            self.format = nil
+        }
+        super.init(id, format)
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NetworkH264Serializer
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,6 +93,14 @@ extension VideoFormat {
     }
 }
 
+func data(_ src: @escaping VideoFormat.Factory) -> NSData.Factory {
+    return { return try src().toNetwork() }
+}
+
+func videoFormat(_ src: @escaping NSData.Factory) -> VideoFormat.Factory {
+    return { return try VideoFormat.fromNetwork(src()) }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NetworkOutputVideo
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,7 +133,7 @@ class NetworkOutputVideoSession : VideoSessionProtocol {
     }
     
     func start() throws {
-        Backend.shared.sendVideoSession(id, try format.toNetwork(), true)
+        Backend.shared.sendVideoSession(NetworkVideoSessionInfo(id, factory(format)), true)
     }
     
     func update(_ format: VideoFormat) throws {
@@ -109,7 +141,7 @@ class NetworkOutputVideoSession : VideoSessionProtocol {
     }
     
     func stop() {
-        Backend.shared.sendVideoSession(id, nil, false)
+        Backend.shared.sendVideoSession(NetworkVideoSessionInfo(id), false)
     }
 }
 

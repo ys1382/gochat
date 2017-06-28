@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12120" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="H1p-Uh-vWS">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="H1p-Uh-vWS">
     <device id="retina4_0" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="Navigation items with more than one left or right bar item" minToolsVersion="7.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -76,27 +77,35 @@
                     </view>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" id="mOI-FS-AaM">
-                        <barButtonItem key="rightBarButtonItem" style="plain" systemItem="camera" id="O6h-hz-KtM">
-                            <connections>
-                                <action selector="cameraBarButtonItemAction:" destination="JEX-9P-axG" id="XbT-Kp-ujD"/>
-                            </connections>
-                        </barButtonItem>
+                        <rightBarButtonItems>
+                            <barButtonItem image="bar_audio_call_icon" style="plain" id="Zh3-8s-NI4">
+                                <connections>
+                                    <action selector="audioBarButtonItemAction:" destination="JEX-9P-axG" id="eoN-Zd-y13"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem image="bar_video_call_icon" style="plain" id="O6h-hz-KtM">
+                                <connections>
+                                    <action selector="videoBarButtonItemAction:" destination="JEX-9P-axG" id="Ef6-gO-fnA"/>
+                                </connections>
+                            </barButtonItem>
+                        </rightBarButtonItems>
                     </navigationItem>
                     <connections>
-                        <outlet property="cameraBarButtonItem" destination="O6h-hz-KtM" id="O1A-HQ-UgV"/>
+                        <outlet property="audioBarButtonItem" destination="Zh3-8s-NI4" id="YVr-4I-y4z"/>
                         <outlet property="input" destination="ktB-D6-ZNY" id="uua-Jd-U8f"/>
                         <outlet property="transcript" destination="2T5-8a-QCr" id="3Cn-Wh-JX5"/>
+                        <outlet property="videoBarButtonItem" destination="O6h-hz-KtM" id="gbK-Fc-yPy"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FJe-Yq-33r" sceneMemberID="firstResponder"/>
                 <navigationItem title="Title" id="s39-78-i4O"/>
             </objects>
-            <point key="canvasLocation" x="708.5" y="128.5"/>
+            <point key="canvasLocation" x="707" y="129"/>
         </scene>
         <!--Media-->
         <scene sceneID="2G9-E3-Q56">
             <objects>
-                <viewController storyboardIdentifier="MediaViewController" id="XTF-sl-BaV" userLabel="Media" customClass="MediaViewController" customModule="Chat" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="VideoViewController" id="XTF-sl-BaV" userLabel="Media" customClass="VideoViewController" customModule="Chat" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="7wz-uV-SGb"/>
                         <viewControllerLayoutGuide type="bottom" id="jMh-EL-sdo"/>
@@ -282,6 +291,7 @@
                     <connections>
                         <segue destination="RMx-3f-FxP" kind="relationship" relationship="masterViewController" id="BlO-5A-QYV"/>
                         <segue destination="vC3-pB-5Vb" kind="relationship" relationship="detailViewController" id="Tll-UG-LXB"/>
+                        <segue destination="vC3-pB-5Vb" kind="showDetail" identifier="showDetail" animates="NO" id="uVm-WG-TLr"/>
                     </connections>
                 </splitViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cZU-Oi-B1e" sceneMemberID="firstResponder"/>
@@ -347,11 +357,129 @@
                     </navigationBar>
                     <connections>
                         <segue destination="JEX-9P-axG" kind="relationship" relationship="rootViewController" id="GKi-kA-LjT"/>
+                        <segue destination="XTF-sl-BaV" kind="show" identifier="pushVideo" animates="NO" id="M5g-dq-PZi"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SLD-UC-DBI" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-45" y="129"/>
+        </scene>
+        <!--Incoming Call View Controller-->
+        <scene sceneID="laY-mD-qnV">
+            <objects>
+                <viewController storyboardIdentifier="IncomingCallViewController" id="PeG-xT-Y92" customClass="IncomingCallViewController" customModule="Chat" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="oAa-K9-egP"/>
+                        <viewControllerLayoutGuide type="bottom" id="aQK-g6-F9f"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="tkr-5I-8Mw">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Incoming call from " textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ASj-Nf-9g3">
+                                <rect key="frame" x="16" y="118" width="288" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="zAN-hx-95y"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="48H-Tk-Kw9">
+                                <rect key="frame" x="40" y="269" width="240" height="30"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6Th-cf-jIy">
+                                        <rect key="frame" x="0.0" y="0.0" width="116" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="Accept"/>
+                                        <connections>
+                                            <action selector="btnAcceptAction:" destination="PeG-xT-Y92" eventType="touchUpInside" id="Q0Q-Zi-3nw"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JUx-pX-g7r">
+                                        <rect key="frame" x="124" y="0.0" width="116" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="Decline"/>
+                                        <connections>
+                                            <action selector="btnDeclineAction:" destination="PeG-xT-Y92" eventType="touchUpInside" id="DMg-U9-hDU"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="1Jh-AW-V5c"/>
+                                    <constraint firstAttribute="width" constant="240" id="jrY-ME-vVa"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="48H-Tk-Kw9" firstAttribute="centerY" secondItem="tkr-5I-8Mw" secondAttribute="centerY" id="BLa-8r-LIx"/>
+                            <constraint firstItem="ASj-Nf-9g3" firstAttribute="leading" secondItem="tkr-5I-8Mw" secondAttribute="leadingMargin" id="Klr-Zc-u6d"/>
+                            <constraint firstItem="48H-Tk-Kw9" firstAttribute="centerX" secondItem="tkr-5I-8Mw" secondAttribute="centerX" id="QNz-5q-TGH"/>
+                            <constraint firstItem="ASj-Nf-9g3" firstAttribute="top" relation="greaterThanOrEqual" secondItem="oAa-K9-egP" secondAttribute="bottom" constant="20" id="ctJ-Wz-pa4"/>
+                            <constraint firstItem="48H-Tk-Kw9" firstAttribute="top" secondItem="ASj-Nf-9g3" secondAttribute="bottom" priority="750" constant="130" id="hCV-C8-VpJ"/>
+                            <constraint firstItem="ASj-Nf-9g3" firstAttribute="trailing" secondItem="tkr-5I-8Mw" secondAttribute="trailingMargin" id="n0n-SG-vFo"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="lblTitle" destination="ASj-Nf-9g3" id="g2m-y5-eFf"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="7VC-4B-hO5" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-45.3125" y="867.1875"/>
+        </scene>
+        <!--Outgoing Call View Controller-->
+        <scene sceneID="bEb-2e-E6Z">
+            <objects>
+                <viewController storyboardIdentifier="OutgoingCallViewController" id="HzT-Dd-sZK" customClass="OutgoingCallViewController" customModule="Chat" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="zHo-9O-tch"/>
+                        <viewControllerLayoutGuide type="bottom" id="zuE-YD-maa"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="dJP-m5-u5w">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Calling to " textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4At-9G-hbW">
+                                <rect key="frame" x="16" y="118" width="288" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="6pn-cc-L6I"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8PB-gL-L5A">
+                                <rect key="frame" x="112" y="269" width="96" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="U08-Jr-4xa"/>
+                                    <constraint firstAttribute="width" constant="96" id="x9M-nd-bbM"/>
+                                </constraints>
+                                <state key="normal" title="Cancel"/>
+                                <connections>
+                                    <action selector="btnCancelAction:" destination="HzT-Dd-sZK" eventType="touchUpInside" id="v05-5D-oeT"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="4At-9G-hbW" firstAttribute="leading" secondItem="dJP-m5-u5w" secondAttribute="leadingMargin" id="6MP-OJ-whA"/>
+                            <constraint firstItem="8PB-gL-L5A" firstAttribute="centerX" secondItem="dJP-m5-u5w" secondAttribute="centerX" id="K89-Me-ugs"/>
+                            <constraint firstItem="4At-9G-hbW" firstAttribute="trailing" secondItem="dJP-m5-u5w" secondAttribute="trailingMargin" id="Ow8-WN-gK3"/>
+                            <constraint firstItem="4At-9G-hbW" firstAttribute="top" relation="greaterThanOrEqual" secondItem="zHo-9O-tch" secondAttribute="bottom" constant="20" id="QwE-eM-dMw"/>
+                            <constraint firstItem="8PB-gL-L5A" firstAttribute="centerY" secondItem="dJP-m5-u5w" secondAttribute="centerY" id="VdQ-Pw-ewd"/>
+                            <constraint firstItem="8PB-gL-L5A" firstAttribute="top" secondItem="4At-9G-hbW" secondAttribute="bottom" priority="750" constant="130" id="gu5-88-Y1p"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="lblTitle" destination="4At-9G-hbW" id="ZYu-n3-sJi"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="TBM-VM-QKG" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="707.8125" y="866.6015625"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="gZC-Gj-W3B">
@@ -503,10 +631,12 @@
         </scene>
     </scenes>
     <resources>
+        <image name="bar_audio_call_icon" width="25" height="25"/>
         <image name="bar_settings_icon" width="25" height="25"/>
+        <image name="bar_video_call_icon" width="25" height="25"/>
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="f56-Vb-gvB"/>
-        <segue reference="6S0-TO-JiA"/>
+        <segue reference="uVm-WG-TLr"/>
     </inferredMetricsTieBreakers>
 </document>

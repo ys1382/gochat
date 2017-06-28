@@ -8,7 +8,7 @@
 
 import AVFoundation
 
-class VideoOutput : VideoOutputProtocol {
+class VideoOutput : VideoOutputProtocol, IOSessionProtocol {
     
     let layer: AVSampleBufferDisplayLayer
     var format: CMFormatDescription?
@@ -29,6 +29,16 @@ class VideoOutput : VideoOutputProtocol {
         }
     }
 
+    func start() throws {
+        logIOPrior("video output start")
+        layer.flushAndRemoveImage()
+    }
+    
+    func stop() {
+        logIOPrior("video output stop")
+        layer.flushAndRemoveImage()
+    }
+    
     func process(_ data: CMSampleBuffer) {
         assert_av_output_queue()
         logIO("video output \(data.seconds())")

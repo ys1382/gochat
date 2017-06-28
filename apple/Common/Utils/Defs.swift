@@ -10,11 +10,13 @@ import Foundation
     typealias AppleView = UIView
     typealias AppleColor = UIColor
     typealias AppleApplicationDelegate = UIResponder
+    typealias AppleStoryboard = UIStoryboard
 #else
     import Cocoa
     typealias AppleView = NSView
     typealias AppleColor = NSColor
     typealias AppleApplicationDelegate = NSObject
+    typealias AppleStoryboard = NSStoryboard
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

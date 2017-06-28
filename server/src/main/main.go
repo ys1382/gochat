@@ -192,7 +192,9 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
         fallthrough
       case Haber_CALL_DECLINE:
         fallthrough
-      case Haber_CALL_START:
+      case Haber_CALL_START_OUTGOING:
+        fallthrough
+      case Haber_CALL_START_INCOMING:
         fallthrough
       case Haber_CALL_STOP:
         fallthrough

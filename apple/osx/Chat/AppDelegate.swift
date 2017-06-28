@@ -35,8 +35,6 @@ class AppDelegate: Application, NSApplicationDelegate {
                 self.login(username: username)
             }
         }
-        
-        AV.shared.setupDefaultNetworkAudioOutput(nil)
     }
 
     static func ask(title: String, subtitle: String, cancelable: Bool, done:(String?)->Void) {

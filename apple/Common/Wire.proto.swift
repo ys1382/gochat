@@ -4754,7 +4754,8 @@ final public class Haber : GeneratedMessage {
         fieldCheck = fieldCheck && (lhs.contacts == rhs.contacts)
         fieldCheck = fieldCheck && (lhs.hasText == rhs.hasText) && (!lhs.hasText || lhs.text == rhs.text)
         fieldCheck = fieldCheck && (lhs.hasAv == rhs.hasAv) && (!lhs.hasAv || lhs.av == rhs.av)
-        fieldCheck = fieldCheck && (lhs.hasAvSession == rhs.hasAvSession) && (!lhs.hasAvSession || lhs.avSession == rhs.avSession)
+        fieldCheck = fieldCheck && (lhs.hasAudioSession == rhs.hasAudioSession) && (!lhs.hasAudioSession || lhs.audioSession == rhs.audioSession)
+        fieldCheck = fieldCheck && (lhs.hasVideoSession == rhs.hasVideoSession) && (!lhs.hasVideoSession || lhs.videoSession == rhs.videoSession)
         fieldCheck = fieldCheck && (lhs.hasFile == rhs.hasFile) && (!lhs.hasFile || lhs.file == rhs.file)
         fieldCheck = fieldCheck && (lhs.hasCall == rhs.hasCall) && (!lhs.hasCall || lhs.call == rhs.call)
         fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
@@ -4779,8 +4780,9 @@ final public class Haber : GeneratedMessage {
             case callCancel = 9
             case callAccept = 10
             case callDecline = 11
-            case callStart = 12
-            case callStop = 13
+            case callStartOutgoing = 12
+            case callStartIncoming = 13
+            case callStop = 14
             public func toString() -> String {
                 switch self {
                 case .login: return "LOGIN"
@@ -4795,7 +4797,8 @@ final public class Haber : GeneratedMessage {
                 case .callCancel: return "CALL_CANCEL"
                 case .callAccept: return "CALL_ACCEPT"
                 case .callDecline: return "CALL_DECLINE"
-                case .callStart: return "CALL_START"
+                case .callStartOutgoing: return "CALL_START_OUTGOING"
+                case .callStartIncoming: return "CALL_START_INCOMING"
                 case .callStop: return "CALL_STOP"
                 }
             }
@@ -4813,7 +4816,8 @@ final public class Haber : GeneratedMessage {
                 case "CALL_CANCEL":    return .callCancel
                 case "CALL_ACCEPT":    return .callAccept
                 case "CALL_DECLINE":    return .callDecline
-                case "CALL_START":    return .callStart
+                case "CALL_START_OUTGOING":    return .callStartOutgoing
+                case "CALL_START_INCOMING":    return .callStartIncoming
                 case "CALL_STOP":    return .callStop
                 default: throw ProtocolBuffersError.invalidProtocolBuffer("Conversion failed.")
                 }
@@ -4834,7 +4838,8 @@ final public class Haber : GeneratedMessage {
                 case .callCancel: return ".callCancel"
                 case .callAccept: return ".callAccept"
                 case .callDecline: return ".callDecline"
-                case .callStart: return ".callStart"
+                case .callStartOutgoing: return ".callStartOutgoing"
+                case .callStartIncoming: return ".callStartIncoming"
                 case .callStop: return ".callStop"
                 }
             }
@@ -4869,8 +4874,10 @@ final public class Haber : GeneratedMessage {
     public fileprivate(set) var hasText:Bool = false
     public fileprivate(set) var av:Av!
     public fileprivate(set) var hasAv:Bool = false
-    public fileprivate(set) var avSession:Avsession!
-    public fileprivate(set) var hasAvSession:Bool = false
+    public fileprivate(set) var audioSession:Avsession!
+    public fileprivate(set) var hasAudioSession:Bool = false
+    public fileprivate(set) var videoSession:Avsession!
+    public fileprivate(set) var hasVideoSession:Bool = false
     public fileprivate(set) var file:File!
     public fileprivate(set) var hasFile:Bool = false
     public fileprivate(set) var call:Call!
@@ -4909,14 +4916,17 @@ final public class Haber : GeneratedMessage {
         if hasAv {
             try codedOutputStream.writeMessage(fieldNumber: 105, value:av)
         }
-        if hasAvSession {
-            try codedOutputStream.writeMessage(fieldNumber: 106, value:avSession)
+        if hasAudioSession {
+            try codedOutputStream.writeMessage(fieldNumber: 106, value:audioSession)
+        }
+        if hasVideoSession {
+            try codedOutputStream.writeMessage(fieldNumber: 107, value:videoSession)
         }
         if hasFile {
-            try codedOutputStream.writeMessage(fieldNumber: 107, value:file)
+            try codedOutputStream.writeMessage(fieldNumber: 108, value:file)
         }
         if hasCall {
-            try codedOutputStream.writeMessage(fieldNumber: 108, value:call)
+            try codedOutputStream.writeMessage(fieldNumber: 109, value:call)
         }
         try unknownFields.writeTo(codedOutputStream: codedOutputStream)
     }
@@ -4960,18 +4970,23 @@ final public class Haber : GeneratedMessage {
                 serialize_size += varSizeav
             }
         }
-        if hasAvSession {
-            if let varSizeavSession = avSession?.computeMessageSize(fieldNumber: 106) {
-                serialize_size += varSizeavSession
+        if hasAudioSession {
+            if let varSizeaudioSession = audioSession?.computeMessageSize(fieldNumber: 106) {
+                serialize_size += varSizeaudioSession
+            }
+        }
+        if hasVideoSession {
+            if let varSizevideoSession = videoSession?.computeMessageSize(fieldNumber: 107) {
+                serialize_size += varSizevideoSession
             }
         }
         if hasFile {
-            if let varSizefile = file?.computeMessageSize(fieldNumber: 107) {
+            if let varSizefile = file?.computeMessageSize(fieldNumber: 108) {
                 serialize_size += varSizefile
             }
         }
         if hasCall {
-            if let varSizecall = call?.computeMessageSize(fieldNumber: 108) {
+            if let varSizecall = call?.computeMessageSize(fieldNumber: 109) {
                 serialize_size += varSizecall
             }
         }
@@ -5035,8 +5050,11 @@ final public class Haber : GeneratedMessage {
         if hasAv {
             jsonMap["av"] = try av.encode()
         }
-        if hasAvSession {
-            jsonMap["avSession"] = try avSession.encode()
+        if hasAudioSession {
+            jsonMap["audioSession"] = try audioSession.encode()
+        }
+        if hasVideoSession {
+            jsonMap["videoSession"] = try videoSession.encode()
         }
         if hasFile {
             jsonMap["file"] = try file.encode()
@@ -5097,10 +5115,17 @@ final public class Haber : GeneratedMessage {
             }
             output += "\(indent) }\n"
         }
-        if hasAvSession {
-            output += "\(indent) avSession {\n"
-            if let outDescAvSession = avSession {
-                output += try outDescAvSession.getDescription(indent: "\(indent)  ")
+        if hasAudioSession {
+            output += "\(indent) audioSession {\n"
+            if let outDescAudioSession = audioSession {
+                output += try outDescAudioSession.getDescription(indent: "\(indent)  ")
+            }
+            output += "\(indent) }\n"
+        }
+        if hasVideoSession {
+            output += "\(indent) videoSession {\n"
+            if let outDescVideoSession = videoSession {
+                output += try outDescVideoSession.getDescription(indent: "\(indent)  ")
             }
             output += "\(indent) }\n"
         }
@@ -5157,9 +5182,14 @@ final public class Haber : GeneratedMessage {
                     hashCode = (hashCode &* 31) &+ hashValueav
                 }
             }
-            if hasAvSession {
-                if let hashValueavSession = avSession?.hashValue {
-                    hashCode = (hashCode &* 31) &+ hashValueavSession
+            if hasAudioSession {
+                if let hashValueaudioSession = audioSession?.hashValue {
+                    hashCode = (hashCode &* 31) &+ hashValueaudioSession
+                }
+            }
+            if hasVideoSession {
+                if let hashValuevideoSession = videoSession?.hashValue {
+                    hashCode = (hashCode &* 31) &+ hashValuevideoSession
                 }
             }
             if hasFile {
@@ -5504,58 +5534,112 @@ final public class Haber : GeneratedMessage {
             builderResult.av = nil
             return self
         }
-        public var avSession:Avsession! {
+        public var audioSession:Avsession! {
             get {
-                if avSessionBuilder_ != nil {
-                    builderResult.avSession = avSessionBuilder_.getMessage()
+                if audioSessionBuilder_ != nil {
+                    builderResult.audioSession = audioSessionBuilder_.getMessage()
                 }
-                return builderResult.avSession
+                return builderResult.audioSession
             }
             set (value) {
-                builderResult.hasAvSession = true
-                builderResult.avSession = value
+                builderResult.hasAudioSession = true
+                builderResult.audioSession = value
             }
         }
-        public var hasAvSession:Bool {
+        public var hasAudioSession:Bool {
             get {
-                return builderResult.hasAvSession
+                return builderResult.hasAudioSession
             }
         }
-        fileprivate var avSessionBuilder_:Avsession.Builder! {
+        fileprivate var audioSessionBuilder_:Avsession.Builder! {
             didSet {
-                builderResult.hasAvSession = true
+                builderResult.hasAudioSession = true
             }
         }
-        public func getAvSessionBuilder() -> Avsession.Builder {
-            if avSessionBuilder_ == nil {
-                avSessionBuilder_ = Avsession.Builder()
-                builderResult.avSession = avSessionBuilder_.getMessage()
-                if avSession != nil {
-                    try! avSessionBuilder_.mergeFrom(other: avSession)
+        public func getAudioSessionBuilder() -> Avsession.Builder {
+            if audioSessionBuilder_ == nil {
+                audioSessionBuilder_ = Avsession.Builder()
+                builderResult.audioSession = audioSessionBuilder_.getMessage()
+                if audioSession != nil {
+                    try! audioSessionBuilder_.mergeFrom(other: audioSession)
                 }
             }
-            return avSessionBuilder_
+            return audioSessionBuilder_
         }
         @discardableResult
-        public func setAvSession(_ value:Avsession!) -> Haber.Builder {
-            self.avSession = value
+        public func setAudioSession(_ value:Avsession!) -> Haber.Builder {
+            self.audioSession = value
             return self
         }
         @discardableResult
-        public func mergeAvSession(value:Avsession) throws -> Haber.Builder {
-            if builderResult.hasAvSession {
-                builderResult.avSession = try Avsession.builderWithPrototype(prototype:builderResult.avSession).mergeFrom(other: value).buildPartial()
+        public func mergeAudioSession(value:Avsession) throws -> Haber.Builder {
+            if builderResult.hasAudioSession {
+                builderResult.audioSession = try Avsession.builderWithPrototype(prototype:builderResult.audioSession).mergeFrom(other: value).buildPartial()
             } else {
-                builderResult.avSession = value
+                builderResult.audioSession = value
             }
-            builderResult.hasAvSession = true
+            builderResult.hasAudioSession = true
             return self
         }
         @discardableResult
-        public func clearAvSession() -> Haber.Builder {
-            avSessionBuilder_ = nil
-            builderResult.hasAvSession = false
-            builderResult.avSession = nil
+        public func clearAudioSession() -> Haber.Builder {
+            audioSessionBuilder_ = nil
+            builderResult.hasAudioSession = false
+            builderResult.audioSession = nil
+            return self
+        }
+        public var videoSession:Avsession! {
+            get {
+                if videoSessionBuilder_ != nil {
+                    builderResult.videoSession = videoSessionBuilder_.getMessage()
+                }
+                return builderResult.videoSession
+            }
+            set (value) {
+                builderResult.hasVideoSession = true
+                builderResult.videoSession = value
+            }
+        }
+        public var hasVideoSession:Bool {
+            get {
+                return builderResult.hasVideoSession
+            }
+        }
+        fileprivate var videoSessionBuilder_:Avsession.Builder! {
+            didSet {
+                builderResult.hasVideoSession = true
+            }
+        }
+        public func getVideoSessionBuilder() -> Avsession.Builder {
+            if videoSessionBuilder_ == nil {
+                videoSessionBuilder_ = Avsession.Builder()
+                builderResult.videoSession = videoSessionBuilder_.getMessage()
+                if videoSession != nil {
+                    try! videoSessionBuilder_.mergeFrom(other: videoSession)
+                }
+            }
+            return videoSessionBuilder_
+        }
+        @discardableResult
+        public func setVideoSession(_ value:Avsession!) -> Haber.Builder {
+            self.videoSession = value
+            return self
+        }
+        @discardableResult
+        public func mergeVideoSession(value:Avsession) throws -> Haber.Builder {
+            if builderResult.hasVideoSession {
+                builderResult.videoSession = try Avsession.builderWithPrototype(prototype:builderResult.videoSession).mergeFrom(other: value).buildPartial()
+            } else {
+                builderResult.videoSession = value
+            }
+            builderResult.hasVideoSession = true
+            return self
+        }
+        @discardableResult
+        public func clearVideoSession() -> Haber.Builder {
+            videoSessionBuilder_ = nil
+            builderResult.hasVideoSession = false
+            builderResult.videoSession = nil
             return self
         }
         public var file:File! {
@@ -5719,8 +5803,11 @@ final public class Haber : GeneratedMessage {
             if (other.hasAv) {
                 try mergeAv(value: other.av)
             }
-            if (other.hasAvSession) {
-                try mergeAvSession(value: other.avSession)
+            if (other.hasAudioSession) {
+                try mergeAudioSession(value: other.audioSession)
+            }
+            if (other.hasVideoSession) {
+                try mergeVideoSession(value: other.videoSession)
             }
             if (other.hasFile) {
                 try mergeFile(value: other.file)
@@ -5796,13 +5883,21 @@ final public class Haber : GeneratedMessage {
 
                 case 850:
                     let subBuilder:Avsession.Builder = Avsession.Builder()
-                    if hasAvSession {
-                        try subBuilder.mergeFrom(other: avSession)
+                    if hasAudioSession {
+                        try subBuilder.mergeFrom(other: audioSession)
                     }
                     try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
-                    avSession = subBuilder.buildPartial()
+                    audioSession = subBuilder.buildPartial()
 
                 case 858:
+                    let subBuilder:Avsession.Builder = Avsession.Builder()
+                    if hasVideoSession {
+                        try subBuilder.mergeFrom(other: videoSession)
+                    }
+                    try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
+                    videoSession = subBuilder.buildPartial()
+
+                case 866:
                     let subBuilder:File.Builder = File.Builder()
                     if hasFile {
                         try subBuilder.mergeFrom(other: file)
@@ -5810,7 +5905,7 @@ final public class Haber : GeneratedMessage {
                     try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
                     file = subBuilder.buildPartial()
 
-                case 866:
+                case 874:
                     let subBuilder:Call.Builder = Call.Builder()
                     if hasCall {
                         try subBuilder.mergeFrom(other: call)
@@ -5866,8 +5961,12 @@ final public class Haber : GeneratedMessage {
                 resultDecodedBuilder.av = try Av.Builder.decodeToBuilder(jsonMap:jsonValueAv).build()
 
             }
-            if let jsonValueAvSession = jsonMap["avSession"] as? Dictionary<String,Any> {
-                resultDecodedBuilder.avSession = try Avsession.Builder.decodeToBuilder(jsonMap:jsonValueAvSession).build()
+            if let jsonValueAudioSession = jsonMap["audioSession"] as? Dictionary<String,Any> {
+                resultDecodedBuilder.audioSession = try Avsession.Builder.decodeToBuilder(jsonMap:jsonValueAudioSession).build()
+
+            }
+            if let jsonValueVideoSession = jsonMap["videoSession"] as? Dictionary<String,Any> {
+                resultDecodedBuilder.videoSession = try Avsession.Builder.decodeToBuilder(jsonMap:jsonValueVideoSession).build()
 
             }
             if let jsonValueFile = jsonMap["file"] as? Dictionary<String,Any> {
@@ -6925,7 +7024,8 @@ extension Haber: GeneratedMessageProtocol {
         case "contacts": return self.contacts
         case "text": return self.text
         case "av": return self.av
-        case "avSession": return self.avSession
+        case "audioSession": return self.audioSession
+        case "videoSession": return self.videoSession
         case "file": return self.file
         case "call": return self.call
         default: return nil
@@ -6945,7 +7045,8 @@ extension Haber.Builder: GeneratedMessageBuilderProtocol {
             case "contacts": return self.contacts
             case "text": return self.text
             case "av": return self.av
-            case "avSession": return self.avSession
+            case "audioSession": return self.audioSession
+            case "videoSession": return self.videoSession
             case "file": return self.file
             case "call": return self.call
             default: return nil
@@ -6998,11 +7099,16 @@ extension Haber.Builder: GeneratedMessageBuilderProtocol {
                     return
                 }
                 self.av = newSubscriptValue
-            case "avSession":
+            case "audioSession":
                 guard let newSubscriptValue = newSubscriptValue as? Avsession else {
                     return
                 }
-                self.avSession = newSubscriptValue
+                self.audioSession = newSubscriptValue
+            case "videoSession":
+                guard let newSubscriptValue = newSubscriptValue as? Avsession else {
+                    return
+                }
+                self.videoSession = newSubscriptValue
             case "file":
                 guard let newSubscriptValue = newSubscriptValue as? File else {
                     return

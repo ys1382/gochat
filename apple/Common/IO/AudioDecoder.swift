@@ -27,7 +27,7 @@ class AudioDecoder : AudioOutputProtocol, IOSessionProtocol {
         guard var outputDescription = try self.output() else { return }
         outputDescription.mChannelsPerFrame = 1
         
-        self.inputDescription = AudioStreamBasicDescription.CreateVBR(self.input())
+        self.inputDescription = AudioStreamBasicDescription.CreateVBR(try self.input())
         self.outputDescription = outputDescription
         
         try checkStatus(AudioConverterNew(&inputDescription!, &outputDescription, &converter),

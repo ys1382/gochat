@@ -26,8 +26,6 @@ class AppDelegate: Application, UIApplicationDelegate, UISplitViewControllerDele
         do {
             try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayAndRecord)
             try AVAudioSession.sharedInstance().setActive(true)
-
-            AV.shared.setupDefaultNetworkAudioOutput(nil)
         }
         catch {
             logIOError(error)

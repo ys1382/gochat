@@ -16,9 +16,9 @@ class NetworkOutgoingCallProposalUI : NetworkOutgoingCallProposal {
     
     private let ui: ConversationViewController
     
-    init(_ info: NetworkCallInfo, _ ui: ConversationViewController) {
+    init(_ info: NetworkCallProposalInfo, _ ui: ConversationViewController) {
         self.ui = ui
-        super.init(info)
+        super.init(info, ui.outgoingCallViewController)
     }
     
     override func start() throws {
@@ -34,7 +34,7 @@ class NetworkOutgoingCallProposalUI : NetworkOutgoingCallProposal {
         discardCallProposal(ui)
     }
     
-    override func accept(_ info: NetworkCallInfo) {
+    override func accept(_ info: NetworkCallProposalInfo) {
         super.accept(info)
     }
     
@@ -52,18 +52,14 @@ class NetworkIncomingCallProposalUI : NetworkIncomingCallProposal {
     
     private let ui: ConversationViewController
     
-    init(_ info: NetworkCallInfo, _ ui: ConversationViewController) {
+    init(_ info: NetworkCallProposalInfo, _ ui: ConversationViewController) {
         self.ui = ui
-        super.init(info)
+        super.init(info, ui.incomingCallViewController)
     }
     
     override func start() throws {
         try super.start()
-        
-        dispatch_sync_on_main {
-            ui.incomingCallViewController.showCall(info)
-            ui.showIncomingCall()
-        }
+        dispatch_sync_on_main { ui.showIncomingCall(info.from) }
     }
     
     override func stop() {
@@ -71,7 +67,7 @@ class NetworkIncomingCallProposalUI : NetworkIncomingCallProposal {
         discardCallProposal(ui)
     }
     
-    override func accept(_ info: NetworkCallInfo) {
+    override func accept(_ info: NetworkCallProposalInfo) {
         super.accept(info)
         
         dispatch_sync_on_main {
@@ -86,29 +82,35 @@ class NetworkIncomingCallProposalUI : NetworkIncomingCallProposal {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// NetworkOutgoingCallUI
+// Call
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+fileprivate func videoCapture(_ id: IOID,
+                              _ ui: ConversationViewController,
+                              _ info: inout NetworkVideoSessionInfo?) -> IOSessionProtocol? {
+    let video = AV.shared.defaultNetworkVideoInput(id,
+                                                   ui.videoViewController.preview.captureLayer,
+                                                   &info)
+    
+    return VideoSessionAsyncDispatcher(AV.shared.videoCaptureQueue, video!)
+}
+
+fileprivate func videoOutput(_ info: NetworkVideoSessionInfo,
+                             _ ui: ConversationViewController,
+                             _ session: inout IOSessionProtocol?) -> IODataProtocol? {
+    return AV.shared.defaultNetworkVideoOutput(info.id,
+                                               ui.videoViewController.network.sampleLayer,
+                                               &session)
+}
 
 fileprivate func startCall(_ to: String, _ info: NetworkCallInfo, _ ui: ConversationViewController) {
     
-    if info.audio && info.video {
-        AV.shared.captureAV(to, preview: ui.videoViewController.preview.captureLayer)
-    }
-    
-    else if info.audio {
-        AV.shared.captureAudio(to)
-    }
-
-    else if info.video {
-        AV.shared.captureVideo(to, preview: ui.videoViewController.preview.captureLayer)
-    }
-    
     dispatch_sync_on_main {
-        if info.video {
+        if info.proposal.video {
             ui.btnVideoCallStop.isHidden = false
         }
-
-        else if info.audio {
+            
+        else if info.proposal.audio {
             ui.btnAudioCallStop.isHidden = false
         }
         
@@ -118,14 +120,15 @@ fileprivate func startCall(_ to: String, _ info: NetworkCallInfo, _ ui: Conversa
 
 fileprivate func stopCall(_ ui: ConversationViewController) {
     
-    DispatchQueue.global().async {
-        AV.shared.stopAllOutput()
-    }
-    
     dispatch_sync_on_main {
         ui.showMessages()
+        ui.enableCall()
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// NetworkOutgoingCallUI
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class NetworkOutgoingCallUI : NetworkOutgoingCall {
     
@@ -138,18 +141,21 @@ class NetworkOutgoingCallUI : NetworkOutgoingCall {
     
     override func start() throws {
         try super.start()
-        
-        dispatch_sync_on_main {
-            startCall(info.to, info, ui)
-        }
+        startCall(info.to, info, ui)
     }
     
     override func stop() {
         super.stop()
-
-        dispatch_sync_on_main {
-            stopCall(ui)
-        }
+        stopCall(ui)
+    }
+    
+    override func videoCapture(_ id: IOID, _ info: inout NetworkVideoSessionInfo?) -> IOSessionProtocol? {
+        return Chat.videoCapture(id, ui, &info)
+    }
+    
+    override func videoOutput(_ info: NetworkVideoSessionInfo,
+                              _ session: inout IOSessionProtocol?) throws -> IODataProtocol? {
+        return Chat.videoOutput(info, ui, &session)
     }
 }
 
@@ -177,5 +183,14 @@ class NetworkIncomingCallUI : NetworkIncomingCall {
     override func stop() {
         super.stop()
         stopCall(ui)
+    }
+    
+    override func videoCapture(_ id: IOID, _ info: inout NetworkVideoSessionInfo?) -> IOSessionProtocol? {
+        return Chat.videoCapture(id, ui, &info)
+    }
+    
+    override func videoOutput(_ info: NetworkVideoSessionInfo,
+                              _ session: inout IOSessionProtocol?) throws -> IODataProtocol? {
+        return Chat.videoOutput(info, ui, &session)
     }
 }

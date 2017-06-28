@@ -13,7 +13,294 @@ func dispatch_async_network_call(_ block: @escaping FuncVV) {
     DispatchQueue.networkCall.async { block() }
 }
 
+class NetworkCallSessionController<T, I> {
+    
+    fileprivate func create(_ info: I) -> T? {
+        assert(false)
+        return nil
+    }
+    
+    fileprivate func id(_ info: I) -> String {
+        assert(false)
+        return ""
+    }
+
+    func start(_ info: I) {
+        assert_network_call_queue()
+    }
+    
+    func stop(_ info: I) {
+        assert_network_call_queue()
+    }
+}
+
+class NetworkSingleCallSessionController<T: SessionProtocol, I> : NetworkCallSessionController<T, I> {
+    
+    var call: T?
+    var callInfo: I?
+    
+    override func start(_ info: I) {
+        super.start(info)
+        
+        stop()
+        call = create(info)
+        callInfo = info
+        do { try call?.start() } catch { logNetworkError(error) }
+    }
+    
+    override func stop(_ info: I) {
+        assert_network_call_queue()
+        
+        guard let callInfo = self.callInfo else { return }
+        guard id(callInfo) == id(info) else { return }
+        
+        call?.stop()
+        
+        self.call = nil
+        self.callInfo = nil
+    }
+    
+    func stop() {
+        guard callInfo != nil else { return }
+        stop(callInfo!)
+    }
+}
+
+class NetworkMultiCallSessionController<T: SessionProtocol, I> : NetworkCallSessionController<T, I> {
+    
+    private var calls = [String: T]()
+
+    override func start(_ info: I) {
+        super.start(info)
+        
+        let call = create(info)
+        calls[id(info)] = call
+        do { try call!.start() } catch { logNetworkError(error) }
+    }
+    
+    override func stop(_ info: I) {
+        assert_network_call_queue()
+
+        calls[id(info)]?.stop()
+        calls.removeValue(forKey: id(info))
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Call
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 struct NetworkCallInfo {
+    
+    let proposal: NetworkCallProposalInfo
+    let audioSession: NetworkAudioSessionInfo?
+    let videoSession: NetworkVideoSessionInfo?
+
+    init(_ proposal: NetworkCallProposalInfo,
+         _ audioSession: NetworkAudioSessionInfo?,
+         _ videoSession: NetworkVideoSessionInfo?) {
+        self.proposal = proposal
+        self.audioSession = audioSession
+        self.videoSession = videoSession
+    }
+
+    init(_ proposal: NetworkCallProposalInfo, audioSession: NetworkAudioSessionInfo) {
+        self.init(proposal, audioSession, nil)
+    }
+
+    init(_ proposal: NetworkCallProposalInfo, videoSession: NetworkVideoSessionInfo) {
+        self.init(proposal, nil, videoSession)
+    }
+    
+    init(_ proposal: NetworkCallProposalInfo) {
+        self.init(proposal, nil, nil)
+    }
+    
+    var id: String { get { return proposal.id } }
+    var from: String { get { return proposal.from } }
+    var to: String { get { return proposal.to } }
+}
+
+protocol NetworkCallProtocol : SessionProtocol {
+    
+}
+
+protocol NetworkCallReceiverProtocol {
+    var callInfo: NetworkCallInfo? { get set }
+}
+
+typealias NetworkCallFactory = (NetworkCallInfo) -> NetworkCallProtocol
+
+class NetworkCall : NetworkCallProtocol {
+    
+    let info: NetworkCallInfo
+    private var ui: NetworkCallReceiverProtocol?
+    
+    private var audioInputSession: IOSessionProtocol?
+    private var videoInputSession: IOSessionProtocol?
+
+    private var audioOutputSession: IOSessionProtocol?
+    private var videoOutputSession: IOSessionProtocol?
+    
+    init(_ info: NetworkCallInfo) {
+        self.info = info
+    }
+
+    init(_ info: NetworkCallInfo, _ ui: NetworkCallReceiverProtocol) {
+        self.ui = ui
+        self.info = info
+    }
+
+    func start() throws {
+        assert_network_call_queue()
+        dispatch_sync_on_main { ui?.callInfo = info }
+        _ = try startCapture(info.from, info.to)
+    }
+    
+    func stop() {
+        assert_network_call_queue()
+        dispatch_sync_on_main { ui?.callInfo = nil }
+        
+        audioInputSession?.stop()
+        AV.shared.videoCaptureQueue.sync { videoInputSession?.stop() }
+        AV.shared.avOutputQueue.sync { audioOutputSession?.stop() }
+        AV.shared.avOutputQueue.sync { videoOutputSession?.stop() }
+    }
+    
+    func audioOutput(_ info: NetworkAudioSessionInfo, _ session: inout IOSessionProtocol?) throws -> IODataProtocol? {
+        return AV.shared.defaultNetworkAudioOutput(info.id, try info.format!(), &session)
+    }
+
+    func videoOutput(_ info: NetworkVideoSessionInfo, _ session: inout IOSessionProtocol?) throws -> IODataProtocol? {
+        return nil
+    }
+
+    fileprivate func startOutput(_ info: NetworkAudioSessionInfo) throws -> IODataProtocol? {
+        let result = try audioOutput(info, &audioOutputSession)
+        try AV.shared.avOutputQueue.sync { try audioOutputSession?.start() }
+        return result
+    }
+
+    fileprivate func startOutput(_ info: NetworkVideoSessionInfo) throws -> IODataProtocol? {
+        let result = try videoOutput(info, &videoOutputSession)
+        try AV.shared.avOutputQueue.sync { try videoOutputSession?.start() }
+        return result
+    }
+
+    func audioCapture(_ id: IOID, _ info: inout NetworkAudioSessionInfo?) -> IOSessionProtocol? {
+        return AV.shared.defaultNetworkAudioInput(id, &info)
+    }
+
+    func videoCapture(_ id: IOID, _ info: inout NetworkVideoSessionInfo?) -> IOSessionProtocol? {
+        return nil
+    }
+
+    fileprivate func startCapture(_ from: String, _ to: String) throws -> NetworkCallInfo {
+        let audioID = IOID(from, to)
+        let videoID = audioID.groupNew()
+        
+        let audio = info.proposal.audio ? try startAudioCapture(audioID) : nil
+        let video = info.proposal.video ? try startVideoCapture(videoID) : nil
+        
+        return NetworkCallInfo(info.proposal, audio, video)
+    }
+
+    fileprivate func startAudioCapture(_ id: IOID) throws -> NetworkAudioSessionInfo? {
+        var info: NetworkAudioSessionInfo?
+        
+        audioInputSession = audioCapture(id, &info)
+        try audioInputSession?.start()
+        
+        return info
+    }
+    
+    fileprivate func startVideoCapture(_ id: IOID) throws -> NetworkVideoSessionInfo? {
+        var info: NetworkVideoSessionInfo?
+        
+        videoInputSession = videoCapture(id, &info)
+        try videoInputSession?.start()
+        
+        return info
+    }
+}
+
+class NetworkOutgoingCall : NetworkCall {
+    
+    override fileprivate func startCapture(_ from: String, _ to: String) throws -> NetworkCallInfo {
+        let info = try super.startCapture(from, to)
+        Backend.shared.sendOutgoingCallStart(info.to, info)
+        return info
+    }
+    
+    override func stop() {
+        super.stop()
+        Backend.shared.sendCallStop(info.to, info)
+    }
+}
+
+class NetworkIncomingCall : NetworkCall {
+
+    override fileprivate func startCapture(_ from: String, _ to: String) throws -> NetworkCallInfo {
+        var info = self.info
+        
+        if info.from != info.to {
+            info = try super.startCapture(to, from)
+            Backend.shared.sendIncomingCallStart(info.from, info)
+        }
+        return info
+    }
+
+    override func stop() {
+        super.stop()
+        Backend.shared.sendCallStop(info.from, info)
+    }
+}
+
+class NetworkCallController : NetworkSingleCallSessionController<NetworkCall, NetworkCallInfo> {
+    
+    static var incoming: NetworkCallController?
+    static var outgoing: NetworkCallController?
+    
+    private let factory: NetworkCallFactory
+    
+    init(_ factory: @escaping NetworkCallFactory) {
+        self.factory = factory
+    }
+    
+    override func id(_ info: NetworkCallInfo) -> String {
+        return info.id
+    }
+    
+    override func create(_ info: NetworkCallInfo) -> NetworkCall? {
+        return factory(info) as? NetworkCall
+    }
+    
+    func startOutput(_ call: NetworkCallInfo, _ audio: inout IODataProtocol?, _ video: inout IODataProtocol?) throws {
+        assert_network_call_queue()
+        guard self.callInfo?.id == call.id else { print("asd"); return }
+
+        if call.audioSession != nil {
+            audio = try self.call?.startOutput(call.audioSession!)
+        }
+        
+        if call.videoSession != nil {
+            video = try self.call?.startOutput(call.videoSession!)
+        }
+    }
+}
+
+func stopCallAsync(_ info: NetworkCallInfo) {
+    dispatch_async_network_call {
+        NetworkCallController.incoming?.stop(info)
+        NetworkCallController.outgoing?.stop(info)
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Proposal
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct NetworkCallProposalInfo {
     let id: String
     let from: String
     let to: String
@@ -33,183 +320,51 @@ struct NetworkCallInfo {
     }
 }
 
-class NetworkCallSessionController<T> {
-    
-    fileprivate func create(_ info: NetworkCallInfo) -> T? {
-        assert(false)
-        return nil
-    }
-    
-    func start(_ info: NetworkCallInfo) {
-        assert_network_call_queue()
-    }
-    
-    func stop(_ id: String) {
-        assert_network_call_queue()
-    }
-}
-
-class NetworkSingleCallSessionController<T: SessionProtocol> : NetworkCallSessionController<T> {
-    
-    var call: T?
-    var callID: String?
-    
-    override func start(_ info: NetworkCallInfo) {
-        super.start(info)
-        
-        stop()
-        call = create(info)
-        callID = info.id
-        do { try call?.start() } catch { logNetworkError(error) }
-    }
-    
-    override func stop(_ id: String) {
-        assert_network_call_queue()
-        
-        guard callID == id else { return }
-        
-        call?.stop()
-        call = nil
-        callID = nil
-    }
-    
-    func stop() {
-        guard callID != nil else { return }
-        stop(callID!)
-    }
-}
-
-class NetworkMultiCallSessionController<T: SessionProtocol> : NetworkCallSessionController<T> {
-    
-    private var calls = [String: T]()
-
-    override func start(_ info: NetworkCallInfo) {
-        super.start(info)
-        
-        let call = create(info)
-        calls[info.id] = call
-        do { try call!.start() } catch { logNetworkError(error) }
-    }
-    
-    override func stop(_ id: String) {
-        assert_network_call_queue()
-
-        calls[id]?.stop()
-        calls.removeValue(forKey: id)
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Call
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-protocol NetworkCallProtocol : SessionProtocol {
-    
-}
-
-typealias NetworkCallFactory = (NetworkCallInfo) -> NetworkCallProtocol
-
-class NetworkCall : NetworkCallProtocol {
-    
-    let info: NetworkCallInfo
-    
-    init(_ info: NetworkCallInfo) {
-        self.info = info
-    }
-    
-    func start() throws {
-        assert_network_call_queue()
-    }
-    
-    func stop() {
-        assert_network_call_queue()
-    }
-    
-    fileprivate func sendStart(_ to: String) {
-        Backend.shared.sendCallStart(to, info)
-    }
-    
-    fileprivate func sendStop(_ to: String) {
-        Backend.shared.sendCallStop(to, info)
-    }
-}
-
-class NetworkOutgoingCall : NetworkCall {
-    
-    override func start() throws {
-        try super.start()
-        sendStart(info.to)
-    }
-    
-    override func stop() {
-        super.stop()
-        sendStop(info.to)
-    }
-}
-
-class NetworkIncomingCall : NetworkCall {
-
-    override func start() throws {
-        try super.start()
-    }
-    
-    override func stop() {
-        super.stop()
-        sendStop(info.from)
-    }
-}
-
-class NetworkCallController : NetworkSingleCallSessionController<NetworkCall> {
-    
-    static var incoming: NetworkCallController?
-    static var outgoing: NetworkCallController?
-    
-    private let factory: NetworkCallFactory
-    
-    init(_ factory: @escaping NetworkCallFactory) {
-        self.factory = factory
-    }
-    
-    override func create(_ info: NetworkCallInfo) -> NetworkCall? {
-        return factory(info) as? NetworkCall
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Proposal
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 protocol NetworkCallProposalProtocol : SessionProtocol {
     
-    func accept(_ info: NetworkCallInfo)
+    func accept(_ info: NetworkCallProposalInfo)
     func decline()
 }
 
-typealias NetworkCallProposalFactory = (NetworkCallInfo) -> NetworkCallProposalProtocol
+protocol NetworkCallProposalReceiverProtocol {
+    var callInfo: NetworkCallProposalInfo? { get set }
+}
+
+typealias NetworkCallProposalFactory = (NetworkCallProposalInfo) -> NetworkCallProposalProtocol
 
 class NetworkCallProposal : NetworkCallProposalProtocol {
     
-    var info: NetworkCallInfo
+    var info: NetworkCallProposalInfo
+    private var ui: NetworkCallProposalReceiverProtocol?
 
-    init(_ info: NetworkCallInfo) {
+    init(_ info: NetworkCallProposalInfo) {
+        self.info = info
+    }
+    
+    init(_ info: NetworkCallProposalInfo, _ ui: NetworkCallProposalReceiverProtocol) {
+        self.ui = ui
         self.info = info
     }
     
     func start() throws {
         assert_network_call_queue()
+        dispatch_sync_on_main { ui?.callInfo = info }
     }
     
     func stop() {
         assert_network_call_queue()
+        dispatch_sync_on_main { ui?.callInfo = nil }
     }
     
-    func accept(_ info: NetworkCallInfo) {
+    func accept(_ info: NetworkCallProposalInfo) {
         assert_network_call_queue()
         self.info = info
+        dispatch_sync_on_main { ui?.callInfo = nil }
     }
     
     func decline() {
         assert_network_call_queue()
+        dispatch_sync_on_main { ui?.callInfo = nil }
     }
 }
 
@@ -226,9 +381,9 @@ class NetworkOutgoingCallProposal : NetworkCallProposal {
         Backend.shared.sendCallCancel(info.to, info)
     }
     
-    override func accept(_ info: NetworkCallInfo) {
+    override func accept(_ info: NetworkCallProposalInfo) {
         super.accept(info)
-        NetworkCallController.outgoing?.start(info)
+        NetworkCallController.outgoing?.start(NetworkCallInfo(info))
     }
 }
 
@@ -239,7 +394,7 @@ class NetworkIncomingCallProposal : NetworkCallProposal {
         Backend.shared.sendCallCancel(info.from, info)
     }
     
-    override func accept(_ info: NetworkCallInfo) {
+    override func accept(_ info: NetworkCallProposalInfo) {
         super.accept(info)
         Backend.shared.sendCallAccept(info.from, info)
     }
@@ -250,7 +405,7 @@ class NetworkIncomingCallProposal : NetworkCallProposal {
     }
 }
 
-class NetworkCallProposalController : NetworkSingleCallSessionController<NetworkCallProposal> {
+class NetworkCallProposalController : NetworkSingleCallSessionController<NetworkCallProposal, NetworkCallProposalInfo> {
     
     static var incoming: NetworkCallProposalController?
     static var outgoing: NetworkCallProposalController?
@@ -261,30 +416,56 @@ class NetworkCallProposalController : NetworkSingleCallSessionController<Network
         self.factory = factory
     }
     
-    override func create(_ info: NetworkCallInfo) -> NetworkCallProposal? {
+    override func create(_ info: NetworkCallProposalInfo) -> NetworkCallProposal? {
         return factory(info) as? NetworkCallProposal
     }
 
-    override func start(_ info: NetworkCallInfo) {
+    override func id(_ info: NetworkCallProposalInfo) -> String {
+        return info.id
+    }
+    
+    override func start(_ info: NetworkCallProposalInfo) {
         super.start(info)
         
         DispatchQueue.networkCall.asyncAfter(deadline: .now() + 10) {
-            self.timeout(info.id)
+            self.timeout(info)
         }
     }
     
-    func accept(_ info: NetworkCallInfo) {
+    func accept(_ info: NetworkCallProposalInfo) {
         call?.accept(info)
         call = nil
     }
     
-    func decline(_ id: String) {
+    func decline(_ info: NetworkCallProposalInfo) {
         call?.decline()
         call = nil
     }
     
-    func timeout(_ id: String) {
-        stop(id)
+    func timeout(_ info: NetworkCallProposalInfo) {
+        stop(info)
     }
+}
+
+private func callAsync(_ to: String, _ audio: Bool, _ video: Bool) -> NetworkCallProposalInfo {
+    let info = NetworkCallProposalInfo(UUID().uuidString,
+                                       Model.shared.username!,
+                                       to,
+                                       audio,
+                                       video)
+    
+    dispatch_async_network_call {
+        NetworkCallProposalController.outgoing?.start(info)
+    }
+    
+    return info
+}
+
+func callAudioAsync(_ to: String) -> NetworkCallProposalInfo {
+    return callAsync(to, true, false)
+}
+
+func callVideoAsync(_ to: String) -> NetworkCallProposalInfo {
+    return callAsync(to, true, true)
 }
 

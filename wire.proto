@@ -95,8 +95,9 @@ message Haber {
 	CALL_CANCEL = 9;
 	CALL_ACCEPT = 10;
 	CALL_DECLINE = 11;
-	CALL_START = 12;
-	CALL_STOP = 13;
+	CALL_START_OUTGOING = 12;
+	CALL_START_INCOMING = 13;
+	CALL_STOP = 14;
     }
     Which which = 13;
 
@@ -105,7 +106,8 @@ message Haber {
     repeated Contact contacts = 102; // for roster, presence, and invite
     Text text = 104;
     Av av = 105;
-    AVSession avSession = 106;
-    File file = 107;
-    Call call = 108;
+    AVSession audioSession = 106;
+    AVSession videoSession = 107;
+    File file = 108;
+    Call call = 109;
 }

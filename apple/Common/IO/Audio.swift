@@ -41,7 +41,7 @@ struct AudioData {
 
 struct AudioFormat {
     
-    typealias Factory = () -> AudioFormat
+    typealias Factory = () throws -> AudioFormat
     
     private static let kFormatID = "kFormatID"
     private static let kFlags = "kFlags"
@@ -108,12 +108,6 @@ struct AudioFormat {
         set {
             data[AudioFormat.kFramesPerPacket] = newValue
         }
-    }
-}
-
-func factory(_ value: AudioFormat) -> AudioFormat.Factory {
-    return { () in
-        return value
     }
 }
 

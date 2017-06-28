@@ -53,6 +53,26 @@ class IOSyncedDataDispatcher : IODataAsyncDispatcher, IOSyncedDataProtocol {
     }
 }
 
+class IOSyncedDataSession : IODataSession, IOSyncedDataProtocol {
+    
+    let next: IOSyncedDataProtocol
+
+    init(_ next: IOSyncedDataProtocol) {
+        self.next = next
+        super.init(next)
+    }
+    
+    func tuning(_ data: [Int : NSData]) {
+        guard active else { logIO("received data after session stopped"); return }
+        next.tuning(data)
+    }
+    
+    func belated(_ data: [Int : NSData]) {
+        guard active else { logIO("received data after session stopped"); return }
+        next.belated(data)
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // IOSyncBus
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

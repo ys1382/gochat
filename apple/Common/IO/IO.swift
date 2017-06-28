@@ -95,6 +95,31 @@ func create(_ x: [IOSessionProtocol?]) -> IOSessionProtocol? {
     return IOSessionBroadcast(x)
 }
 
+class IODataSession : IODataProtocol, IOSessionProtocol {
+    
+    private(set) var active = false
+    private let next: IODataProtocol
+    
+    init(_ next: IODataProtocol) {
+        self.next = next
+    }
+    
+    func start() throws {
+        assert(active == false)
+        active = true
+    }
+    
+    func stop() {
+        assert(active == true)
+        active = false
+    }
+    
+    func process(_ data: [Int : NSData]) {
+        guard active else { logIO("received data after session stopped"); return }
+        next.process(data)
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Time
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -246,22 +271,42 @@ class IODataAsyncDispatcher : IODataProtocol {
     }
 }
 
-class IOSessionAsyncDispatcher : IOSessionProtocol {
+class IOSessionDispatcher : IOSessionProtocol {
+    typealias Call = (@escaping FuncVV) -> Void
     
-    let queue: DispatchQueue
+    private let call: Call
     private let next: IOSessionProtocol?
-    
-    init(_ queue: DispatchQueue, _ next: IOSessionProtocol?) {
-        self.queue = queue
+
+    init(_ call: @escaping Call, _ next: IOSessionProtocol?) {
+        self.call = call
         self.next = next
     }
     
     func start() throws {
-        queue.async { do { try self.next?.start() } catch { logIOError(error) } }
+        call { do { try self.next?.start() } catch { logIOError(error) } }
     }
-
+    
     func stop() {
-        queue.async { self.next?.stop() }
+        call { self.next?.stop() }
     }
+}
 
+class IOSessionSyncDispatcher : IOSessionDispatcher {
+    
+    let queue: DispatchQueue
+    
+    init(_ queue: DispatchQueue, _ next: IOSessionProtocol?) {
+        self.queue = queue
+        super.init({ (block: @escaping FuncVV) in queue.sync(execute: block) }, next)
+    }
+}
+
+class IOSessionAsyncDispatcher : IOSessionDispatcher {
+    
+    let queue: DispatchQueue
+    
+    init(_ queue: DispatchQueue, _ next: IOSessionProtocol?) {
+        self.queue = queue
+        super.init({ (block: @escaping FuncVV) in queue.async(execute: block) }, next)
+    }
 }

@@ -1,5 +1,6 @@
 
 import UIKit
+import AVFoundation
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NetworkOutgoingCallProposalUI
@@ -7,27 +8,18 @@ import UIKit
 
 class NetworkOutgoingCallProposalUI : NetworkOutgoingCallProposal {
     
-    private let ui: DetailViewController?
-    
-    init(_ info: NetworkCallInfo, _ ui: DetailViewController?) {
+    private let ui: SplitViewController
+    private let vc: OutgoingCallViewController
+
+    init(_ info: NetworkCallProposalInfo, _ ui: SplitViewController, _ vc: OutgoingCallViewController) {
         self.ui = ui
-        super.init(info)
+        self.vc = vc
+        super.init(info, vc)
     }
     
     override func start() throws {
         try super.start()
-    }
-    
-    override func stop() {
-        super.stop()
-    }
-    
-    override func accept(_ info: NetworkCallInfo) {
-        super.accept(info)
-    }
-    
-    override func decline() {
-        super.decline()
+        dispatch_sync_on_main { ui.present(vc, animated: true) }
     }
 }
 
@@ -37,28 +29,96 @@ class NetworkOutgoingCallProposalUI : NetworkOutgoingCallProposal {
 
 class NetworkIncomingCallProposalUI : NetworkIncomingCallProposal {
     
-    private let ui: DetailViewController?
+    private let ui: SplitViewController
+    private let vc: IncomingCallViewController
     
-    init(_ info: NetworkCallInfo, _ ui: DetailViewController?) {
+    init(_ info: NetworkCallProposalInfo, _ ui: SplitViewController, _ vc: IncomingCallViewController) {
         self.ui = ui
-        super.init(info)
+        self.vc = vc
+        super.init(info, vc)
     }
     
     override func start() throws {
         try super.start()
-        accept(info)
+        dispatch_sync_on_main { ui.presentExplicitly(vc, animated: true) }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Call
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+fileprivate func videoCapture(_ id: IOID,
+                              _ vc: VideoViewController,
+                              _ info: inout NetworkVideoSessionInfo?) -> IOSessionProtocol? {
+    var videoSession: AVCaptureSession.Accessor? = nil
+    let orientation = AVCaptureVideoOrientation.Create(UIApplication.shared.statusBarOrientation)
+    let rotated = orientation != nil ? orientation!.isPortrait : false
+    var video = AV.shared.defaultNetworkVideoInput(id, rotated, &info, &videoSession)
+    
+    if video != nil && videoSession != nil {
+        video = ChatVideoCaptureSession(videoConnection(videoSession)!,
+                                        AV.shared.defaultVideoOutputFormat!,
+                                        AVCaptureVideoOrientation.landscapeRight,
+                                        video)
+        
+        video = ChatVideoPreviewSession(vc.previewView.captureLayer,
+                                        video)
+        
+        video = VideoPreview(vc.previewView.captureLayer,
+                             videoSession!,
+                             video)
+        
+        video = VideoSessionAsyncDispatcher(AV.shared.videoCaptureQueue, video!)
     }
     
-    override func stop() {
-        super.stop()
-    }
+    return video
+}
+
+fileprivate func videoOutput(_ info: NetworkVideoSessionInfo,
+                             _ vc: VideoViewController,
+                             _ session: inout IOSessionProtocol?) -> IODataProtocol? {
+    return AV.shared.defaultNetworkVideoOutput(info.id,
+                                               VideoOutput(vc.networkView.sampleLayer),
+                                               &session)
+}
+
+fileprivate func startCall(_ to: String,
+                           _ info: NetworkCallInfo,
+                           _ ui: SplitViewController?,
+                           _ details: inout DetailViewController?,
+                           _ video: inout VideoViewController?) {
     
-    override func accept(_ info: NetworkCallInfo) {
-        super.accept(info)
+    Model.shared.watching = info.proposal.from
+
+    dispatch_sync_on_main {
+        Model.shared.watching = to
+        
+        if info.proposal.video {
+            video = ui?.showVideoIfNeeded()
+            _ = video!.view
+            video!.callInfo = info
+        }
+        
+        else if info.proposal.audio {
+            details = ui?.showDetailsIfNeeded()
+            _ = details!.view
+            details!.callInfo = info
+        }
     }
+}
+
+fileprivate func stopCall(_ ui: SplitViewController?, _ details: DetailViewController?, _ video: VideoViewController?) {
     
-    override func decline() {
-        super.decline()
+    dispatch_sync_on_main {
+        if video != nil {
+            video?.navigationController?.popViewController(animated: true)
+            video?.callInfo = nil
+        }
+        
+        if details != nil {
+            details?.callInfo = nil
+        }
     }
 }
 
@@ -66,41 +126,34 @@ class NetworkIncomingCallProposalUI : NetworkIncomingCallProposal {
 // NetworkOutgoingCallUI
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-fileprivate func startCall(_ to: String, _ info: NetworkCallInfo, _ ui: DetailViewController?) {
-    
-    if info.audio && info.video {
-//        AV.shared.captureAV(to, preview: ui.videoViewController.preview.captureLayer)
-    }
-    
-    else if info.audio {
-//        AV.shared.captureAudio(to)
-    }
-    
-    else if info.video {
-//        AV.shared.captureVideo(to, preview: ui.videoViewController.preview.captureLayer)
-    }
-}
-
-fileprivate func stopCall(_ ui: DetailViewController?) {
-    
-    AV.shared.stopAllOutput()
-}
-
 class NetworkOutgoingCallUI : NetworkOutgoingCall {
     
-    private let ui: DetailViewController?
+    private let ui: SplitViewController?
+    private var details: DetailViewController?
+    private var video: VideoViewController?
     
-    init(_ info: NetworkCallInfo, _ ui: DetailViewController?) {
+    init(_ info: NetworkCallInfo, _ ui: SplitViewController?) {
         self.ui = ui
         super.init(info)
     }
     
     override func start() throws {
+        startCall(info.to, info, ui, &details, &video)
         try super.start()
     }
-    
+
     override func stop() {
         super.stop()
+        stopCall(ui, details, video)
+    }
+
+    override func videoCapture(_ id: IOID, _ info: inout NetworkVideoSessionInfo?) -> IOSessionProtocol? {
+        return Chat.videoCapture(id, video!, &info)
+    }
+    
+    override func videoOutput(_ info: NetworkVideoSessionInfo,
+                              _ session: inout IOSessionProtocol?) throws -> IODataProtocol? {
+        return Chat.videoOutput(info, video!, &session)
     }
 }
 
@@ -110,25 +163,31 @@ class NetworkOutgoingCallUI : NetworkOutgoingCall {
 
 class NetworkIncomingCallUI : NetworkIncomingCall {
     
-    private let ui: DetailViewController?
-    
-    init(_ info: NetworkCallInfo, _ ui: DetailViewController?) {
+    private let ui: SplitViewController?
+    private var details: DetailViewController?
+    private var video: VideoViewController?
+
+    init(_ info: NetworkCallInfo, _ ui: SplitViewController?) {
         self.ui = ui
         super.init(info)
     }
     
     override func start() throws {
+        startCall(info.from, info, ui, &details, &video)
         try super.start()
-        
-        Model.shared.watching = info.from
-        
-        if info.from != info.to {
-            startCall(info.from, info, ui)
-        }
     }
     
     override func stop() {
         super.stop()
-        stopCall(ui)
+        stopCall(ui, details, video)
+    }
+    
+    override func videoCapture(_ id: IOID, _ info: inout NetworkVideoSessionInfo?) -> IOSessionProtocol? {
+        return Chat.videoCapture(id, video!, &info)
+    }
+    
+    override func videoOutput(_ info: NetworkVideoSessionInfo,
+                              _ session: inout IOSessionProtocol?) throws -> IODataProtocol? {
+        return Chat.videoOutput(info, video!, &session)
     }
 }
