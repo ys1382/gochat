@@ -39,11 +39,9 @@ func (cr *ChatRoom) Init(db *bolt.DB) {
         return
       }
 
-      chat.clientsMtx.Lock()
-      client, ok := cr.namedClients[to]
-      chat.clientsMtx.Unlock()
+      client := getNamedClient(to)
 
-      if ok == false {
+      if client == nil {
         fmt.Println("Can't find " + to)
       } else {
         which := message.Which
@@ -61,6 +59,48 @@ func (cr *ChatRoom) Init(db *bolt.DB) {
       }
     }
   }()
+}
+
+func getClient(sessionId string) (*Client) {
+  var result *Client
+
+  chat.clientsMtx.Lock()
+  result = chat.clients[sessionId]
+  chat.clientsMtx.Unlock()
+
+  return result
+}
+
+func setClient(sessionId string, client *Client) {
+  chat.clientsMtx.Lock()
+  chat.clients[sessionId] = client
+  chat.clientsMtx.Unlock()
+}
+
+func getNamedClient(name string) (*Client) {
+  var result *Client
+
+  chat.clientsMtx.Lock()
+  result = chat.namedClients[name]
+  chat.clientsMtx.Unlock()
+
+  return result
+}
+
+func setNamedClient(name string, client *Client) {
+  chat.clientsMtx.Lock()
+  chat.namedClients[name] = client
+  chat.clientsMtx.Unlock()
+}
+
+func getPresenceSubscribers(name string) ([]string) {
+  var result []string
+
+  chat.clientsMtx.Lock()
+  result = chat.presenceSubscribers[name]
+  chat.clientsMtx.Unlock()
+
+  return result
 }
 
 // Client
@@ -156,6 +196,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
     for {
       _, data, err := conn.ReadMessage()
       if err != nil {
+        fmt.Println("Error ", err)
         fmt.Println("\nConnection closed for session " + sessionId)
         updatePresence(sessionId, false)
         return
@@ -202,7 +243,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
       case Haber_CALL_STOP:
         fallthrough
       case Haber_FILE:
-        if _,ok := chat.clients[sessionId]; ok {
+        if getClient(sessionId) != nil {
           forward(sessionId, haber)
         }
       }
@@ -211,14 +252,16 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func updatePresence(sessionId string, online bool) {
-  if client, ok := chat.clients[sessionId]; ok {
+  client := getClient(sessionId)
+
+  if client != nil {
     if online == client.online {
       fmt.Printf("updatePresence: %s is already %t\n", client.name, client.online)
       return
     }
     fmt.Println("updatePresence sessionId=" + sessionId)
     client.online = online
-    chat.clients[sessionId] = client
+    setClient(sessionId, client)
     // inform subscribers
     from := client.name
     fmt.Println("\t from=" + from)
@@ -226,7 +269,7 @@ func updatePresence(sessionId string, online bool) {
       Name: from,
       Online: online,
     }
-    for _,subscriber := range chat.presenceSubscribers[from] {
+    for _,subscriber := range getPresenceSubscribers(from) {
       fmt.Println("\t subscriber name =" + subscriber)
       update := &Haber {
         Which: Haber_PRESENCE,
@@ -245,6 +288,7 @@ func updatePresence(sessionId string, online bool) {
 func (cl *Client)subscribeToContacts() {
   from := cl.name
   fmt.Println("subscribeToContacts from=" + from)
+  chat.clientsMtx.Lock()
   for _,contact := range cl.contacts {
     contactName := contact.GetName()
     fmt.Println("\t contactName=" + contactName)
@@ -261,6 +305,7 @@ func (cl *Client)subscribeToContacts() {
       }
     }
   }
+  chat.clientsMtx.Unlock()
 }
 
 func remove(s []string, r string) []string {
@@ -274,36 +319,36 @@ func remove(s []string, r string) []string {
 
 func receivedUsername(conn *websocket.Conn, username string) string {
   fmt.Println("\nreceivedUsername: " + username)
-  defer chat.clientsMtx.Unlock()
-  chat.clientsMtx.Lock()
 
   sessionId := createSessionId()
 
-  var client *Client
-  if c, ok := chat.namedClients[username]; ok {
-    client = c
-  } else {
+  client := getNamedClient(username)
+  if client == nil {
     client = &Client{
       name:     username,
       sessions: make(map[string]*websocket.Conn),
       online: false,
     }
+    setNamedClient(username, client)
+    fmt.Println("create client for ", username)
   }
   client.sessions[sessionId] = conn
-  chat.namedClients[username] = client
   fmt.Println("new client name=" + client.name + " session=" + sessionId)
   client.Load(chat.db)
-  chat.clients[sessionId] = client
+  fmt.Println("receivedUsername: load db")
+  setClient(sessionId, client)
+  fmt.Println("receivedUsername: client setted")
   sendContacts(client, sessionId)
+  fmt.Println("receivedUsername: contacts sent")
   updatePresence(sessionId, true)
+  fmt.Println("receivedUsername: presence updated")
 
   return sessionId
 }
 
 func sendContacts(client *Client, sessionId string) {
   for _,contact := range client.contacts {
-    _,ok := chat.namedClients[contact.Name]
-    contact.Online = ok
+    contact.Online = getNamedClient(contact.Name) != nil
   }
 
   buds := &Haber {
@@ -316,14 +361,14 @@ func sendContacts(client *Client, sessionId string) {
 }
 
 func forward(sessionId string, haber *Haber) {
-  sourceClient := chat.clients[sessionId]
+  sourceClient := getClient(sessionId)
   haber.From = sourceClient.name
   chat.queue <- *haber  // forward to all devices with source's and destination's names
 }
 
 func receivedContacts(sessionId string, haber *Haber) {
   fmt.Println("receivedContacts for session " + sessionId)
-  client := chat.clients[sessionId]
+  client := getClient(sessionId)
   client.contacts = haber.GetContacts()
   client.subscribeToContacts()
   client.Save(chat.db, haber)
