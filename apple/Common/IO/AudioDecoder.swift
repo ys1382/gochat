@@ -45,7 +45,18 @@ class AudioDecoder : AudioOutputProtocol, IOSessionProtocol {
             if pcmBufferList != nil {
                 free(pcmBufferList!.mBuffers.mData)
                 pcmBufferList = nil
+                pcmDataSize = 0
             }
+        }
+        catch {
+            logIOError(error)
+        }
+    }
+    
+    func restart() {
+        do {
+            stop()
+            try start()
         }
         catch {
             logIOError(error)
@@ -91,6 +102,7 @@ class AudioDecoder : AudioOutputProtocol, IOSessionProtocol {
         }
         catch {
             logIOError(error)
+            restart()
         }
     }
 
