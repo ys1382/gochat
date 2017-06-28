@@ -24,6 +24,7 @@
 		8260DDEA1EE55E04004416FF /* !AVFoundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8260DDE91EE55E04004416FF /* !AVFoundation.swift */; };
 		827C52091EE01EB800340D56 /* CoreAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 827C52081EE01EB800340D56 /* CoreAudio.swift */; };
 		82863BE61F0292F0000D0D05 /* UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82863BE51F0292F0000D0D05 /* UIKit.swift */; };
+		82863BE81F039EFB000D0D05 /* Protobuf.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82863BE71F039EFB000D0D05 /* Protobuf.swift */; };
 		8286E3101EDC1AFF006788B2 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8286E2FE1EDC1AFF006788B2 /* Backend.swift */; };
 		8286E3111EDC1AFF006788B2 /* IO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8286E3001EDC1AFF006788B2 /* IO.swift */; };
 		8286E3121EDC1AFF006788B2 /* AudioInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8286E3011EDC1AFF006788B2 /* AudioInput.swift */; };
@@ -79,6 +80,7 @@
 		8260DDE91EE55E04004416FF /* !AVFoundation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "!AVFoundation.swift"; sourceTree = "<group>"; };
 		827C52081EE01EB800340D56 /* CoreAudio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreAudio.swift; sourceTree = "<group>"; };
 		82863BE51F0292F0000D0D05 /* UIKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIKit.swift; sourceTree = "<group>"; };
+		82863BE71F039EFB000D0D05 /* Protobuf.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Protobuf.swift; sourceTree = "<group>"; };
 		8286E2FE1EDC1AFF006788B2 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Backend.swift; path = ../Common/Backend.swift; sourceTree = "<group>"; };
 		8286E3001EDC1AFF006788B2 /* IO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IO.swift; sourceTree = "<group>"; };
 		8286E3011EDC1AFF006788B2 /* AudioInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioInput.swift; sourceTree = "<group>"; };
@@ -256,6 +258,7 @@
 				821F4CC61EDEB03500FA923D /* Dispatch.swift */,
 				825E1AF21EEB179E00C26112 /* Thread.swift */,
 				82168CAA1EF864EC00E052FE /* Serialization.swift */,
+				82863BE71F039EFB000D0D05 /* Protobuf.swift */,
 			);
 			name = Utils;
 			path = ../Common/Utils;
@@ -421,6 +424,7 @@
 				822775321EF126AC0083D9DB /* System.swift in Sources */,
 				825E1AF11EEA7FFB00C26112 /* SettingsViewController.swift in Sources */,
 				8286E3131EDC1AFF006788B2 /* AudioOutput.swift in Sources */,
+				82863BE81F039EFB000D0D05 /* Protobuf.swift in Sources */,
 				8286E3191EDC1AFF006788B2 /* Network.swift in Sources */,
 				8286E3151EDC1AFF006788B2 /* VideoDecoderH264.swift in Sources */,
 				8286E31E1EDC1AFF006788B2 /* Wire.proto.swift in Sources */,

@@ -24,6 +24,10 @@ func logNetwork(_ message: String) {
     logMessage("Network", message)
 }
 
+func logNetworkPrior(_ message: String) {
+    logPrior("Network", message)
+}
+
 func logNetworkError(_ message: String) {
     logError("Network", message)
 }

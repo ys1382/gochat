@@ -61,7 +61,7 @@ class SplitViewController : UISplitViewController {
     override func viewDidAppear(_ animated: Bool) {
         SplitViewController.shared = self
         if let username = UserDefaults.standard.string(forKey: SplitViewController.usernameKey) {
-            self.login(username: username)
+            login(username: username)
         } else {
             askName()
         }
@@ -115,7 +115,9 @@ class SplitViewController : UISplitViewController {
     }
 
     private func login(username: String) {
-        Backend.shared.connect(withUsername: username)
+        if Model.shared.username == nil {
+            Backend.shared.connect(withUsername: username)
+        }
     }
 
     private func askName() {

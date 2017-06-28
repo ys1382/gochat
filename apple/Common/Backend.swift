@@ -39,7 +39,14 @@ class Backend: WebSocketDelegate {
             logNetworkError("could not create haber")
             return
         }
-        logNetwork("write \(haber.data().count) bytes for \(haber.which) \(details)")
+        
+        switch haber.which {
+        case .av:
+            logNetwork("write \(haber.data().count) bytes for \(haber.which) \(details)")
+        default:
+            logNetworkPrior("write \(haber.data().count) bytes for \(haber.which) \(details)")
+        }
+        
         self.websocket?.write(data: haber.data())
     }
 
@@ -268,7 +275,13 @@ class Backend: WebSocketDelegate {
             self.sessionId = haber.sessionId
         }
 
-        logNetwork("read \(data.count) bytes for \(haber.which)")
+        switch haber.which {
+        case .av:
+            logNetwork("read \(data.count) bytes for \(haber.which)")
+        default:
+            logNetworkPrior("read \(data.count) bytes for \(haber.which)")
+        }
+        
         switch haber.which {
         case .contacts:
             dispatch_sync_on_main { Model.shared.didReceiveRoster(haber.contacts) }
@@ -301,7 +314,6 @@ class Backend: WebSocketDelegate {
         }
     }
 }
-
 
 extension Haber.Builder {
     
