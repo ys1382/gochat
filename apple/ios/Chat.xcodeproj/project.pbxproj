@@ -15,6 +15,7 @@
 		1A709A4A1EEF29EC003C2699 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A709A471EEF29EC003C2699 /* Network.swift */; };
 		1A709A4E1EEF8837003C2699 /* Wire.proto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A709A4D1EEF8837003C2699 /* Wire.proto.swift */; };
 		1AA0003B1EAD9A36006B9EE7 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA0003A1EAD9A36006B9EE7 /* SplitViewController.swift */; };
+		1AA386E01F04AE8D00F18D93 /* LocalStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA386DF1F04AE8D00F18D93 /* LocalStorage.swift */; };
 		1AB0620C1E8843E500A841D0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB0620B1E8843E500A841D0 /* AppDelegate.swift */; };
 		1AB0620E1E8843E500A841D0 /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB0620D1E8843E500A841D0 /* MasterViewController.swift */; };
 		1AB062101E8843E500A841D0 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB0620F1E8843E500A841D0 /* DetailViewController.swift */; };
@@ -33,6 +34,8 @@
 		1A709A471EEF29EC003C2699 /* Network.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Network.swift; path = ../../common/Network.swift; sourceTree = "<group>"; };
 		1A709A4D1EEF8837003C2699 /* Wire.proto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Wire.proto.swift; path = ../../common/Wire.proto.swift; sourceTree = "<group>"; };
 		1AA0003A1EAD9A36006B9EE7 /* SplitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
+		1AA386DF1F04AE8D00F18D93 /* LocalStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LocalStorage.swift; path = ../../common/LocalStorage.swift; sourceTree = "<group>"; };
+		1AA386E41F04B02900F18D93 /* BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BridgingHeader.h; path = ../../common/BridgingHeader.h; sourceTree = "<group>"; };
 		1AB062081E8843E500A841D0 /* Chat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AB0620B1E8843E500A841D0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1AB0620D1E8843E500A841D0 /* MasterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasterViewController.swift; sourceTree = "<group>"; };
@@ -89,11 +92,13 @@
 		1A709A4B1EEF29F8003C2699 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				1AA386E41F04B02900F18D93 /* BridgingHeader.h */,
+				1A60DFF61EA30FEA00BECD73 /* Backend.swift */,
 				1A709A451EEF29EC003C2699 /* Crypto.swift */,
 				1A709A461EEF29EC003C2699 /* EventBus.swift */,
-				1A709A471EEF29EC003C2699 /* Network.swift */,
-				1A60DFF61EA30FEA00BECD73 /* Backend.swift */,
+				1AA386DF1F04AE8D00F18D93 /* LocalStorage.swift */,
 				1A60E0011EA4039F00BECD73 /* Model.swift */,
+				1A709A471EEF29EC003C2699 /* Network.swift */,
 				1A709A4D1EEF8837003C2699 /* Wire.proto.swift */,
 			);
 			name = Common;
@@ -260,6 +265,7 @@
 				1A709A4E1EEF8837003C2699 /* Wire.proto.swift in Sources */,
 				1AB0620E1E8843E500A841D0 /* MasterViewController.swift in Sources */,
 				1A709A441EEEF204003C2699 /* LoginViewController.swift in Sources */,
+				1AA386E01F04AE8D00F18D93 /* LocalStorage.swift in Sources */,
 				1A60E0021EA4039F00BECD73 /* Model.swift in Sources */,
 				1AB0620C1E8843E500A841D0 /* AppDelegate.swift in Sources */,
 			);
@@ -324,7 +330,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = "";
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../common/BridgingHeader.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -367,7 +373,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
-				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = "";
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../common/BridgingHeader.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -386,7 +392,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = ys1382.Chat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = "";
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../common/BridgingHeader.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
@@ -404,7 +410,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = ys1382.Chat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = "";
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../common/BridgingHeader.h;
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
