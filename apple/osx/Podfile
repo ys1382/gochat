@@ -4,8 +4,12 @@ target 'Chat' do
   use_frameworks!
   pod 'Starscream', :git => 'https://github.com/daltoniam/Starscream', :branch => 'swift3'
   pod 'ProtocolBuffers-Swift'
-  pod 'RNCryptor', '~> 5.0'
-  pod 'SignalProtocolObjC'
+  pod 'themis'
+end
+
+pre_install do |installer|
+    # workaround for https://github.com/CocoaPods/CocoaPods/issues/3289
+    def installer.verify_no_static_framework_transitive_dependencies; end
 end
 
 post_install do |installer|

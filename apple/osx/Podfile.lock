@@ -1,16 +1,21 @@
 PODS:
+  - OpenSSL-Universal (1.0.1.20)
   - ProtocolBuffers-Swift (3.0.16)
-  - RNCryptor (5.0.1)
-  - SignalProtocolC (2.3.1)
-  - SignalProtocolObjC (1.0.0):
-    - SignalProtocolC (~> 2.3.1)
   - Starscream (1.1.3)
+  - themis (0.9.4):
+    - OpenSSL-Universal (= 1.0.1.20)
+    - themis/core (= 0.9.4)
+    - themis/objcwrapper (= 0.9.4)
+  - themis/core (0.9.4):
+    - OpenSSL-Universal (= 1.0.1.20)
+  - themis/objcwrapper (0.9.4):
+    - OpenSSL-Universal (= 1.0.1.20)
+    - themis/core
 
 DEPENDENCIES:
   - ProtocolBuffers-Swift
-  - RNCryptor (~> 5.0)
-  - SignalProtocolObjC
   - Starscream (from `https://github.com/daltoniam/Starscream`, branch `swift3`)
+  - themis
 
 EXTERNAL SOURCES:
   Starscream:
@@ -23,12 +28,11 @@ CHECKOUT OPTIONS:
     :git: https://github.com/daltoniam/Starscream
 
 SPEC CHECKSUMS:
+  OpenSSL-Universal: 71f2c4b2ae758e2218090f905e95ca0ac5c01be7
   ProtocolBuffers-Swift: cba3f101c408355bb2a426c8d14c63cf2de3f567
-  RNCryptor: 2e352a488779d1a9184ab629be22a7c5bc84acb5
-  SignalProtocolC: e61c89693515347df8ed97961160a36cbe55c441
-  SignalProtocolObjC: f5f0c7dcbedf21490b7ec190b6dc5103910acb75
   Starscream: d662732354b40dd19ed1ece3e3c44c80b536b83c
+  themis: 5dc6c65d9b7b4a4cd01465972d9b8478e6d19e0a
 
-PODFILE CHECKSUM: f3459fc12d64ac15fbd6b145ad22060cab24c45c
+PODFILE CHECKSUM: ae37a30480628e8bd3d0a8031a83f30efb2e8f37
 
 COCOAPODS: 1.2.1
