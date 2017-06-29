@@ -4,7 +4,7 @@ target 'Chat' do
   use_frameworks!
   pod 'Starscream', :git => 'https://github.com/daltoniam/Starscream', :branch => 'swift3'
   pod 'ProtocolBuffers-Swift'
-  pod 'themis'
+  pod 'themis', :podspec => 'https://raw.githubusercontent.com/cossacklabs/themis/2e69c2fb94ec84dd4c68895458ca7f7becc7693d/themis.podspec'
 end
 
 pre_install do |installer|
