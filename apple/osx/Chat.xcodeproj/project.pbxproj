@@ -330,7 +330,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = BridgingHeader.h;
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../common/BridgingHeader.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -373,7 +373,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
-				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = BridgingHeader.h;
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../common/BridgingHeader.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 			};
 			name = Release;
@@ -393,7 +393,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_BUNDLE_IDENTIFIER = ys1382.Chat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = BridgingHeader.h;
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../common/BridgingHeader.h;
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -413,7 +413,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_BUNDLE_IDENTIFIER = ys1382.Chat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = BridgingHeader.h;
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../common/BridgingHeader.h;
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
