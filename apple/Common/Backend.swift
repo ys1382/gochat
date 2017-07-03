@@ -34,7 +34,7 @@ class Backend: WebSocketDelegate {
     // Send
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    func send(_ haberBuilder:Haber.Builder, _ details: String) {
+    func send(_ haberBuilder:Haber.Builder, _ details: String? = nil, _ completion: FuncVV? = nil) {
         guard let haber = try? haberBuilder.setSessionId(self.sessionId ?? "").build() else {
             logNetworkError("could not create haber")
             return
@@ -42,16 +42,14 @@ class Backend: WebSocketDelegate {
         
         switch haber.which {
         case .av:
-            logNetwork("write \(haber.data().count) bytes for \(haber.which) \(details)")
+            logNetwork("write \(haber.data().count) bytes for \(haber.which) \(details != nil ? details! : "")")
         default:
-            logNetworkPrior("write \(haber.data().count) bytes for \(haber.which) \(details)")
+            logNetworkPrior("write \(haber.data().count) bytes for \(haber.which) \(details != nil ? details! : "")")
         }
         
-        self.websocket?.write(data: haber.data())
-    }
-
-    func send(_ haberBuilder:Haber.Builder) {
-        send(haberBuilder, "")
+        self.websocket?.write(data: haber.data()) {
+            completion?()
+        }
     }
 
     func sendText(_ body: String, to: String) {
@@ -92,6 +90,10 @@ class Backend: WebSocketDelegate {
         send(try! Haber.Create(.callStartIncoming, to, info))
     }
 
+    func sendCallChangeQuality(_ to: String, _ info: NetworkCallInfo, _ diff: Int32) {
+        send(try! Haber.CreateQuality(to, info, diff))
+    }
+
     func sendCallStop(_ to: String, _ info: NetworkCallInfo) {
         send(try! Haber.Create(.callStop, to, info))
     }
@@ -103,8 +105,8 @@ class Backend: WebSocketDelegate {
     func sendAudioSession(_ session: NetworkAudioSessionInfo, _ active: Bool) {
         send(try! Haber.Create(.audioSession, session, active).setWhich(.audioSession))
     }
-
-    func sendVideo(_ id: IOID, _ data: NSData) {
+    
+    func sendVideo(_ id: IOID, _ data: NSData, _ callback: @escaping FuncVV) {
         
         assert_video_capture_queue()
         
@@ -119,14 +121,14 @@ class Backend: WebSocketDelegate {
                 .setAv(av)
                 .setVideoSession(try Avsession.Builder().setSid(id.sid).build())
             
-            Backend.shared.send(haberBuilder, "video")
+            Backend.shared.send(haberBuilder, "video", callback)
         }
         catch {
             logNetworkError(error)
         }
     }
 
-    func sendAudio(_ id: IOID, _ data: NSData) {
+    func sendAudio(_ id: IOID, _ data: NSData, _ callback: @escaping FuncVV) {
         
         assert_audio_capture_queue()
         
@@ -141,7 +143,7 @@ class Backend: WebSocketDelegate {
                 .setAv(av)
                 .setAudioSession(try Avsession.Builder().setSid(id.sid).build())
 
-            Backend.shared.send(haberBuilder, "audio")
+            Backend.shared.send(haberBuilder, "audio", callback)
         }
         catch {
             logNetworkError(error)
@@ -178,6 +180,10 @@ class Backend: WebSocketDelegate {
         startCallOutput(haber, NetworkCallController.outgoing, audio, video)
     }
 
+    func getsCallQuality(_ haber: Haber) {
+        changeCallQuality(try! haber.callInfo(), Int(haber.avQuality.diff))
+    }
+
     func getsCallStop(_ haber: Haber) {
         NetworkCallController.incoming?.stop(try! haber.callInfo())
         NetworkCallController.outgoing?.stop(try! haber.callInfo())
@@ -193,11 +199,11 @@ class Backend: WebSocketDelegate {
 
     func getsAV(_ haber: Haber) {
         if (haber.av.hasAudio) {
-            audio.process(haber.audioSession.sid, [AudioPart.NetworkPacket.rawValue: haber.av.audio.image.data as NSData])
+            audio.process(haber.audioSession.sid, haber.av.audio.image.data as NSData)
         }
         
         if (haber.av.hasVideo) {
-            video.process(haber.videoSession.sid, [VideoPart.NetworkPacket.rawValue: haber.av.video.image.data as NSData])
+            video.process(haber.videoSession.sid, haber.av.video.image.data as NSData)
         }
     }
 
@@ -307,6 +313,8 @@ class Backend: WebSocketDelegate {
             dispatch_async_network_call { self.getsOutgoingCallStart(haber) }
         case .callStartIncoming:
             dispatch_async_network_call { self.getsIncomingCallStart(haber) }
+        case .callQuality:
+            dispatch_async_network_call { self.getsCallQuality(haber) }
         case .callStop:
             dispatch_async_network_call { self.getsCallStop(haber) }
         default:
@@ -334,6 +342,13 @@ extension Haber.Builder {
     func Fill(_ session: NetworkVideoSessionInfo?, _ active: Bool) throws -> Haber.Builder {
         guard session != nil else { return self }
         return setVideoSession(try Avsession.Create(session, active))
+    }
+
+    func FillQuality(_ diff: Int32) throws -> Haber.Builder {
+        setAvQuality(try Avquality.Builder()
+        .setDiff(diff).build())
+
+        return self
     }
 }
 
@@ -399,6 +414,12 @@ extension Haber {
             .Fill(data.videoSession, true)
     }
     
+    static func CreateQuality(_ to: String,
+                              _ call: NetworkCallInfo,
+                              _ diff: Int32) throws -> Haber.Builder {
+        return try Create(.callQuality, to, call).FillQuality(diff)
+    }
+
     var audioSessionID: IOID? {
         get {
             guard hasAudioSession else { return nil }

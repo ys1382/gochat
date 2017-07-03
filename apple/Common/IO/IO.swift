@@ -41,22 +41,40 @@ enum IOKind : Int {
     case Video
 }
 
-enum IOPart : Int {
-    case Timestamp = 2 // IOTime structure
-}
-
 protocol IODataProtocol {
     
-    func process(_ data: [Int: NSData])
+    func process(_ data: NSData)
 }
 
 typealias IOSessionProtocol = SessionProtocol
+
+struct IOFormat {
+    
+    private static let kID = "kID"
+
+    var data: [String: Any]
+
+    init () {
+        data = [String: Any]()
+        data[IOFormat.kID] = UUID().uuidString
+    }
+    
+    init(_ data: [String: Any]) {
+        self.data = data
+    }
+    
+    var id: String {
+        get {
+            return data[IOFormat.kID]! as! String
+        }
+    }
+}
 
 class IOData : IODataProtocol {
     private let next: IODataProtocol?
     init() { next = nil }
     init(_ next: IODataProtocol?) { self.next = next }
-    func process(_ data: [Int : NSData]) { next?.process(data) }
+    func process(_ data: NSData) { next?.process(data) }
 }
 
 class IOSession : IOSessionProtocol {
@@ -84,7 +102,7 @@ class IOSessionBroadcast : IOSessionProtocol {
     }
 }
 
-func create(_ x: [IOSessionProtocol?]) -> IOSessionProtocol? {
+func broadcast(_ x: [IOSessionProtocol?]) -> IOSessionProtocol? {
     if (x.count == 0) {
         return nil
     }
@@ -114,9 +132,53 @@ class IODataSession : IODataProtocol, IOSessionProtocol {
         active = false
     }
     
-    func process(_ data: [Int : NSData]) {
+    func process(_ data: NSData) {
         guard active else { logIO("received data after session stopped"); return }
         next.process(data)
+    }
+}
+
+struct IOInputContext {
+    let qos: IOQoS
+    let balancer: IOQoSBalancerProtocol
+
+    init(_ balancer: IOQoSBalancerProtocol) {
+        self.qos = IOQoS()
+        self.balancer = balancer
+    }
+}
+
+struct IOOutputContext {
+    let id: IOID?
+    let session: IOSessionProtocol?
+    let data: IODataProtocol?
+    let timebase: IOTimebase?
+    let balancer: IOBalancer?
+    
+    // concrete context
+    init(_ id: IOID?,
+         _ session: IOSessionProtocol?,
+         _ data: IODataProtocol?,
+         _ timebase: IOTimebase?,
+         _ balancer: IOBalancer?) {
+        self.id = id
+        self.session = session
+        self.data = data
+        self.timebase = timebase
+        self.balancer = balancer
+    }
+    
+    // create context with shared info
+    init(_ id: IOID,
+         _ session: IOSessionProtocol,
+         _ data: IODataProtocol,
+         _ context: IOOutputContext) {
+        self.init(id, session, data, context.timebase, context.balancer)
+    }
+    
+    // context for sharing sync and balancer
+    init() {
+        self.init(nil, nil, nil, IOTimebase(), IOBalancer())
     }
 }
 
@@ -142,61 +204,57 @@ protocol IOTimeProtocol {
     func copy(time: IOTime) -> Self
 }
 
-protocol IOTimeSerializerProtocol {
-    func time(_ data: [Int: NSData]) -> Double
-    func time(_ data: inout [Int: NSData], _ time: Double)
+protocol IOTimeUpdaterProtocol {
+    func time(_ data: NSData) -> Double
+    func time(_ data: inout NSData, _ time: Double)
 }
 
-class IOTimeSerializer<T: IOTimeProtocol & InitProtocol> : IOTimeSerializerProtocol {
+class IOTimeUpdater<T: IOTimeProtocol & InitProtocol> : IOTimeUpdaterProtocol {
     
-    private let serializer: PacketsSerializer<T>
+    private let updater: PacketsUpdater<T>
     
-    init(_ key: Int) {
-        serializer = PacketsSerializer<T>(key)
-    }
-
-    init(_ key: Int, _ shift: Int) {
-        serializer = PacketsSerializer<T>(key, shift)
+    init(_ index: Int) {
+        updater = PacketsUpdater<T>(index)
     }
     
-    func concreteTime(_ data: [Int : NSData]) -> T {
+    func concreteTime(_ data: NSData) -> T {
         var result = T()
-        serializer.getValue(data, &result)
+        updater.getValue(data, &result)
         return result
     }
     
-    func concreteTime(_ data: inout [Int : NSData], _ time: T) {
-        serializer.setValue(&data, time)
+    func concreteTime(_ data: inout NSData, _ time: T) {
+        updater.setValue(&data, time)
     }
     
-    func time(_ data: [Int : NSData]) -> Double {
+    func time(_ data: NSData) -> Double {
         return concreteTime(data).time.hostSeconds
     }
     
-    func time(_ data: inout [Int : NSData], _ time: Double) {
+    func time(_ data: inout NSData, _ time: Double) {
         concreteTime(&data, concreteTime(data).copy(time: IOTime(time)))
     }
 }
 
-protocol IOTimebaseProtocol {
-    var zero: Double? { get set }
+class IOTimebase {
+    var zero: Double?
 }
 
 class IOTimebaseReset : IODataProtocol {
     
-    private let time: IOTimeSerializerProtocol
-    private var timebase: IOTimebaseProtocol
+    private let time: IOTimeUpdaterProtocol
+    private var timebase: IOTimebase
     private let next: IODataProtocol?
     
-    init(_ timebase: IOTimebaseProtocol,
-         _ time: IOTimeSerializerProtocol,
+    init(_ timebase: IOTimebase,
+         _ time: IOTimeUpdaterProtocol,
          _ next: IODataProtocol?) {
         self.time = time
         self.timebase = timebase
         self.next = next
     }
     
-    func process(_ data: [Int : NSData]) {
+    func process(_ data: NSData) {
         let dataTime = time.time(data)
         var copy = data
         
@@ -210,6 +268,67 @@ class IOTimebaseReset : IODataProtocol {
         
         time.time(&copy, dataTime - timebase.zero!)
         next?.process(copy)
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// QOS
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+protocol IOQoSProtocol {
+    func change(_ toQID: String, _ diff: Int)
+}
+
+protocol IOQoSBalancerProtocol {
+    func process(_ qosID: String, _ gap: Double)
+}
+
+class IOQoSDispatcher : IOQoSProtocol {
+    
+    let queue: DispatchQueue
+    let next: IOQoSProtocol
+    
+    init(_ queue: DispatchQueue, _ next: IOQoSProtocol) {
+        self.queue = queue
+        self.next = next
+    }
+    
+    func change(_ toQID: String, _ diff: Int) {
+        queue.sync { next.change(toQID, diff) }
+    }
+    
+}
+
+class IOQoSBroadcast : IOQoSProtocol {
+    
+    private var x: [IOQoSProtocol?]
+    
+    init(_ x: [IOQoSProtocol?]) {
+        self.x = x
+    }
+    
+    func change(_ toQID: String, _ diff: Int) {
+        _ = x.map({ $0?.change(toQID, diff) })
+    }
+}
+
+class IOQoS {
+    
+    static let kInit = 0
+    static let kIncrease = 1
+    static let kDecrease = -1
+    
+    var clients = [IOQoSProtocol]()
+    var qid: String = UUID().uuidString
+
+    func add(_ x: IOQoSProtocol) {
+        clients.append(x)
+        x.change(qid, IOQoS.kInit)
+    }
+    
+    func change(_ diff: Int) {
+        qid = UUID().uuidString
+        _ = clients.map({ $0.change(qid, diff) })
     }
 }
 
@@ -266,7 +385,7 @@ class IODataAsyncDispatcher : IODataProtocol {
         self.next = next
     }
     
-    func process(_ data: [Int : NSData]) {
+    func process(_ data: NSData) {
         queue.async { self.next.process(data) }
     }
 }

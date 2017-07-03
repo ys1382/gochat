@@ -26,11 +26,13 @@ fileprivate extension OutputStream {
 }
 
 func logWrite(_ x: String) {
+    let xx = String(format: "%.5f", app_absolute_seconds()) + ": \(x)"
+    
     #if DEBUG
-        print(x)
+        print(xx)
     #else
         DispatchQueue.logQueue.async {
-            OutputStream.log?.write(x + "\n")
+            OutputStream.log?.write(xx + "\n")
         }
     #endif
 }

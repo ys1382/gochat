@@ -11,11 +11,6 @@ protocol AudioOutputProtocol {
     func process(_ data: AudioData)
 }
 
-enum AudioPart : Int {
-    case Timestamp = 2
-    case NetworkPacket = 8 // Time, Packet num, Packets, Data size, Data
-}
-
 struct AudioBus {
     static let input = 0
     static let output = 1
@@ -49,10 +44,10 @@ struct AudioFormat {
     private static let kChannelCount = "kChannelCount"
     private static let kFramesPerPacket = "kFramesPerPacket"
 
-    private(set) var data: [String: Any]
+    private(set) var format: IOFormat
 
     init(_ x: AudioStreamBasicDescription) {
-        data = [String: Any]()
+        format = IOFormat()
         
         self.formatID = x.mFormatID
         self.flags = x.mFormatFlags
@@ -61,52 +56,56 @@ struct AudioFormat {
         self.framesPerPacket = x.mFramesPerPacket
     }
     
-    init(_ data: [String: Any]) {
-        self.data = data
+    init(_ format: IOFormat) {
+        self.format = format
     }
 
     var formatID: UInt32 {
         get {
-            return data.keys.contains(AudioFormat.kFormatID) ? data[AudioFormat.kFormatID] as! UInt32 : 0
+            return format.data.keys.contains(AudioFormat.kFormatID) ? format.data[AudioFormat.kFormatID] as! UInt32 : 0
         }
         set {
-            data[AudioFormat.kFormatID] = newValue
+            format.data[AudioFormat.kFormatID] = newValue
         }
     }
 
     var flags: UInt32 {
         get {
-            return data.keys.contains(AudioFormat.kFlags) ? data[AudioFormat.kFlags] as! UInt32 : 0
+            return format.data.keys.contains(AudioFormat.kFlags) ? format.data[AudioFormat.kFlags] as! UInt32 : 0
         }
         set {
-            data[AudioFormat.kFlags] = newValue
+            format.data[AudioFormat.kFlags] = newValue
         }
     }
 
     var sampleRate: Double {
         get {
-            return data.keys.contains(AudioFormat.kSampleRate) ? data[AudioFormat.kSampleRate] as! Double : 0
+            return format.data.keys.contains(AudioFormat.kSampleRate)
+                ? format.data[AudioFormat.kSampleRate] as! Double
+                : 0
         }
         set {
-            data[AudioFormat.kSampleRate] = newValue
+            format.data[AudioFormat.kSampleRate] = newValue
         }
     }
 
     var channelCount: UInt32 {
         get {
-            return data.keys.contains(AudioFormat.kChannelCount) ? data[AudioFormat.kChannelCount] as! UInt32 : 0
+            return format.data.keys.contains(AudioFormat.kChannelCount) ? format.data[AudioFormat.kChannelCount] as! UInt32 : 0
         }
         set {
-            data[AudioFormat.kChannelCount] = newValue
+            format.data[AudioFormat.kChannelCount] = newValue
         }
     }
 
     var framesPerPacket: UInt32 {
         get {
-            return data.keys.contains(AudioFormat.kFramesPerPacket) ? data[AudioFormat.kFramesPerPacket] as! UInt32 : 0
+            return format.data.keys.contains(AudioFormat.kFramesPerPacket) ?
+                format.data[AudioFormat.kFramesPerPacket] as! UInt32
+                : 0
         }
         set {
-            data[AudioFormat.kFramesPerPacket] = newValue
+            format.data[AudioFormat.kFramesPerPacket] = newValue
         }
     }
 }
@@ -152,7 +151,7 @@ extension AudioTime {
 }
 
 extension AudioTime : InitProtocol {}
-typealias AudioTimeSerializer = IOTimeSerializer<AudioTime>
+typealias AudioTimeUpdater = IOTimeUpdater<AudioTime>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Protocols adapters

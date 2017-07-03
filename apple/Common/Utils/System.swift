@@ -29,11 +29,12 @@ func deviceModel() -> String {
 // Time
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-fileprivate class HostTimeInfo {
+class HostTimeInfo {
     static let shared = HostTimeInfo()
     
     let numer: UInt32
     let denom: UInt32
+    let zero: UInt64
     
     init() {
         var info = mach_timebase_info_data_t()
@@ -41,6 +42,7 @@ fileprivate class HostTimeInfo {
         
         numer = info.numer
         denom = info.denom
+        zero = mach_absolute_time()
     }
 }
 
@@ -78,6 +80,10 @@ func mach_absolute_time(seconds: Double) -> UInt64 {
     return
         UInt64(seconds2nano(
             seconds * Double(HostTimeInfo.shared.denom) / Double(HostTimeInfo.shared.numer)))
+}
+
+func app_absolute_seconds() -> Double {
+    return mach_absolute_seconds() - mach_absolute_seconds(HostTimeInfo.shared.zero)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -240,6 +240,8 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
         fallthrough
       case Haber_CALL_START_INCOMING:
         fallthrough
+      case Haber_CALL_QUALITY:
+        fallthrough
       case Haber_CALL_STOP:
         fallthrough
       case Haber_FILE:

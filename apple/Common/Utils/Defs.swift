@@ -26,3 +26,4 @@ import Foundation
 typealias FuncVV = () -> Void
 typealias FuncVVT = () throws -> Void
 typealias FuncDV = (Double) -> Void
+typealias FuncDDV = (Double, Double) -> Void

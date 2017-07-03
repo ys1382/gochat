@@ -86,9 +86,11 @@ class NetworkIncomingCallProposalUI : NetworkIncomingCallProposal {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 fileprivate func videoCapture(_ id: IOID,
+                              _ context: IOInputContext,
                               _ ui: ConversationViewController,
                               _ info: inout NetworkVideoSessionInfo?) -> IOSessionProtocol? {
     let video = AV.shared.defaultNetworkVideoInput(id,
+                                                   context,
                                                    ui.videoViewController.preview.captureLayer,
                                                    &info)
     
@@ -97,10 +99,10 @@ fileprivate func videoCapture(_ id: IOID,
 
 fileprivate func videoOutput(_ info: NetworkVideoSessionInfo,
                              _ ui: ConversationViewController,
-                             _ session: inout IOSessionProtocol?) -> IODataProtocol? {
+                             _ context: IOOutputContext) -> IOOutputContext? {
     return AV.shared.defaultNetworkVideoOutput(info.id,
-                                               ui.videoViewController.network.sampleLayer,
-                                               &session)
+                                               context,
+                                               ui.videoViewController.network.sampleLayer)
 }
 
 fileprivate func startCall(_ to: String, _ info: NetworkCallInfo, _ ui: ConversationViewController) {
@@ -141,7 +143,7 @@ class NetworkOutgoingCallUI : NetworkOutgoingCall {
     
     override func start() throws {
         try super.start()
-        startCall(info.to, info, ui)
+        startCall(counterpart(), info, ui)
     }
     
     override func stop() {
@@ -150,12 +152,12 @@ class NetworkOutgoingCallUI : NetworkOutgoingCall {
     }
     
     override func videoCapture(_ id: IOID, _ info: inout NetworkVideoSessionInfo?) -> IOSessionProtocol? {
-        return Chat.videoCapture(id, ui, &info)
+        return Chat.videoCapture(id, inputContext!, ui, &info)
     }
     
     override func videoOutput(_ info: NetworkVideoSessionInfo,
-                              _ session: inout IOSessionProtocol?) throws -> IODataProtocol? {
-        return Chat.videoOutput(info, ui, &session)
+                              _ context: IOOutputContext) throws -> IOOutputContext? {
+        return Chat.videoOutput(info, ui, context)
     }
 }
 
@@ -176,7 +178,7 @@ class NetworkIncomingCallUI : NetworkIncomingCall {
         try super.start()
         
         if info.from != info.to {
-            startCall(info.from, info, ui)
+            startCall(counterpart(), info, ui)
         }
     }
     
@@ -186,11 +188,11 @@ class NetworkIncomingCallUI : NetworkIncomingCall {
     }
     
     override func videoCapture(_ id: IOID, _ info: inout NetworkVideoSessionInfo?) -> IOSessionProtocol? {
-        return Chat.videoCapture(id, ui, &info)
+        return Chat.videoCapture(id, inputContext!, ui, &info)
     }
     
     override func videoOutput(_ info: NetworkVideoSessionInfo,
-                              _ session: inout IOSessionProtocol?) throws -> IODataProtocol? {
-        return Chat.videoOutput(info, ui, &session)
+                              _ context: IOOutputContext) throws -> IOOutputContext? {
+        return Chat.videoOutput(info, ui, context)
     }
 }

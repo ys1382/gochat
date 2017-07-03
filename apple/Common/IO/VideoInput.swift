@@ -22,7 +22,7 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Video
     }
     
     private  var session: AVCaptureSession?
-    private let format: AVCaptureDeviceFormat
+    private var format: AVCaptureDeviceFormat
     private let output: VideoOutputProtocol?
     private let outputQueue: DispatchQueue?
     private let device: AVCaptureDevice?
@@ -186,6 +186,45 @@ class VideoPreview : VideoSession {
         
         dispatch_sync_on_main {
             layer.session = nil
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// VideoInputQoS
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class VideoInputQoS : IOQoSProtocol {
+    
+    let input: VideoSessionProtocol
+    let format: AVCaptureDeviceFormat
+    var dimensions: CMVideoDimensions
+    
+    init(_ format: AVCaptureDeviceFormat, _ input: VideoSessionProtocol) {
+        self.input = input
+        self.format = format
+        self.dimensions = format.dimensions
+    }
+    
+    func change(_ toQID: String, _ diff: Int) {
+        guard diff != IOQoS.kInit else { return }
+
+        do {
+            let dimensions = CMVideoDimensions(width: self.dimensions.width / 2,
+                                               height: self.dimensions.height / 2)
+            
+            if dimensions.width > 100 {
+                try input.update(VideoFormat(dimensions))
+                self.dimensions = dimensions
+                
+                logIOPrior("video quality changed to \(dimensions.width) * \(dimensions.height)")
+            }
+            else {
+                
+            }
+        }
+        catch {
+            logIOError(error)
         }
     }
 }

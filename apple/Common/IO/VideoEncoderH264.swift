@@ -3,115 +3,6 @@ import AVFoundation
 import VideoToolbox
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Encoder
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class VideoEncoderH264 : NSObject, VideoOutputProtocol {
-    
-    private let output: IODataProtocol?
-    
-    init(_ output: IODataProtocol) {
-        
-        self.output = output
-
-        super.init()
-    }
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // VideoOutputProtocol
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    func process(_ data: CMSampleBuffer) {
-        encode(data)
-    }
-    
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Encode to H264
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
-    private func encode(_ sampleBuffer: CMSampleBuffer) {
-
-        var result = [Int: NSData]()
-        
-        do {
-            let formatDescription: CMFormatDescription = CMSampleBufferGetFormatDescription(sampleBuffer)!
-
-            assert(CMSampleBufferGetNumSamples(sampleBuffer) == 1)
-
-            // timing info
-            
-            var timingInfo = CMSampleTimingInfo()
-            
-            try checkStatus(CMSampleBufferGetSampleTimingInfo(sampleBuffer,
-                                                              0,
-                                                              &timingInfo),
-                            "CMSampleBufferGetSampleTimingInfo failed")
-
-            result[IOPart.Timestamp.rawValue] = VideoTime(timingInfo).ToNSData()
-            
-            // H264 description (SPS)
-            
-            var sps: UnsafePointer<UInt8>?
-            var spsLength: Int = 0
-            var count: Int = 0
-            
-            try checkStatus(CMVideoFormatDescriptionGetH264ParameterSetAtIndex(formatDescription,
-                                                                               0,
-                                                                               &sps,
-                                                                               &spsLength,
-                                                                               &count,
-                                                                               nil),
-                            "An Error occured while getting h264 sps parameter")
-            
-            assert(count == 2) // sps and pps
-            
-            result[H264Part.SPS.rawValue] = NSData(bytes: sps!, length: spsLength)
-           
-            // H264 description (PPS)
-
-            var pps: UnsafePointer<UInt8>?
-            var ppsLength: Int = 0
-
-            try checkStatus(CMVideoFormatDescriptionGetH264ParameterSetAtIndex(formatDescription,
-                                                                               1,
-                                                                               &pps,
-                                                                               &ppsLength,
-                                                                               &count,
-                                                                               nil),
-                            "An Error occured while getting h264 pps parameter")
-
-            assert(count == 2) // sps and pps
-
-            result[H264Part.PPS.rawValue] = NSData(bytes: pps!, length: ppsLength)
-
-            // H264 data
-            
-            let blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer)
-            var totalLength = Int()
-            var length = Int()
-            var dataPointer: UnsafeMutablePointer<Int8>? = nil
-            
-            try checkStatus(CMBlockBufferGetDataPointer(blockBuffer!,
-                                                        0,
-                                                        &length,
-                                                        &totalLength,
-                                                        &dataPointer), "CMBlockBufferGetDataPointer failed")
-            
-            assert(length == totalLength)
-            
-            result[H264Part.Data.rawValue] = NSData(bytes: dataPointer!, length: Int(totalLength))
-
-            // output
-            
-            AV.shared.videoCaptureQueue.async { self.output?.process(result) }
-        }
-        catch {
-            logIOError(error)
-        }
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Session
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -199,6 +90,8 @@ class VideoEncoderSessionH264 : VideoSessionProtocol, VideoOutputProtocol {
         
         VTCompressionSessionCompleteFrames(session, kCMTimeInvalid)
         VTCompressionSessionInvalidate(session)
+        
+        self.session = nil
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

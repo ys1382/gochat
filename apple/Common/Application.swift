@@ -13,8 +13,14 @@ class Application : AppleApplicationDelegate {
     static let kVideoWidth = "kVideoWidth"
     static let kVideoHeight = "kVideoHeight"
 
+    var playback: IOSessionProtocol?
+    
     override init() {
 
+        // start time
+        
+        _ = HostTimeInfo.shared
+        
         // crash on unhandled exceptions
         
         UserDefaults.standard.register(defaults: ["NSApplicationCrashOnExceptions": true]);
@@ -43,15 +49,21 @@ class Application : AppleApplicationDelegate {
         
         // playback testing
         
+        var playback: IOSessionProtocol?
+
         checkIO {
             
             if Application.kCompressedPlayback {
-                try AV.shared.startAudioCompressedPlayback()
+                playback = try AV.shared.audioCompressedPlayback()
             }
             
             if Application.kUncompressedPlayback {
-                try AV.shared.startAudioUncompressedPlayback()
+                playback = try AV.shared.audioUncompressedPlayback()
             }
+            
+            try playback?.start()
         }
+        
+        self.playback = playback
     }
 }

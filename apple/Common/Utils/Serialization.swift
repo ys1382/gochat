@@ -1,30 +1,31 @@
 
 import Foundation
 
-class PacketsSerializer<T> {
+class PacketsUpdater<T> {
     
-    let key: Int
-    let shift: Int
+    let index: Int
     
-    init(_ key: Int) {
-        self.key = key
-        self.shift = 0
+    init() {
+        self.index = 0
     }
 
-    init(_ key: Int, _ shift: Int) {
-        self.key = key
-        self.shift = shift
+    init(_ index: Int) {
+        self.index = index
     }
 
-    func getValue(_ data: [Int : NSData], _ value: inout T) {
-        memcpy(&value, data[key]!.bytes.advanced(by: shift), MemoryLayout<T>.size)
+    func getValue(_ data: NSData, _ value: inout T) {
+        memcpy(&value, data.bytes.advanced(by: shift(data)), MemoryLayout<T>.size)
     }
     
-    func setValue(_ data: inout [Int : NSData], _ value: T) {
+    func setValue(_ data: inout NSData, _ value: T) {
         var copy = value
-        memcpy(UnsafeMutableRawPointer(mutating: data[key]!.bytes.advanced(by: shift)),
+        memcpy(UnsafeMutableRawPointer(mutating: data.bytes.advanced(by: shift(data))),
                &copy,
                MemoryLayout<T>.size)
+    }
+    
+    private func shift(_ data: NSData) -> Int {
+        return PacketDeserializer(data, index).shift + MemoryLayout<UInt32>.size
     }
 }
 
@@ -43,6 +44,10 @@ class PacketSerializer {
         push(data.bytes, data.length)
     }
 
+    func push(string: String) {
+        push(data: string.data(using: .utf8)! as NSData)
+    }
+    
     func push<T>(array: [T]?) {
         var size32 = UInt32((array != nil ? array!.count : 0) * MemoryLayout<T>.size)
         
@@ -58,12 +63,20 @@ class PacketSerializer {
 
 class PacketDeserializer {
     private let data: NSData
-    private var shift = 0
+    private(set) var shift = 0
     
     init(_ data: NSData) {
         self.data = data
     }
     
+    convenience init(_ data: NSData, _ index: Int) {
+        self.init(data)
+        
+        for _ in 0 ..< index {
+            popSkip()
+        }
+    }
+
     private func popSize() -> Int {
         var size: UInt32 = 0
         
@@ -111,6 +124,15 @@ class PacketDeserializer {
         var result: NSData?
         pop(data: &result)
         return result!
+    }
+    
+    func popString() -> String {
+        return String(data: popData() as Data, encoding: .utf8)!
+    }
+    
+    func popSkip() -> PacketDeserializer {
+        shift = popSize() + shift
+        return self
     }
 }
 

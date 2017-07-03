@@ -25,6 +25,11 @@ class NetworkCallSessionController<T, I> {
         return ""
     }
 
+    fileprivate func call(_ info: I) -> T? {
+        assert(false)
+        return nil
+    }
+    
     func start(_ info: I) {
         assert_network_call_queue()
     }
@@ -64,6 +69,13 @@ class NetworkSingleCallSessionController<T: SessionProtocol, I> : NetworkCallSes
         guard callInfo != nil else { return }
         stop(callInfo!)
     }
+    
+    fileprivate override func call(_ info: I) -> T? {
+        guard let callInfo = self.callInfo else { return nil }
+        guard id(callInfo) == id(info) else { return nil }
+        
+        return call
+    }
 }
 
 class NetworkMultiCallSessionController<T: SessionProtocol, I> : NetworkCallSessionController<T, I> {
@@ -83,6 +95,10 @@ class NetworkMultiCallSessionController<T: SessionProtocol, I> : NetworkCallSess
 
         calls[id(info)]?.stop()
         calls.removeValue(forKey: id(info))
+    }
+    
+    fileprivate override func call(_ info: I) -> T? {
+        return calls[id(info)]
     }
 }
 
@@ -136,23 +152,33 @@ class NetworkCall : NetworkCallProtocol {
     let info: NetworkCallInfo
     private var ui: NetworkCallReceiverProtocol?
     
+    private(set) var inputContext: IOInputContext?
     private var audioInputSession: IOSessionProtocol?
     private var videoInputSession: IOSessionProtocol?
 
-    private var audioOutputSession: IOSessionProtocol?
-    private var videoOutputSession: IOSessionProtocol?
+    private(set) var outputContext: IOOutputContext?
+    private var audioOutputContext: IOOutputContext?
+    private var videoOutputContext: IOOutputContext?
     
     init(_ info: NetworkCallInfo) {
         self.info = info
     }
 
-    init(_ info: NetworkCallInfo, _ ui: NetworkCallReceiverProtocol) {
+    convenience init(_ info: NetworkCallInfo, _ ui: NetworkCallReceiverProtocol) {
+        self.init(info)
         self.ui = ui
-        self.info = info
     }
 
+    func counterpart() -> String {
+        return info.from
+    }
+    
     func start() throws {
         assert_network_call_queue()
+        
+        outputContext = IOOutputContext()
+        inputContext = IOInputContext(NetworkCallQuality(counterpart(), info))
+        
         dispatch_sync_on_main { ui?.callInfo = info }
         _ = try startCapture(info.from, info.to)
     }
@@ -163,32 +189,32 @@ class NetworkCall : NetworkCallProtocol {
         
         audioInputSession?.stop()
         AV.shared.videoCaptureQueue.sync { videoInputSession?.stop() }
-        AV.shared.avOutputQueue.sync { audioOutputSession?.stop() }
-        AV.shared.avOutputQueue.sync { videoOutputSession?.stop() }
+        AV.shared.avOutputQueue.sync { audioOutputContext?.session?.stop() }
+        AV.shared.avOutputQueue.sync { videoOutputContext?.session?.stop() }
     }
     
-    func audioOutput(_ info: NetworkAudioSessionInfo, _ session: inout IOSessionProtocol?) throws -> IODataProtocol? {
-        return AV.shared.defaultNetworkAudioOutput(info.id, try info.format!(), &session)
+    func audioOutput(_ info: NetworkAudioSessionInfo, _ context: IOOutputContext) throws -> IOOutputContext? {
+        return AV.shared.defaultNetworkAudioOutput(info.id, try info.format!(), context)
     }
 
-    func videoOutput(_ info: NetworkVideoSessionInfo, _ session: inout IOSessionProtocol?) throws -> IODataProtocol? {
+    func videoOutput(_ info: NetworkVideoSessionInfo, _ context: IOOutputContext) throws -> IOOutputContext? {
         return nil
     }
 
     fileprivate func startOutput(_ info: NetworkAudioSessionInfo) throws -> IODataProtocol? {
-        let result = try audioOutput(info, &audioOutputSession)
-        try AV.shared.avOutputQueue.sync { try audioOutputSession?.start() }
-        return result
+        audioOutputContext = try audioOutput(info, outputContext!)
+        try AV.shared.avOutputQueue.sync { try audioOutputContext?.session?.start() }
+        return audioOutputContext?.data
     }
 
     fileprivate func startOutput(_ info: NetworkVideoSessionInfo) throws -> IODataProtocol? {
-        let result = try videoOutput(info, &videoOutputSession)
-        try AV.shared.avOutputQueue.sync { try videoOutputSession?.start() }
-        return result
+        videoOutputContext = try videoOutput(info, outputContext!)
+        try AV.shared.avOutputQueue.sync { try videoOutputContext?.session?.start() }
+        return videoOutputContext?.data
     }
 
     func audioCapture(_ id: IOID, _ info: inout NetworkAudioSessionInfo?) -> IOSessionProtocol? {
-        return AV.shared.defaultNetworkAudioInput(id, &info)
+        return AV.shared.defaultNetworkAudioInput(id, inputContext!, &info)
     }
 
     func videoCapture(_ id: IOID, _ info: inout NetworkVideoSessionInfo?) -> IOSessionProtocol? {
@@ -240,6 +266,10 @@ class NetworkOutgoingCall : NetworkCall {
 
 class NetworkIncomingCall : NetworkCall {
 
+    override func counterpart() -> String {
+        return info.to
+    }
+
     override fileprivate func startCapture(_ from: String, _ to: String) throws -> NetworkCallInfo {
         var info = self.info
         
@@ -287,6 +317,15 @@ class NetworkCallController : NetworkSingleCallSessionController<NetworkCall, Ne
             video = try self.call?.startOutput(call.videoSession!)
         }
     }
+    
+    func changeQuality(_ info: NetworkCallInfo, _ diff: Int) {
+        call(info)?.inputContext?.qos.change(diff)
+    }
+}
+
+func changeCallQuality(_ call: NetworkCallInfo, _ diff: Int) {
+    NetworkCallController.incoming?.changeQuality(call, diff)
+    NetworkCallController.outgoing?.changeQuality(call, diff)
 }
 
 func stopCallAsync(_ info: NetworkCallInfo) {

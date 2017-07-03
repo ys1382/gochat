@@ -18,3 +18,21 @@ extension Array where Element: AnyObject {
         }
     }
 }
+
+protocol BroadcastProtocol {
+    init<T>(_ x: [T?])
+}
+
+extension BroadcastProtocol {
+    
+    static func Create<T>(_ x: [T]) -> T? {
+        if (x.count == 0) {
+            return nil
+        }
+        if (x.count == 1) {
+            return x.first
+        }
+        
+        return self.init(x) as? T
+    }
+}

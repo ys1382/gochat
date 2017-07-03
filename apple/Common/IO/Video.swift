@@ -2,40 +2,28 @@
 import AVFoundation
 import VideoToolbox
 
-enum VideoPart : Int {
-    case NetworkPacket = 8 // Time, SPS size, SPS, PPS size, PPS, Data size, Data
-}
-
-enum H264Part : Int {
-    case SPS = 64
-    case PPS = 128
-    case Data = 256
-}
-
 struct VideoFormat : Equatable {
     
     typealias Factory = () throws -> VideoFormat
-    
+
+    private(set) var format: IOFormat
     private static let kWidth = "width"
     private static let kHeight = "height"
-    
-    private(set) var data: [String: Any]
-    
-    init () {
-        data = [String: Any]()
-    }
-    
-    init(_ dimension: CMVideoDimensions) {
-        self.init()
         
+    init(_ dimension: CMVideoDimensions) {
+        format = IOFormat()
         width = UInt32(dimension.width)
         height = UInt32(dimension.height)
     }
     
-    init(_ data: [String: Any]) {
-        self.data = data
+    init(_ format: IOFormat) {
+        self.format = format
     }
     
+    init(_ format: AVCaptureDeviceFormat) {
+        self.init(format.dimensions)
+    }
+        
     public static func ==(lhs: VideoFormat, rhs: VideoFormat) -> Bool {
         return lhs.width == rhs.width && lhs.height == rhs.width
         
@@ -47,19 +35,19 @@ struct VideoFormat : Equatable {
     
     var width: UInt32 {
         get {
-            return data.keys.contains(VideoFormat.kWidth) ? data[VideoFormat.kWidth] as! UInt32 : 0
+            return format.data.keys.contains(VideoFormat.kWidth) ? format.data[VideoFormat.kWidth] as! UInt32 : 0
         }
         set {
-            data[VideoFormat.kWidth] = newValue
+            format.data[VideoFormat.kWidth] = newValue
         }
     }
     
     var height: UInt32 {
         get {
-            return data.keys.contains(VideoFormat.kHeight) ? data[VideoFormat.kHeight] as! UInt32 : 0
+            return format.data.keys.contains(VideoFormat.kHeight) ? format.data[VideoFormat.kHeight] as! UInt32 : 0
         }
         set {
-            data[VideoFormat.kHeight] = newValue
+            format.data[VideoFormat.kHeight] = newValue
         }
     }
 
@@ -94,7 +82,7 @@ class VideoSession : IOSession, VideoSessionProtocol {
 
 class VideoSessionBroadcast : IOSessionBroadcast, VideoSessionProtocol {
     
-    var x: [VideoSessionProtocol?]
+    private var x: [VideoSessionProtocol?]
     
     init(_ x: [VideoSessionProtocol?]) {
         self.x = x
@@ -120,7 +108,7 @@ class VideoSessionAsyncDispatcher : IOSessionAsyncDispatcher, VideoSessionProtoc
     }
 }
 
-func create(_ x: [VideoSessionProtocol]) -> VideoSessionProtocol? {
+func broadcast(_ x: [VideoSessionProtocol]) -> VideoSessionProtocol? {
     if (x.count == 0) {
         return nil
     }
@@ -172,5 +160,5 @@ extension VideoTime {
 
 extension VideoTime : InitProtocol {}
 extension VideoTime : SerializableProtocol {}
-typealias VideoTimeSerializer = IOTimeSerializer<AudioTime>
+typealias VideoTimeSerializer = IOTimeUpdater<AudioTime>
 

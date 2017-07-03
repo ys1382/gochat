@@ -44,10 +44,6 @@ class AV {
     let videoCaptureQueue = DispatchQueue.CreateCheckable("chat.VideoCaptureQueue")
     let avOutputQueue = DispatchQueue.CreateCheckable("chat.AVOutputQueue")
 
-    private(set) var activeInput: IOSessionProtocol?
-    private(set) var activeOutput = [String: IOSessionProtocol]()
-    private(set) var activeIOSync = [String: IOSync]()
-    
     init() {
         defaultVideoDimension = defaultVideoInputDevice?.activeFormat.dimensions
     }
@@ -55,12 +51,6 @@ class AV {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Input
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    func startInput(_ x: IOSessionProtocol?) throws {
-        activeInput?.stop()
-        activeInput = x
-        try activeInput?.start()
-    }
 
     var defaultVideoInputDevice: AVCaptureDevice? {
         return AVCaptureDevice.chatVideoDevice()
@@ -84,10 +74,11 @@ class AV {
     }
 
     private func _defaultNetworkVideoInput(_ id: IOID,
-                                    _ rotated: Bool,
-                                    _ info: inout NetworkVideoSessionInfo?,
-                                    _ session: inout AVCaptureSession.Accessor?,
-                                    _ x: inout [VideoSessionProtocol]) {
+                                           _ context: IOInputContext,
+                                           _ rotated: Bool,
+                                           _ info: inout NetworkVideoSessionInfo?,
+                                           _ session: inout AVCaptureSession.Accessor?,
+                                           _ x: inout [VideoSessionProtocol]) {
         guard let device = AVCaptureDevice.chatVideoDevice() else { return }
         guard var outFormat = defaultVideoOutputFormat else { return }
         guard let inpFormat = defaultVideoInputFormat else { return }
@@ -95,14 +86,16 @@ class AV {
         if rotated {
             outFormat.rotate()
         }
+
+        let serializer =
+            NetworkH264Serializer(
+                NetworkOutputVideo(id, context.qos, context.balancer))
         
         let sessionEncoder =
             VideoEncoderSessionH264(
                 inpFormat.dimensions,
                 outFormat,
-                VideoEncoderH264(
-                    NetworkH264Serializer(
-                        NetworkOutputVideo(id))))
+                serializer)
 
         let videoInput =
             VideoInput(
@@ -111,67 +104,91 @@ class AV {
                 inpFormat,
                 sessionEncoder)
         
+        let videoInputQoS
+            = VideoInputQoS(inpFormat,
+                            VideoSessionBroadcast([videoInput, sessionEncoder]))
+        
+        let qos =
+            IOQoSDispatcher(
+                videoCaptureQueue,
+                IOQoSBroadcast([videoInputQoS, serializer]))
+        
+        context.qos.add(qos)
         info = NetworkVideoSessionInfo(id, factory(outFormat))
         session = videoInput.sessionAccessor
         x.append(VideoSessionBroadcast([sessionEncoder, videoInput]))
     }
     
     func defaultNetworkVideoInput(_ id: IOID,
-                           _ rotated: Bool,
-                           _ info: inout NetworkVideoSessionInfo?,
-                           _ session: inout AVCaptureSession.Accessor?) -> VideoSessionProtocol? {
+                                  _ context: IOInputContext,
+                                  _ rotated: Bool,
+                                  _ info: inout NetworkVideoSessionInfo?,
+                                  _ session: inout AVCaptureSession.Accessor?) -> VideoSessionProtocol? {
         var x = [VideoSessionProtocol]()
         
-        _defaultNetworkVideoInput(id, rotated, &info, &session, &x)
-        return create(x)
+        _defaultNetworkVideoInput(id, context, rotated, &info, &session, &x)
+        return broadcast(x)
     }
     
     func defaultNetworkVideoInput(_ id: IOID,
-                           _ preview: AVCaptureVideoPreviewLayer,
-                           _ info: inout NetworkVideoSessionInfo?) -> VideoSessionProtocol? {
+                                  _ context: IOInputContext,
+                                  _ preview: AVCaptureVideoPreviewLayer,
+                                  _ info: inout NetworkVideoSessionInfo?) -> VideoSessionProtocol? {
         var x = [VideoSessionProtocol]()
         var y: AVCaptureSession.Accessor?
         
-        _defaultNetworkVideoInput(id, false, &info, &y, &x)
+        _defaultNetworkVideoInput(id, context, false, &info, &y, &x)
         
         if y != nil {
             x.append(VideoPreview(preview, y!))
         }
         
-        return create(x)
+        return broadcast(x)
     }
 
     private func _defaultNetworkAudioInput(_ id: IOID,
+                                           _ context: IOInputContext,
                                            _ x: inout [IOSessionProtocol],
                                            _ formatOut: inout AudioFormat.Factory?) {
         
         guard let format = defaultAudioInputFormat else { return }
         
+        let serializer =
+            NetworkAudioSerializer(
+                NetworkOutputAudio(id, context.qos, context.balancer))
+        
         let input =
             AudioInput(
                 format,
                 AV.defaultAudioInterval,
-                NetworkAudioSerializer(
-                    NetworkOutputAudio(id)))
+                serializer)
         
         x.append(
             IOSessionSyncDispatcher(
                 audioCaptureQueue,
                 input))
         
+        let qos =
+            IOQoSDispatcher(
+                audioCaptureQueue,
+                serializer)
+        
+        context.qos.add(qos)
         formatOut = input.format
     }
     
-    func defaultNetworkAudioInput(_ id: IOID, _ info: inout NetworkAudioSessionInfo?) -> IOSessionProtocol? {
+    func defaultNetworkAudioInput(_ id: IOID,
+                                  _ context: IOInputContext,
+                                  _ info: inout NetworkAudioSessionInfo?) -> IOSessionProtocol? {
         var x = [IOSessionProtocol]()
         var format: AudioFormat.Factory?
         
-        _defaultNetworkAudioInput(id, &x, &format)
+        _defaultNetworkAudioInput(id, context, &x, &format)
         
         if format != nil {
             info = NetworkAudioSessionInfo(id, format!)
         }
-        return create(x)
+        return broadcast(x)
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -180,134 +197,72 @@ class AV {
 
     var defaultVideoOutputFormat: VideoFormat? {
         get {
-            guard let dimensions = defaultVideoInputFormat?.dimensions else { return nil }
-            return VideoFormat(dimensions)
+            guard let format = defaultVideoInputFormat else { return nil }
+            return VideoFormat(format)
         }
     }
 
-    func defaultIOSync(_ gid: String) -> IOSync {
-        let result = activeIOSync[gid]
-        
-        if result != nil {
-            return result!
-        }
-        
-        activeIOSync[gid] = IOSync()
-        
-        return activeIOSync[gid]!
-    }
-
-    private func cleanupSync() {
-        _ = activeIOSync.keys.map({ self.cleanupSync($0) })
-    }
-
-    private func cleanupSync(_ gid: String) {
-        guard let sync = activeIOSync[gid] else { return }
-        guard sync.active == false else { return }
-        
-        activeIOSync.removeValue(forKey: gid)
-    }
-
-    func startOutput(_ id: IOID, _ kind: IOKind, _ session: IOSessionProtocol) throws {
-        try session.start()
-        activeOutput[id.from + String(describing: kind)] = session
-    }
-    
-    func stopOutput(_ id: IOID, _ kind: IOKind) {
-        activeOutput[id.from + String(describing: kind)]?.stop()
-        activeOutput.removeValue(forKey: id.from)
-        cleanupSync(id.gid)
-    }
-    
-    func stopAllOutput() {
-        dispatch_sync_av_output {
-            _ = activeOutput.map({ $0.value.stop() })
-            activeOutput.removeAll()
-            cleanupSync()
-        }
-    }
-    
     func defaultNetworkVideoOutput(_ id: IOID,
+                                   _ context: IOOutputContext,
                                    _ output: VideoOutputProtocol,
-                                   _ session: inout IOSessionProtocol?) -> IODataProtocol {
+                                   _ session: IOSessionProtocol? = nil) -> IOOutputContext {
         
         let time =
-            VideoTimeSerializer(IOPart.Timestamp.rawValue)
+            VideoTimeSerializer(NetworkDeserializer.timeIndex)
         
-        let sync =
-            defaultIOSync(id.gid)
-        
-        let syncBus =
-            IOSyncBus(
-                id.sid,
-                IOKind.Video,
-                sync)
-        
-        let result =
-            IODataSession(
-                IODataAsyncDispatcher(
-                    avOutputQueue,
-                    NetworkH264Deserializer(
-                        IOTimebaseReset(
-                            sync,
-                            time,
-                            syncBus))))
-        
-        let syncedOutput =
-            IOSyncedDataSession(
-                VideoDecoderH264Data(
+        let balancedOutput =
+            IOBalancedDataSession(
+                NetworkH264Deserializer(
 //                    VideoDecoderH264(
                     output))
-        
-        sync.add(
-            IOKind.Video,
-            time,
-            IOSyncedDataDispatcher(
-                avOutputQueue,
-                syncedOutput))
 
-        session = create([result, syncBus, syncedOutput, session])
+        let sheduler =
+            IOSheduler(
+                IOKind.Video,
+                balancedOutput)
         
-        return result
+        let balancer =
+            IODataAdapter4Balancer(
+                time,
+                context.balancer!,
+                sheduler)
+
+        let resultSession =
+            IODataSession(
+                IOTimebaseReset(
+                    context.timebase!,
+                    time,
+                    balancer))
+        
+        let result =
+            IODataAsyncDispatcher(
+                avOutputQueue,
+                resultSession)
+        
+        return IOOutputContext(id,
+                               broadcast([sheduler, resultSession, balancedOutput, session])!,
+                               result,
+                               context)
     }
 
     func defaultNetworkVideoOutput(_ id: IOID,
+                                   _ context: IOOutputContext,
                                    _ layer: AVSampleBufferDisplayLayer,
-                                   _ session: inout IOSessionProtocol?) -> IODataProtocol {
+                                   _ session: IOSessionProtocol? = nil) -> IOOutputContext {
         let output = VideoOutput(layer)
         
-        session = output
-        
         return AV.shared.defaultNetworkVideoOutput(id,
+                                                   context,
                                                    output,
-                                                   &session)
-    }
-    
-    func startDefaultNetworkVideoOutput(_ id: IOID,
-                                        _ output: VideoOutputProtocol,
-                                        _ session_: IOSessionProtocol?) throws -> IODataProtocol {
-        var session = session_
-        let result = AV.shared.defaultNetworkVideoOutput(id, output, &session)
-        
-        if session != nil {
-            try startOutput(id, IOKind.Video, session!)
-        }
-        
-        return result
-    }
-    
-    func startDefaultNetworkVideoOutput(_ id: IOID,
-                                        _ layer: AVSampleBufferDisplayLayer) throws -> IODataProtocol {
-        return try AV.shared.startDefaultNetworkVideoOutput(id,
-                                                            VideoOutput(layer),
-                                                            nil)
+                                                   output)
     }
     
     func defaultNetworkAudioOutput(_ id: IOID,
                                    _ format: AudioFormat,
-                                   _ session: inout IOSessionProtocol?) -> IODataProtocol {
+                                   _ context: IOOutputContext,
+                                   _ session: IOSessionProtocol? = nil) -> IOOutputContext {
         let time =
-            AudioTimeSerializer(AudioPart.NetworkPacket.rawValue, MemoryLayout<UInt32>.size)
+            AudioTimeUpdater(NetworkDeserializer.timeIndex)
         
         let output =
             AudioOutput(
@@ -320,39 +275,39 @@ class AV {
                 output.format,
                 output)
         
-        let sync =
-            defaultIOSync(
-                id.gid)
-        
-        let syncBus =
-            IOSyncBus(
-                id.sid,
-                IOKind.Audio,
-                sync)
-        
-        let result =
-            IODataSession(
-                IODataAsyncDispatcher(
-                    avOutputQueue,
-                    IOTimebaseReset(
-                        sync,
-                        time,
-                        syncBus)))
-        
-        let syncedOutput =
-            IOSyncedDataSession(
-                IOSyncSubdataSkip(
+        let balancedOutput =
+            IOBalancedDataSession(
+                IOBalanceSubdataSkip(
                     NetworkAudioDeserializer(
                         decoder)))
+
+        let sheduler =
+            IOSheduler(
+                IOKind.Audio,
+                balancedOutput)
         
-        sync.add(
-            IOKind.Audio,
-            time,
-            syncedOutput)
+        let balancer =
+            IODataAdapter4Balancer(
+                time,
+                context.balancer!,
+                sheduler)
         
-        session = create([result, output, syncedOutput, decoder, syncBus])
+        let resultSession =
+            IODataSession(
+                IOTimebaseReset(
+                    context.timebase!,
+                    time,
+                    balancer))
         
-        return result
+        let result =
+                IODataAsyncDispatcher(
+                    avOutputQueue,
+                    resultSession)
+        
+        return IOOutputContext(id,
+                               broadcast([sheduler, resultSession, output, balancedOutput, decoder, session])!,
+                               result,
+                               context)
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -367,8 +322,8 @@ class AV {
         return format
     }
 
-    func startAudioUncompressedPlayback() throws {
-        guard let format = defaultAudioInputUncompressedFormat else { return }
+    func audioUncompressedPlayback() throws -> IOSessionProtocol? {
+        guard let format = defaultAudioInputUncompressedFormat else { return nil }
         
         let input =
             AudioInput(
@@ -385,13 +340,11 @@ class AV {
                 NetworkAudioDeserializer(
                     output))
         
-        try audioCaptureQueue.sync {
-            try AV.shared.startInput(create([output, input]))
-        }
+        return broadcast([output, input])
     }
 
-    func startAudioCompressedPlayback() throws {
-        guard let format = defaultAudioInputFormat else { return }
+    func audioCompressedPlayback() throws -> IOSessionProtocol? {
+        guard let format = defaultAudioInputFormat else { return nil }
 
         let input =
             AudioInput(
@@ -414,8 +367,6 @@ class AV {
                 NetworkAudioDeserializer(
                     decoder))
         
-        try audioCaptureQueue.sync {
-            try AV.shared.startInput(create([input, output, decoder]))
-        }
+        return broadcast([input, output, decoder])
     }
 }

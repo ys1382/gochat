@@ -29,24 +29,30 @@ class NetworkAudioSessionInfo : NetworkIOSessionInfo {
 // NetworkAudioSerializer
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class NetworkAudioSerializer : AudioOutputProtocol {
+class NetworkAudioSerializer : AudioOutputProtocol, IOQoSProtocol {
  
     private let output: IODataProtocol?
-    
+    private var qid: String = ""
+
     init(_ output: IODataProtocol?) {
         self.output = output
     }
     
+    func change(_ toQID: String, _ diff: Int) {
+        self.qid = toQID
+    }
+
     func process(_ packet: AudioData) {
     
         let s = PacketSerializer()
         var t = AudioTime(packet.time)
         
         s.push(&t, MemoryLayout<AudioTime>.size)
+        s.push(string: qid)
         s.push(packet.data.bytes, packet.data.length)
         s.push(array: packet.desc)
         
-        output?.process([AudioPart.NetworkPacket.rawValue: s.data])
+        output?.process(s.data)
     }
 }
 
@@ -62,14 +68,15 @@ class NetworkAudioDeserializer : IODataProtocol {
         self.output = output
     }
     
-    func process(_ packets: [Int: NSData]) {
+    func process(_ data: NSData) {
         
-        let deserializer = PacketDeserializer(packets[AudioPart.NetworkPacket.rawValue]!)
+        let deserializer = PacketDeserializer(data)
         var time = AudioTime()
         var data: NSData?
         var desc: [AudioStreamPacketDescription]?
         
         deserializer.pop(&time)
+        _ = deserializer.popSkip()
         deserializer.pop(data: &data)
         deserializer.pop(array: &desc)
 
@@ -84,14 +91,14 @@ class NetworkAudioDeserializer : IODataProtocol {
 extension AudioFormat {
     
     func toNetwork() throws -> NSData {
-        return try JSONSerialization.data(withJSONObject: data,
+        return try JSONSerialization.data(withJSONObject: format.data,
                                           options: JSONSerialization.defaultWritingOptions) as NSData
     }
     
     static func fromNetwork(_ data: NSData) throws -> AudioFormat {
         let json = try JSONSerialization.jsonObject(with: data as Data,
                                                     options: JSONSerialization.ReadingOptions()) as! [String: Any]
-        return AudioFormat(json)
+        return AudioFormat(IOFormat(json))
     }
 }
 
@@ -107,16 +114,12 @@ func audioFormat(_ src: @escaping NSData.Factory) -> AudioFormat.Factory {
 // NetworkOutputAudio
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class NetworkOutputAudio : IODataProtocol {
+class NetworkOutputAudio : NetworkOutput {
     
-    let id: IOID
-    
-    init(_ id: IOID) {
-        self.id = id
-    }
-    
-    func process(_ data: [Int: NSData]) {
-        Backend.shared.sendAudio(id, data[AudioPart.NetworkPacket.rawValue]!)
+    override func process(_ dataID: UUID, _ data: NSData) {
+        Backend.shared.sendAudio(id, data) {
+            self.processed(dataID)
+        }
     }
 }
 

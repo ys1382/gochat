@@ -74,6 +74,10 @@ message AVSession {
     bytes data = 4;
 }
 
+message AVQuality {
+    int32 diff = 1;
+}
+
 message Haber {
 
     uint32 version = 1;
@@ -91,23 +95,25 @@ message Haber {
         AV = 5;
         AudioSession = 6;
         VideoSession = 7;
-	CALL_PROPOSAL = 8;
-	CALL_CANCEL = 9;
-	CALL_ACCEPT = 10;
-	CALL_DECLINE = 11;
-	CALL_START_OUTGOING = 12;
-	CALL_START_INCOMING = 13;
-	CALL_STOP = 14;
+        CALL_PROPOSAL = 8;
+        CALL_CANCEL = 9;
+        CALL_ACCEPT = 10;
+        CALL_DECLINE = 11;
+        CALL_START_OUTGOING = 12;
+        CALL_START_INCOMING = 13;
+        CALL_QUALITY = 14;
+        CALL_STOP = 15;
     }
-    Which which = 13;
+    Which which = 15;
 
     // One of the following will be filled in
     Login login = 101;
     repeated Contact contacts = 102; // for roster, presence, and invite
     Text text = 104;
-    Av av = 105;
-    AVSession audioSession = 106;
-    AVSession videoSession = 107;
-    File file = 108;
-    Call call = 109;
+    File file = 105;
+    Call call = 106;
+    Av av = 107;
+    AVSession audioSession = 108;
+    AVSession videoSession = 109;
+    AVQuality avQuality = 110;
 }

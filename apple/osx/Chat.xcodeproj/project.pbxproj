@@ -19,7 +19,7 @@
 		82203E711EE6F0E2005AEC49 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82203E6F1EE6F0E2005AEC49 /* Fabric.framework */; };
 		82203E721EE6F0E2005AEC49 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82203E701EE6F0E2005AEC49 /* Crashlytics.framework */; };
 		822775341EF140640083D9DB /* AudioToolbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 822775331EF140640083D9DB /* AudioToolbox.swift */; };
-		8275DDA41EE66E9700BF422B /* IOSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8275DDA31EE66E9700BF422B /* IOSync.swift */; };
+		82863BEA1F04F94B000D0D05 /* IOBalancer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82863BE91F04F94B000D0D05 /* IOBalancer.swift */; };
 		828E30291EEC176600597EB8 /* Application.swift in Sources */ = {isa = PBXBuildFile; fileRef = 828E30281EEC176600597EB8 /* Application.swift */; };
 		829A0E8D1EDC1DB800FEC353 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E7B1EDC1DB800FEC353 /* Backend.swift */; };
 		829A0E8E1EDC1DB800FEC353 /* AudioInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0E7D1EDC1DB800FEC353 /* AudioInput.swift */; };
@@ -44,6 +44,7 @@
 		829A0EB91EDD54C800FEC353 /* Video.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0EB71EDD54C800FEC353 /* Video.swift */; };
 		829A0EBB1EDD6EED00FEC353 /* Foundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0EBA1EDD6EED00FEC353 /* Foundation.swift */; };
 		829A0EBF1EDD784E00FEC353 /* AV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A0EBE1EDD784E00FEC353 /* AV.swift */; };
+		82AFC6BD1F0A8B6200FF9297 /* NetworkBalancer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82AFC6BC1F0A8B6200FF9297 /* NetworkBalancer.swift */; };
 		82B1BB461EFA59E600A8B420 /* OutgoingCallViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82B1BB451EFA59E600A8B420 /* OutgoingCallViewController.swift */; };
 		82B1BB481EFA954D00A8B420 /* NetworkCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82B1BB471EFA954D00A8B420 /* NetworkCall.swift */; };
 		82B1BB4C1EFA962000A8B420 /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82B1BB4B1EFA962000A8B420 /* Types.swift */; };
@@ -73,7 +74,7 @@
 		82203E6F1EE6F0E2005AEC49 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		82203E701EE6F0E2005AEC49 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		822775331EF140640083D9DB /* AudioToolbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioToolbox.swift; sourceTree = "<group>"; };
-		8275DDA31EE66E9700BF422B /* IOSync.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IOSync.swift; sourceTree = "<group>"; };
+		82863BE91F04F94B000D0D05 /* IOBalancer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IOBalancer.swift; sourceTree = "<group>"; };
 		828E30281EEC176600597EB8 /* Application.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Application.swift; path = ../Common/Application.swift; sourceTree = "<group>"; };
 		829A0E7B1EDC1DB800FEC353 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Backend.swift; path = ../Common/Backend.swift; sourceTree = "<group>"; };
 		829A0E7D1EDC1DB800FEC353 /* AudioInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioInput.swift; sourceTree = "<group>"; };
@@ -98,6 +99,7 @@
 		829A0EB71EDD54C800FEC353 /* Video.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Video.swift; sourceTree = "<group>"; };
 		829A0EBA1EDD6EED00FEC353 /* Foundation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Foundation.swift; sourceTree = "<group>"; };
 		829A0EBE1EDD784E00FEC353 /* AV.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AV.swift; path = ../Common/AV.swift; sourceTree = "<group>"; };
+		82AFC6BC1F0A8B6200FF9297 /* NetworkBalancer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkBalancer.swift; sourceTree = "<group>"; };
 		82B1BB451EFA59E600A8B420 /* OutgoingCallViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutgoingCallViewController.swift; sourceTree = "<group>"; };
 		82B1BB471EFA954D00A8B420 /* NetworkCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkCall.swift; sourceTree = "<group>"; };
 		82B1BB4B1EFA962000A8B420 /* Types.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Types.swift; path = ../Common/Types.swift; sourceTree = "<group>"; };
@@ -197,7 +199,7 @@
 			isa = PBXGroup;
 			children = (
 				829A0E7F1EDC1DB800FEC353 /* IO.swift */,
-				8275DDA31EE66E9700BF422B /* IOSync.swift */,
+				82863BE91F04F94B000D0D05 /* IOBalancer.swift */,
 				829A0EB61EDD54C800FEC353 /* Audio.swift */,
 				829A0E7D1EDC1DB800FEC353 /* AudioInput.swift */,
 				829A0E7E1EDC1DB800FEC353 /* AudioOutput.swift */,
@@ -219,6 +221,7 @@
 				82B1BB471EFA954D00A8B420 /* NetworkCall.swift */,
 				829A0E861EDC1DB800FEC353 /* NetworkAudio.swift */,
 				829A0E871EDC1DB800FEC353 /* NetworkH264.swift */,
+				82AFC6BC1F0A8B6200FF9297 /* NetworkBalancer.swift */,
 			);
 			name = Network;
 			path = ../Common/Network;
@@ -398,7 +401,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				829A0E951EDC1DB800FEC353 /* Network.swift in Sources */,
-				8275DDA41EE66E9700BF422B /* IOSync.swift in Sources */,
 				829A0E9A1EDC1DB800FEC353 /* Log.swift in Sources */,
 				82B1BB4C1EFA962000A8B420 /* Types.swift in Sources */,
 				829A0EBF1EDD784E00FEC353 /* AV.swift in Sources */,
@@ -412,9 +414,11 @@
 				829A0EB91EDD54C800FEC353 /* Video.swift in Sources */,
 				829A0E971EDC1DB800FEC353 /* NetworkH264.swift in Sources */,
 				829A0E941EDC1DB800FEC353 /* Model.swift in Sources */,
+				82863BEA1F04F94B000D0D05 /* IOBalancer.swift in Sources */,
 				1ADE89E51EA1CE0E00E41212 /* AppDelegate.swift in Sources */,
 				829A0EA51EDC209A00FEC353 /* ContactsViewController.swift in Sources */,
 				821F4CC51EDE6E6500FA923D /* ChatViewController.swift in Sources */,
+				82AFC6BD1F0A8B6200FF9297 /* NetworkBalancer.swift in Sources */,
 				822775341EF140640083D9DB /* AudioToolbox.swift in Sources */,
 				829A0E901EDC1DB800FEC353 /* IO.swift in Sources */,
 				829A0E8E1EDC1DB800FEC353 /* AudioInput.swift in Sources */,
