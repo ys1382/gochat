@@ -1,17 +1,38 @@
 import UIKit
+import AVFoundation
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
+class AppDelegate: Application, UIApplicationDelegate, UISplitViewControllerDelegate {
 
     var window: UIWindow?
 
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+
+        // enable for Video capture
+        
+        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+
+        // UI
+        
         let splitViewController = self.window!.rootViewController as! UISplitViewController
         let last = splitViewController.viewControllers.count-1
         let navigationController = splitViewController.viewControllers[last] as! UINavigationController
         navigationController.topViewController!.navigationItem.leftBarButtonItem = splitViewController.displayModeButtonItem
         splitViewController.delegate = self
+        
+        // Audio
+        
+        do {
+            try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayAndRecord)
+            try AVAudioSession.sharedInstance().setActive(true)
+        }
+        catch {
+            logIOError(error)
+        }
+
+        // done
+
         return true
     }
 

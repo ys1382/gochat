@@ -20,6 +20,14 @@ message File {
     bytes data = 2;
 }
 
+message Call {
+    string key = 1;
+    string to = 2;
+    string from = 3;
+    bool audio = 4;
+    bool video = 5;
+}
+
 message Time {
     int64 value = 1;
     int32 scale = 2;
@@ -47,17 +55,27 @@ message FormatDescription {
 }
 
 message VideoSample {
-    Timestamp timestamp = 1;
-    Image image = 2;
-    FormatDescription format = 3;
+    Image image = 1;
 }
 
 message AudioSample {
+    Image image = 1;
 }
 
 message Av {
     VideoSample video = 1;
     AudioSample audio = 2;
+}
+
+message AVSession {
+    string sid = 1;
+    string gid = 2;
+    bool active = 3;
+    bytes data = 4;
+}
+
+message AVQuality {
+    int32 diff = 1;
 }
 
 message Haber {
@@ -75,13 +93,27 @@ message Haber {
         TEXT = 3;
         FILE = 4;
         AV = 5;
+        AudioSession = 6;
+        VideoSession = 7;
+        CALL_PROPOSAL = 8;
+        CALL_CANCEL = 9;
+        CALL_ACCEPT = 10;
+        CALL_DECLINE = 11;
+        CALL_START_OUTGOING = 12;
+        CALL_START_INCOMING = 13;
+        CALL_QUALITY = 14;
+        CALL_STOP = 15;
     }
-    Which which = 5;
+    Which which = 15;
 
     // One of the following will be filled in
     Login login = 101;
     repeated Contact contacts = 102; // for roster, presence, and invite
     Text text = 104;
-    Av av = 105;
-    File file = 106;
+    File file = 105;
+    Call call = 106;
+    Av av = 107;
+    AVSession audioSession = 108;
+    AVSession videoSession = 109;
+    AVQuality avQuality = 110;
 }

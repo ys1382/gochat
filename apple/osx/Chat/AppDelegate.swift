@@ -1,14 +1,13 @@
 import Cocoa
 import AVFoundation
+import Fabric
+import Crashlytics
 
 @NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: Application, NSApplicationDelegate {
 
     static var shared: AppDelegate!
     static let usernameKey = "usernamekey"
-
-//    let video = Video()
-//    let audio = Audio()
 
     func login(username: String) {
         Backend.shared.connect(withUsername: username)
@@ -18,24 +17,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         super.init()
         
         AppDelegate.shared = self
-//        initIo()
     }
 
-//    func initIo() {
-//        let captureSession = AVCaptureSession()
-//        let capture = IOCapture(captureSession)
-
-//        captureSession.beginConfiguration()
-//        captureSession.sessionPreset = AVCaptureSessionPresetLow
-//        video.setup()//session: captureSession)
-//        captureSession.commitConfiguration()
-
-//        IOChain.shared.register(video)
-//        IOChain.shared.register(capture)
-//        IOChain.shared.register(audio)
-//    }
-
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        
+        // username
+            
         if let username = UserDefaults.standard.string(forKey: AppDelegate.usernameKey) {
             self.login(username: username)
         } else {
