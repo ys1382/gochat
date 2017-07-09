@@ -37,6 +37,16 @@ class Backend {
         network.connect()
     }
 
+    func sendPublicKey(_ localPublicKey: Data, to: String) {
+        let haberBuilder = Haber.Builder().setPayload(localPublicKey).setWhich(.publicKey).setTo(to)
+        send(haberBuilder)
+    }
+
+    func sendData(_ body: Data, to: String) {
+        let haberBuilder = Haber.Builder().setPayload(body).setWhich(.payload).setTo(to)
+        send(haberBuilder)
+    }
+
     func sendText(_ body: String, to: String) {
         guard let update = try? Text.Builder().setBody(body).build() else {
             print("could not create Text")
@@ -87,6 +97,10 @@ class Backend {
         }
     }
 
+    private func didReceivePayload(_ payload: Data) {
+        
+    }
+
     func register(username: String, password: String) {
         print("register not implemented")
     }
@@ -118,6 +132,7 @@ class Backend {
                 case .text:     Model.shared.didReceiveText(haber, data: data)
                 case .presence: Model.shared.didReceivePresence(haber)
                 case .store:    try didReceiveStore(haber)
+                case .payload:  didReceivePayload(haber.payload)
                 default:        print("did not handle \(haber.which)")
             }
         } catch {
@@ -135,7 +150,7 @@ class Backend {
 
         LocalStorage.store(username, forKey: .username)
         LocalStorage.store(password, forKey: .password)
-        crypto = Crypto(password: password)
+        crypto = Crypto(username: username, password: password)
 
         EventBus.post(.authenticated)
     }

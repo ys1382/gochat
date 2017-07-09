@@ -18,9 +18,9 @@ final class ThemisTransport: TSSessionTransportInterface {
 
 }
 
-class Peer {
+class Peer3 {
 
-    private static var peers = [String:Peer]()
+    private static var peers = [String:Peer3]()
 
     var transport = ThemisTransport()
     var session: TSSession?
@@ -48,13 +48,13 @@ class Peer {
         self.clientPrivateKey = keyGeneratorEC.privateKey as Data
         self.clientPublicKey = keyGeneratorEC.publicKey as Data
 
-        Peer.peers[clientId] = self
+        Peer3.peers[clientId] = self
     }
 
     func connect() {
 
-        Peer.peers[peerId]!.serverPublicKey = clientPublicKey
-        self.serverPublicKey = Peer.peers[peerId]!.clientPublicKey
+        Peer3.peers[peerId]!.serverPublicKey = clientPublicKey
+        self.serverPublicKey = Peer3.peers[peerId]!.clientPublicKey
 
         do {
             guard let message = try session?.connectRequest() else {
@@ -68,7 +68,7 @@ class Peer {
     }
 
     func sendMessage(_ message: Data) {
-        Peer.peers[peerId]!.didReceive(message)
+        Peer3.peers[peerId]!.didReceive(message)
     }
 
     func didReceive(_ data: Data) {
@@ -111,8 +111,8 @@ class Peer {
 
 class ThemisExample {
     static func go() {
-        let alice = Peer(clientId: "Alice", peerId: "Carol")
-        let _ = Peer(clientId: "Carol", peerId: "Alice")
+        let alice = Peer3(clientId: "Alice", peerId: "Carol")
+        let _ = Peer3(clientId: "Carol", peerId: "Alice")
         alice.connect()
     }
 }

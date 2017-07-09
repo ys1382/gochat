@@ -3,7 +3,7 @@ import Cocoa
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-    var c = Crypto(password: "password")
+    var c = Crypto(username: "username", password: "password")
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
 

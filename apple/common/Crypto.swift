@@ -2,112 +2,108 @@ import Foundation
 
 class Crypto {
 
-    private var cellSeal: TSCellSeal? = nil
-    private var transport: Transport? = nil
-    private var clientPrivateKey: Data? = nil
-    private var serverPublicKey: Data? = nil
-    private var session: TSSession? = nil
-    private let kClientIdString = "kClientIdString"
+    private class Peer {
+        var id: Data
+        var session: TSSession
+        var remotePublicKey: Data?
 
-    init(password: String) {
-        guard let key = password.data(using: String.Encoding.utf8) else {
-            print("Error occurred while initialising object cellSeal", #function)
-            return
+        init(peerId: Data, localId: Data, localPrivateKey: Data, transport: Transport) {
+            self.id = peerId
+            self.session = TSSession(userId: localId, privateKey: localPrivateKey, callbacks: transport)
         }
 
-        let serverPublicKeyString: String = "VUVDMgAAAC2ELbj5Aue5xjiJWW3P2KNrBX+HkaeJAb+Z4MrK0cWZlAfpBUql"
-        let clientPrivateKeyString: String = "UkVDMgAAAC13PCVZAKOczZXUpvkhsC+xvwWnv3CLmlG0Wzy8ZBMnT+2yx/dg"
-        self.serverPublicKey = Data(base64Encoded: serverPublicKeyString, options: .ignoreUnknownCharacters)!
-        self.clientPrivateKey = Data(base64Encoded: clientPrivateKeyString, options: .ignoreUnknownCharacters)!
+        init(peerId: String, localId: String, localPrivateKey: Data, transport: Transport) {
+            self.id = peerId.data(using: .utf8)!
+            self.session = TSSession(userId: localId.data(using: .utf8), privateKey: localPrivateKey, callbacks: transport)
+        }
+    }
 
-        self.transport = Transport(otherPublickKey: serverPublicKey!)
-        self.cellSeal = TSCellSeal(key: key)
-        self.initialiseSecureSession()
+    private class Transport: TSSessionTransportInterface {
+        private var peers = [Data:Peer]()
+
+        func contains(peerId: String) -> Bool {
+            if let peerIdData = peerId.data(using: .utf8), contains(peerIdData: peerIdData) {
+                return true
+            }
+            return false
+        }
+
+        func contains(peerIdData: Data) -> Bool {
+            return peers[peerIdData] != nil
+        }
+
+        func getPeerFor(_ peerId: String) -> Peer? {
+            if let peerIdData = peerId.data(using: .utf8) {
+                return peers[peerIdData]
+            }
+            return nil
+        }
+
+        func addPeer(_ peer: Peer) {
+            peers[peer.id] = peer
+        }
+
+        override func publicKey(for binaryId: Data!) throws -> Data {
+            return peers[binaryId]?.remotePublicKey ?? Data()
+        }
+    }
+
+    private let transport: Transport
+    private let cellSeal: TSCellSeal
+    private let localId: Data
+    private let localPublicKey: Data
+    private let localPrivateKey: Data
+
+    init(username: String, password: String) {
+        localId = username.data(using: .utf8)!
+
+        let key = password.data(using: .utf8)!
+        cellSeal = TSCellSeal(key: key)
+
+        let keyGeneratorEC: TSKeyGen = TSKeyGen(algorithm: .EC)!
+        localPrivateKey = keyGeneratorEC.privateKey as Data
+        localPublicKey = keyGeneratorEC.publicKey as Data
+
+        transport = Transport()
     }
 
     func keyDerivationEncrypt(data: Data) -> Data? {
         do {
-            return try cellSeal?.wrap(data, context: nil)
+            return try cellSeal.wrap(data, context: nil)
         } catch let error as NSError {
-            print("Error occurred while encrypting \(error)", #function)
+            print(error.localizedDescription)
             return nil
         }
     }
 
     func keyDerivationDecrypt(ciphertext: Data) -> Data? {
         do {
-            return try cellSeal?.unwrapData(ciphertext, context: nil)
+            return try cellSeal.unwrapData(ciphertext, context: nil)
         } catch let error as NSError {
             print("Error occurred while decrypting \(error)", #function)
             return nil
         }
     }
 
-    func generateKeys() {
-        guard let keyGeneratorEC = TSKeyGen(algorithm: .EC) else {
-            print("Error occurred while initialising object keyGeneratorEC", #function)
+    func sendPublicKey(to peerId: String) {
+        if transport.contains(peerId: peerId) {
             return
         }
-        self.clientPrivateKey = keyGeneratorEC.privateKey! as Data
-//        self.clientPublicKey = keyGeneratorEC.publicKey
-    }
-    func initialiseSecureSession() {
-        let clientId = kClientIdString.data(using: String.Encoding.utf8)
-        self.session = TSSession(userId: clientId, privateKey: self.clientPrivateKey!, callbacks: self.transport)
-
-        var error: NSError?
-        session?.connect(&error)
-
-//        do {
-//            let connectRequest = try session?.connectRequest()
-//        } catch let error as NSError {
-//            print("Error occurred while connecting to session \(error)", #function)
-//        }
+        let peer = Peer(peerId: peerId, localId: peerId, localPrivateKey: localPrivateKey, transport: transport)
+        transport.addPeer(peer)
+        Backend.shared.sendPublicKey(localPublicKey, to: peerId)
     }
 
-    func sendAndReceiveData(message: String) {
-        do {
-            let encryptedMessage = try self.session?.wrap(message.data(using: String.Encoding.utf8))
-
-        // ...
-
-            let decryptedMessage = try self.session!.unwrapData(encryptedMessage) as NSData
-            let decryptedString = String(data: decryptedMessage as Data, encoding: String.Encoding.utf8)
-            print("decryptedString: " + decryptedString!)
-
-        } catch let error as NSError {
-            print("Error occurred while decrypting message \(error)", #function)
-            return
+    func didReceivePublicKey(_ remotePublicKey: Data, from peerId: String) {
+        if let peer = transport.getPeerFor(peerId) { // then we are the initiator
+            do {
+                let request = try peer.session.connectRequest()
+                Backend.shared.sendData(request, to: peerId)
+            } catch {
+                print(error.localizedDescription)
+            }
+        } else { // we are not the initiator
+            sendPublicKey(to: peerId)
         }
-    }
-}
-
-class Transport: TSSessionTransportInterface {
-
-    var peerPublicKey: Data
-    init(otherPublickKey: Data) {
-        self.peerPublicKey = otherPublickKey
-    }
-
-    override func send(_ data: Data!, error: NSErrorPointer) {
-        print("send")
-    }
-
-    override func receiveData() throws -> Data {
-        print("recv")
-        return Data()
-    }
-
-    override func publicKey(for binaryId: Data!) throws -> Data {
-        let error: NSError = NSError(domain: "com.example", code: -1, userInfo: nil)
-        let stringFromData =  String(data: binaryId, encoding: .utf8)
-        if stringFromData == nil {
-            throw error
-        }
-
-        if stringFromData == "peerId" {
-            return self.peerPublicKey
-        }
-        return Data()
     }
 }

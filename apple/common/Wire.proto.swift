@@ -1703,6 +1703,7 @@ final public class Haber : GeneratedMessage {
         fieldCheck = fieldCheck && (lhs.hasStore == rhs.hasStore) && (!lhs.hasStore || lhs.store == rhs.store)
         fieldCheck = fieldCheck && (lhs.hasLoad == rhs.hasLoad) && (!lhs.hasLoad || lhs.load == rhs.load)
         fieldCheck = fieldCheck && (lhs.raw == rhs.raw)
+        fieldCheck = fieldCheck && (lhs.hasPayload == rhs.hasPayload) && (!lhs.hasPayload || lhs.payload == rhs.payload)
         fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
         return fieldCheck
     }
@@ -1721,6 +1722,8 @@ final public class Haber : GeneratedMessage {
             case av = 5
             case store = 6
             case load = 7
+            case payload = 8
+            case publicKey = 9
             public func toString() -> String {
                 switch self {
                 case .login: return "LOGIN"
@@ -1731,6 +1734,8 @@ final public class Haber : GeneratedMessage {
                 case .av: return "AV"
                 case .store: return "STORE"
                 case .load: return "LOAD"
+                case .payload: return "PAYLOAD"
+                case .publicKey: return "PUBLIC_KEY"
                 }
             }
             public static func fromString(_ str:String) throws -> Haber.Which {
@@ -1743,6 +1748,8 @@ final public class Haber : GeneratedMessage {
                 case "AV":    return .av
                 case "STORE":    return .store
                 case "LOAD":    return .load
+                case "PAYLOAD":    return .payload
+                case "PUBLIC_KEY":    return .publicKey
                 default: throw ProtocolBuffersError.invalidProtocolBuffer("Conversion failed.")
                 }
             }
@@ -1758,6 +1765,8 @@ final public class Haber : GeneratedMessage {
                 case .av: return ".av"
                 case .store: return ".store"
                 case .load: return ".load"
+                case .payload: return ".payload"
+                case .publicKey: return ".publicKey"
                 }
             }
             public var hashValue:Int {
@@ -1798,6 +1807,9 @@ final public class Haber : GeneratedMessage {
     public fileprivate(set) var load:Load!
     public fileprivate(set) var hasLoad:Bool = false
     public fileprivate(set) var raw:Array<Data> = Array<Data>()
+    public fileprivate(set) var payload:Data! = nil
+    public fileprivate(set) var hasPayload:Bool = false
+
     required public init() {
         super.init()
     }
@@ -1845,6 +1857,9 @@ final public class Haber : GeneratedMessage {
             for oneValueraw in raw {
                 try codedOutputStream.writeData(fieldNumber: 109, value:oneValueraw)
             }
+        }
+        if hasPayload {
+            try codedOutputStream.writeData(fieldNumber: 110, value:payload)
         }
         try unknownFields.writeTo(codedOutputStream: codedOutputStream)
     }
@@ -1909,6 +1924,9 @@ final public class Haber : GeneratedMessage {
         }
         serialize_size += dataSizeRaw
         serialize_size += 2 * Int32(raw.count)
+        if hasPayload {
+            serialize_size += payload.computeDataSize(fieldNumber: 110)
+        }
         serialize_size += unknownFields.serializedSize()
         memoizedSerializedSize = serialize_size
         return serialize_size
@@ -1984,6 +2002,9 @@ final public class Haber : GeneratedMessage {
                 jsonArrayRaw.append(oneValueRaw.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0)))
             }
             jsonMap["raw"] = jsonArrayRaw
+        }
+        if hasPayload {
+            jsonMap["payload"] = payload.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
         }
         return jsonMap
     }
@@ -2064,6 +2085,9 @@ final public class Haber : GeneratedMessage {
             output += "\(indent) raw[\(rawElementIndex)]: \(oneValueRaw)\n"
             rawElementIndex += 1
         }
+        if hasPayload {
+            output += "\(indent) payload: \(payload) \n"
+        }
         output += unknownFields.getDescription(indent: indent)
         return output
     }
@@ -2120,6 +2144,9 @@ final public class Haber : GeneratedMessage {
             }
             for oneValueRaw in raw {
                 hashCode = (hashCode &* 31) &+ oneValueRaw.hashValue
+            }
+            if hasPayload {
+                hashCode = (hashCode &* 31) &+ payload.hashValue
             }
             hashCode = (hashCode &* 31) &+  unknownFields.hashValue
             return hashCode
@@ -2633,6 +2660,31 @@ final public class Haber : GeneratedMessage {
             builderResult.raw.removeAll(keepingCapacity: false)
             return self
         }
+        public var payload:Data {
+            get {
+                return builderResult.payload
+            }
+            set (value) {
+                builderResult.hasPayload = true
+                builderResult.payload = value
+            }
+        }
+        public var hasPayload:Bool {
+            get {
+                return builderResult.hasPayload
+            }
+        }
+        @discardableResult
+        public func setPayload(_ value:Data) -> Haber.Builder {
+            self.payload = value
+            return self
+        }
+        @discardableResult
+        public func clearPayload() -> Haber.Builder{
+            builderResult.hasPayload = false
+            builderResult.payload = nil
+            return self
+        }
         override public var internalGetResult:GeneratedMessage {
             get {
                 return builderResult
@@ -2697,6 +2749,9 @@ final public class Haber : GeneratedMessage {
             }
             if !other.raw.isEmpty {
                 builderResult.raw += other.raw
+            }
+            if other.hasPayload {
+                payload = other.payload
             }
             try merge(unknownField: other.unknownFields)
             return self
@@ -2791,6 +2846,9 @@ final public class Haber : GeneratedMessage {
                 case 874:
                     raw += [try codedInputStream.readData()]
 
+                case 882:
+                    payload = try codedInputStream.readData()
+
                 default:
                     if (!(try parse(codedInputStream:codedInputStream, unknownFields:unknownFieldsBuilder, extensionRegistry:extensionRegistry, tag:protobufTag))) {
                         unknownFields = try unknownFieldsBuilder.build()
@@ -2857,6 +2915,9 @@ final public class Haber : GeneratedMessage {
                     jsonArrayRaw.append(Data(base64Encoded:oneValueRaw, options: Data.Base64DecodingOptions(rawValue:0))!)
                 }
                 resultDecodedBuilder.raw = jsonArrayRaw
+            }
+            if let jsonValuePayload = jsonMap["payload"] as? String {
+                resultDecodedBuilder.payload = Data(base64Encoded:jsonValuePayload, options: Data.Base64DecodingOptions(rawValue:0))!
             }
             return resultDecodedBuilder
         }
@@ -3328,6 +3389,7 @@ extension Haber: GeneratedMessageProtocol {
         case "store": return self.store
         case "load": return self.load
         case "raw": return self.raw
+        case "payload": return self.payload
         default: return nil
         }
     }
@@ -3349,6 +3411,7 @@ extension Haber.Builder: GeneratedMessageBuilderProtocol {
             case "store": return self.store
             case "load": return self.load
             case "raw": return self.raw
+            case "payload": return self.payload
             default: return nil
             }
         }
@@ -3419,6 +3482,11 @@ extension Haber.Builder: GeneratedMessageBuilderProtocol {
                     return
                 }
                 self.raw = newSubscriptValue
+            case "payload":
+                guard let newSubscriptValue = newSubscriptValue as? Data else {
+                    return
+                }
+                self.payload = newSubscriptValue
             default: return
             }
         }

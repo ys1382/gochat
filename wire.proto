@@ -51,6 +51,8 @@ message Haber {
         AV = 5;
 	STORE = 6;
 	LOAD = 7;
+        PAYLOAD = 8;
+	PUBLIC_KEY = 9;
     }
     Which which = 5;
 
@@ -63,4 +65,5 @@ message Haber {
     Store store = 107;
     Load load = 108;
     repeated bytes raw = 109;
+    bytes payload = 110;
 }
