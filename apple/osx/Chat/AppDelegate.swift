@@ -3,6 +3,8 @@ import Cocoa
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
+    var c = Crypto(password: "password")
+
     func applicationDidFinishLaunching(_ aNotification: Notification) {
 
         EventBus.addListener(about: .connected, didReceive: { notification in
@@ -21,6 +23,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             alert.runModal()
         })
 
-        Backend.shared.connect()
+//        Backend.shared.connect()
+
+        ThemisExample.go()
     }
 }
