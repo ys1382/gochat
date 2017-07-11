@@ -241,14 +241,18 @@ final public class Contact : GeneratedMessage {
             return true
         }
         var fieldCheck:Bool = (lhs.hashValue == rhs.hashValue)
-        fieldCheck = fieldCheck && (lhs.hasName == rhs.hasName) && (!lhs.hasName || lhs.name == rhs.name)
+        fieldCheck = fieldCheck && (lhs.hasId == rhs.hasId) && (!lhs.hasId || lhs.id == rhs.id)
+        fieldCheck = fieldCheck && (lhs.hasDisplayName == rhs.hasDisplayName) && (!lhs.hasDisplayName || lhs.displayName == rhs.displayName)
         fieldCheck = fieldCheck && (lhs.hasOnline == rhs.hasOnline) && (!lhs.hasOnline || lhs.online == rhs.online)
         fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
         return fieldCheck
     }
 
-    public fileprivate(set) var name:String! = nil
-    public fileprivate(set) var hasName:Bool = false
+    public fileprivate(set) var id:Data! = nil
+    public fileprivate(set) var hasId:Bool = false
+
+    public fileprivate(set) var displayName:String! = nil
+    public fileprivate(set) var hasDisplayName:Bool = false
 
     public fileprivate(set) var online:Bool! = nil
     public fileprivate(set) var hasOnline:Bool = false
@@ -260,11 +264,14 @@ final public class Contact : GeneratedMessage {
         return true
     }
     override public func writeTo(codedOutputStream: CodedOutputStream) throws {
-        if hasName {
-            try codedOutputStream.writeString(fieldNumber: 1, value:name)
+        if hasId {
+            try codedOutputStream.writeData(fieldNumber: 1, value:id)
+        }
+        if hasDisplayName {
+            try codedOutputStream.writeString(fieldNumber: 2, value:displayName)
         }
         if hasOnline {
-            try codedOutputStream.writeBool(fieldNumber: 2, value:online)
+            try codedOutputStream.writeBool(fieldNumber: 3, value:online)
         }
         try unknownFields.writeTo(codedOutputStream: codedOutputStream)
     }
@@ -275,11 +282,14 @@ final public class Contact : GeneratedMessage {
         }
 
         serialize_size = 0
-        if hasName {
-            serialize_size += name.computeStringSize(fieldNumber: 1)
+        if hasId {
+            serialize_size += id.computeDataSize(fieldNumber: 1)
+        }
+        if hasDisplayName {
+            serialize_size += displayName.computeStringSize(fieldNumber: 2)
         }
         if hasOnline {
-            serialize_size += online.computeBoolSize(fieldNumber: 2)
+            serialize_size += online.computeBoolSize(fieldNumber: 3)
         }
         serialize_size += unknownFields.serializedSize()
         memoizedSerializedSize = serialize_size
@@ -309,8 +319,11 @@ final public class Contact : GeneratedMessage {
         }
 
         var jsonMap:Dictionary<String,Any> = Dictionary<String,Any>()
-        if hasName {
-            jsonMap["name"] = name
+        if hasId {
+            jsonMap["id"] = id.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
+        }
+        if hasDisplayName {
+            jsonMap["displayName"] = displayName
         }
         if hasOnline {
             jsonMap["online"] = online
@@ -325,8 +338,11 @@ final public class Contact : GeneratedMessage {
     }
     override public func getDescription(indent:String) throws -> String {
         var output = ""
-        if hasName {
-            output += "\(indent) name: \(name) \n"
+        if hasId {
+            output += "\(indent) id: \(id) \n"
+        }
+        if hasDisplayName {
+            output += "\(indent) displayName: \(displayName) \n"
         }
         if hasOnline {
             output += "\(indent) online: \(online) \n"
@@ -337,8 +353,11 @@ final public class Contact : GeneratedMessage {
     override public var hashValue:Int {
         get {
             var hashCode:Int = 7
-            if hasName {
-                hashCode = (hashCode &* 31) &+ name.hashValue
+            if hasId {
+                hashCode = (hashCode &* 31) &+ id.hashValue
+            }
+            if hasDisplayName {
+                hashCode = (hashCode &* 31) &+ displayName.hashValue
             }
             if hasOnline {
                 hashCode = (hashCode &* 31) &+ online.hashValue
@@ -368,29 +387,54 @@ final public class Contact : GeneratedMessage {
         required override public init () {
             super.init()
         }
-        public var name:String {
+        public var id:Data {
             get {
-                return builderResult.name
+                return builderResult.id
             }
             set (value) {
-                builderResult.hasName = true
-                builderResult.name = value
+                builderResult.hasId = true
+                builderResult.id = value
             }
         }
-        public var hasName:Bool {
+        public var hasId:Bool {
             get {
-                return builderResult.hasName
+                return builderResult.hasId
             }
         }
         @discardableResult
-        public func setName(_ value:String) -> Contact.Builder {
-            self.name = value
+        public func setId(_ value:Data) -> Contact.Builder {
+            self.id = value
             return self
         }
         @discardableResult
-        public func clearName() -> Contact.Builder{
-            builderResult.hasName = false
-            builderResult.name = nil
+        public func clearId() -> Contact.Builder{
+            builderResult.hasId = false
+            builderResult.id = nil
+            return self
+        }
+        public var displayName:String {
+            get {
+                return builderResult.displayName
+            }
+            set (value) {
+                builderResult.hasDisplayName = true
+                builderResult.displayName = value
+            }
+        }
+        public var hasDisplayName:Bool {
+            get {
+                return builderResult.hasDisplayName
+            }
+        }
+        @discardableResult
+        public func setDisplayName(_ value:String) -> Contact.Builder {
+            self.displayName = value
+            return self
+        }
+        @discardableResult
+        public func clearDisplayName() -> Contact.Builder{
+            builderResult.hasDisplayName = false
+            builderResult.displayName = nil
             return self
         }
         public var online:Bool {
@@ -444,8 +488,11 @@ final public class Contact : GeneratedMessage {
             if other == Contact() {
                 return self
             }
-            if other.hasName {
-                name = other.name
+            if other.hasId {
+                id = other.id
+            }
+            if other.hasDisplayName {
+                displayName = other.displayName
             }
             if other.hasOnline {
                 online = other.online
@@ -468,9 +515,12 @@ final public class Contact : GeneratedMessage {
                     return self
 
                 case 10:
-                    name = try codedInputStream.readString()
+                    id = try codedInputStream.readData()
 
-                case 16:
+                case 18:
+                    displayName = try codedInputStream.readString()
+
+                case 24:
                     online = try codedInputStream.readBool()
 
                 default:
@@ -483,8 +533,11 @@ final public class Contact : GeneratedMessage {
         }
         class override public func decodeToBuilder(jsonMap:Dictionary<String,Any>) throws -> Contact.Builder {
             let resultDecodedBuilder = Contact.Builder()
-            if let jsonValueName = jsonMap["name"] as? String {
-                resultDecodedBuilder.name = jsonValueName
+            if let jsonValueId = jsonMap["id"] as? String {
+                resultDecodedBuilder.id = Data(base64Encoded:jsonValueId, options: Data.Base64DecodingOptions(rawValue:0))!
+            }
+            if let jsonValueDisplayName = jsonMap["displayName"] as? String {
+                resultDecodedBuilder.displayName = jsonValueDisplayName
             }
             if let jsonValueOnline = jsonMap["online"] as? Bool {
                 resultDecodedBuilder.online = jsonValueOnline
@@ -1785,10 +1838,10 @@ final public class Haber : GeneratedMessage {
     public fileprivate(set) var sessionId:String! = nil
     public fileprivate(set) var hasSessionId:Bool = false
 
-    public fileprivate(set) var from:String! = nil
+    public fileprivate(set) var from:Data! = nil
     public fileprivate(set) var hasFrom:Bool = false
 
-    public fileprivate(set) var to:String! = nil
+    public fileprivate(set) var to:Data! = nil
     public fileprivate(set) var hasTo:Bool = false
 
     public fileprivate(set) var which:Haber.Which = Haber.Which.login
@@ -1824,10 +1877,10 @@ final public class Haber : GeneratedMessage {
             try codedOutputStream.writeString(fieldNumber: 2, value:sessionId)
         }
         if hasFrom {
-            try codedOutputStream.writeString(fieldNumber: 3, value:from)
+            try codedOutputStream.writeData(fieldNumber: 3, value:from)
         }
         if hasTo {
-            try codedOutputStream.writeString(fieldNumber: 4, value:to)
+            try codedOutputStream.writeData(fieldNumber: 4, value:to)
         }
         if hasWhich {
             try codedOutputStream.writeEnum(fieldNumber: 5, value:which.rawValue)
@@ -1877,10 +1930,10 @@ final public class Haber : GeneratedMessage {
             serialize_size += sessionId.computeStringSize(fieldNumber: 2)
         }
         if hasFrom {
-            serialize_size += from.computeStringSize(fieldNumber: 3)
+            serialize_size += from.computeDataSize(fieldNumber: 3)
         }
         if hasTo {
-            serialize_size += to.computeStringSize(fieldNumber: 4)
+            serialize_size += to.computeDataSize(fieldNumber: 4)
         }
         if (hasWhich) {
             serialize_size += which.rawValue.computeEnumSize(fieldNumber: 5)
@@ -1962,10 +2015,10 @@ final public class Haber : GeneratedMessage {
             jsonMap["sessionId"] = sessionId
         }
         if hasFrom {
-            jsonMap["from"] = from
+            jsonMap["from"] = from.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
         }
         if hasTo {
-            jsonMap["to"] = to
+            jsonMap["to"] = to.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
         }
         if hasWhich {
             jsonMap["which"] = which.toString()
@@ -2223,7 +2276,7 @@ final public class Haber : GeneratedMessage {
             builderResult.sessionId = nil
             return self
         }
-        public var from:String {
+        public var from:Data {
             get {
                 return builderResult.from
             }
@@ -2238,7 +2291,7 @@ final public class Haber : GeneratedMessage {
             }
         }
         @discardableResult
-        public func setFrom(_ value:String) -> Haber.Builder {
+        public func setFrom(_ value:Data) -> Haber.Builder {
             self.from = value
             return self
         }
@@ -2248,7 +2301,7 @@ final public class Haber : GeneratedMessage {
             builderResult.from = nil
             return self
         }
-        public var to:String {
+        public var to:Data {
             get {
                 return builderResult.to
             }
@@ -2263,7 +2316,7 @@ final public class Haber : GeneratedMessage {
             }
         }
         @discardableResult
-        public func setTo(_ value:String) -> Haber.Builder {
+        public func setTo(_ value:Data) -> Haber.Builder {
             self.to = value
             return self
         }
@@ -2777,10 +2830,10 @@ final public class Haber : GeneratedMessage {
                     sessionId = try codedInputStream.readString()
 
                 case 26:
-                    from = try codedInputStream.readString()
+                    from = try codedInputStream.readData()
 
                 case 34:
-                    to = try codedInputStream.readString()
+                    to = try codedInputStream.readData()
 
                 case 40:
                     let valueIntwhich = try codedInputStream.readEnum()
@@ -2868,10 +2921,10 @@ final public class Haber : GeneratedMessage {
                 resultDecodedBuilder.sessionId = jsonValueSessionId
             }
             if let jsonValueFrom = jsonMap["from"] as? String {
-                resultDecodedBuilder.from = jsonValueFrom
+                resultDecodedBuilder.from = Data(base64Encoded:jsonValueFrom, options: Data.Base64DecodingOptions(rawValue:0))!
             }
             if let jsonValueTo = jsonMap["to"] as? String {
-                resultDecodedBuilder.to = jsonValueTo
+                resultDecodedBuilder.to = Data(base64Encoded:jsonValueTo, options: Data.Base64DecodingOptions(rawValue:0))!
             }
             if let jsonValueWhich = jsonMap["which"] as? String {
                 resultDecodedBuilder.which = try Haber.Which.fromString(jsonValueWhich)
@@ -3019,7 +3072,8 @@ extension Contact: GeneratedMessageProtocol {
     }
     public subscript(key: String) -> Any? {
         switch key {
-        case "name": return self.name
+        case "id": return self.id
+        case "displayName": return self.displayName
         case "online": return self.online
         default: return nil
         }
@@ -3029,18 +3083,24 @@ extension Contact.Builder: GeneratedMessageBuilderProtocol {
     public subscript(key: String) -> Any? {
         get { 
             switch key {
-            case "name": return self.name
+            case "id": return self.id
+            case "displayName": return self.displayName
             case "online": return self.online
             default: return nil
             }
         }
         set (newSubscriptValue) { 
             switch key {
-            case "name":
+            case "id":
+                guard let newSubscriptValue = newSubscriptValue as? Data else {
+                    return
+                }
+                self.id = newSubscriptValue
+            case "displayName":
                 guard let newSubscriptValue = newSubscriptValue as? String else {
                     return
                 }
-                self.name = newSubscriptValue
+                self.displayName = newSubscriptValue
             case "online":
                 guard let newSubscriptValue = newSubscriptValue as? Bool else {
                     return
@@ -3428,12 +3488,12 @@ extension Haber.Builder: GeneratedMessageBuilderProtocol {
                 }
                 self.sessionId = newSubscriptValue
             case "from":
-                guard let newSubscriptValue = newSubscriptValue as? String else {
+                guard let newSubscriptValue = newSubscriptValue as? Data else {
                     return
                 }
                 self.from = newSubscriptValue
             case "to":
-                guard let newSubscriptValue = newSubscriptValue as? String else {
+                guard let newSubscriptValue = newSubscriptValue as? Data else {
                     return
                 }
                 self.to = newSubscriptValue

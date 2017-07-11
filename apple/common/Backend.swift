@@ -37,17 +37,17 @@ class Backend {
         network.connect()
     }
 
-    func sendPublicKey(_ localPublicKey: Data, to: String) {
+    func sendPublicKey(_ localPublicKey: Data, to: Data) {
         let haberBuilder = Haber.Builder().setPayload(localPublicKey).setWhich(.publicKey).setTo(to)
         send(haberBuilder)
     }
 
-    func sendData(_ body: Data, to: String) {
+    func sendData(_ body: Data, to: Data) {
         let haberBuilder = Haber.Builder().setPayload(body).setWhich(.payload).setTo(to)
         send(haberBuilder)
     }
 
-    func sendText(_ body: String, to: String) {
+    func sendText(_ body: String, to: Data) {
         guard let update = try? Text.Builder().setBody(body).build() else {
             print("could not create Text")
             return
@@ -56,8 +56,8 @@ class Backend {
         send(haberBuilder)
     }
 
-    func sendContacts(_ contacts: [String:Contact]) {
-        let haberBuilder = Haber.Builder().setContacts(Array(contacts.values)).setWhich(.contacts)
+    func sendContacts(_ contacts: [Contact]) {
+        let haberBuilder = Haber.Builder().setContacts(contacts).setWhich(.contacts)
         send(haberBuilder)
     }
 
@@ -97,6 +97,10 @@ class Backend {
         }
     }
 
+    private func didReceivePublicKey(_ payload: Data, from senderId: Data) {
+        crypto!.setPublicKey(key: payload, for:senderId)
+    }
+
     private func didReceivePayload(_ payload: Data) {
         
     }
@@ -128,12 +132,13 @@ class Backend {
         print("read \(data.count) bytes for \(haber.which)")
         do {
             switch haber.which {
-                case .contacts: Model.shared.didReceiveContacts(haber.contacts)
-                case .text:     Model.shared.didReceiveText(haber, data: data)
-                case .presence: Model.shared.didReceivePresence(haber)
-                case .store:    try didReceiveStore(haber)
-                case .payload:  didReceivePayload(haber.payload)
-                default:        print("did not handle \(haber.which)")
+                case .contacts:     Model.shared.didReceiveContacts(haber.contacts)
+                case .text:         Model.shared.didReceiveText(haber, data: data)
+                case .presence:     Model.shared.didReceivePresence(haber)
+                case .store:        try didReceiveStore(haber)
+                case .payload:      didReceivePayload(haber.payload)
+                case .publicKey:    didReceivePublicKey(haber.payload, from: haber.from)
+                default:            print("did not handle \(haber.which)")
             }
         } catch {
             print(error.localizedDescription)

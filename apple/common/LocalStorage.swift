@@ -50,4 +50,8 @@ class LocalStorage {
     static func loadBoolean(forKey key: Key) -> Bool {
         return UserDefaults.standard.bool(forKey: key.rawValue)
     }
+
+    static func loadData(forKey key: Key) -> Data? {
+        return UserDefaults.standard.data(forKey: key.rawValue)
+    }
 }

@@ -7,10 +7,10 @@ class Model {
 
     private var textsStorage = [Data]()
 
-    var roster = [String:Contact]()
+    var roster = [Data:Contact]()
     var texts = [Haber]()
-    var unreads = [String:Int]()
-    var watching: String? {
+    var unreads = [Data:Int]()
+    var watching: Data? {
         didSet {
             if let watching = watching {
                 self.unreads[watching] = 0
@@ -31,7 +31,7 @@ class Model {
 
     func didReceivePresence(_ haber: Haber) {
         for contact in haber.contacts {
-            roster[contact.name] = contact
+            roster[contact.id] = contact
         }
         EventBus.post(about:.presence)
     }
@@ -58,9 +58,9 @@ class Model {
     }
 
     func didReceiveContacts(_ contacts: [Contact]) {
-        roster = contacts.reduce([String: Contact]()) { (dict, contact) -> [String: Contact] in
+        roster = contacts.reduce([Data: Contact]()) { (dict, contact) -> [Data: Contact] in
             var dict = dict
-            dict[contact.name] = contact
+            dict[contact.id] = contact
             return dict
         }
         EventBus.post(about:.contacts)
@@ -94,16 +94,24 @@ class Model {
         return result
     }
 
-    func setContacts(_ names: [String]) {
-        var update = [String:Contact]()
-        for name in names {
-            if let existing = roster[name] {
-                update[name] = existing
+    func setContacts(_ ids: [Data]) {
+        var update = [Data:Contact]()
+        for id in ids {
+            if let existing = roster[id] {
+                update[id] = existing
             } else {
-                update[name] = try? Contact.Builder().setName(name).build()
+                update[id] = try? Contact.Builder().setId(id).build()
             }
         }
         roster = update
-        Backend.shared.sendContacts(roster)
+        Backend.shared.sendContacts(Array(roster.values))
+    }
+
+    func nameFor(_ id: Data) -> String {
+        var result: String? = nil
+        if let contact = roster[id] {
+            result = contact.displayName ?? String(data: contact.id, encoding: .utf8)
+        }
+        return result ?? "?"
     }
 }

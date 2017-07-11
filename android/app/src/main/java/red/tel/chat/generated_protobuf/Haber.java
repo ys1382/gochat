@@ -33,9 +33,9 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
 
   public static final String DEFAULT_SESSIONID = "";
 
-  public static final String DEFAULT_FROM = "";
+  public static final ByteString DEFAULT_FROM = ByteString.EMPTY;
 
-  public static final String DEFAULT_TO = "";
+  public static final ByteString DEFAULT_TO = ByteString.EMPTY;
 
   public static final Which DEFAULT_WHICH = Which.LOGIN;
 
@@ -55,15 +55,15 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
 
   @WireField(
       tag = 3,
-      adapter = "com.squareup.wire.ProtoAdapter#STRING"
+      adapter = "com.squareup.wire.ProtoAdapter#BYTES"
   )
-  public final String from;
+  public final ByteString from;
 
   @WireField(
       tag = 4,
-      adapter = "com.squareup.wire.ProtoAdapter#STRING"
+      adapter = "com.squareup.wire.ProtoAdapter#BYTES"
   )
-  public final String to;
+  public final ByteString to;
 
   @WireField(
       tag = 5,
@@ -133,14 +133,14 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
   )
   public final ByteString payload;
 
-  public Haber(Integer version, String sessionId, String from, String to, Which which, Login login,
-      List<Contact> contacts, Text text, Av av, File file, Store store, Load load,
+  public Haber(Integer version, String sessionId, ByteString from, ByteString to, Which which,
+      Login login, List<Contact> contacts, Text text, Av av, File file, Store store, Load load,
       List<ByteString> raw, ByteString payload) {
     this(version, sessionId, from, to, which, login, contacts, text, av, file, store, load, raw, payload, ByteString.EMPTY);
   }
 
-  public Haber(Integer version, String sessionId, String from, String to, Which which, Login login,
-      List<Contact> contacts, Text text, Av av, File file, Store store, Load load,
+  public Haber(Integer version, String sessionId, ByteString from, ByteString to, Which which,
+      Login login, List<Contact> contacts, Text text, Av av, File file, Store store, Load load,
       List<ByteString> raw, ByteString payload, ByteString unknownFields) {
     super(ADAPTER, unknownFields);
     this.version = version;
@@ -251,9 +251,9 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
 
     public String sessionId;
 
-    public String from;
+    public ByteString from;
 
-    public String to;
+    public ByteString to;
 
     public Which which;
 
@@ -290,12 +290,12 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
       return this;
     }
 
-    public Builder from(String from) {
+    public Builder from(ByteString from) {
       this.from = from;
       return this;
     }
 
-    public Builder to(String to) {
+    public Builder to(ByteString to) {
       this.to = to;
       return this;
     }
@@ -441,8 +441,8 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
     public int encodedSize(Haber value) {
       return ProtoAdapter.UINT32.encodedSizeWithTag(1, value.version)
           + ProtoAdapter.STRING.encodedSizeWithTag(2, value.sessionId)
-          + ProtoAdapter.STRING.encodedSizeWithTag(3, value.from)
-          + ProtoAdapter.STRING.encodedSizeWithTag(4, value.to)
+          + ProtoAdapter.BYTES.encodedSizeWithTag(3, value.from)
+          + ProtoAdapter.BYTES.encodedSizeWithTag(4, value.to)
           + Which.ADAPTER.encodedSizeWithTag(5, value.which)
           + Login.ADAPTER.encodedSizeWithTag(101, value.login)
           + Contact.ADAPTER.asRepeated().encodedSizeWithTag(102, value.contacts)
@@ -460,8 +460,8 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
     public void encode(ProtoWriter writer, Haber value) throws IOException {
       ProtoAdapter.UINT32.encodeWithTag(writer, 1, value.version);
       ProtoAdapter.STRING.encodeWithTag(writer, 2, value.sessionId);
-      ProtoAdapter.STRING.encodeWithTag(writer, 3, value.from);
-      ProtoAdapter.STRING.encodeWithTag(writer, 4, value.to);
+      ProtoAdapter.BYTES.encodeWithTag(writer, 3, value.from);
+      ProtoAdapter.BYTES.encodeWithTag(writer, 4, value.to);
       Which.ADAPTER.encodeWithTag(writer, 5, value.which);
       Login.ADAPTER.encodeWithTag(writer, 101, value.login);
       Contact.ADAPTER.asRepeated().encodeWithTag(writer, 102, value.contacts);
@@ -483,8 +483,8 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
         switch (tag) {
           case 1: builder.version(ProtoAdapter.UINT32.decode(reader)); break;
           case 2: builder.sessionId(ProtoAdapter.STRING.decode(reader)); break;
-          case 3: builder.from(ProtoAdapter.STRING.decode(reader)); break;
-          case 4: builder.to(ProtoAdapter.STRING.decode(reader)); break;
+          case 3: builder.from(ProtoAdapter.BYTES.decode(reader)); break;
+          case 4: builder.to(ProtoAdapter.BYTES.decode(reader)); break;
           case 5: {
             try {
               builder.which(Which.ADAPTER.decode(reader));

@@ -8,8 +8,9 @@ message Login {
 }
 
 message Contact {
-    string name = 1;
-    bool online = 2;
+    bytes id  = 1;
+    string displayName = 2;
+    bool online = 3;
 }
 
 message Text {
@@ -38,8 +39,8 @@ message Haber {
 
     uint32 version = 1;
     string sessionId = 2;
-    string from = 3;
-    string to = 4;
+    bytes from = 3;
+    bytes to = 4;
 
     // Identifies which field is filled in
     enum Which {
