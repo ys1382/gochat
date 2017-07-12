@@ -3,7 +3,8 @@ import Cocoa
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-    var c = Crypto(username: "username", password: "password")
+//    var c = Crypto(username: "username", password: "password")
+//    ThemisExample.go()
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
 
@@ -23,8 +24,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             alert.runModal()
         })
 
-//        Backend.shared.connect()
-
-        ThemisExample.go()
+        Backend.shared.connect()
     }
 }

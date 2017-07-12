@@ -54,4 +54,8 @@ class LocalStorage {
     static func loadData(forKey key: Key) -> Data? {
         return UserDefaults.standard.data(forKey: key.rawValue)
     }
+
+    static func remove(key: Key) {
+        UserDefaults.standard.removeObject(forKey: key.rawValue)
+    }
 }

@@ -44,11 +44,8 @@ message Haber {
     // One of the following will be filled in
     string login = 101;
     repeated Contact contacts = 102; // for roster, presence, and invite
-    bytes text = 103;
-    File file = 104;
-    Store store = 105;
-    bytes load = 106;
-    repeated bytes raw = 107;
-    bytes payload = 108;
-    bytes av = 109;
+    File file = 103;
+    Store store = 104;
+    repeated bytes raw = 105;
+    bytes payload = 106;
 }

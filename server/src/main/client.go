@@ -76,7 +76,7 @@ func (client *Client) receivedLoad(haber *Haber) {
       fmt.Println("no bucket for " + client.name)
       return nil
     }
-    key := haber.GetLoad()
+    key := haber.GetPayload()
     data := b.Get(key)
     if data == nil {
       fmt.Println("data is nil for " + string(key[:]))

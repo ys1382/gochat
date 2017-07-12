@@ -127,6 +127,7 @@ func (crowd *Crowd) updatePresence(sessionId string, online bool) {
     fmt.Println("\t can't find " + sessionId)
     return
   }
+
   if online == client.online {
     fmt.Printf("updatePresence: %s is already %t\n", client.name, client.online)
     return
@@ -142,6 +143,7 @@ func (crowd *Crowd) updatePresence(sessionId string, online bool) {
     Name: from,
     Online: online,
   }
+
   for _,subscriber := range crowd.presenceSubscribers[from] {
     fmt.Println("\t subscriber name =" + subscriber)
     update := &Haber {

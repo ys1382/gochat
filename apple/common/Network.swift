@@ -4,8 +4,8 @@ import Starscream
 class Network: WebSocketDelegate {
 
 //    static let address = "ws://107.170.4.248:8000/ws"
-//    private static let address = "ws://10.17.7.91:8000/ws"
-    static let address = "ws://10.0.0.33:8000/ws"
+    private static let address = "ws://10.17.7.91:8000/ws"
+//    static let address = "ws://10.0.0.33:8000/ws"
 
     static let shared = Network()
 

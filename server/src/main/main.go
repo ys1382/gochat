@@ -74,7 +74,7 @@ func printClientConnInfo() {
 // Database
 
 func openDb() (*bolt.DB) {
-  db, err := bolt.Open("crowd.db", 0600, nil)
+  db, err := bolt.Open("server.db", 0600, nil)
   if err != nil {
     log.Fatal(err)
   }

@@ -3,7 +3,7 @@ import UIKit
 class MasterViewController: UITableViewController {
 
     var detailViewController: DetailViewController? = nil
-    private var names = [String]()
+    private var ids = [String]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,7 +18,7 @@ class MasterViewController: UITableViewController {
         }
 
         EventBus.addListener(about: .contacts) { notification in
-            self.names = Array(Model.shared.roster.values).map({ contact in return contact.name })
+            self.ids = Array(Model.shared.roster.values).map({ contact in return contact.id })
             self.tableView.reloadData()
         }
 
@@ -40,7 +40,7 @@ class MasterViewController: UITableViewController {
         if let controller = (segue.destination as? UINavigationController)?.topViewController as? DetailViewController,
             let indexPath = self.tableView.indexPathForSelectedRow {
             self.tableView.reloadData()
-            Model.shared.watching = self.names[indexPath.row]
+            Model.shared.watching = self.ids[indexPath.row]
             controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem
             controller.navigationItem.leftItemsSupplementBackButton = true
         }
@@ -69,14 +69,14 @@ class MasterViewController: UITableViewController {
     // table
 
     private func addContact(_ username:String) {
-        self.names.insert(username, at: 0)
+        self.ids.insert(username, at: 0)
         self.updateNames()
     }
 
     private func updateNames() {
-        self.names.sort()
+        self.ids.sort()
         self.tableView.reloadData()
-        Model.shared.setContacts(self.names)
+        Model.shared.setContacts(self.ids)
     }
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -84,12 +84,12 @@ class MasterViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return names.count
+        return self.ids.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        let name = self.names[indexPath.row]
+        let name = self.ids[indexPath.row]
         cell.textLabel?.text = self.cellTextFor(name)
         cell.textLabel?.textColor = Model.shared.roster[name]?.online == true ? .blue : .gray
         return cell
@@ -105,7 +105,7 @@ class MasterViewController: UITableViewController {
                             commit editingStyle: UITableViewCellEditingStyle,
                             forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            self.names.remove(at: indexPath.row)
+            self.ids.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
             self.updateNames()
         }

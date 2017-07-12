@@ -34,7 +34,7 @@ class DetailViewController: UIViewController {
         if let whom = Model.shared.watching {
             self.transcript.text = Model.shared.texts
                 .filter({ haber in haber.from == Backend.shared.credential?.username || haber.from == whom })
-                .reduce("", { text,haber in text + "\n" + haber.from + ": " + haber.text.body} )
+                .reduce("", { text,haber in text + "\n" + haber.from + ": " + String(data: haber.payload, encoding: .utf8)!} )
         }
     }
 }

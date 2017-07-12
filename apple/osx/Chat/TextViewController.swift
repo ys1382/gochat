@@ -38,7 +38,7 @@ class TextViewController: NSViewController {
                 .filter({ haber in haber.from == Backend.shared.credential?.username ||
                     haber.from == whom })
                 .reduce("", { text,haber in
-                    text! + Model.shared.nameFor(haber.from) + ": " + String(data: haber.text, encoding: .utf8)!  + "\n"} )
+                    text! + Model.shared.nameFor(haber.from) + ": " + String(data: haber.payload, encoding: .utf8)!  + "\n"} )
         }
     }
 }

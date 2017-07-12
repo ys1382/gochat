@@ -15,8 +15,8 @@ class Backend {
 
     private init() {
 
-//        UserDefaults.standard.set(nil, forKey: Key.username.rawValue)
-//        UserDefaults.standard.set(nil, forKey: Key.password.rawValue)
+        LocalStorage.remove(key: .username)
+        LocalStorage.remove(key: .password)
 
         if let username = LocalStorage.loadString(forKey: .username),
             let password = LocalStorage.loadString(forKey: .password) {
@@ -48,7 +48,7 @@ class Backend {
     }
 
     func sendText(_ body: String, to: String) {
-        let haberBuilder = Haber.Builder().setText(body.data(using: .utf8)!).setWhich(.text).setTo(to)
+        let haberBuilder = Haber.Builder().setPayload(body.data(using: .utf8)!).setWhich(.text).setTo(to)
         send(haberBuilder)
     }
 
@@ -84,7 +84,7 @@ class Backend {
     }
 
     func sendLoad(key: Data) {
-        let haberBuilder = Haber.Builder().setWhich(.load).setLoad(key)
+        let haberBuilder = Haber.Builder().setWhich(.load).setPayload(key)
         send(haberBuilder)
     }
 
@@ -94,10 +94,6 @@ class Backend {
 
     private func didReceivePayload(_ payload: Data) {
         print("didReceivePayload not implemented")
-    }
-
-    func register(username: String, password: String) {
-        print("register not implemented")
     }
 
     func login(username: String, password: String) {

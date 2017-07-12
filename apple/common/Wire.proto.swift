@@ -890,13 +890,10 @@ final public class Haber : GeneratedMessage {
         fieldCheck = fieldCheck && (lhs.hasWhich == rhs.hasWhich) && (!lhs.hasWhich || lhs.which == rhs.which)
         fieldCheck = fieldCheck && (lhs.hasLogin == rhs.hasLogin) && (!lhs.hasLogin || lhs.login == rhs.login)
         fieldCheck = fieldCheck && (lhs.contacts == rhs.contacts)
-        fieldCheck = fieldCheck && (lhs.hasText == rhs.hasText) && (!lhs.hasText || lhs.text == rhs.text)
         fieldCheck = fieldCheck && (lhs.hasFile == rhs.hasFile) && (!lhs.hasFile || lhs.file == rhs.file)
         fieldCheck = fieldCheck && (lhs.hasStore == rhs.hasStore) && (!lhs.hasStore || lhs.store == rhs.store)
-        fieldCheck = fieldCheck && (lhs.hasLoad == rhs.hasLoad) && (!lhs.hasLoad || lhs.load == rhs.load)
         fieldCheck = fieldCheck && (lhs.raw == rhs.raw)
         fieldCheck = fieldCheck && (lhs.hasPayload == rhs.hasPayload) && (!lhs.hasPayload || lhs.payload == rhs.payload)
-        fieldCheck = fieldCheck && (lhs.hasAv == rhs.hasAv) && (!lhs.hasAv || lhs.av == rhs.av)
         fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
         return fieldCheck
     }
@@ -991,22 +988,13 @@ final public class Haber : GeneratedMessage {
     public fileprivate(set) var hasLogin:Bool = false
 
     public fileprivate(set) var contacts:Array<Contact>  = Array<Contact>()
-    public fileprivate(set) var text:Data! = nil
-    public fileprivate(set) var hasText:Bool = false
-
     public fileprivate(set) var file:File!
     public fileprivate(set) var hasFile:Bool = false
     public fileprivate(set) var store:Store!
     public fileprivate(set) var hasStore:Bool = false
-    public fileprivate(set) var load:Data! = nil
-    public fileprivate(set) var hasLoad:Bool = false
-
     public fileprivate(set) var raw:Array<Data> = Array<Data>()
     public fileprivate(set) var payload:Data! = nil
     public fileprivate(set) var hasPayload:Bool = false
-
-    public fileprivate(set) var av:Data! = nil
-    public fileprivate(set) var hasAv:Bool = false
 
     required public init() {
         super.init()
@@ -1036,28 +1024,19 @@ final public class Haber : GeneratedMessage {
         for oneElementContacts in contacts {
               try codedOutputStream.writeMessage(fieldNumber: 102, value:oneElementContacts)
         }
-        if hasText {
-            try codedOutputStream.writeData(fieldNumber: 103, value:text)
-        }
         if hasFile {
-            try codedOutputStream.writeMessage(fieldNumber: 104, value:file)
+            try codedOutputStream.writeMessage(fieldNumber: 103, value:file)
         }
         if hasStore {
-            try codedOutputStream.writeMessage(fieldNumber: 105, value:store)
-        }
-        if hasLoad {
-            try codedOutputStream.writeData(fieldNumber: 106, value:load)
+            try codedOutputStream.writeMessage(fieldNumber: 104, value:store)
         }
         if !raw.isEmpty {
             for oneValueraw in raw {
-                try codedOutputStream.writeData(fieldNumber: 107, value:oneValueraw)
+                try codedOutputStream.writeData(fieldNumber: 105, value:oneValueraw)
             }
         }
         if hasPayload {
-            try codedOutputStream.writeData(fieldNumber: 108, value:payload)
-        }
-        if hasAv {
-            try codedOutputStream.writeData(fieldNumber: 109, value:av)
+            try codedOutputStream.writeData(fieldNumber: 106, value:payload)
         }
         try unknownFields.writeTo(codedOutputStream: codedOutputStream)
     }
@@ -1089,21 +1068,15 @@ final public class Haber : GeneratedMessage {
         for oneElementContacts in contacts {
             serialize_size += oneElementContacts.computeMessageSize(fieldNumber: 102)
         }
-        if hasText {
-            serialize_size += text.computeDataSize(fieldNumber: 103)
-        }
         if hasFile {
-            if let varSizefile = file?.computeMessageSize(fieldNumber: 104) {
+            if let varSizefile = file?.computeMessageSize(fieldNumber: 103) {
                 serialize_size += varSizefile
             }
         }
         if hasStore {
-            if let varSizestore = store?.computeMessageSize(fieldNumber: 105) {
+            if let varSizestore = store?.computeMessageSize(fieldNumber: 104) {
                 serialize_size += varSizestore
             }
-        }
-        if hasLoad {
-            serialize_size += load.computeDataSize(fieldNumber: 106)
         }
         var dataSizeRaw:Int32 = 0
         for oneValueraw in raw {
@@ -1112,10 +1085,7 @@ final public class Haber : GeneratedMessage {
         serialize_size += dataSizeRaw
         serialize_size += 2 * Int32(raw.count)
         if hasPayload {
-            serialize_size += payload.computeDataSize(fieldNumber: 108)
-        }
-        if hasAv {
-            serialize_size += av.computeDataSize(fieldNumber: 109)
+            serialize_size += payload.computeDataSize(fieldNumber: 106)
         }
         serialize_size += unknownFields.serializedSize()
         memoizedSerializedSize = serialize_size
@@ -1171,17 +1141,11 @@ final public class Haber : GeneratedMessage {
             }
             jsonMap["contacts"] = jsonArrayContacts
         }
-        if hasText {
-            jsonMap["text"] = text.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
-        }
         if hasFile {
             jsonMap["file"] = try file.encode()
         }
         if hasStore {
             jsonMap["store"] = try store.encode()
-        }
-        if hasLoad {
-            jsonMap["load"] = load.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
         }
         if !raw.isEmpty {
             var jsonArrayRaw:Array<String> = []
@@ -1192,9 +1156,6 @@ final public class Haber : GeneratedMessage {
         }
         if hasPayload {
             jsonMap["payload"] = payload.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
-        }
-        if hasAv {
-            jsonMap["av"] = av.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
         }
         return jsonMap
     }
@@ -1231,9 +1192,6 @@ final public class Haber : GeneratedMessage {
             output += "\(indent)}\n"
             contactsElementIndex += 1
         }
-        if hasText {
-            output += "\(indent) text: \(text) \n"
-        }
         if hasFile {
             output += "\(indent) file {\n"
             if let outDescFile = file {
@@ -1248,9 +1206,6 @@ final public class Haber : GeneratedMessage {
             }
             output += "\(indent) }\n"
         }
-        if hasLoad {
-            output += "\(indent) load: \(load) \n"
-        }
         var rawElementIndex:Int = 0
         for oneValueRaw in raw  {
             output += "\(indent) raw[\(rawElementIndex)]: \(oneValueRaw)\n"
@@ -1258,9 +1213,6 @@ final public class Haber : GeneratedMessage {
         }
         if hasPayload {
             output += "\(indent) payload: \(payload) \n"
-        }
-        if hasAv {
-            output += "\(indent) av: \(av) \n"
         }
         output += unknownFields.getDescription(indent: indent)
         return output
@@ -1289,9 +1241,6 @@ final public class Haber : GeneratedMessage {
             for oneElementContacts in contacts {
                 hashCode = (hashCode &* 31) &+ oneElementContacts.hashValue
             }
-            if hasText {
-                hashCode = (hashCode &* 31) &+ text.hashValue
-            }
             if hasFile {
                 if let hashValuefile = file?.hashValue {
                     hashCode = (hashCode &* 31) &+ hashValuefile
@@ -1302,17 +1251,11 @@ final public class Haber : GeneratedMessage {
                     hashCode = (hashCode &* 31) &+ hashValuestore
                 }
             }
-            if hasLoad {
-                hashCode = (hashCode &* 31) &+ load.hashValue
-            }
             for oneValueRaw in raw {
                 hashCode = (hashCode &* 31) &+ oneValueRaw.hashValue
             }
             if hasPayload {
                 hashCode = (hashCode &* 31) &+ payload.hashValue
-            }
-            if hasAv {
-                hashCode = (hashCode &* 31) &+ av.hashValue
             }
             hashCode = (hashCode &* 31) &+  unknownFields.hashValue
             return hashCode
@@ -1509,31 +1452,6 @@ final public class Haber : GeneratedMessage {
             builderResult.contacts.removeAll(keepingCapacity: false)
             return self
         }
-        public var text:Data {
-            get {
-                return builderResult.text
-            }
-            set (value) {
-                builderResult.hasText = true
-                builderResult.text = value
-            }
-        }
-        public var hasText:Bool {
-            get {
-                return builderResult.hasText
-            }
-        }
-        @discardableResult
-        public func setText(_ value:Data) -> Haber.Builder {
-            self.text = value
-            return self
-        }
-        @discardableResult
-        public func clearText() -> Haber.Builder{
-            builderResult.hasText = false
-            builderResult.text = nil
-            return self
-        }
         public var file:File! {
             get {
                 if fileBuilder_ != nil {
@@ -1642,31 +1560,6 @@ final public class Haber : GeneratedMessage {
             builderResult.store = nil
             return self
         }
-        public var load:Data {
-            get {
-                return builderResult.load
-            }
-            set (value) {
-                builderResult.hasLoad = true
-                builderResult.load = value
-            }
-        }
-        public var hasLoad:Bool {
-            get {
-                return builderResult.hasLoad
-            }
-        }
-        @discardableResult
-        public func setLoad(_ value:Data) -> Haber.Builder {
-            self.load = value
-            return self
-        }
-        @discardableResult
-        public func clearLoad() -> Haber.Builder{
-            builderResult.hasLoad = false
-            builderResult.load = nil
-            return self
-        }
         public var raw:Array<Data> {
             get {
                 return builderResult.raw
@@ -1708,31 +1601,6 @@ final public class Haber : GeneratedMessage {
         public func clearPayload() -> Haber.Builder{
             builderResult.hasPayload = false
             builderResult.payload = nil
-            return self
-        }
-        public var av:Data {
-            get {
-                return builderResult.av
-            }
-            set (value) {
-                builderResult.hasAv = true
-                builderResult.av = value
-            }
-        }
-        public var hasAv:Bool {
-            get {
-                return builderResult.hasAv
-            }
-        }
-        @discardableResult
-        public func setAv(_ value:Data) -> Haber.Builder {
-            self.av = value
-            return self
-        }
-        @discardableResult
-        public func clearAv() -> Haber.Builder{
-            builderResult.hasAv = false
-            builderResult.av = nil
             return self
         }
         override public var internalGetResult:GeneratedMessage {
@@ -1782,26 +1650,17 @@ final public class Haber : GeneratedMessage {
             if !other.contacts.isEmpty  {
                  builderResult.contacts += other.contacts
             }
-            if other.hasText {
-                text = other.text
-            }
             if (other.hasFile) {
                 try mergeFile(value: other.file)
             }
             if (other.hasStore) {
                 try mergeStore(value: other.store)
             }
-            if other.hasLoad {
-                load = other.load
-            }
             if !other.raw.isEmpty {
                 builderResult.raw += other.raw
             }
             if other.hasPayload {
                 payload = other.payload
-            }
-            if other.hasAv {
-                av = other.av
             }
             try merge(unknownField: other.unknownFields)
             return self
@@ -1849,9 +1708,6 @@ final public class Haber : GeneratedMessage {
                     contacts.append(subBuilder.buildPartial())
 
                 case 826:
-                    text = try codedInputStream.readData()
-
-                case 834:
                     let subBuilder:File.Builder = File.Builder()
                     if hasFile {
                         try subBuilder.mergeFrom(other: file)
@@ -1859,7 +1715,7 @@ final public class Haber : GeneratedMessage {
                     try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
                     file = subBuilder.buildPartial()
 
-                case 842:
+                case 834:
                     let subBuilder:Store.Builder = Store.Builder()
                     if hasStore {
                         try subBuilder.mergeFrom(other: store)
@@ -1867,17 +1723,11 @@ final public class Haber : GeneratedMessage {
                     try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
                     store = subBuilder.buildPartial()
 
-                case 850:
-                    load = try codedInputStream.readData()
-
-                case 858:
+                case 842:
                     raw += [try codedInputStream.readData()]
 
-                case 866:
+                case 850:
                     payload = try codedInputStream.readData()
-
-                case 874:
-                    av = try codedInputStream.readData()
 
                 default:
                     if (!(try parse(codedInputStream:codedInputStream, unknownFields:unknownFieldsBuilder, extensionRegistry:extensionRegistry, tag:protobufTag))) {
@@ -1918,9 +1768,6 @@ final public class Haber : GeneratedMessage {
                 }
                 resultDecodedBuilder.contacts = jsonArrayContacts
             }
-            if let jsonValueText = jsonMap["text"] as? String {
-                resultDecodedBuilder.text = Data(base64Encoded:jsonValueText, options: Data.Base64DecodingOptions(rawValue:0))!
-            }
             if let jsonValueFile = jsonMap["file"] as? Dictionary<String,Any> {
                 resultDecodedBuilder.file = try File.Builder.decodeToBuilder(jsonMap:jsonValueFile).build()
 
@@ -1928,9 +1775,6 @@ final public class Haber : GeneratedMessage {
             if let jsonValueStore = jsonMap["store"] as? Dictionary<String,Any> {
                 resultDecodedBuilder.store = try Store.Builder.decodeToBuilder(jsonMap:jsonValueStore).build()
 
-            }
-            if let jsonValueLoad = jsonMap["load"] as? String {
-                resultDecodedBuilder.load = Data(base64Encoded:jsonValueLoad, options: Data.Base64DecodingOptions(rawValue:0))!
             }
             if let jsonValueRaw = jsonMap["raw"] as? Array<String> {
                 var jsonArrayRaw:Array<Data> = []
@@ -1941,9 +1785,6 @@ final public class Haber : GeneratedMessage {
             }
             if let jsonValuePayload = jsonMap["payload"] as? String {
                 resultDecodedBuilder.payload = Data(base64Encoded:jsonValuePayload, options: Data.Base64DecodingOptions(rawValue:0))!
-            }
-            if let jsonValueAv = jsonMap["av"] as? String {
-                resultDecodedBuilder.av = Data(base64Encoded:jsonValueAv, options: Data.Base64DecodingOptions(rawValue:0))!
             }
             return resultDecodedBuilder
         }
@@ -2192,13 +2033,10 @@ extension Haber: GeneratedMessageProtocol {
         case "which": return self.which
         case "login": return self.login
         case "contacts": return self.contacts
-        case "text": return self.text
         case "file": return self.file
         case "store": return self.store
-        case "load": return self.load
         case "raw": return self.raw
         case "payload": return self.payload
-        case "av": return self.av
         default: return nil
         }
     }
@@ -2214,13 +2052,10 @@ extension Haber.Builder: GeneratedMessageBuilderProtocol {
             case "which": return self.which
             case "login": return self.login
             case "contacts": return self.contacts
-            case "text": return self.text
             case "file": return self.file
             case "store": return self.store
-            case "load": return self.load
             case "raw": return self.raw
             case "payload": return self.payload
-            case "av": return self.av
             default: return nil
             }
         }
@@ -2261,11 +2096,6 @@ extension Haber.Builder: GeneratedMessageBuilderProtocol {
                     return
                 }
                 self.contacts = newSubscriptValue
-            case "text":
-                guard let newSubscriptValue = newSubscriptValue as? Data else {
-                    return
-                }
-                self.text = newSubscriptValue
             case "file":
                 guard let newSubscriptValue = newSubscriptValue as? File else {
                     return
@@ -2276,11 +2106,6 @@ extension Haber.Builder: GeneratedMessageBuilderProtocol {
                     return
                 }
                 self.store = newSubscriptValue
-            case "load":
-                guard let newSubscriptValue = newSubscriptValue as? Data else {
-                    return
-                }
-                self.load = newSubscriptValue
             case "raw":
                 guard let newSubscriptValue = newSubscriptValue as? Array<Data> else {
                     return
@@ -2291,11 +2116,6 @@ extension Haber.Builder: GeneratedMessageBuilderProtocol {
                     return
                 }
                 self.payload = newSubscriptValue
-            case "av":
-                guard let newSubscriptValue = newSubscriptValue as? Data else {
-                    return
-                }
-                self.av = newSubscriptValue
             default: return
             }
         }

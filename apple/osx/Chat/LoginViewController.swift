@@ -15,7 +15,7 @@ class LoginViewController : NSWindowController {
 
     @IBAction func didClickRegister(_ sender: Any) {
         self.loginWindow?.close()
-        Backend.shared.register(username: username.stringValue, password: password.stringValue)
+        Backend.shared.login(username: username.stringValue, password: password.stringValue)
     }
 
     static func popup() {
