@@ -10,7 +10,6 @@ import (
 
 type Crowd struct {
   clients             map[string]*Client
-  namedClients        map[string]*Client
   presenceSubscribers map[string][]string // set of subscribers to each client
   clientsMtx          sync.Mutex
   queue               chan Haber
@@ -20,7 +19,6 @@ type Crowd struct {
 func (crowd *Crowd) Init(db *bolt.DB) {
   crowd.queue = make(chan Haber, 5)
   crowd.clients = make(map[string]*Client)
-  crowd.namedClients = make(map[string]*Client)
   crowd.presenceSubscribers = make(map[string][]string)
   crowd.db = db
 
@@ -33,7 +31,7 @@ func (crowd *Crowd) Init(db *bolt.DB) {
         return
       }
 
-      client, ok := crowd.namedClients[to]
+      client, ok := crowd.clients[to]
       if ok == false {
         fmt.Println("Can't find " + to)
         return
@@ -57,7 +55,7 @@ func (crowd *Crowd) Init(db *bolt.DB) {
 
 func (crowd *Crowd) messageArrived(conn *websocket.Conn, haber *Haber, sessionId string) bool {
   if haber.GetWhich() == Haber_LOGIN {
-    crowd.receivedUsername(conn, haber.GetLogin().GetUsername())
+    crowd.receivedUsername(conn, haber.GetLogin())
     return false
   }
   sessionId = haber.GetSessionId()
@@ -94,7 +92,7 @@ func (crowd *Crowd) receivedUsername(conn *websocket.Conn, username string) {
   sessionId := createSessionId()
 
   var client *Client
-  if c, ok := crowd.namedClients[username]; ok {
+  if c, ok := crowd.clients[username]; ok {
     client = c
   } else {
     client = &Client{
@@ -104,7 +102,7 @@ func (crowd *Crowd) receivedUsername(conn *websocket.Conn, username string) {
     }
   }
   client.sessions[sessionId] = conn
-  crowd.namedClients[username] = client
+  crowd.clients[username] = client
   fmt.Printf("new client name=%s, session=%s, len=%d\n", client.name, sessionId, len(client.sessions))
   client.Load(crowd.db)
   crowd.clients[sessionId] = client

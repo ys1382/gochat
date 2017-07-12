@@ -76,7 +76,7 @@ func (client *Client) receivedLoad(haber *Haber) {
       fmt.Println("no bucket for " + client.name)
       return nil
     }
-    key := haber.Load.GetKey()
+    key := haber.GetLoad()
     data := b.Get(key)
     if data == nil {
       fmt.Println("data is nil for " + string(key[:]))
@@ -139,7 +139,7 @@ func remove(s []string, r string) []string {
 
 func (client *Client) sendContacts(sessionId string) {
   for _,contact := range client.contacts {
-    _,ok := crowd.namedClients[contact.Name]
+    _,ok := crowd.clients[contact.Name]
     contact.Online = ok
   }
 
@@ -164,7 +164,7 @@ func (client *Client) receivedContacts(haber *Haber) {
   client.Save(crowd.db, haber)
 
   for _,contact := range haber.Contacts {
-    if c, ok := crowd.namedClients[contact.Name]; ok {
+    if c, ok := crowd.clients[contact.Name]; ok {
       contact.Online = c.online
     }
   }

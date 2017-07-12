@@ -35,9 +35,10 @@ class TextViewController: NSViewController {
     private func updateTranscript() {
         if let whom = Model.shared.watching {
             self.transcript.string = Model.shared.texts
-                .filter({ haber in haber.from == Backend.shared.credential?.username.data(using: .utf8) ||
+                .filter({ haber in haber.from == Backend.shared.credential?.username ||
                     haber.from == whom })
-                .reduce("", { text,haber in text! + Model.shared.nameFor(haber.from) + ": " + haber.text.body + "\n"} )
+                .reduce("", { text,haber in
+                    text! + Model.shared.nameFor(haber.from) + ": " + String(data: haber.text, encoding: .utf8)!  + "\n"} )
         }
     }
 }

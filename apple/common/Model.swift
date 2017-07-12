@@ -7,10 +7,10 @@ class Model {
 
     private var textsStorage = [Data]()
 
-    var roster = [Data:Contact]()
+    var roster = [String:Contact]()
     var texts = [Haber]()
-    var unreads = [Data:Int]()
-    var watching: Data? {
+    var unreads = [String:Int]()
+    var watching: String? {
         didSet {
             if let watching = watching {
                 self.unreads[watching] = 0
@@ -58,7 +58,7 @@ class Model {
     }
 
     func didReceiveContacts(_ contacts: [Contact]) {
-        roster = contacts.reduce([Data: Contact]()) { (dict, contact) -> [Data: Contact] in
+        roster = contacts.reduce([String: Contact]()) { (dict, contact) -> [String: Contact] in
             var dict = dict
             dict[contact.id] = contact
             return dict
@@ -94,8 +94,8 @@ class Model {
         return result
     }
 
-    func setContacts(_ ids: [Data]) {
-        var update = [Data:Contact]()
+    func setContacts(_ ids: [String]) {
+        var update = [String:Contact]()
         for id in ids {
             if let existing = roster[id] {
                 update[id] = existing
@@ -107,10 +107,10 @@ class Model {
         Backend.shared.sendContacts(Array(roster.values))
     }
 
-    func nameFor(_ id: Data) -> String {
+    func nameFor(_ id: String) -> String {
         var result: String? = nil
         if let contact = roster[id] {
-            result = contact.displayName ?? String(data: contact.id, encoding: .utf8)
+            result = contact.name ?? contact.id
         }
         return result ?? "?"
     }

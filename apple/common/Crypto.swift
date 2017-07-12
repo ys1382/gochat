@@ -3,24 +3,24 @@ import Foundation
 class Crypto {
 
     private class Peer {
-        var id: Data
+        var id: String
         var session: TSSession
         var remotePublicKey: Data?
 
-        init(peerId: Data, localId: Data, localPrivateKey: Data, transport: Transport) {
+        init(peerId: String, localId: String, localPrivateKey: Data, transport: Transport) {
             self.id = peerId
-            self.session = TSSession(userId: localId, privateKey: localPrivateKey, callbacks: transport)
+            self.session = TSSession(userId: localId.data(using: .utf8)!, privateKey: localPrivateKey, callbacks: transport)
         }
     }
 
     private class Transport: TSSessionTransportInterface {
-        private var peers = [Data:Peer]()
+        private var peers = [String:Peer]()
 
-        func get(_ peerId: Data) -> Peer? {
+        func get(_ peerId: String) -> Peer? {
             return peers[peerId]
         }
 
-        func contains(peerId: Data) -> Bool {
+        func contains(peerId: String) -> Bool {
             return peers[peerId] != nil
         }
 
@@ -29,18 +29,19 @@ class Crypto {
         }
 
         override func publicKey(for peerId: Data!) throws -> Data {
-            return peers[peerId]?.remotePublicKey ?? Data()
+            let key = String(data: peerId, encoding: .utf8)!
+            return peers[key]?.remotePublicKey ?? Data()
         }
     }
 
     private let transport: Transport
     private let cellSeal: TSCellSeal
-    private let localId: Data
+    private let localId: String
     private let localPublicKey: Data
     private let localPrivateKey: Data
 
     init(username: String, password: String) {
-        localId = username.data(using: .utf8)!
+        localId = username
 
         let key = password.data(using: .utf8)!
         cellSeal = TSCellSeal(key: key)
@@ -52,7 +53,7 @@ class Crypto {
         transport = Transport()
     }
 
-    func setPublicKey(key: Data, for remoteId: Data) {
+    func setPublicKey(key: Data, for remoteId: String) {
         let peer = Peer(peerId: remoteId, localId: localId, localPrivateKey: localPrivateKey, transport: transport)
         transport.addPeer(peer)
     }
@@ -75,7 +76,7 @@ class Crypto {
         }
     }
 
-    func sendPublicKey(to peerId: Data) {
+    func sendPublicKey(to peerId: String) {
         if transport.contains(peerId: peerId) {
             return
         }
@@ -84,7 +85,7 @@ class Crypto {
         Backend.shared.sendPublicKey(localPublicKey, to: peerId)
     }
 
-    func didReceivePublicKey(_ remotePublicKey: Data, from peerId: Data) {
+    func didReceivePublicKey(_ remotePublicKey: Data, from peerId: String) {
         if let peer = transport.get(peerId) { // then we are the initiator
             do {
                 let request = try peer.session.connectRequest()

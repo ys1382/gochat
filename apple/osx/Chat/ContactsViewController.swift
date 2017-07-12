@@ -2,7 +2,7 @@ import Cocoa
 
 class ContactsViewController: NSViewController, NSTableViewDelegate, NSTableViewDataSource {
 
-    var ids = [Data]()
+    var ids = [String]()
 
     @IBOutlet weak var tableView: NSTableView!
 
@@ -52,7 +52,7 @@ class ContactsViewController: NSViewController, NSTableViewDelegate, NSTableView
     }
 
     func addContact(_ username:String) {
-        self.ids.append(username.data(using: .utf8)!)
+        self.ids.append(username)
         self.updateNames()
     }
 
@@ -76,7 +76,7 @@ class ContactsViewController: NSViewController, NSTableViewDelegate, NSTableView
         return cellView
     }
 
-    func cellTextFor(_ id: Data) -> String {
+    func cellTextFor(_ id: String) -> String {
         let unreads = Model.shared.unreads[id] ?? 0
         let showUnreads = unreads > 0 ? " (\(unreads))" : ""
         return Model.shared.nameFor(id) + showUnreads

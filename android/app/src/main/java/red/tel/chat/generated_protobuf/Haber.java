@@ -33,13 +33,21 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
 
   public static final String DEFAULT_SESSIONID = "";
 
-  public static final ByteString DEFAULT_FROM = ByteString.EMPTY;
+  public static final String DEFAULT_FROM = "";
 
-  public static final ByteString DEFAULT_TO = ByteString.EMPTY;
+  public static final String DEFAULT_TO = "";
 
   public static final Which DEFAULT_WHICH = Which.LOGIN;
 
+  public static final String DEFAULT_LOGIN = "";
+
+  public static final ByteString DEFAULT_TEXT = ByteString.EMPTY;
+
+  public static final ByteString DEFAULT_LOAD = ByteString.EMPTY;
+
   public static final ByteString DEFAULT_PAYLOAD = ByteString.EMPTY;
+
+  public static final ByteString DEFAULT_AV = ByteString.EMPTY;
 
   @WireField(
       tag = 1,
@@ -55,15 +63,15 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
 
   @WireField(
       tag = 3,
-      adapter = "com.squareup.wire.ProtoAdapter#BYTES"
+      adapter = "com.squareup.wire.ProtoAdapter#STRING"
   )
-  public final ByteString from;
+  public final String from;
 
   @WireField(
       tag = 4,
-      adapter = "com.squareup.wire.ProtoAdapter#BYTES"
+      adapter = "com.squareup.wire.ProtoAdapter#STRING"
   )
-  public final ByteString to;
+  public final String to;
 
   @WireField(
       tag = 5,
@@ -76,9 +84,9 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
    */
   @WireField(
       tag = 101,
-      adapter = "red.tel.chat.generated_protobuf.Login#ADAPTER"
+      adapter = "com.squareup.wire.ProtoAdapter#STRING"
   )
-  public final Login login;
+  public final String login;
 
   /**
    * for roster, presence, and invite
@@ -91,57 +99,57 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
   public final List<Contact> contacts;
 
   @WireField(
+      tag = 103,
+      adapter = "com.squareup.wire.ProtoAdapter#BYTES"
+  )
+  public final ByteString text;
+
+  @WireField(
       tag = 104,
-      adapter = "red.tel.chat.generated_protobuf.Text#ADAPTER"
-  )
-  public final Text text;
-
-  @WireField(
-      tag = 105,
-      adapter = "red.tel.chat.generated_protobuf.Av#ADAPTER"
-  )
-  public final Av av;
-
-  @WireField(
-      tag = 106,
       adapter = "red.tel.chat.generated_protobuf.File#ADAPTER"
   )
   public final File file;
 
   @WireField(
-      tag = 107,
+      tag = 105,
       adapter = "red.tel.chat.generated_protobuf.Store#ADAPTER"
   )
   public final Store store;
 
   @WireField(
-      tag = 108,
-      adapter = "red.tel.chat.generated_protobuf.Load#ADAPTER"
+      tag = 106,
+      adapter = "com.squareup.wire.ProtoAdapter#BYTES"
   )
-  public final Load load;
+  public final ByteString load;
 
   @WireField(
-      tag = 109,
+      tag = 107,
       adapter = "com.squareup.wire.ProtoAdapter#BYTES",
       label = WireField.Label.REPEATED
   )
   public final List<ByteString> raw;
 
   @WireField(
-      tag = 110,
+      tag = 108,
       adapter = "com.squareup.wire.ProtoAdapter#BYTES"
   )
   public final ByteString payload;
 
-  public Haber(Integer version, String sessionId, ByteString from, ByteString to, Which which,
-      Login login, List<Contact> contacts, Text text, Av av, File file, Store store, Load load,
-      List<ByteString> raw, ByteString payload) {
-    this(version, sessionId, from, to, which, login, contacts, text, av, file, store, load, raw, payload, ByteString.EMPTY);
+  @WireField(
+      tag = 109,
+      adapter = "com.squareup.wire.ProtoAdapter#BYTES"
+  )
+  public final ByteString av;
+
+  public Haber(Integer version, String sessionId, String from, String to, Which which, String login,
+      List<Contact> contacts, ByteString text, File file, Store store, ByteString load,
+      List<ByteString> raw, ByteString payload, ByteString av) {
+    this(version, sessionId, from, to, which, login, contacts, text, file, store, load, raw, payload, av, ByteString.EMPTY);
   }
 
-  public Haber(Integer version, String sessionId, ByteString from, ByteString to, Which which,
-      Login login, List<Contact> contacts, Text text, Av av, File file, Store store, Load load,
-      List<ByteString> raw, ByteString payload, ByteString unknownFields) {
+  public Haber(Integer version, String sessionId, String from, String to, Which which, String login,
+      List<Contact> contacts, ByteString text, File file, Store store, ByteString load,
+      List<ByteString> raw, ByteString payload, ByteString av, ByteString unknownFields) {
     super(ADAPTER, unknownFields);
     this.version = version;
     this.sessionId = sessionId;
@@ -151,12 +159,12 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
     this.login = login;
     this.contacts = Internal.immutableCopyOf("contacts", contacts);
     this.text = text;
-    this.av = av;
     this.file = file;
     this.store = store;
     this.load = load;
     this.raw = Internal.immutableCopyOf("raw", raw);
     this.payload = payload;
+    this.av = av;
   }
 
   @Override
@@ -170,12 +178,12 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
     builder.login = login;
     builder.contacts = Internal.copyOf("contacts", contacts);
     builder.text = text;
-    builder.av = av;
     builder.file = file;
     builder.store = store;
     builder.load = load;
     builder.raw = Internal.copyOf("raw", raw);
     builder.payload = payload;
+    builder.av = av;
     builder.addUnknownFields(unknownFields());
     return builder;
   }
@@ -194,12 +202,12 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
         && Internal.equals(login, o.login)
         && contacts.equals(o.contacts)
         && Internal.equals(text, o.text)
-        && Internal.equals(av, o.av)
         && Internal.equals(file, o.file)
         && Internal.equals(store, o.store)
         && Internal.equals(load, o.load)
         && raw.equals(o.raw)
-        && Internal.equals(payload, o.payload);
+        && Internal.equals(payload, o.payload)
+        && Internal.equals(av, o.av);
   }
 
   @Override
@@ -215,12 +223,12 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
       result = result * 37 + (login != null ? login.hashCode() : 0);
       result = result * 37 + contacts.hashCode();
       result = result * 37 + (text != null ? text.hashCode() : 0);
-      result = result * 37 + (av != null ? av.hashCode() : 0);
       result = result * 37 + (file != null ? file.hashCode() : 0);
       result = result * 37 + (store != null ? store.hashCode() : 0);
       result = result * 37 + (load != null ? load.hashCode() : 0);
       result = result * 37 + raw.hashCode();
       result = result * 37 + (payload != null ? payload.hashCode() : 0);
+      result = result * 37 + (av != null ? av.hashCode() : 0);
       super.hashCode = result;
     }
     return result;
@@ -237,12 +245,12 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
     if (login != null) builder.append(", login=").append(login);
     if (!contacts.isEmpty()) builder.append(", contacts=").append(contacts);
     if (text != null) builder.append(", text=").append(text);
-    if (av != null) builder.append(", av=").append(av);
     if (file != null) builder.append(", file=").append(file);
     if (store != null) builder.append(", store=").append(store);
     if (load != null) builder.append(", load=").append(load);
     if (!raw.isEmpty()) builder.append(", raw=").append(raw);
     if (payload != null) builder.append(", payload=").append(payload);
+    if (av != null) builder.append(", av=").append(av);
     return builder.replace(0, 2, "Haber{").append('}').toString();
   }
 
@@ -251,29 +259,29 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
 
     public String sessionId;
 
-    public ByteString from;
+    public String from;
 
-    public ByteString to;
+    public String to;
 
     public Which which;
 
-    public Login login;
+    public String login;
 
     public List<Contact> contacts;
 
-    public Text text;
-
-    public Av av;
+    public ByteString text;
 
     public File file;
 
     public Store store;
 
-    public Load load;
+    public ByteString load;
 
     public List<ByteString> raw;
 
     public ByteString payload;
+
+    public ByteString av;
 
     public Builder() {
       contacts = Internal.newMutableList();
@@ -290,12 +298,12 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
       return this;
     }
 
-    public Builder from(ByteString from) {
+    public Builder from(String from) {
       this.from = from;
       return this;
     }
 
-    public Builder to(ByteString to) {
+    public Builder to(String to) {
       this.to = to;
       return this;
     }
@@ -308,7 +316,7 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
     /**
      * One of the following will be filled in
      */
-    public Builder login(Login login) {
+    public Builder login(String login) {
       this.login = login;
       return this;
     }
@@ -322,13 +330,8 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
       return this;
     }
 
-    public Builder text(Text text) {
+    public Builder text(ByteString text) {
       this.text = text;
-      return this;
-    }
-
-    public Builder av(Av av) {
-      this.av = av;
       return this;
     }
 
@@ -342,7 +345,7 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
       return this;
     }
 
-    public Builder load(Load load) {
+    public Builder load(ByteString load) {
       this.load = load;
       return this;
     }
@@ -358,9 +361,14 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
       return this;
     }
 
+    public Builder av(ByteString av) {
+      this.av = av;
+      return this;
+    }
+
     @Override
     public Haber build() {
-      return new Haber(version, sessionId, from, to, which, login, contacts, text, av, file, store, load, raw, payload, super.buildUnknownFields());
+      return new Haber(version, sessionId, from, to, which, login, contacts, text, file, store, load, raw, payload, av, super.buildUnknownFields());
     }
   }
 
@@ -441,18 +449,18 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
     public int encodedSize(Haber value) {
       return ProtoAdapter.UINT32.encodedSizeWithTag(1, value.version)
           + ProtoAdapter.STRING.encodedSizeWithTag(2, value.sessionId)
-          + ProtoAdapter.BYTES.encodedSizeWithTag(3, value.from)
-          + ProtoAdapter.BYTES.encodedSizeWithTag(4, value.to)
+          + ProtoAdapter.STRING.encodedSizeWithTag(3, value.from)
+          + ProtoAdapter.STRING.encodedSizeWithTag(4, value.to)
           + Which.ADAPTER.encodedSizeWithTag(5, value.which)
-          + Login.ADAPTER.encodedSizeWithTag(101, value.login)
+          + ProtoAdapter.STRING.encodedSizeWithTag(101, value.login)
           + Contact.ADAPTER.asRepeated().encodedSizeWithTag(102, value.contacts)
-          + Text.ADAPTER.encodedSizeWithTag(104, value.text)
-          + Av.ADAPTER.encodedSizeWithTag(105, value.av)
-          + File.ADAPTER.encodedSizeWithTag(106, value.file)
-          + Store.ADAPTER.encodedSizeWithTag(107, value.store)
-          + Load.ADAPTER.encodedSizeWithTag(108, value.load)
-          + ProtoAdapter.BYTES.asRepeated().encodedSizeWithTag(109, value.raw)
-          + ProtoAdapter.BYTES.encodedSizeWithTag(110, value.payload)
+          + ProtoAdapter.BYTES.encodedSizeWithTag(103, value.text)
+          + File.ADAPTER.encodedSizeWithTag(104, value.file)
+          + Store.ADAPTER.encodedSizeWithTag(105, value.store)
+          + ProtoAdapter.BYTES.encodedSizeWithTag(106, value.load)
+          + ProtoAdapter.BYTES.asRepeated().encodedSizeWithTag(107, value.raw)
+          + ProtoAdapter.BYTES.encodedSizeWithTag(108, value.payload)
+          + ProtoAdapter.BYTES.encodedSizeWithTag(109, value.av)
           + value.unknownFields().size();
     }
 
@@ -460,18 +468,18 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
     public void encode(ProtoWriter writer, Haber value) throws IOException {
       ProtoAdapter.UINT32.encodeWithTag(writer, 1, value.version);
       ProtoAdapter.STRING.encodeWithTag(writer, 2, value.sessionId);
-      ProtoAdapter.BYTES.encodeWithTag(writer, 3, value.from);
-      ProtoAdapter.BYTES.encodeWithTag(writer, 4, value.to);
+      ProtoAdapter.STRING.encodeWithTag(writer, 3, value.from);
+      ProtoAdapter.STRING.encodeWithTag(writer, 4, value.to);
       Which.ADAPTER.encodeWithTag(writer, 5, value.which);
-      Login.ADAPTER.encodeWithTag(writer, 101, value.login);
+      ProtoAdapter.STRING.encodeWithTag(writer, 101, value.login);
       Contact.ADAPTER.asRepeated().encodeWithTag(writer, 102, value.contacts);
-      Text.ADAPTER.encodeWithTag(writer, 104, value.text);
-      Av.ADAPTER.encodeWithTag(writer, 105, value.av);
-      File.ADAPTER.encodeWithTag(writer, 106, value.file);
-      Store.ADAPTER.encodeWithTag(writer, 107, value.store);
-      Load.ADAPTER.encodeWithTag(writer, 108, value.load);
-      ProtoAdapter.BYTES.asRepeated().encodeWithTag(writer, 109, value.raw);
-      ProtoAdapter.BYTES.encodeWithTag(writer, 110, value.payload);
+      ProtoAdapter.BYTES.encodeWithTag(writer, 103, value.text);
+      File.ADAPTER.encodeWithTag(writer, 104, value.file);
+      Store.ADAPTER.encodeWithTag(writer, 105, value.store);
+      ProtoAdapter.BYTES.encodeWithTag(writer, 106, value.load);
+      ProtoAdapter.BYTES.asRepeated().encodeWithTag(writer, 107, value.raw);
+      ProtoAdapter.BYTES.encodeWithTag(writer, 108, value.payload);
+      ProtoAdapter.BYTES.encodeWithTag(writer, 109, value.av);
       writer.writeBytes(value.unknownFields());
     }
 
@@ -483,8 +491,8 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
         switch (tag) {
           case 1: builder.version(ProtoAdapter.UINT32.decode(reader)); break;
           case 2: builder.sessionId(ProtoAdapter.STRING.decode(reader)); break;
-          case 3: builder.from(ProtoAdapter.BYTES.decode(reader)); break;
-          case 4: builder.to(ProtoAdapter.BYTES.decode(reader)); break;
+          case 3: builder.from(ProtoAdapter.STRING.decode(reader)); break;
+          case 4: builder.to(ProtoAdapter.STRING.decode(reader)); break;
           case 5: {
             try {
               builder.which(Which.ADAPTER.decode(reader));
@@ -493,15 +501,15 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
             }
             break;
           }
-          case 101: builder.login(Login.ADAPTER.decode(reader)); break;
+          case 101: builder.login(ProtoAdapter.STRING.decode(reader)); break;
           case 102: builder.contacts.add(Contact.ADAPTER.decode(reader)); break;
-          case 104: builder.text(Text.ADAPTER.decode(reader)); break;
-          case 105: builder.av(Av.ADAPTER.decode(reader)); break;
-          case 106: builder.file(File.ADAPTER.decode(reader)); break;
-          case 107: builder.store(Store.ADAPTER.decode(reader)); break;
-          case 108: builder.load(Load.ADAPTER.decode(reader)); break;
-          case 109: builder.raw.add(ProtoAdapter.BYTES.decode(reader)); break;
-          case 110: builder.payload(ProtoAdapter.BYTES.decode(reader)); break;
+          case 103: builder.text(ProtoAdapter.BYTES.decode(reader)); break;
+          case 104: builder.file(File.ADAPTER.decode(reader)); break;
+          case 105: builder.store(Store.ADAPTER.decode(reader)); break;
+          case 106: builder.load(ProtoAdapter.BYTES.decode(reader)); break;
+          case 107: builder.raw.add(ProtoAdapter.BYTES.decode(reader)); break;
+          case 108: builder.payload(ProtoAdapter.BYTES.decode(reader)); break;
+          case 109: builder.av(ProtoAdapter.BYTES.decode(reader)); break;
           default: {
             FieldEncoding fieldEncoding = reader.peekFieldEncoding();
             Object value = fieldEncoding.rawProtoAdapter().decode(reader);
@@ -516,13 +524,9 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
     @Override
     public Haber redact(Haber value) {
       Builder builder = value.newBuilder();
-      if (builder.login != null) builder.login = Login.ADAPTER.redact(builder.login);
       Internal.redactElements(builder.contacts, Contact.ADAPTER);
-      if (builder.text != null) builder.text = Text.ADAPTER.redact(builder.text);
-      if (builder.av != null) builder.av = Av.ADAPTER.redact(builder.av);
       if (builder.file != null) builder.file = File.ADAPTER.redact(builder.file);
       if (builder.store != null) builder.store = Store.ADAPTER.redact(builder.store);
-      if (builder.load != null) builder.load = Load.ADAPTER.redact(builder.load);
       builder.clearUnknownFields();
       return builder.build();
     }

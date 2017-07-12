@@ -25,27 +25,27 @@ public final class Login extends AndroidMessage<Login, Login.Builder> {
 
   private static final long serialVersionUID = 0L;
 
-  public static final String DEFAULT_USERNAME = "";
+  public static final String DEFAULT_ID = "";
 
   @WireField(
       tag = 1,
       adapter = "com.squareup.wire.ProtoAdapter#STRING"
   )
-  public final String username;
+  public final String id;
 
-  public Login(String username) {
-    this(username, ByteString.EMPTY);
+  public Login(String id) {
+    this(id, ByteString.EMPTY);
   }
 
-  public Login(String username, ByteString unknownFields) {
+  public Login(String id, ByteString unknownFields) {
     super(ADAPTER, unknownFields);
-    this.username = username;
+    this.id = id;
   }
 
   @Override
   public Builder newBuilder() {
     Builder builder = new Builder();
-    builder.username = username;
+    builder.id = id;
     builder.addUnknownFields(unknownFields());
     return builder;
   }
@@ -56,7 +56,7 @@ public final class Login extends AndroidMessage<Login, Login.Builder> {
     if (!(other instanceof Login)) return false;
     Login o = (Login) other;
     return unknownFields().equals(o.unknownFields())
-        && Internal.equals(username, o.username);
+        && Internal.equals(id, o.id);
   }
 
   @Override
@@ -64,7 +64,7 @@ public final class Login extends AndroidMessage<Login, Login.Builder> {
     int result = super.hashCode;
     if (result == 0) {
       result = unknownFields().hashCode();
-      result = result * 37 + (username != null ? username.hashCode() : 0);
+      result = result * 37 + (id != null ? id.hashCode() : 0);
       super.hashCode = result;
     }
     return result;
@@ -73,24 +73,24 @@ public final class Login extends AndroidMessage<Login, Login.Builder> {
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    if (username != null) builder.append(", username=").append(username);
+    if (id != null) builder.append(", id=").append(id);
     return builder.replace(0, 2, "Login{").append('}').toString();
   }
 
   public static final class Builder extends Message.Builder<Login, Builder> {
-    public String username;
+    public String id;
 
     public Builder() {
     }
 
-    public Builder username(String username) {
-      this.username = username;
+    public Builder id(String id) {
+      this.id = id;
       return this;
     }
 
     @Override
     public Login build() {
-      return new Login(username, super.buildUnknownFields());
+      return new Login(id, super.buildUnknownFields());
     }
   }
 
@@ -101,13 +101,13 @@ public final class Login extends AndroidMessage<Login, Login.Builder> {
 
     @Override
     public int encodedSize(Login value) {
-      return ProtoAdapter.STRING.encodedSizeWithTag(1, value.username)
+      return ProtoAdapter.STRING.encodedSizeWithTag(1, value.id)
           + value.unknownFields().size();
     }
 
     @Override
     public void encode(ProtoWriter writer, Login value) throws IOException {
-      ProtoAdapter.STRING.encodeWithTag(writer, 1, value.username);
+      ProtoAdapter.STRING.encodeWithTag(writer, 1, value.id);
       writer.writeBytes(value.unknownFields());
     }
 
@@ -117,7 +117,7 @@ public final class Login extends AndroidMessage<Login, Login.Builder> {
       long token = reader.beginMessage();
       for (int tag; (tag = reader.nextTag()) != -1;) {
         switch (tag) {
-          case 1: builder.username(ProtoAdapter.STRING.decode(reader)); break;
+          case 1: builder.id(ProtoAdapter.STRING.decode(reader)); break;
           default: {
             FieldEncoding fieldEncoding = reader.peekFieldEncoding();
             Object value = fieldEncoding.rawProtoAdapter().decode(reader);

@@ -37,22 +37,18 @@ class Backend {
         network.connect()
     }
 
-    func sendPublicKey(_ localPublicKey: Data, to: Data) {
+    func sendPublicKey(_ localPublicKey: Data, to: String) {
         let haberBuilder = Haber.Builder().setPayload(localPublicKey).setWhich(.publicKey).setTo(to)
         send(haberBuilder)
     }
 
-    func sendData(_ body: Data, to: Data) {
+    func sendData(_ body: Data, to: String) {
         let haberBuilder = Haber.Builder().setPayload(body).setWhich(.payload).setTo(to)
         send(haberBuilder)
     }
 
-    func sendText(_ body: String, to: Data) {
-        guard let update = try? Text.Builder().setBody(body).build() else {
-            print("could not create Text")
-            return
-        }
-        let haberBuilder = Haber.Builder().setText(update).setWhich(.text).setTo(to)
+    func sendText(_ body: String, to: String) {
+        let haberBuilder = Haber.Builder().setText(body.data(using: .utf8)!).setWhich(.text).setTo(to)
         send(haberBuilder)
     }
 
@@ -88,21 +84,16 @@ class Backend {
     }
 
     func sendLoad(key: Data) {
-        do {
-            let load = try Load.Builder().setKey(key).build()
-            let haberBuilder = Haber.Builder().setWhich(.load).setLoad(load)
-            send(haberBuilder)
-        } catch {
-            print(error.localizedDescription)
-        }
+        let haberBuilder = Haber.Builder().setWhich(.load).setLoad(key)
+        send(haberBuilder)
     }
 
-    private func didReceivePublicKey(_ payload: Data, from senderId: Data) {
+    private func didReceivePublicKey(_ payload: Data, from senderId: String) {
         crypto!.setPublicKey(key: payload, for:senderId)
     }
 
     private func didReceivePayload(_ payload: Data) {
-        
+        print("didReceivePayload not implemented")
     }
 
     func register(username: String, password: String) {
@@ -110,14 +101,9 @@ class Backend {
     }
 
     func login(username: String, password: String) {
-        do {
-            credential = Credential(username: username, password: password)
-            let login = try Login.Builder().setUsername(username).build()
-            let haberBuilder = Haber.Builder().setLogin(login).setWhich(.login)
-            send(haberBuilder)
-        } catch {
-            print(error.localizedDescription)
-        }
+        credential = Credential(username: username, password: password)
+        let haberBuilder = Haber.Builder().setLogin(username).setWhich(.login)
+        send(haberBuilder)
     }
 
     func didReceiveData(_ data: Data) {
