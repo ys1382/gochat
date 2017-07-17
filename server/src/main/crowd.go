@@ -55,7 +55,7 @@ func (crowd *Crowd) Init(db *bolt.DB) {
 
 func (crowd *Crowd) messageArrived(conn *websocket.Conn, haber *Haber, sessionId string) bool {
   if haber.GetWhich() == Haber_LOGIN {
-    crowd.receivedUsername(conn, haber.GetLogin())
+    crowd.receivedLogin(conn, haber.GetLogin())
     return false
   }
   sessionId = haber.GetSessionId()
@@ -84,26 +84,26 @@ func (crowd *Crowd) messageArrived(conn *websocket.Conn, haber *Haber, sessionId
   return false
 }
 
-func (crowd *Crowd) receivedUsername(conn *websocket.Conn, username string) {
-  fmt.Println("receivedUsername: " + username)
+func (crowd *Crowd) receivedLogin(conn *websocket.Conn, id string) {
+  fmt.Println("receivedLogin: " + id)
   defer crowd.clientsMtx.Unlock()
   crowd.clientsMtx.Lock()
 
   sessionId := createSessionId()
 
   var client *Client
-  if c, ok := crowd.clients[username]; ok {
+  if c, ok := crowd.clients[id]; ok {
     client = c
   } else {
     client = &Client{
-      name:     username,
+      id:     id,
       sessions: make(map[string]*websocket.Conn),
       online:   false,
     }
   }
   client.sessions[sessionId] = conn
-  crowd.clients[username] = client
-  fmt.Printf("new client name=%s, session=%s, len=%d\n", client.name, sessionId, len(client.sessions))
+  crowd.clients[id] = client
+  fmt.Printf("new client id=%s, session=%s, len=%d\n", client.id, sessionId, len(client.sessions))
   client.Load(crowd.db)
   crowd.clients[sessionId] = client
   client.sendContacts(sessionId)
@@ -129,7 +129,7 @@ func (crowd *Crowd) updatePresence(sessionId string, online bool) {
   }
 
   if online == client.online {
-    fmt.Printf("updatePresence: %s is already %t\n", client.name, client.online)
+    fmt.Printf("updatePresence: %s is already %t\n", client.id, client.online)
     return
   } else {
     fmt.Println("updatePresence sessionId=" + sessionId)
@@ -138,14 +138,14 @@ func (crowd *Crowd) updatePresence(sessionId string, online bool) {
   crowd.clients[sessionId] = client
 
   // inform subscribers
-  from := client.name
+  from := client.id
   contact := &Contact{
-    Name: from,
+    Id: from,
     Online: online,
   }
 
   for _,subscriber := range crowd.presenceSubscribers[from] {
-    fmt.Println("\t subscriber name =" + subscriber)
+    fmt.Println("\t subscriber id =" + subscriber)
     update := &Haber {
       Which: Haber_PRESENCE,
       Contacts: []*Contact{contact},

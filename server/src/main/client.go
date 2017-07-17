@@ -8,7 +8,7 @@ import (
 )
 
 type Client struct {
-  name       string
+  id         string
   contacts   []*Contact
   sessions   map[string]*websocket.Conn
   online     bool
@@ -17,7 +17,7 @@ type Client struct {
 
 func (client *Client) Save(db *bolt.DB, haber *Haber) {
   db.Update(func(tx *bolt.Tx) error {
-    b, err := tx.CreateBucketIfNotExists([]byte(client.name))
+    b, err := tx.CreateBucketIfNotExists([]byte(client.id))
     if err != nil {
       fmt.Println("Error opening bucket:", err)
     }
@@ -31,11 +31,11 @@ func (client *Client) Save(db *bolt.DB, haber *Haber) {
 
 func (client *Client) Load(db *bolt.DB) {
   db.View(func(tx *bolt.Tx) error {
-    b := tx.Bucket([]byte(client.name))
+    b := tx.Bucket([]byte(client.id))
     if b != nil {
       data := b.Get([]byte("contacts"))
       if data == nil {
-        fmt.Println("contacts are nil for " + client.name)
+        fmt.Println("contacts are nil for " + client.id)
       } else {
         var haber Haber
         err := proto.Unmarshal(data, &haber)
@@ -71,9 +71,9 @@ func (client *Client) Send(haber *Haber) {
 
 func (client *Client) receivedLoad(haber *Haber) {
   crowd.db.View(func(tx *bolt.Tx) error {
-    b := tx.Bucket([]byte(client.name))
+    b := tx.Bucket([]byte(client.id))
     if b == nil {
-      fmt.Println("no bucket for " + client.name)
+      fmt.Println("no bucket for " + client.id)
       return nil
     }
     key := haber.GetPayload()
@@ -89,7 +89,7 @@ func (client *Client) receivedLoad(haber *Haber) {
     update := &Haber{
       Which: Haber_STORE,
       Store: store,
-      To:    client.name,
+      To:    client.id,
     }
     crowd.queue <- *update
     return nil
@@ -98,7 +98,7 @@ func (client *Client) receivedLoad(haber *Haber) {
 
 func (client *Client) receivedStore(haber *Haber) {
   crowd.db.Update(func(tx *bolt.Tx) error {
-    b, err := tx.CreateBucketIfNotExists([]byte(client.name))
+    b, err := tx.CreateBucketIfNotExists([]byte(client.id))
     if err != nil {
       fmt.Println("Error opening bucket:", err)
     }
@@ -107,21 +107,21 @@ func (client *Client) receivedStore(haber *Haber) {
 }
 
 func (client *Client) subscribeToContacts() {
-  from := client.name
+  from := client.id
   fmt.Println("subscribeToContacts from " + from)
   for _,contact := range client.contacts {
-    contactName := contact.GetName()
-    fmt.Println("\t contactName=" + contactName)
+    contactId := contact.GetId()
+    fmt.Println("\t contactId=" + contactId)
     if client.online {
-      if _,ok := crowd.presenceSubscribers[contactName]; !ok {
-        crowd.presenceSubscribers[contactName] = []string{from}
+      if _,ok := crowd.presenceSubscribers[contactId]; !ok {
+        crowd.presenceSubscribers[contactId] = []string{from}
       } else {
-        crowd.presenceSubscribers[contactName] = append(crowd.presenceSubscribers[contactName], from)
+        crowd.presenceSubscribers[contactId] = append(crowd.presenceSubscribers[contactId], from)
       }
     } else { // offline
-      crowd.presenceSubscribers[contactName] = remove(crowd.presenceSubscribers[contactName], from)
-      if len(crowd.presenceSubscribers[contactName]) == 0 {
-        delete(crowd.presenceSubscribers, contactName)
+      crowd.presenceSubscribers[contactId] = remove(crowd.presenceSubscribers[contactId], from)
+      if len(crowd.presenceSubscribers[contactId]) == 0 {
+        delete(crowd.presenceSubscribers, contactId)
       }
     }
   }
@@ -139,7 +139,7 @@ func remove(s []string, r string) []string {
 
 func (client *Client) sendContacts(sessionId string) {
   for _,contact := range client.contacts {
-    _,ok := crowd.clients[contact.Name]
+    _,ok := crowd.clients[contact.GetId()]
     contact.Online = ok
   }
 
@@ -147,27 +147,27 @@ func (client *Client) sendContacts(sessionId string) {
     Which: Haber_CONTACTS,
     SessionId: sessionId,
     Contacts: client.contacts,
-    To: client.name,
+    To: client.id,
   }
   crowd.queue <- *buds
 }
 
 func forward(client *Client, haber *Haber) {
-  haber.From = client.name
-  crowd.queue <- *haber // forward to all devices with source's and destination's names
+  haber.From = client.id
+  crowd.queue <- *haber // forward to all devices with source's and destination's ids
 }
 
 func (client *Client) receivedContacts(haber *Haber) {
-  fmt.Println("receivedContacts for " + client.name)
+  fmt.Println("receivedContacts for " + client.id)
   client.contacts = haber.GetContacts()
   client.subscribeToContacts()
   client.Save(crowd.db, haber)
 
   for _,contact := range haber.Contacts {
-    if c, ok := crowd.clients[contact.Name]; ok {
+    if c, ok := crowd.clients[contact.GetId()]; ok {
       contact.Online = c.online
     }
   }
-  haber.To = client.name
+  haber.To = client.id
   forward(client, haber)
 }

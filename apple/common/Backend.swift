@@ -15,8 +15,9 @@ class Backend {
 
     private init() {
 
-        LocalStorage.remove(key: .username)
-        LocalStorage.remove(key: .password)
+        // uncomment to reset stored credentials
+//        LocalStorage.remove(key: .username)
+//        LocalStorage.remove(key: .password)
 
         if let username = LocalStorage.loadString(forKey: .username),
             let password = LocalStorage.loadString(forKey: .password) {
