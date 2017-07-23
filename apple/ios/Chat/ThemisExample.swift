@@ -87,7 +87,7 @@ class Peer3 {
                 Backend.shared.sendHandshake(message: decryptedMessage, to: peerId)
             } else if status != .sessionEstablished { // themis says: session now established
                 print("themis says: session now established")
-                didEstablishSession()
+                didEstablishSession(sendThisToo: decryptedMessage)
             } else { // themis says: here is the decrypted message
                 print("themis says: here is the decrypted message")
                 Backend.shared.didReceiveData(decryptedMessage)
@@ -102,8 +102,11 @@ class Peer3 {
         }
     }
 
-    private func didEstablishSession() {
+    private func didEstablishSession(sendThisToo: Data? = nil) {
         status = .sessionEstablished
+        if let message = sendThisToo {
+            Backend.shared.sendHandshake(message: message, to: peerId)
+        }
         Backend.shared.handshook(with: peerId)
     }
 
