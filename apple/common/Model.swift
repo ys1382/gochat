@@ -13,7 +13,7 @@ class Model {
     var watching: String? {
         didSet {
             if let watching = watching {
-                self.unreads[watching] = 0
+                unreads[watching] = 0
             }
         }
     }

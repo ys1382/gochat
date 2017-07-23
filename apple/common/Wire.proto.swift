@@ -914,6 +914,9 @@ final public class Haber : GeneratedMessage {
             case load = 7
             case payload = 8
             case publicKey = 9
+            case publicKeyResponse = 10
+            case handshake = 11
+            case envelope = 12
             public func toString() -> String {
                 switch self {
                 case .login: return "LOGIN"
@@ -926,6 +929,9 @@ final public class Haber : GeneratedMessage {
                 case .load: return "LOAD"
                 case .payload: return "PAYLOAD"
                 case .publicKey: return "PUBLIC_KEY"
+                case .publicKeyResponse: return "PUBLIC_KEY_RESPONSE"
+                case .handshake: return "HANDSHAKE"
+                case .envelope: return "ENVELOPE"
                 }
             }
             public static func fromString(_ str:String) throws -> Haber.Which {
@@ -940,6 +946,9 @@ final public class Haber : GeneratedMessage {
                 case "LOAD":    return .load
                 case "PAYLOAD":    return .payload
                 case "PUBLIC_KEY":    return .publicKey
+                case "PUBLIC_KEY_RESPONSE":    return .publicKeyResponse
+                case "HANDSHAKE":    return .handshake
+                case "ENVELOPE":    return .envelope
                 default: throw ProtocolBuffersError.invalidProtocolBuffer("Conversion failed.")
                 }
             }
@@ -957,6 +966,9 @@ final public class Haber : GeneratedMessage {
                 case .load: return ".load"
                 case .payload: return ".payload"
                 case .publicKey: return ".publicKey"
+                case .publicKeyResponse: return ".publicKeyResponse"
+                case .handshake: return ".handshake"
+                case .envelope: return ".envelope"
                 }
             }
             public var hashValue:Int {

@@ -9,7 +9,7 @@ class LocalStorage {
         case texts
 
         func toData() -> Data {
-            return self.rawValue.data(using: String.Encoding.utf8)!
+            return rawValue.data(using: String.Encoding.utf8)!
         }
 
         init(_ data: Data) throws {

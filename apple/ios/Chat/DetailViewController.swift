@@ -19,8 +19,8 @@ class DetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.title = Model.shared.watching
-        self.updateTranscript()
+        title = Model.shared.watching
+        updateTranscript()
         EventBus.addListener(about: .text) { notification in
             self.updateTranscript()
         }
@@ -32,7 +32,7 @@ class DetailViewController: UIViewController {
 
     private func updateTranscript() {
         if let whom = Model.shared.watching {
-            self.transcript.text = Model.shared.texts
+            transcript.text = Model.shared.texts
                 .filter({ haber in haber.from == Backend.shared.credential?.username || haber.from == whom })
                 .reduce("", { text,haber in text + "\n" + haber.from + ": " + String(data: haber.payload, encoding: .utf8)!} )
         }

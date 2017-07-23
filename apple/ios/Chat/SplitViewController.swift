@@ -8,7 +8,7 @@ class SplitViewController : UISplitViewController {
 
     override func viewDidLoad() {
         SplitViewController.shared = self
-        self.connect()
+        connect()
     }
 
     private func connect() {

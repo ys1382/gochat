@@ -24,17 +24,17 @@ class TextViewController: NSViewController {
         super.viewDidLoad()
         TextViewController.shared = self
 
-        self.updateTranscript()
+        updateTranscript()
         EventBus.addListener(about: .text) { notification in
             self.updateTranscript()
         }
 
-        self.updateTranscript()
+        updateTranscript()
     }
 
     private func updateTranscript() {
         if let whom = Model.shared.watching {
-            self.transcript.string = Model.shared.texts
+            transcript.string = Model.shared.texts
                 .filter({ haber in haber.from == Backend.shared.credential?.username ||
                     haber.from == whom })
                 .reduce("", { text,haber in

@@ -9,12 +9,12 @@ class LoginViewController : NSWindowController {
     @IBOutlet weak var username: NSTextField!
 
     @IBAction func didClickLogin(_ sender: Any) {
-        self.loginWindow?.close()
+        loginWindow?.close()
         Backend.shared.login(username: username.stringValue, password: password.stringValue)
     }
 
     @IBAction func didClickRegister(_ sender: Any) {
-        self.loginWindow?.close()
+        loginWindow?.close()
         Backend.shared.login(username: username.stringValue, password: password.stringValue)
     }
 

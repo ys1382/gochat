@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1A50A4EE1F11C3310000DB64 /* ThemisExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A50A4ED1F11C3310000DB64 /* ThemisExample.swift */; };
+		1A4DF7FC1F205E51007BDFA3 /* ThemisExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A4DF7FB1F205E51007BDFA3 /* ThemisExample.swift */; };
 		1A54C7321EF4AB6A002DD40F /* LocalStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A54C7311EF4AB6A002DD40F /* LocalStorage.swift */; };
 		1A60DFF41EA30FC900BECD73 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A60DFF21EA30FC900BECD73 /* Backend.swift */; };
 		1A60DFF51EA30FC900BECD73 /* Wire.proto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A60DFF31EA30FC900BECD73 /* Wire.proto.swift */; };
@@ -26,7 +26,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1A50A4ED1F11C3310000DB64 /* ThemisExample.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThemisExample.swift; sourceTree = "<group>"; };
+		1A4DF7FB1F205E51007BDFA3 /* ThemisExample.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ThemisExample.swift; path = ../../ios/Chat/ThemisExample.swift; sourceTree = "<group>"; };
 		1A54C7311EF4AB6A002DD40F /* LocalStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LocalStorage.swift; path = ../../common/LocalStorage.swift; sourceTree = "<group>"; };
 		1A60DFF21EA30FC900BECD73 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Backend.swift; path = ../../common/Backend.swift; sourceTree = "<group>"; };
 		1A60DFF31EA30FC900BECD73 /* Wire.proto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Wire.proto.swift; path = ../../common/Wire.proto.swift; sourceTree = "<group>"; };
@@ -64,10 +64,10 @@
 		1A709A4C1EEF2A0D003C2699 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				1A4DF7FB1F205E51007BDFA3 /* ThemisExample.swift */,
 				1AA386E31F04AFAA00F18D93 /* BridgingHeader.h */,
 				1A60DFF21EA30FC900BECD73 /* Backend.swift */,
 				1A7F93F81EE3EB9B009BE159 /* Crypto.swift */,
-				1A50A4ED1F11C3310000DB64 /* ThemisExample.swift */,
 				1AC51C501EE4F46C00681864 /* EventBus.swift */,
 				1A54C7311EF4AB6A002DD40F /* LocalStorage.swift */,
 				1A60DFFF1EA4039400BECD73 /* Model.swift */,
@@ -113,8 +113,8 @@
 			children = (
 				1ADE89E41EA1CE0E00E41212 /* AppDelegate.swift */,
 				1A709A4C1EEF2A0D003C2699 /* Common */,
-				1ADE89ED1EA1CE0E00E41212 /* Info.plist */,
 				1AC51C561EE5EF4700681864 /* UI */,
+				1ADE89ED1EA1CE0E00E41212 /* Info.plist */,
 			);
 			path = Chat;
 			sourceTree = "<group>";
@@ -267,7 +267,7 @@
 				1ADE89E51EA1CE0E00E41212 /* AppDelegate.swift in Sources */,
 				1A60E0001EA4039400BECD73 /* Model.swift in Sources */,
 				1A7F93FB1EE49A4D009BE159 /* Network.swift in Sources */,
-				1A50A4EE1F11C3310000DB64 /* ThemisExample.swift in Sources */,
+				1A4DF7FC1F205E51007BDFA3 /* ThemisExample.swift in Sources */,
 				1A7F93F71EE3EA63009BE159 /* LoginViewController.swift in Sources */,
 				1A60DFF51EA30FC900BECD73 /* Wire.proto.swift in Sources */,
 				1AF35A931EA30BFE002AFC3F /* TextViewController.swift in Sources */,

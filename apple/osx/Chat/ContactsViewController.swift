@@ -20,15 +20,15 @@ class ContactsViewController: NSViewController, NSTableViewDelegate, NSTableView
         alert.window.initialFirstResponder = textField
 
         if alert.runModal() == NSAlertFirstButtonReturn {
-            self.addContact(textField.stringValue)
+            addContact(textField.stringValue)
         }
     }
 
     @IBAction func didClickDel(_ sender: Any) {
-        let row = self.tableView.selectedRow
+        let row = tableView.selectedRow
         if row >= 0 {
-            Model.shared.roster.removeValue(forKey: self.ids[row])
-            self.updateNames()
+            Model.shared.roster.removeValue(forKey: ids[row])
+            updateNames()
         }
     }
 
@@ -52,26 +52,26 @@ class ContactsViewController: NSViewController, NSTableViewDelegate, NSTableView
     }
 
     func addContact(_ username:String) {
-        self.ids.append(username)
-        self.updateNames()
+        ids.append(username)
+        updateNames()
     }
 
     func updateNames() {
-        self.tableView.reloadData()
-        Model.shared.setContacts(self.ids)
+        tableView.reloadData()
+        Model.shared.setContacts(ids)
     }
 
     func numberOfRows(in tableView: NSTableView) -> Int {
-        return self.ids.count
+        return ids.count
     }
 
     func tableView(_ tableView: NSTableView,
                    viewFor tableColumn: NSTableColumn?,
                    row: Int) -> NSView? {
         let cellView = tableView.make(withIdentifier: tableColumn!.identifier, owner: self) as! NSTableCellView
-//        let name = self.nameFor(row)
-        let id = self.ids[row]
-        cellView.textField?.stringValue = self.cellTextFor(id)
+//        let name = nameFor(row)
+        let id = ids[row]
+        cellView.textField?.stringValue = cellTextFor(id)
         cellView.textField?.textColor = Model.shared.roster[id]?.online == true ? .blue : .gray
         return cellView
     }
@@ -84,7 +84,7 @@ class ContactsViewController: NSViewController, NSTableViewDelegate, NSTableView
 
     func tableViewSelectionDidChange(_ notification: Notification) {
         let table = notification.object as! NSTableView
-        Model.shared.watching = table.selectedRow >= 0 ? self.ids[table.selectedRow] : nil
+        Model.shared.watching = table.selectedRow >= 0 ? ids[table.selectedRow] : nil
         TextViewController.shared?.reload()
     }
 }

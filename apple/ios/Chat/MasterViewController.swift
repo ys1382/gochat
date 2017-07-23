@@ -8,13 +8,13 @@ class MasterViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.navigationItem.leftBarButtonItem = self.editButtonItem
+        navigationItem.leftBarButtonItem = editButtonItem
 
         let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(askContact(_:)))
-        self.navigationItem.rightBarButtonItem = addButton
-        if let split = self.splitViewController {
+        navigationItem.rightBarButtonItem = addButton
+        if let split = splitViewController {
             let controllers = split.viewControllers
-            self.detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
+            detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
         }
 
         EventBus.addListener(about: .contacts) { notification in
@@ -32,16 +32,16 @@ class MasterViewController: UITableViewController {
     }
 
     override func viewWillAppear(_ animated: Bool) {
-        self.clearsSelectionOnViewWillAppear = self.splitViewController!.isCollapsed
+        clearsSelectionOnViewWillAppear = splitViewController!.isCollapsed
         super.viewWillAppear(animated)
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let controller = (segue.destination as? UINavigationController)?.topViewController as? DetailViewController,
-            let indexPath = self.tableView.indexPathForSelectedRow {
-            self.tableView.reloadData()
-            Model.shared.watching = self.ids[indexPath.row]
-            controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem
+            let indexPath = tableView.indexPathForSelectedRow {
+            tableView.reloadData()
+            Model.shared.watching = ids[indexPath.row]
+            controller.navigationItem.leftBarButtonItem = splitViewController?.displayModeButtonItem
             controller.navigationItem.leftItemsSupplementBackButton = true
         }
     }
@@ -63,20 +63,20 @@ class MasterViewController: UITableViewController {
         alertController.addTextField { (textField : UITextField!) -> Void in
             textField.placeholder = "New contact name"
         }
-        self.present(alertController, animated: true, completion: nil)
+        present(alertController, animated: true, completion: nil)
     }
 
     // table
 
     private func addContact(_ username:String) {
-        self.ids.insert(username, at: 0)
-        self.updateNames()
+        ids.insert(username, at: 0)
+        updateNames()
     }
 
     private func updateNames() {
-        self.ids.sort()
-        self.tableView.reloadData()
-        Model.shared.setContacts(self.ids)
+        ids.sort()
+        tableView.reloadData()
+        Model.shared.setContacts(ids)
     }
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -84,13 +84,13 @@ class MasterViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.ids.count
+        return ids.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        let name = self.ids[indexPath.row]
-        cell.textLabel?.text = self.cellTextFor(name)
+        let name = ids[indexPath.row]
+        cell.textLabel?.text = cellTextFor(name)
         cell.textLabel?.textColor = Model.shared.roster[name]?.online == true ? .blue : .gray
         return cell
     }
@@ -105,9 +105,9 @@ class MasterViewController: UITableViewController {
                             commit editingStyle: UITableViewCellEditingStyle,
                             forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            self.ids.remove(at: indexPath.row)
+            ids.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
-            self.updateNames()
+            updateNames()
         }
     }
 }

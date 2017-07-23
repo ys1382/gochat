@@ -3,8 +3,6 @@ import Starscream
 
 class Network: WebSocketDelegate {
 
-//    static let address = "ws://107.170.4.248:8000/ws"
-//    private static let address = "ws://10.17.7.91:8000/ws"
     static let address = "ws://10.0.0.33:8000/ws"
 
     static let shared = Network()
@@ -16,13 +14,13 @@ class Network: WebSocketDelegate {
             print("could not create url from " + Network.address)
             return
         }
-        self.websocket = WebSocket(url: url)
+        websocket = WebSocket(url: url)
         websocket?.delegate = self
         websocket?.connect()
     }
 
     func send(_ data: Data) {
-        self.websocket?.write(data: data)
+        websocket?.write(data: data)
     }
 
     // websocket delegate

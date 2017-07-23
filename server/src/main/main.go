@@ -44,12 +44,13 @@ func connected(w http.ResponseWriter, r *http.Request) {
       haber := &Haber{}
       err = proto.Unmarshal(data, haber)
       if err != nil {
-        fmt.Println("unmarshaling error: ", err)
+        fmt.Println("\nUnmarshaling error: ", err)
         return
       }
 
       if crowd.messageArrived(conn, haber, sessionId) {
-        return // received error, stop loop
+        fmt.Println("\nReceived error, stop loop")
+        return
       }
     }
   }()

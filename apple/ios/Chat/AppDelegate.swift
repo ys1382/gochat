@@ -7,12 +7,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        self.setupUI()
+        setupUI()
         return true
     }
 
     private func setupUI() {
-        let splitViewController = self.window!.rootViewController as! UISplitViewController
+        let splitViewController = window!.rootViewController as! UISplitViewController
         let last = splitViewController.viewControllers.count-1
         let navigationController = splitViewController.viewControllers[last] as! UINavigationController
         navigationController.topViewController!.navigationItem.leftBarButtonItem = splitViewController.displayModeButtonItem

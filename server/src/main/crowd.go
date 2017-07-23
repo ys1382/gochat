@@ -79,7 +79,17 @@ func (crowd *Crowd) messageArrived(conn *websocket.Conn, haber *Haber, sessionId
   case Haber_TEXT:
     fallthrough
   case Haber_FILE:
+    fallthrough
+  case Haber_ENVELOPE:
+    fallthrough
+  case Haber_PUBLIC_KEY:
+    fallthrough
+  case Haber_PUBLIC_KEY_RESPONSE:
+    fallthrough
+  case Haber_HANDSHAKE:
     forward(client, haber)
+  default:
+    fmt.Println("No handler for " + haber.GetWhich().String())
   }
   return false
 }
