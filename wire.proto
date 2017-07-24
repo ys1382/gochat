@@ -40,7 +40,6 @@ message Haber {
 	PUBLIC_KEY = 9;
 	PUBLIC_KEY_RESPONSE = 10;
 	HANDSHAKE = 11;
-        ENVELOPE = 12;
     }
     Which which = 5;
 

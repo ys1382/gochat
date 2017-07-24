@@ -80,8 +80,6 @@ func (crowd *Crowd) messageArrived(conn *websocket.Conn, haber *Haber, sessionId
     fallthrough
   case Haber_FILE:
     fallthrough
-  case Haber_ENVELOPE:
-    fallthrough
   case Haber_PUBLIC_KEY:
     fallthrough
   case Haber_PUBLIC_KEY_RESPONSE:

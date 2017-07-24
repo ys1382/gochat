@@ -4,6 +4,8 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
+import com.google.protobuf.ByteString;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -51,7 +53,25 @@ public class Backend extends IntentService {
                 sessionId = haber.sessionId;
                 EventBus.announce(EventBus.Event.AUTHENTICATED);
             }
-            Model.incoming(haber);
+
+            switch (haber.which) {
+                case TEXT:
+                case CONTACTS:
+                case PRESENCE:
+                    Model.incoming(haber);
+                    break;
+                case STORE:
+//                    onStore(haber);
+                    break;
+                case HANDSHAKE:
+                case PAYLOAD:
+//                    onPayload(haber);
+                    break;
+                case PUBLIC_KEY:
+                case PUBLIC_KEY_RESPONSE:
+//                    onPublicKey(haber);
+                    break;
+            }
         } catch (IOException ioException) {
             Log.e(TAG, ioException.getLocalizedMessage());
         }
@@ -67,8 +87,7 @@ public class Backend extends IntentService {
     // send to Network
 
     public static void login(String username) {
-        Login login = new Login.Builder().username(username).build();
-        Haber.Builder haber = new Haber.Builder().which(LOGIN).login(login);
+        Haber.Builder haber = new Haber.Builder().which(LOGIN).login(username);
         shared.send(haber);
     }
 
@@ -78,8 +97,8 @@ public class Backend extends IntentService {
     }
 
     public static void sendText(String recipient, String message) {
-        Text text = new Text.Builder().body(message).build();
-        Haber.Builder haber = new Haber.Builder().which(TEXT).text(text).to(recipient);
+        okio.ByteString text = okio.ByteString.encodeUtf8(message);
+        Haber.Builder haber = new Haber.Builder().which(TEXT).payload(text).to(recipient);
         shared.send(haber);
     }
 }

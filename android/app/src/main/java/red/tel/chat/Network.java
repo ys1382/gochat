@@ -57,7 +57,6 @@ class Network {
                     Log.e(TAG, "Unexpected error");
                 }
 
-
                 @Override
                 public void onBinaryMessage(WebSocket websocket, byte[] binary) throws Exception {
                     Log.i(TAG, "onBinaryMessage " + binary.length + " bytes");

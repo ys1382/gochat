@@ -75,7 +75,7 @@ class Peer3 {
     }
 
     func sendMessage(_ message: Data) {
-        Backend.shared.sendEnvelope(message, to: peerId)
+        Backend.shared.sendPayload(message, to: peerId)
     }
 
     func didReceive(_ data: Data) {

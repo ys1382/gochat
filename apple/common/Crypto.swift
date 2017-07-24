@@ -60,10 +60,10 @@ class Crypto {
         return peers[peerId]!
     }
 
-    func handle(data: Data, from peerId: String) {
-        let peer = self.peer(forPeerId: peerId)
-        peer.didReceive(data)
-    }
+//    func handle(data: Data, from peerId: String) {
+//        let peer = self.peer(forPeerId: peerId)
+//        peer.didReceive(data)
+//    }
 
     func setPublicKey(key: Data, peerId: String, isResponse: Bool) {
         let peer = self.peer(forPeerId: peerId)

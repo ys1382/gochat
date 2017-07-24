@@ -58,8 +58,8 @@ public class Model {
                 EventBus.announce(Event.CONTACTS);
                 break;
             case TEXT:
-                texts.add(haber.text.body);
-                Log.d(TAG, "text " + haber.text.body + ", texts.size = " + texts.size());
+                texts.add(haber.payload.utf8());
+                Log.d(TAG, "text " + haber.payload.utf8() + ", texts.size = " + texts.size());
                 EventBus.announce(Event.TEXT);
                 break;
             default:

@@ -76,8 +76,8 @@ class Backend {
         send(haberBuilder)
     }
 
-    func sendEnvelope(_ body: Data, to: String) {
-        let haberBuilder = Haber.Builder().setPayload(body).setWhich(.envelope).setTo(to)
+    func sendPayload(_ body: Data, to: String) {
+        let haberBuilder = Haber.Builder().setPayload(body).setWhich(.payload).setTo(to)
         send(haberBuilder)
     }
 
@@ -148,7 +148,7 @@ class Backend {
         print("read \(data.count) bytes for \(haber.which) from \(haber.from ?? "server")")
         do {
             switch haber.which {
-                case .envelope:             didReceiveEnvelope(haber)
+//                case .envelope:             didReceiveEnvelope(haber)
                 case .contacts:             Model.shared.didReceiveContacts(haber.contacts)
                 case .text:                 Model.shared.didReceiveText(haber, data: data)
                 case .presence:             Model.shared.didReceivePresence(haber)
@@ -164,13 +164,13 @@ class Backend {
         }
     }
 
-    private func didReceiveEnvelope(_ haber: Haber) {
-        guard let from = haber.from else {
-            print("anonymous envelope")
-            return
-        }
-        crypto!.handle(data: haber.payload, from: from)
-    }
+//    private func didReceiveEnvelope(_ haber: Haber) {
+//        guard let from = haber.from else {
+//            print("anonymous envelope")
+//            return
+//        }
+//        crypto!.handle(data: haber.payload, from: from)
+//    }
 
     private func authenticated(sessionId sid: String) {
         sessionId = sid
