@@ -3,14 +3,11 @@ import Foundation
 class Crypto {
 
     private let cellSeal: TSCellSeal
-    private let localId: String
     private let localPublicKey: Data
     private let localPrivateKey: Data
     private var peers = [String:Peer3]()
 
-    init(username: String, password: String) {
-        localId = username
-
+    init(password: String) {
         let key = password.data(using: .utf8)!
         cellSeal = TSCellSeal(key: key)
 
@@ -59,11 +56,6 @@ class Crypto {
         }
         return peers[peerId]!
     }
-
-//    func handle(data: Data, from peerId: String) {
-//        let peer = self.peer(forPeerId: peerId)
-//        peer.didReceive(data)
-//    }
 
     func setPublicKey(key: Data, peerId: String, isResponse: Bool) {
         let peer = self.peer(forPeerId: peerId)

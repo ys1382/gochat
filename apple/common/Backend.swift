@@ -164,14 +164,6 @@ class Backend {
         }
     }
 
-//    private func didReceiveEnvelope(_ haber: Haber) {
-//        guard let from = haber.from else {
-//            print("anonymous envelope")
-//            return
-//        }
-//        crypto!.handle(data: haber.payload, from: from)
-//    }
-
     private func authenticated(sessionId sid: String) {
         sessionId = sid
 
@@ -182,12 +174,12 @@ class Backend {
 
         LocalStorage.store(username, forKey: .username)
         LocalStorage.store(password, forKey: .password)
-        crypto = Crypto(username: username, password: password)
+        crypto = Crypto(password: password)
 
         EventBus.post(.authenticated)
     }
 
-    // used for debugging, call at start of init()
+    // clear cached credentials. Used for debugging, call at start of init()
     private func clearLocalCredentialsAndLoginAgain() {
         LocalStorage.remove(key: .username)
         LocalStorage.remove(key: .password)
