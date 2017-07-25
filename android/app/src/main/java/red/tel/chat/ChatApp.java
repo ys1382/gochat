@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
-import com.fasterxml.jackson.databind.ser.Serializers;
-
 import red.tel.chat.ui.BaseActivity;
 
 public class ChatApp extends android.app.Application {

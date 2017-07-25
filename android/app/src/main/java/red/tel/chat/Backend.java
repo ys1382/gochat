@@ -4,8 +4,6 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
-import com.google.protobuf.ByteString;
-
 import java.io.IOException;
 import java.util.List;
 
