@@ -60,7 +60,7 @@ class Network {
                 @Override
                 public void onBinaryMessage(WebSocket websocket, byte[] binary) throws Exception {
                     Log.i(TAG, "onBinaryMessage " + binary.length + " bytes");
-                    Backend.incoming(binary);
+                    Backend.shared().onReceiveData(binary);
                 }
             };
 

@@ -34,7 +34,7 @@ class Backend {
             crypto!.isSessionEstablishedFor(haber.to) {
             send(haber)
         } else {
-            crypto!.establishSession(forPeerId: haber.to)
+//            crypto!.establishSession(forPeerId: haber.to)
             enqueue(haber)
         }
     }
@@ -57,8 +57,19 @@ class Backend {
     }
 
     private func send(_ haber: Haber) {
-        print("write \(haber.data().count) bytes for \(haber.which) to \(haber.to ?? "server")")
-        network.send(haber.data())
+        guard let encrypted = crypto!.encrypt(data: haber.data(), forPeerId: haber.to) else {
+            print("could not encrypt")
+            return
+        }
+        print("write \(encrypted.count) bytes for \(haber.which) to \(haber.to ?? "server")")
+
+        do {
+            let payloadBuilder = Haber.Builder().setPayload(encrypted).setWhich(.payload).setTo(haber.to)
+            let payload = try payloadBuilder.build().data()
+            network.send(payload)
+        } catch {
+            print(error.localizedDescription)
+        }
     }
 
     func sendHandshake(message: Data, to peerId: String) {
@@ -76,10 +87,10 @@ class Backend {
         send(haberBuilder)
     }
 
-    func sendPayload(_ body: Data, to: String) {
-        let haberBuilder = Haber.Builder().setPayload(body).setWhich(.payload).setTo(to)
-        send(haberBuilder)
-    }
+//    func sendPayload(_ body: Data, to: String) {
+//        let haberBuilder = Haber.Builder().setPayload(body).setWhich(.payload).setTo(to)
+//        send(haberBuilder)
+//    }
 
     func sendText(_ body: String, to: String) {
         let haberBuilder = Haber.Builder().setPayload(body.data(using: .utf8)!).setWhich(.text).setTo(to)

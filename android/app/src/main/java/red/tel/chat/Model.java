@@ -17,6 +17,7 @@ public class Model {
 
     private static final String TAG = "Model";
     private static final String USERNAME = "username";
+    private static final String PASSWORD = "password";
 
     private static Map<String, Contact> roster = new HashMap<>();
     private static List<String> texts = new ArrayList<>();
@@ -45,6 +46,9 @@ public class Model {
     public static String getUsername() {
         return getSharedPreferences().getString(USERNAME, null);
     }
+    public static String getPassword() {
+        return getSharedPreferences().getString(PASSWORD, null);
+    }
 
     public static void setUsername(String username) {
         getSharedPreferences().edit().putString(USERNAME, username).apply();
@@ -64,7 +68,6 @@ public class Model {
                 break;
             default:
                 Log.e(TAG, "Did not handle incoming " + haber.which);
-                return;
         }
     }
 
@@ -73,6 +76,6 @@ public class Model {
                 roster.containsKey(name) ?
                         roster.get(name) :
                         new Contact.Builder().name(name).build()));
-        Backend.sendContacts(new ArrayList<>(roster.values()));
+        Backend.shared().sendContacts(new ArrayList<>(roster.values()));
     }
 }

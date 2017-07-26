@@ -912,10 +912,10 @@ final public class Haber : GeneratedMessage {
             case av = 5
             case store = 6
             case load = 7
-            case payload = 8
-            case publicKey = 9
-            case publicKeyResponse = 10
-            case handshake = 11
+            case publicKey = 8
+            case publicKeyResponse = 9
+            case handshake = 10
+            case payload = 11
             public func toString() -> String {
                 switch self {
                 case .login: return "LOGIN"
@@ -926,10 +926,10 @@ final public class Haber : GeneratedMessage {
                 case .av: return "AV"
                 case .store: return "STORE"
                 case .load: return "LOAD"
-                case .payload: return "PAYLOAD"
                 case .publicKey: return "PUBLIC_KEY"
                 case .publicKeyResponse: return "PUBLIC_KEY_RESPONSE"
                 case .handshake: return "HANDSHAKE"
+                case .payload: return "PAYLOAD"
                 }
             }
             public static func fromString(_ str:String) throws -> Haber.Which {
@@ -942,10 +942,10 @@ final public class Haber : GeneratedMessage {
                 case "AV":    return .av
                 case "STORE":    return .store
                 case "LOAD":    return .load
-                case "PAYLOAD":    return .payload
                 case "PUBLIC_KEY":    return .publicKey
                 case "PUBLIC_KEY_RESPONSE":    return .publicKeyResponse
                 case "HANDSHAKE":    return .handshake
+                case "PAYLOAD":    return .payload
                 default: throw ProtocolBuffersError.invalidProtocolBuffer("Conversion failed.")
                 }
             }
@@ -961,10 +961,10 @@ final public class Haber : GeneratedMessage {
                 case .av: return ".av"
                 case .store: return ".store"
                 case .load: return ".load"
-                case .payload: return ".payload"
                 case .publicKey: return ".publicKey"
                 case .publicKeyResponse: return ".publicKeyResponse"
                 case .handshake: return ".handshake"
+                case .payload: return ".payload"
                 }
             }
             public var hashValue:Int {

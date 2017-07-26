@@ -331,13 +331,13 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
 
     LOAD(7),
 
-    PAYLOAD(8),
+    PUBLIC_KEY(8),
 
-    PUBLIC_KEY(9),
+    PUBLIC_KEY_RESPONSE(9),
 
-    PUBLIC_KEY_RESPONSE(10),
+    HANDSHAKE(10),
 
-    HANDSHAKE(11);
+    PAYLOAD(11);
 
     public static final ProtoAdapter<Which> ADAPTER = new ProtoAdapter_Which();
 
@@ -360,10 +360,10 @@ public final class Haber extends AndroidMessage<Haber, Haber.Builder> {
         case 5: return AV;
         case 6: return STORE;
         case 7: return LOAD;
-        case 8: return PAYLOAD;
-        case 9: return PUBLIC_KEY;
-        case 10: return PUBLIC_KEY_RESPONSE;
-        case 11: return HANDSHAKE;
+        case 8: return PUBLIC_KEY;
+        case 9: return PUBLIC_KEY_RESPONSE;
+        case 10: return HANDSHAKE;
+        case 11: return PAYLOAD;
         default: return null;
       }
     }

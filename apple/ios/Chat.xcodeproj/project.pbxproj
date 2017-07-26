@@ -14,7 +14,6 @@
 		1A709A491EEF29EC003C2699 /* EventBus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A709A461EEF29EC003C2699 /* EventBus.swift */; };
 		1A709A4A1EEF29EC003C2699 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A709A471EEF29EC003C2699 /* Network.swift */; };
 		1A709A4E1EEF8837003C2699 /* Wire.proto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A709A4D1EEF8837003C2699 /* Wire.proto.swift */; };
-		1A77A1971F1EFC25005A1A55 /* ThemisExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A77A1961F1EFC25005A1A55 /* ThemisExample.swift */; };
 		1AA0003B1EAD9A36006B9EE7 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA0003A1EAD9A36006B9EE7 /* SplitViewController.swift */; };
 		1AA386E01F04AE8D00F18D93 /* LocalStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA386DF1F04AE8D00F18D93 /* LocalStorage.swift */; };
 		1AB0620C1E8843E500A841D0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB0620B1E8843E500A841D0 /* AppDelegate.swift */; };
@@ -34,7 +33,6 @@
 		1A709A461EEF29EC003C2699 /* EventBus.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = EventBus.swift; path = ../../common/EventBus.swift; sourceTree = "<group>"; };
 		1A709A471EEF29EC003C2699 /* Network.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Network.swift; path = ../../common/Network.swift; sourceTree = "<group>"; };
 		1A709A4D1EEF8837003C2699 /* Wire.proto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Wire.proto.swift; path = ../../common/Wire.proto.swift; sourceTree = "<group>"; };
-		1A77A1961F1EFC25005A1A55 /* ThemisExample.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThemisExample.swift; sourceTree = "<group>"; };
 		1AA0003A1EAD9A36006B9EE7 /* SplitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
 		1AA386DF1F04AE8D00F18D93 /* LocalStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LocalStorage.swift; path = ../../common/LocalStorage.swift; sourceTree = "<group>"; };
 		1AA386E41F04B02900F18D93 /* BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BridgingHeader.h; path = ../../common/BridgingHeader.h; sourceTree = "<group>"; };
@@ -102,7 +100,6 @@
 				1A60E0011EA4039F00BECD73 /* Model.swift */,
 				1A709A471EEF29EC003C2699 /* Network.swift */,
 				1A709A4D1EEF8837003C2699 /* Wire.proto.swift */,
-				1A77A1961F1EFC25005A1A55 /* ThemisExample.swift */,
 			);
 			name = Common;
 			sourceTree = "<group>";
@@ -261,7 +258,6 @@
 			files = (
 				1A60DFF81EA30FEA00BECD73 /* Backend.swift in Sources */,
 				1A709A491EEF29EC003C2699 /* EventBus.swift in Sources */,
-				1A77A1971F1EFC25005A1A55 /* ThemisExample.swift in Sources */,
 				1AA0003B1EAD9A36006B9EE7 /* SplitViewController.swift in Sources */,
 				1AB062101E8843E500A841D0 /* DetailViewController.swift in Sources */,
 				1A709A481EEF29EC003C2699 /* Crypto.swift in Sources */,

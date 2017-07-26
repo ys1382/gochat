@@ -60,9 +60,7 @@ public class ItemDetailFragment extends Fragment {
 
         EditText messageEdit = (EditText) rootView.findViewById(R.id.messageEdit);
         ImageButton messageSend = (ImageButton) rootView.findViewById(R.id.chatSendButton);
-        messageSend.setOnClickListener(v -> {
-            Backend.sendText(item, messageEdit.getText().toString());
-        });
+        messageSend.setOnClickListener(v -> Backend.shared().sendText(item, messageEdit.getText().toString()));
 
         EventBus.listenFor(getActivity(), EventBus.Event.TEXT, () -> {
             TextView textView = (TextView) rootView.findViewById(R.id.messagesContainer);

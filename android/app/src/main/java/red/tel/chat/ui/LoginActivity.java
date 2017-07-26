@@ -2,13 +2,10 @@ package red.tel.chat.ui;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -77,24 +74,23 @@ public class LoginActivity extends BaseActivity {
         return password.length() > 0;
     }
 
-    private void showProgress(final boolean show) {
+    private void showProgress() {
         int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-        loginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        loginFormView.animate().setDuration(shortAnimTime).alpha(
-                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+        loginFormView.animate().setDuration(shortAnimTime).alpha(0)
+                .setListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                loginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+                loginFormView.setVisibility(View.GONE);
             }
         });
 
-        progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-        progressView.animate().setDuration(shortAnimTime).alpha(
-                show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+        progressView.setVisibility(View.VISIBLE);
+        progressView.animate().setDuration(shortAnimTime).alpha(1)
+                .setListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                progressView.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -105,8 +101,8 @@ public class LoginActivity extends BaseActivity {
         }
         String username = usernameView.getText().toString();
         Model.setUsername(username);
-        showProgress(true);
-        Backend.login(username);
+        showProgress();
+        Backend.shared().login(username);
     }
 
     public void onClickRegister(View v) {}

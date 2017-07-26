@@ -4,52 +4,64 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ArrayList;
 import java.util.List;
 
+import okio.ByteString;
 import red.tel.chat.generated_protobuf.Contact;
 import red.tel.chat.generated_protobuf.Haber;
-import red.tel.chat.generated_protobuf.Login;
-import red.tel.chat.generated_protobuf.Text;
-import red.tel.chat.ui.ItemListActivity;
+import red.tel.chat.ui.BaseActivity;
 
 import static red.tel.chat.generated_protobuf.Haber.Which.CONTACTS;
+import static red.tel.chat.generated_protobuf.Haber.Which.HANDSHAKE;
+import static red.tel.chat.generated_protobuf.Haber.Which.PAYLOAD;
 import static red.tel.chat.generated_protobuf.Haber.Which.LOGIN;
+import static red.tel.chat.generated_protobuf.Haber.Which.PUBLIC_KEY;
+import static red.tel.chat.generated_protobuf.Haber.Which.PUBLIC_KEY_RESPONSE;
 import static red.tel.chat.generated_protobuf.Haber.Which.TEXT;
 
 // shuttles data between Network and Model
 public class Backend extends IntentService {
 
     private static final String TAG = "Backend";
-    private static Backend shared;
+    private static Backend instance;
     public Backend() {
         super(TAG);
     }
-    Network network;
-    static String sessionId;
+    private Network network;
+    private String sessionId;
+    private Crypto crypto;
+
+
+    private Map<String, ArrayList<Haber>> queue = new HashMap<>();
+
+    public static Backend shared() {
+        return instance;
+    }
 
     @Override
     protected void onHandleIntent(Intent workIntent) {
-        shared = this;
+        instance = this;
         network = new Network();
 
         EventBus.listenFor(this, EventBus.Event.CONNECTED, () -> {
             String username = Model.getUsername();
             if (username != null) {
-                Backend.login(username);
+                Backend.this.login(username);
             }
         });
     }
 
     // receive from Network
-    static void incoming(byte[] binary) {
+    void onReceiveData(byte[] binary) {
         try {
             Haber haber = Haber.ADAPTER.decode(binary);
             Log.d(TAG, "incoming " + haber.which);
 
-            if (haber.sessionId != null) {
-                sessionId = haber.sessionId;
-                EventBus.announce(EventBus.Event.AUTHENTICATED);
+            if (sessionId == null && haber.sessionId != null) {
+                authenticated(haber.sessionId);
             }
 
             switch (haber.which) {
@@ -63,40 +75,110 @@ public class Backend extends IntentService {
                     break;
                 case HANDSHAKE:
                 case PAYLOAD:
-//                    onPayload(haber);
+                    crypto.onReceivePayload(haber.payload.toByteArray(), haber.from);
                     break;
                 case PUBLIC_KEY:
                 case PUBLIC_KEY_RESPONSE:
-//                    onPublicKey(haber);
+                    onPublicKey(haber);
                     break;
             }
-        } catch (IOException ioException) {
-            Log.e(TAG, ioException.getLocalizedMessage());
+        } catch (Exception exception) {
+            Log.e(TAG, exception.getLocalizedMessage());
         }
     }
 
-    public void send(Haber.Builder haber) {
-        Log.d(TAG, "send " + haber.which.getValue());
-        haber.sessionId = sessionId;
-        byte[] bytes = Haber.ADAPTER.encode(haber.build());
-        network.send(bytes);
+    private void onPublicKey(Haber haber) throws Exception {
+        crypto.setPublicKey(
+                haber.payload.toByteArray(),
+                haber.from,
+                haber.which == Haber.Which.PUBLIC_KEY_RESPONSE);
+    }
+
+    private void authenticated(String sessionId) {
+        try {
+            crypto = new Crypto(Model.getPassword());
+        } catch (Exception exception) {
+            Log.e(TAG, exception.getLocalizedMessage());
+            return;
+        }
+        this.sessionId = sessionId;
+        EventBus.announce(EventBus.Event.AUTHENTICATED);
+    }
+
+    private void send(Haber.Builder haberBuilder) {
+        Log.d(TAG, "send " + haberBuilder.which.getValue());
+        haberBuilder.sessionId = sessionId;
+
+        if (haberBuilder.to == null ||
+                haberBuilder.which == PUBLIC_KEY ||
+                haberBuilder.which == PUBLIC_KEY_RESPONSE ||
+                haberBuilder.which == HANDSHAKE ||
+                crypto.isSessionEstablishedFor(haberBuilder.to)) {
+            send(haberBuilder.build());
+        } else {
+            enqueue(haberBuilder.build());
+        }
+    }
+    
+    private void enqueue(Haber haber) {
+        if (!queue.containsKey(haber.to)) {
+            queue.put(haber.to, new ArrayList<>());
+        }
+        queue.get(haber.to).add(haber);
+    }
+
+    private void send(Haber haber) {
+        byte[] bytes = Haber.ADAPTER.encode(haber);
+        try {
+            ByteString encrypted = ByteString.of(crypto.encrypt(bytes, haber.to));
+            Haber.Builder payloadBuilder = new Haber.Builder().which(PAYLOAD).payload(encrypted).to(haber.to);
+            byte[] payload = payloadBuilder.build().encode();
+            network.send(payload);
+        } catch (Exception exception) {
+            BaseActivity.snackbar(exception.getLocalizedMessage());
+        }
     }
 
     // send to Network
 
-    public static void login(String username) {
+    public void login(String username) {
         Haber.Builder haber = new Haber.Builder().which(LOGIN).login(username);
-        shared.send(haber);
+        instance.send(haber);
     }
 
-    public static void sendContacts(List<Contact> contacts) {
+    public void sendContacts(List<Contact> contacts) {
         Haber.Builder haber = new Haber.Builder().which(CONTACTS).contacts(contacts);
-        shared.send(haber);
+        instance.send(haber);
     }
 
-    public static void sendText(String recipient, String message) {
+    public void sendText(String recipient, String message) {
         okio.ByteString text = okio.ByteString.encodeUtf8(message);
         Haber.Builder haber = new Haber.Builder().which(TEXT).payload(text).to(recipient);
-        shared.send(haber);
+        instance.send(haber);
+    }
+
+    void sendPublicKey(byte[] key, String recipient, Boolean isResponse) {
+        Haber.Which which = isResponse ? PUBLIC_KEY_RESPONSE : PUBLIC_KEY;
+        sendData(which, key, recipient);
+    }
+
+    private void sendData(Haber.Which which, byte[] data, String recipient) {
+        okio.ByteString byteString = ByteString.of(data);
+        Haber.Builder haber = new Haber.Builder().which(which).payload(byteString).to(recipient);
+        instance.send(haber);
+    }
+
+    void sendHandshake(byte[] key, String recipient) {
+        sendData(HANDSHAKE, key, recipient);
+    }
+
+    void handshook(String peerId) {
+        ArrayList<Haber> list = queue.get(peerId);
+        if (list == null) {
+            return;
+        }
+        for (Haber haber: list) {
+            send(haber);
+        }
     }
 }
