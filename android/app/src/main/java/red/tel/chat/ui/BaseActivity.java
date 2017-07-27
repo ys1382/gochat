@@ -7,7 +7,6 @@ import android.support.design.widget.Snackbar;
 public class BaseActivity extends AppCompatActivity {
 
     private static BaseActivity current;
-    private static final int SNACK_DURATION = 3;
 
     @Override
     protected void onResume() {
@@ -26,7 +25,7 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public static void snackbar(String message) {
-        Snackbar snackbar = Snackbar.make(current.getView(), message, SNACK_DURATION);
+        Snackbar snackbar = Snackbar.make(current.getView(), message, Snackbar.LENGTH_LONG);
         snackbar.show();
     }
 

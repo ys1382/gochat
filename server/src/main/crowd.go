@@ -22,6 +22,7 @@ func (crowd *Crowd) Init(db *bolt.DB) {
   crowd.presenceSubscribers = make(map[string][]string)
   crowd.db = db
 
+  // loop to send messages from queue
   go func() {
     for {
       message := <-crowd.queue
@@ -44,11 +45,11 @@ func (crowd *Crowd) Init(db *bolt.DB) {
       fmt.Printf("Send %s from %s to %s\n", message.GetWhich().String(), message.From, message.To);
       client.Send(&message)
 
-      if (which == Haber_TEXT || which == Haber_FILE) && (message.To != message.From) {
-        message.To = message.From
-        fmt.Println("\t also send " + message.GetWhich().String() + " from " + message.From + " to " + message.To)
-        crowd.queue <- message
-      }
+      //if (which == Haber_TEXT || which == Haber_FILE) && (message.To != message.From) {
+      //  message.To = message.From
+      //  fmt.Println("\t also send " + message.GetWhich().String() + " from " + message.From + " to " + message.To)
+      //  crowd.queue <- message
+      //}
     }
   }()
 }
@@ -63,10 +64,13 @@ func (crowd *Crowd) messageArrived(conn *websocket.Conn, haber *Haber, sessionId
     fmt.Println("\nsessionId is " + sessionId)
     crowd.updatePresence(sessionId, true)
   }
+
   client, ok := crowd.clients[sessionId]
   if !ok {
-    fmt.Println("no client for " + sessionId)
-    return true
+    if client == nil && sessionId != "" {
+      fmt.Println("no client for " + sessionId)
+      return true
+    }
   }
 
   switch haber.GetWhich() {
@@ -76,15 +80,19 @@ func (crowd *Crowd) messageArrived(conn *websocket.Conn, haber *Haber, sessionId
     client.receivedStore(haber)
   case Haber_LOAD:
     client.receivedLoad(haber)
-  case Haber_TEXT:
-    fallthrough
-  case Haber_FILE:
-    fallthrough
   case Haber_PUBLIC_KEY:
     fallthrough
   case Haber_PUBLIC_KEY_RESPONSE:
     fallthrough
   case Haber_HANDSHAKE:
+    fallthrough
+  case Haber_PAYLOAD:
+    if client == nil {
+      fmt.Println("client is nil")
+    }
+    if haber == nil {
+      fmt.Println("haber is nil")
+    }
     forward(client, haber)
   default:
     fmt.Println("No handler for " + haber.GetWhich().String())

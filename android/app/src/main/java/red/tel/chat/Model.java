@@ -43,15 +43,20 @@ public class Model {
         return PreferenceManager.getDefaultSharedPreferences(ChatApp.getContext());
     }
 
-    public static String getUsername() {
+    static String getUsername() {
         return getSharedPreferences().getString(USERNAME, null);
     }
-    public static String getPassword() {
+
+    static String getPassword() {
         return getSharedPreferences().getString(PASSWORD, null);
     }
 
     public static void setUsername(String username) {
         getSharedPreferences().edit().putString(USERNAME, username).apply();
+    }
+
+    public static void setPassword(String username) {
+        getSharedPreferences().edit().putString(PASSWORD, username).apply();
     }
 
     // from Backend

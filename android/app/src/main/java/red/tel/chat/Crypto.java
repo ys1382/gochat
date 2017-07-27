@@ -21,11 +21,13 @@ class Crypto {
 
     private static final String TAG = "Crypto";
     private SecureCell cell;
+    private String clientId;
     private PrivateKey clientPrivateKey;
     private PublicKey clientPublicKey;
     private Map<String, Peer> peers = new HashMap<>();
 
-    Crypto(String password) throws UnsupportedEncodingException, KeyGenerationException {
+    Crypto(String username, String password) throws UnsupportedEncodingException, KeyGenerationException {
+        clientId = username;
         cell = new SecureCell(password);
         Keypair pair = KeypairGenerator.generateKeypair();
         clientPrivateKey = pair.getPrivateKey();
@@ -122,7 +124,7 @@ class Crypto {
 
         void setServerPublicKey(byte[] key, Boolean isResponse) throws Exception {
             transport.setupKeys(peerId, key);
-            session = new SecureSession(peerId, clientPrivateKey, transport);
+            session = new SecureSession(clientId, clientPrivateKey, transport);
             if (isResponse) {
                 connect();
             } else {

@@ -82,10 +82,11 @@ private class Transport: TSSessionTransportInterface {
     }
 
     override func publicKey(for binaryId: Data!) throws -> Data {
-        if serverId!.data(using: .utf8)! != binaryId {
+        if serverId!.data(using: .utf16)! != binaryId {
             print("mismatch")
+        } else {
+            print("retrieved public key for \(String(describing: String(data: binaryId!, encoding: String.Encoding.utf16)!))")
         }
-        print("retrieved public key for \(String(describing: String(data: binaryId!, encoding: String.Encoding.utf8)!))")
         return serverPublicKeyData!
     }
 }

@@ -96,7 +96,7 @@ public class Backend extends IntentService {
 
     private void authenticated(String sessionId) {
         try {
-            crypto = new Crypto(Model.getPassword());
+            crypto = new Crypto(Model.getUsername(), Model.getPassword());
         } catch (Exception exception) {
             Log.e(TAG, exception.getLocalizedMessage());
             return;
@@ -108,15 +108,13 @@ public class Backend extends IntentService {
     private void send(Haber.Builder haberBuilder) {
         Log.d(TAG, "send " + haberBuilder.which.getValue());
         haberBuilder.sessionId = sessionId;
+        Haber haber = haberBuilder.build();
 
-        if (haberBuilder.to == null ||
-                haberBuilder.which == PUBLIC_KEY ||
-                haberBuilder.which == PUBLIC_KEY_RESPONSE ||
-                haberBuilder.which == HANDSHAKE ||
+        if (dontEncrypt(haber) ||
                 crypto.isSessionEstablishedFor(haberBuilder.to)) {
-            send(haberBuilder.build());
+            send(haber);
         } else {
-            enqueue(haberBuilder.build());
+            enqueue(haber);
         }
     }
     
@@ -127,13 +125,28 @@ public class Backend extends IntentService {
         queue.get(haber.to).add(haber);
     }
 
+    private Boolean dontEncrypt(Haber haber) {
+        return
+                haber.to == null ||
+                haber.which == PUBLIC_KEY ||
+                haber.which == PUBLIC_KEY_RESPONSE ||
+                haber.which == HANDSHAKE;
+    }
+
     private void send(Haber haber) {
         byte[] bytes = Haber.ADAPTER.encode(haber);
+        if (dontEncrypt(haber)) {
+            byte[] message = haber.encode();
+            Log.d(TAG, "write unencrypted " + message.length + " bytes for " + haber.which + " to " + haber.to);
+            network.send(haber.encode());
+            return;
+        }
         try {
             ByteString encrypted = ByteString.of(crypto.encrypt(bytes, haber.to));
-            Haber.Builder payloadBuilder = new Haber.Builder().which(PAYLOAD).payload(encrypted).to(haber.to);
-            byte[] payload = payloadBuilder.build().encode();
-            network.send(payload);
+                Log.d(TAG, "write encrypted " + encrypted.size() + " bytes for " + haber.which + " to " + haber.to);
+                Haber.Builder payloadBuilder = new Haber.Builder().which(PAYLOAD).payload(encrypted).to(haber.to);
+                byte[] payload = payloadBuilder.build().encode();
+                network.send(payload);
         } catch (Exception exception) {
             BaseActivity.snackbar(exception.getLocalizedMessage());
         }

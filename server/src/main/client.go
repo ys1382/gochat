@@ -62,7 +62,7 @@ func (client *Client) Send(haber *Haber) {
   }  else if client == nil {
     fmt.Println("Send - cl is nil")
   } else {
-    fmt.Printf("\t there are %d connections\n", len(client.sessions))
+    //fmt.Printf("\t there are %d connections\n", len(client.sessions))
     for _,conn := range client.sessions {
       conn.WriteMessage(websocket.BinaryMessage, data)
     }
