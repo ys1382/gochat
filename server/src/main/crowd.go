@@ -66,10 +66,13 @@ func (crowd *Crowd) messageArrived(conn *websocket.Conn, haber *Haber, sessionId
   }
 
   client, ok := crowd.clients[sessionId]
+  fmt.Printf("\nok is %t\n", ok)
   if !ok {
     if client == nil && sessionId != "" {
       fmt.Println("no client for " + sessionId)
       return true
+    } else {
+      fmt.Println("sessionId is empty, which=" + haber.GetWhich().String())
     }
   }
 
@@ -88,7 +91,7 @@ func (crowd *Crowd) messageArrived(conn *websocket.Conn, haber *Haber, sessionId
     fallthrough
   case Haber_PAYLOAD:
     if client == nil {
-      fmt.Println("client is nil")
+      fmt.Printf("client is nil %d\n", len(crowd.clients))
     }
     if haber == nil {
       fmt.Println("haber is nil")
@@ -112,7 +115,7 @@ func (crowd *Crowd) receivedLogin(conn *websocket.Conn, id string) {
     client = c
   } else {
     client = &Client{
-      id:     id,
+      id:       id,
       sessions: make(map[string]*websocket.Conn),
       online:   false,
     }
@@ -144,14 +147,14 @@ func (crowd *Crowd) updatePresence(sessionId string, online bool) {
     return
   }
 
+  fmt.Printf("put %s / %s, size is %d\n", client.id, sessionId, len(crowd.clients))
+  crowd.clients[sessionId] = client
   if online == client.online {
-    fmt.Printf("updatePresence: %s is already %t\n", client.id, client.online)
     return
   } else {
-    fmt.Println("updatePresence sessionId=" + sessionId)
+    fmt.Printf("updatePresence sessionId=%s online=%t\n`", sessionId, online)
   }
   client.online = online
-  crowd.clients[sessionId] = client
 
   // inform subscribers
   from := client.id
@@ -161,7 +164,7 @@ func (crowd *Crowd) updatePresence(sessionId string, online bool) {
   }
 
   for _,subscriber := range crowd.presenceSubscribers[from] {
-    fmt.Println("\t subscriber id =" + subscriber)
+    fmt.Println("\t subscriber= " + subscriber)
     update := &Haber {
       Which: Haber_PRESENCE,
       Contacts: []*Contact{contact},

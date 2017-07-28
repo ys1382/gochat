@@ -16,7 +16,7 @@ import com.neovisionaries.ws.client.WebSocketFrame;
 // websocket façade
 class Network {
 
-    private static final String serverUrl = "ws://172.20.10.4:8000/ws";
+    private static final String serverUrl = "ws://10.17.7.91:8000/ws";
     private static final String TAG = "Network";
     private static final int CONNECTION_TIMEOUT = 1000;
     private WebSocket webSocket;

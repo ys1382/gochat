@@ -34,7 +34,7 @@ class Backend {
             if dontEncrypt(haberBuilder) {
                 try buildAndSend(haberBuilder)
             } else if crypto!.isSessionEstablishedFor(haberBuilder.to) {
-                try sendEncrypted(haberBuilder)
+                try encryptAndSend(haberBuilder.build())
             } else {
                 enqueue(haberBuilder)
             }
@@ -60,7 +60,7 @@ class Backend {
     func handshook(with peerId: String) {
         if let q = queues[peerId] {
             for haber in q {
-                send(haber: haber)
+                encryptAndSend(haber)
             }
         }
     }
@@ -70,18 +70,24 @@ class Backend {
     }
 
     private func buildAndSend(_ haberBuilder: Haber.Builder) throws {
-        let haber = try haberBuilder.setSessionId(sessionId!).setTo(haberBuilder.to).build()
-        print("write unencrypted \(haber.data().count) bytes for \(haber.which) to \(haber.to ?? "server")")
-        send(haber: haber)
+        var annotated = haberBuilder
+        if let sessionId = sessionId {
+            annotated = annotated.setSessionId(sessionId)
+        }
+        send(haber: try annotated.build())
     }
 
-    private func sendEncrypted(_ haberBuilder: Haber.Builder) throws {
-        guard let encrypted = try crypto?.encrypt(data: haberBuilder.build().data(), forPeerId: haberBuilder.to) else {
+    private func encryptAndSend(_ haber: Haber) {
+        guard let encrypted = crypto?.encrypt(data: haber.data(), forPeerId: haber.to) else {
             print("encryption failed")
             return
         }
-        let payloadBuilder = Haber.Builder().setPayload(encrypted).setWhich(.payload).setTo(haberBuilder.to)
-        try buildAndSend(payloadBuilder)
+        let payloadBuilder = Haber.Builder().setPayload(encrypted).setWhich(.payload).setTo(haber.to)
+        do {
+            try buildAndSend(payloadBuilder)
+        } catch {
+            print(error.localizedDescription)
+        }
     }
 
     func sendHandshake(message: Data, to peerId: String) {
@@ -154,7 +160,7 @@ class Backend {
         send(haberBuilder)
     }
 
-    func didReceiveData(_ data: Data) {
+    func didReceiveData(_ data: Data, source: String? = nil) {
         guard let haber = try? Haber.parseFrom(data:data) else {
                 print("Could not deserialize")
                 return
@@ -162,12 +168,13 @@ class Backend {
         if let sid = haber.sessionId, sessionId == nil {
             authenticated(sessionId: sid)
         }
+        let from = source ?? haber.from
     
         print("read \(data.count) bytes for \(haber.which) from \(haber.from ?? "server")")
         do {
             switch haber.which {
                 case .contacts:             Model.shared.didReceiveContacts(haber.contacts)
-                case .text:                 Model.shared.didReceiveText(haber, data: data)
+                case .text:                 Model.shared.didReceiveText(haber, data: data, from: from)
                 case .presence:             Model.shared.didReceivePresence(haber)
                 case .store:                try didReceiveStore(haber)
                 case .handshake:            fallthrough

@@ -8,7 +8,7 @@ class Model {
     private var textsStorage = [Data]()
 
     var roster = [String:Contact]()
-    var texts = [Haber]()
+    var texts = [Text]()
     var unreads = [String:Int]()
     var watching: String? {
         didSet {
@@ -22,6 +22,11 @@ class Model {
         case keyNotHandled
     }
 
+    struct Text {
+        var message: Data
+        var from: String
+        var to: String
+    }
 
     private init() {
         EventBus.addListener(about: .authenticated, didReceive: { notification in
@@ -36,13 +41,13 @@ class Model {
         EventBus.post(about:.presence)
     }
 
-    func didReceiveText(_ haber: Haber, data:Data) {
-        if let from = haber.from, haber.from != watching {
+    func didReceiveText(_ haber: Haber, data:Data, from: String?) {
+        if let from = from, from != watching {
             unreads[from] = (unreads[from] ?? 0) + 1
         }
-        texts.append(haber)
+        let text = Text(message: haber.payload, from: from!, to: haber.to)
+        texts.append(text)
         EventBus.post(about:.text)
-
         storeText(data: data)
     }
 
@@ -77,8 +82,8 @@ class Model {
         EventBus.post(.texts)
     }
 
-    private func previousTexts() -> [Haber] {
-        var result = [Haber]()
+    private func previousTexts() -> [Text] {
+        var result = [Text]()
         for data in textsStorage {
             do {
                 let message = try Haber.parseFrom(data: data)
@@ -86,7 +91,8 @@ class Model {
                     print("\(message.which) in textStorage")
                     continue
                 }
-                result.append(message)
+                let text = Text(message: message.payload, from: message.from, to: message.to)
+                result.append(text)
             } catch {
                 print(error.localizedDescription)
             }

@@ -162,7 +162,7 @@ private class Peer {
                 didEstablishSession(sendThisToo: decryptedMessage)
             } else { // themis says: here is the decrypted message
                 print("themis says: here is the decrypted message")
-                Backend.shared.didReceiveData(decryptedMessage)
+                Backend.shared.didReceiveData(decryptedMessage, source: peerId)
             }
         } catch {
             if let session = session, session.isSessionEstablished() {

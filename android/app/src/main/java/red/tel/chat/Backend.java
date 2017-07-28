@@ -12,7 +12,6 @@ import java.util.List;
 import okio.ByteString;
 import red.tel.chat.generated_protobuf.Contact;
 import red.tel.chat.generated_protobuf.Haber;
-import red.tel.chat.ui.BaseActivity;
 
 import static red.tel.chat.generated_protobuf.Haber.Which.CONTACTS;
 import static red.tel.chat.generated_protobuf.Haber.Which.HANDSHAKE;
@@ -105,51 +104,47 @@ public class Backend extends IntentService {
         EventBus.announce(EventBus.Event.AUTHENTICATED);
     }
 
+    private void enqueue(Haber.Builder haberBuilder) {
+        if (!queue.containsKey(haberBuilder.to)) {
+            queue.put(haberBuilder.to, new ArrayList<>());
+        }
+        queue.get(haberBuilder.to).add(haberBuilder.build());
+    }
+
+    private Boolean dontEncrypt(Haber.Builder haberBuilder) {
+        return haberBuilder.to == null ||
+                haberBuilder.which == PUBLIC_KEY ||
+                haberBuilder.which == PUBLIC_KEY_RESPONSE ||
+                haberBuilder.which == HANDSHAKE;
+    }
+
     private void send(Haber.Builder haberBuilder) {
-        Log.d(TAG, "send " + haberBuilder.which.getValue());
-        haberBuilder.sessionId = sessionId;
-        Haber haber = haberBuilder.build();
-
-        if (dontEncrypt(haber) ||
-                crypto.isSessionEstablishedFor(haberBuilder.to)) {
-            send(haber);
+        if (dontEncrypt(haberBuilder)) {
+            buildAndSend(haberBuilder);
+        } else if (crypto.isSessionEstablishedFor(haberBuilder.to)) {
+            encryptAndSend(haberBuilder.build());
         } else {
-            enqueue(haber);
+            enqueue(haberBuilder);
         }
-    }
-    
-    private void enqueue(Haber haber) {
-        if (!queue.containsKey(haber.to)) {
-            queue.put(haber.to, new ArrayList<>());
-        }
-        queue.get(haber.to).add(haber);
     }
 
-    private Boolean dontEncrypt(Haber haber) {
-        return
-                haber.to == null ||
-                haber.which == PUBLIC_KEY ||
-                haber.which == PUBLIC_KEY_RESPONSE ||
-                haber.which == HANDSHAKE;
+    private void encryptAndSend(Haber haber) {
+        try {
+            ByteString encrypted = ByteString.of(crypto.encrypt(haber.encode(), haber.to));
+            Haber.Builder payloadBuilder = new Haber.Builder().payload(encrypted).which(PAYLOAD).to(haber.to);
+            buildAndSend(payloadBuilder);
+        } catch (Exception exception) {
+            Log.e(TAG, exception.getLocalizedMessage());
+        }
+    }
+
+    private void buildAndSend(Haber.Builder haberBuilder) {
+        haberBuilder.sessionId = sessionId;
+        send(haberBuilder.build());
     }
 
     private void send(Haber haber) {
-        byte[] bytes = Haber.ADAPTER.encode(haber);
-        if (dontEncrypt(haber)) {
-            byte[] message = haber.encode();
-            Log.d(TAG, "write unencrypted " + message.length + " bytes for " + haber.which + " to " + haber.to);
-            network.send(haber.encode());
-            return;
-        }
-        try {
-            ByteString encrypted = ByteString.of(crypto.encrypt(bytes, haber.to));
-                Log.d(TAG, "write encrypted " + encrypted.size() + " bytes for " + haber.which + " to " + haber.to);
-                Haber.Builder payloadBuilder = new Haber.Builder().which(PAYLOAD).payload(encrypted).to(haber.to);
-                byte[] payload = payloadBuilder.build().encode();
-                network.send(payload);
-        } catch (Exception exception) {
-            BaseActivity.snackbar(exception.getLocalizedMessage());
-        }
+        network.send(haber.encode());
     }
 
     // send to Network
@@ -191,7 +186,7 @@ public class Backend extends IntentService {
             return;
         }
         for (Haber haber: list) {
-            send(haber);
+            encryptAndSend(haber);
         }
     }
 }
