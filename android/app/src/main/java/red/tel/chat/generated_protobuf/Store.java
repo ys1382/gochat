@@ -27,35 +27,25 @@ public final class Store extends AndroidMessage<Store, Store.Builder> {
 
   public static final ByteString DEFAULT_KEY = ByteString.EMPTY;
 
-  public static final ByteString DEFAULT_VALUE = ByteString.EMPTY;
-
   @WireField(
       tag = 1,
       adapter = "com.squareup.wire.ProtoAdapter#BYTES"
   )
   public final ByteString key;
 
-  @WireField(
-      tag = 2,
-      adapter = "com.squareup.wire.ProtoAdapter#BYTES"
-  )
-  public final ByteString value;
-
-  public Store(ByteString key, ByteString value) {
-    this(key, value, ByteString.EMPTY);
+  public Store(ByteString key) {
+    this(key, ByteString.EMPTY);
   }
 
-  public Store(ByteString key, ByteString value, ByteString unknownFields) {
+  public Store(ByteString key, ByteString unknownFields) {
     super(ADAPTER, unknownFields);
     this.key = key;
-    this.value = value;
   }
 
   @Override
   public Builder newBuilder() {
     Builder builder = new Builder();
     builder.key = key;
-    builder.value = value;
     builder.addUnknownFields(unknownFields());
     return builder;
   }
@@ -66,8 +56,7 @@ public final class Store extends AndroidMessage<Store, Store.Builder> {
     if (!(other instanceof Store)) return false;
     Store o = (Store) other;
     return unknownFields().equals(o.unknownFields())
-        && Internal.equals(key, o.key)
-        && Internal.equals(value, o.value);
+        && Internal.equals(key, o.key);
   }
 
   @Override
@@ -76,7 +65,6 @@ public final class Store extends AndroidMessage<Store, Store.Builder> {
     if (result == 0) {
       result = unknownFields().hashCode();
       result = result * 37 + (key != null ? key.hashCode() : 0);
-      result = result * 37 + (value != null ? value.hashCode() : 0);
       super.hashCode = result;
     }
     return result;
@@ -86,14 +74,11 @@ public final class Store extends AndroidMessage<Store, Store.Builder> {
   public String toString() {
     StringBuilder builder = new StringBuilder();
     if (key != null) builder.append(", key=").append(key);
-    if (value != null) builder.append(", value=").append(value);
     return builder.replace(0, 2, "Store{").append('}').toString();
   }
 
   public static final class Builder extends Message.Builder<Store, Builder> {
     public ByteString key;
-
-    public ByteString value;
 
     public Builder() {
     }
@@ -103,14 +88,9 @@ public final class Store extends AndroidMessage<Store, Store.Builder> {
       return this;
     }
 
-    public Builder value(ByteString value) {
-      this.value = value;
-      return this;
-    }
-
     @Override
     public Store build() {
-      return new Store(key, value, super.buildUnknownFields());
+      return new Store(key, super.buildUnknownFields());
     }
   }
 
@@ -122,14 +102,12 @@ public final class Store extends AndroidMessage<Store, Store.Builder> {
     @Override
     public int encodedSize(Store value) {
       return ProtoAdapter.BYTES.encodedSizeWithTag(1, value.key)
-          + ProtoAdapter.BYTES.encodedSizeWithTag(2, value.value)
           + value.unknownFields().size();
     }
 
     @Override
     public void encode(ProtoWriter writer, Store value) throws IOException {
       ProtoAdapter.BYTES.encodeWithTag(writer, 1, value.key);
-      ProtoAdapter.BYTES.encodeWithTag(writer, 2, value.value);
       writer.writeBytes(value.unknownFields());
     }
 
@@ -140,7 +118,6 @@ public final class Store extends AndroidMessage<Store, Store.Builder> {
       for (int tag; (tag = reader.nextTag()) != -1;) {
         switch (tag) {
           case 1: builder.key(ProtoAdapter.BYTES.decode(reader)); break;
-          case 2: builder.value(ProtoAdapter.BYTES.decode(reader)); break;
           default: {
             FieldEncoding fieldEncoding = reader.peekFieldEncoding();
             Object value = fieldEncoding.rawProtoAdapter().decode(reader);

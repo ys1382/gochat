@@ -6,7 +6,7 @@ class Backend {
     private let network = Network()
     private var sessionId: String?
     private var crypto: Crypto?
-    private var queues = [String:[Haber]]() // peer id : object to send after handshake is complete
+    private var queues = [String:[Wire]]() // peer id : object to send after handshake is complete
 
     struct Credential {
         let username: String
@@ -21,36 +21,36 @@ class Backend {
         }
     }
 
-    private func dontEncrypt(_ haberBuilder: Haber.Builder) -> Bool {
+    private func dontEncrypt(_ wireBuilder: Wire.Builder) -> Bool {
         return
-            !haberBuilder.hasTo ||
-            haberBuilder.which == .publicKey ||
-            haberBuilder.which == .publicKeyResponse ||
-            haberBuilder.which == .handshake
+            !wireBuilder.hasTo ||
+            wireBuilder.which == .publicKey ||
+            wireBuilder.which == .publicKeyResponse ||
+            wireBuilder.which == .handshake
     }
 
-    private func send(_ haberBuilder:Haber.Builder) {
+    private func send(_ wireBuilder:Wire.Builder) {
         do {
-            if dontEncrypt(haberBuilder) {
-                try buildAndSend(haberBuilder)
-            } else if crypto!.isSessionEstablishedFor(haberBuilder.to) {
-                try encryptAndSend(haberBuilder.build())
+            if dontEncrypt(wireBuilder) {
+                try buildAndSend(wireBuilder)
+            } else if crypto!.isSessionEstablishedFor(wireBuilder.to) {
+                try encryptAndSend(wireBuilder.build())
             } else {
-                enqueue(haberBuilder)
+                enqueue(wireBuilder)
             }
         } catch {
             print(error.localizedDescription)
         }
     }
 
-    private func enqueue(_ haberBuilder: Haber.Builder) {
+    private func enqueue(_ wireBuilder: Wire.Builder) {
         do {
-            let haber = try haberBuilder.build()
-            var q = queues[haber.to]
+            let wire = try wireBuilder.build()
+            var q = queues[wire.to]
             if q == nil {
-                queues[haber.to] = [haber]
+                queues[wire.to] = [wire]
             } else {
-                q!.append(haber)
+                q!.append(wire)
             }
         } catch {
             print(error.localizedDescription)
@@ -59,30 +59,30 @@ class Backend {
 
     func handshook(with peerId: String) {
         if let q = queues[peerId] {
-            for haber in q {
-                encryptAndSend(haber)
+            for wire in q {
+                encryptAndSend(wire)
             }
         }
     }
 
-    func send(haber: Haber) {
-        network.send(haber.data())
+    func send(wire: Wire) {
+        network.send(wire.data())
     }
 
-    private func buildAndSend(_ haberBuilder: Haber.Builder) throws {
-        var annotated = haberBuilder
+    private func buildAndSend(_ wireBuilder: Wire.Builder) throws {
+        var annotated = wireBuilder
         if let sessionId = sessionId {
             annotated = annotated.setSessionId(sessionId)
         }
-        send(haber: try annotated.build())
+        send(wire: try annotated.build())
     }
 
-    private func encryptAndSend(_ haber: Haber) {
-        guard let encrypted = crypto?.encrypt(data: haber.data(), forPeerId: haber.to) else {
+    private func encryptAndSend(_ wire: Wire) {
+        guard let encrypted = crypto?.encrypt(data: wire.data(), forPeerId: wire.to) else {
             print("encryption failed")
             return
         }
-        let payloadBuilder = Haber.Builder().setPayload(encrypted).setWhich(.payload).setTo(haber.to)
+        let payloadBuilder = Wire.Builder().setPayload(encrypted).setWhich(.payload).setTo(wire.to)
         do {
             try buildAndSend(payloadBuilder)
         } catch {
@@ -91,8 +91,8 @@ class Backend {
     }
 
     func sendHandshake(message: Data, to peerId: String) {
-        let haberBuilder = Haber.Builder().setPayload(message).setWhich(.handshake).setTo(peerId)
-        send(haberBuilder)
+        let wireBuilder = Wire.Builder().setPayload(message).setWhich(.handshake).setTo(peerId)
+        send(wireBuilder)
     }
 
     func connect() {
@@ -100,19 +100,24 @@ class Backend {
     }
 
     func sendPublicKey(_ localPublicKey: Data, to: String, isResponse: Bool) {
-        let which: Haber.Which = isResponse ? .publicKeyResponse : .publicKey
-        let haberBuilder = Haber.Builder().setPayload(localPublicKey).setWhich(which).setTo(to)
-        send(haberBuilder)
+        let which: Wire.Which = isResponse ? .publicKeyResponse : .publicKey
+        let wireBuilder = Wire.Builder().setPayload(localPublicKey).setWhich(which).setTo(to)
+        send(wireBuilder)
     }
 
-    func sendText(_ body: String, to: String) {
-        let haberBuilder = Haber.Builder().setPayload(body.data(using: .utf8)!).setWhich(.text).setTo(to)
-        send(haberBuilder)
+    func send(_ voipBuilder: Voip.Builder, to: String) {
+        do {
+            let payload = try voipBuilder.build().data()
+            let wireBuilder = Wire.Builder().setPayload(payload).setWhich(.payload).setTo(to)
+            send(wireBuilder)
+        } catch {
+            print(error.localizedDescription)
+        }
     }
 
     func sendContacts(_ contacts: [Contact]) {
-        let haberBuilder = Haber.Builder().setContacts(contacts).setWhich(.contacts)
-        send(haberBuilder)
+        let wireBuilder = Wire.Builder().setContacts(contacts).setWhich(.contacts)
+        send(wireBuilder)
     }
 
     func sendStore(key: Data, value: Data) {
@@ -121,20 +126,20 @@ class Backend {
                 print("could not encrypt store")
                 return
             }
-            let store = try Store.Builder().setKey(key).setValue(encrypted).build()
-            let haberBuilder = Haber.Builder().setStore(store).setWhich(.store)
-            send(haberBuilder)
+            let store = try Store.Builder().setKey(key).build()
+            let wireBuilder = Wire.Builder().setStore(store).setWhich(.store).setPayload(encrypted)
+            send(wireBuilder)
         } catch {
             print(error.localizedDescription)
         }
     }
 
-    private func didReceiveStore(_ haber: Haber) throws {
-        guard let value = crypto?.keyDerivationDecrypt(ciphertext: haber.store.value) else {
+    private func didReceiveStore(_ wire: Wire) throws {
+        guard let value = crypto?.keyDerivationDecrypt(ciphertext: wire.payload) else {
             print("could not decrypt store")
             return
         }
-        try Model.shared.didReceiveStore(key: haber.store.key, value: value)
+        try Model.shared.didReceiveStore(key: wire.store.key, value: value)
     }
 
     func sendLoad(key: LocalStorage.Key) {
@@ -142,11 +147,11 @@ class Backend {
     }
 
     func sendLoad(key: Data) {
-        let haberBuilder = Haber.Builder().setWhich(.load).setPayload(key)
+        let haberBuilder = Wire.Builder().setWhich(.load).setPayload(key)
         send(haberBuilder)
     }
 
-    private func didReceivePublicKey(_ haber: Haber) {
+    private func didReceivePublicKey(_ haber: Wire) {
         let isResponse = haber.which == .publicKeyResponse
         crypto!.setPublicKey(
             key: haber.payload,
@@ -156,32 +161,30 @@ class Backend {
 
     func login(username: String, password: String) {
         credential = Credential(username: username, password: password)
-        let haberBuilder = Haber.Builder().setLogin(username).setWhich(.login)
+        let haberBuilder = Wire.Builder().setLogin(username).setWhich(.login)
         send(haberBuilder)
     }
 
-    func didReceiveData(_ data: Data, source: String? = nil) {
-        guard let haber = try? Haber.parseFrom(data:data) else {
-                print("Could not deserialize")
-                return
+    func didReceiveFromServer(_ data: Data) {
+        guard let wire = try? Wire.parseFrom(data:data) else {
+            print("Could not deserialize wire")
+            return
         }
-        if let sid = haber.sessionId, sessionId == nil {
+        if let sid = wire.sessionId, sessionId == nil {
             authenticated(sessionId: sid)
         }
-        let from = source ?? haber.from
-    
-        print("read \(data.count) bytes for \(haber.which) from \(haber.from ?? "server")")
+
+        print("read \(data.count) bytes for \(wire.which) from server")
         do {
-            switch haber.which {
-                case .contacts:             Model.shared.didReceiveContacts(haber.contacts)
-                case .text:                 Model.shared.didReceiveText(haber, data: data, from: from)
-                case .presence:             Model.shared.didReceivePresence(haber)
-                case .store:                try didReceiveStore(haber)
+            switch wire.which {
+                case .contacts:             Model.shared.didReceiveContacts(wire.contacts)
+                case .presence:             Model.shared.didReceivePresence(wire)
+                case .store:                try didReceiveStore(wire)
                 case .handshake:            fallthrough
-                case .payload:              crypto!.didReceivePayload(haber.payload, from: haber.from)
+                case .payload:              crypto!.didReceivePayload(wire.payload, from: wire.from)
                 case .publicKey:            fallthrough
-                case .publicKeyResponse:    didReceivePublicKey(haber)
-                default:                    print("did not handle \(haber.which)")
+                case .publicKeyResponse:    didReceivePublicKey(wire)
+                default:                    print("did not handle \(wire.which)")
             }
         } catch {
             print(error.localizedDescription)
@@ -207,5 +210,25 @@ class Backend {
     private func clearLocalCredentialsAndLoginAgain() {
         LocalStorage.remove(key: .username)
         LocalStorage.remove(key: .password)
+    }
+
+    // to/from peer, via server
+
+    func sendText(_ body: String, to: String) {
+        let voipBuilder = Voip.Builder().setWhich(.text).setPayload(body.data(using: .utf8)!)
+        send(voipBuilder, to: to)
+    }
+
+    func didReceiveFromPeer(_ data: Data, from peerId: String) {
+        guard let voip = try? Voip.parseFrom(data:data) else {
+            print("Could not deserialize voip")
+            return
+        }
+
+        print("read \(data.count) bytes for \(voip.which) from \(peerId)")
+        switch voip.which {
+            case        .text: Model.shared.didReceiveText(voip.payload, from: peerId)
+            default:    print("did not handle \(voip.which)")
+        }
     }
 }

@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+option go_package = "main";
+option java_package = "red.tel.chat.generated_protobuf";
+
+message Text {
+    string from = 1;
+    string to = 2;
+    bytes body = 3;
+}
+
+message File {
+    uint64 sequence = 1;
+    uint64 totalSize = 2;
+    bytes body = 3;
+}
+
+message Voip {
+
+    uint32 version = 1;
+
+    // Identifies which field is filled in
+    enum Which {
+        TEXT = 0;
+        FILE = 1;
+        AV = 2;
+    }
+    Which which = 2;
+
+    repeated Text textStorage = 101;
+    File file = 102;
+    bytes payload  = 103;
+}

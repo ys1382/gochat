@@ -12,7 +12,7 @@ class EventBus {
         case texts
     }
 
-    static func post(about: Haber.Which) {
+    static func post(about: Wire.Which) {
         guard let event = Event(rawValue: about.toString().lowercased()) else {
             print("no event for " + about.toString())
             return

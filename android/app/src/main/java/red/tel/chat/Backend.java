@@ -11,15 +11,15 @@ import java.util.List;
 
 import okio.ByteString;
 import red.tel.chat.generated_protobuf.Contact;
-import red.tel.chat.generated_protobuf.Haber;
+import red.tel.chat.generated_protobuf.Wire;
 
-import static red.tel.chat.generated_protobuf.Haber.Which.CONTACTS;
-import static red.tel.chat.generated_protobuf.Haber.Which.HANDSHAKE;
-import static red.tel.chat.generated_protobuf.Haber.Which.PAYLOAD;
-import static red.tel.chat.generated_protobuf.Haber.Which.LOGIN;
-import static red.tel.chat.generated_protobuf.Haber.Which.PUBLIC_KEY;
-import static red.tel.chat.generated_protobuf.Haber.Which.PUBLIC_KEY_RESPONSE;
-import static red.tel.chat.generated_protobuf.Haber.Which.TEXT;
+import static red.tel.chat.generated_protobuf.Wire.Which.CONTACTS;
+import static red.tel.chat.generated_protobuf.Wire.Which.HANDSHAKE;
+import static red.tel.chat.generated_protobuf.Wire.Which.PAYLOAD;
+import static red.tel.chat.generated_protobuf.Wire.Which.LOGIN;
+import static red.tel.chat.generated_protobuf.Wire.Which.PUBLIC_KEY;
+import static red.tel.chat.generated_protobuf.Wire.Which.PUBLIC_KEY_RESPONSE;
+import static red.tel.chat.generated_protobuf.Wire.Which.TEXT;
 
 // shuttles data between Network and Model
 public class Backend extends IntentService {
@@ -34,7 +34,7 @@ public class Backend extends IntentService {
     private Crypto crypto;
 
 
-    private Map<String, ArrayList<Haber>> queue = new HashMap<>();
+    private Map<String, ArrayList<Wire>> queue = new HashMap<>();
 
     public static Backend shared() {
         return instance;
@@ -56,7 +56,7 @@ public class Backend extends IntentService {
     // receive from Network
     void onReceiveData(byte[] binary) {
         try {
-            Haber haber = Haber.ADAPTER.decode(binary);
+            Wire haber = Haber.ADAPTER.decode(binary);
             Log.d(TAG, "incoming " + haber.which);
 
             if (sessionId == null && haber.sessionId != null) {
@@ -86,11 +86,11 @@ public class Backend extends IntentService {
         }
     }
 
-    private void onPublicKey(Haber haber) throws Exception {
+    private void onPublicKey(Wire haber) throws Exception {
         crypto.setPublicKey(
                 haber.payload.toByteArray(),
                 haber.from,
-                haber.which == Haber.Which.PUBLIC_KEY_RESPONSE);
+                haber.which == Wire.Which.PUBLIC_KEY_RESPONSE);
     }
 
     private void authenticated(String sessionId) {
@@ -104,21 +104,21 @@ public class Backend extends IntentService {
         EventBus.announce(EventBus.Event.AUTHENTICATED);
     }
 
-    private void enqueue(Haber.Builder haberBuilder) {
+    private void enqueue(Wire.Builder haberBuilder) {
         if (!queue.containsKey(haberBuilder.to)) {
             queue.put(haberBuilder.to, new ArrayList<>());
         }
         queue.get(haberBuilder.to).add(haberBuilder.build());
     }
 
-    private Boolean dontEncrypt(Haber.Builder haberBuilder) {
+    private Boolean dontEncrypt(Wire.Builder haberBuilder) {
         return haberBuilder.to == null ||
                 haberBuilder.which == PUBLIC_KEY ||
                 haberBuilder.which == PUBLIC_KEY_RESPONSE ||
                 haberBuilder.which == HANDSHAKE;
     }
 
-    private void send(Haber.Builder haberBuilder) {
+    private void send(Wire.Builder haberBuilder) {
         if (dontEncrypt(haberBuilder)) {
             buildAndSend(haberBuilder);
         } else if (crypto.isSessionEstablishedFor(haberBuilder.to)) {
@@ -128,51 +128,51 @@ public class Backend extends IntentService {
         }
     }
 
-    private void encryptAndSend(Haber haber) {
+    private void encryptAndSend(Wire haber) {
         try {
             ByteString encrypted = ByteString.of(crypto.encrypt(haber.encode(), haber.to));
-            Haber.Builder payloadBuilder = new Haber.Builder().payload(encrypted).which(PAYLOAD).to(haber.to);
+            Wire.Builder payloadBuilder = new Haber.Builder().payload(encrypted).which(PAYLOAD).to(haber.to);
             buildAndSend(payloadBuilder);
         } catch (Exception exception) {
             Log.e(TAG, exception.getLocalizedMessage());
         }
     }
 
-    private void buildAndSend(Haber.Builder haberBuilder) {
+    private void buildAndSend(Wire.Builder haberBuilder) {
         haberBuilder.sessionId = sessionId;
         send(haberBuilder.build());
     }
 
-    private void send(Haber haber) {
+    private void send(Wire haber) {
         network.send(haber.encode());
     }
 
     // send to Network
 
     public void login(String username) {
-        Haber.Builder haber = new Haber.Builder().which(LOGIN).login(username);
+        Wire.Builder haber = new Haber.Builder().which(LOGIN).login(username);
         instance.send(haber);
     }
 
     public void sendContacts(List<Contact> contacts) {
-        Haber.Builder haber = new Haber.Builder().which(CONTACTS).contacts(contacts);
+        Wire.Builder haber = new Haber.Builder().which(CONTACTS).contacts(contacts);
         instance.send(haber);
     }
 
     public void sendText(String recipient, String message) {
         okio.ByteString text = okio.ByteString.encodeUtf8(message);
-        Haber.Builder haber = new Haber.Builder().which(TEXT).payload(text).to(recipient);
+        Wire.Builder haber = new Haber.Builder().which(TEXT).payload(text).to(recipient);
         instance.send(haber);
     }
 
     void sendPublicKey(byte[] key, String recipient, Boolean isResponse) {
-        Haber.Which which = isResponse ? PUBLIC_KEY_RESPONSE : PUBLIC_KEY;
+        Wire.Which which = isResponse ? PUBLIC_KEY_RESPONSE : PUBLIC_KEY;
         sendData(which, key, recipient);
     }
 
-    private void sendData(Haber.Which which, byte[] data, String recipient) {
+    private void sendData(Wire.Which which, byte[] data, String recipient) {
         okio.ByteString byteString = ByteString.of(data);
-        Haber.Builder haber = new Haber.Builder().which(which).payload(byteString).to(recipient);
+        Wire.Builder haber = new Haber.Builder().which(which).payload(byteString).to(recipient);
         instance.send(haber);
     }
 
@@ -181,11 +181,11 @@ public class Backend extends IntentService {
     }
 
     void handshook(String peerId) {
-        ArrayList<Haber> list = queue.get(peerId);
+        ArrayList<Wire> list = queue.get(peerId);
         if (list == null) {
             return;
         }
-        for (Haber haber: list) {
+        for (Wire haber: list) {
             encryptAndSend(haber);
         }
     }

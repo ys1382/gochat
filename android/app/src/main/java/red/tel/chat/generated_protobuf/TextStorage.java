@@ -18,10 +18,10 @@ import java.lang.String;
 import java.lang.StringBuilder;
 import okio.ByteString;
 
-public final class Text extends AndroidMessage<Text, Text.Builder> {
-  public static final ProtoAdapter<Text> ADAPTER = new ProtoAdapter_Text();
+public final class TextStorage extends AndroidMessage<TextStorage, TextStorage.Builder> {
+  public static final ProtoAdapter<TextStorage> ADAPTER = new ProtoAdapter_TextStorage();
 
-  public static final Parcelable.Creator<Text> CREATOR = AndroidMessage.newCreator(ADAPTER);
+  public static final Parcelable.Creator<TextStorage> CREATOR = AndroidMessage.newCreator(ADAPTER);
 
   private static final long serialVersionUID = 0L;
 
@@ -49,11 +49,11 @@ public final class Text extends AndroidMessage<Text, Text.Builder> {
   )
   public final ByteString body;
 
-  public Text(String from, String to, ByteString body) {
+  public TextStorage(String from, String to, ByteString body) {
     this(from, to, body, ByteString.EMPTY);
   }
 
-  public Text(String from, String to, ByteString body, ByteString unknownFields) {
+  public TextStorage(String from, String to, ByteString body, ByteString unknownFields) {
     super(ADAPTER, unknownFields);
     this.from = from;
     this.to = to;
@@ -73,8 +73,8 @@ public final class Text extends AndroidMessage<Text, Text.Builder> {
   @Override
   public boolean equals(Object other) {
     if (other == this) return true;
-    if (!(other instanceof Text)) return false;
-    Text o = (Text) other;
+    if (!(other instanceof TextStorage)) return false;
+    TextStorage o = (TextStorage) other;
     return unknownFields().equals(o.unknownFields())
         && Internal.equals(from, o.from)
         && Internal.equals(to, o.to)
@@ -100,10 +100,10 @@ public final class Text extends AndroidMessage<Text, Text.Builder> {
     if (from != null) builder.append(", from=").append(from);
     if (to != null) builder.append(", to=").append(to);
     if (body != null) builder.append(", body=").append(body);
-    return builder.replace(0, 2, "Text{").append('}').toString();
+    return builder.replace(0, 2, "TextStorage{").append('}').toString();
   }
 
-  public static final class Builder extends Message.Builder<Text, Builder> {
+  public static final class Builder extends Message.Builder<TextStorage, Builder> {
     public String from;
 
     public String to;
@@ -129,18 +129,18 @@ public final class Text extends AndroidMessage<Text, Text.Builder> {
     }
 
     @Override
-    public Text build() {
-      return new Text(from, to, body, super.buildUnknownFields());
+    public TextStorage build() {
+      return new TextStorage(from, to, body, super.buildUnknownFields());
     }
   }
 
-  private static final class ProtoAdapter_Text extends ProtoAdapter<Text> {
-    public ProtoAdapter_Text() {
-      super(FieldEncoding.LENGTH_DELIMITED, Text.class);
+  private static final class ProtoAdapter_TextStorage extends ProtoAdapter<TextStorage> {
+    public ProtoAdapter_TextStorage() {
+      super(FieldEncoding.LENGTH_DELIMITED, TextStorage.class);
     }
 
     @Override
-    public int encodedSize(Text value) {
+    public int encodedSize(TextStorage value) {
       return ProtoAdapter.STRING.encodedSizeWithTag(1, value.from)
           + ProtoAdapter.STRING.encodedSizeWithTag(2, value.to)
           + ProtoAdapter.BYTES.encodedSizeWithTag(3, value.body)
@@ -148,7 +148,7 @@ public final class Text extends AndroidMessage<Text, Text.Builder> {
     }
 
     @Override
-    public void encode(ProtoWriter writer, Text value) throws IOException {
+    public void encode(ProtoWriter writer, TextStorage value) throws IOException {
       ProtoAdapter.STRING.encodeWithTag(writer, 1, value.from);
       ProtoAdapter.STRING.encodeWithTag(writer, 2, value.to);
       ProtoAdapter.BYTES.encodeWithTag(writer, 3, value.body);
@@ -156,7 +156,7 @@ public final class Text extends AndroidMessage<Text, Text.Builder> {
     }
 
     @Override
-    public Text decode(ProtoReader reader) throws IOException {
+    public TextStorage decode(ProtoReader reader) throws IOException {
       Builder builder = new Builder();
       long token = reader.beginMessage();
       for (int tag; (tag = reader.nextTag()) != -1;) {
@@ -176,7 +176,7 @@ public final class Text extends AndroidMessage<Text, Text.Builder> {
     }
 
     @Override
-    public Text redact(Text value) {
+    public TextStorage redact(TextStorage value) {
       Builder builder = value.newBuilder();
       builder.clearUnknownFields();
       return builder.build();

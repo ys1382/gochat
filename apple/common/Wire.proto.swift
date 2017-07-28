@@ -340,274 +340,6 @@ final public class Contact : GeneratedMessage {
 
 }
 
-final public class File : GeneratedMessage {
-
-    public static func == (lhs: File, rhs: File) -> Bool {
-        if lhs === rhs {
-            return true
-        }
-        var fieldCheck:Bool = (lhs.hashValue == rhs.hashValue)
-        fieldCheck = fieldCheck && (lhs.hasKey == rhs.hasKey) && (!lhs.hasKey || lhs.key == rhs.key)
-        fieldCheck = fieldCheck && (lhs.hasData == rhs.hasData) && (!lhs.hasData || lhs.data == rhs.data)
-        fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
-        return fieldCheck
-    }
-
-    public fileprivate(set) var key:String! = nil
-    public fileprivate(set) var hasKey:Bool = false
-
-    public fileprivate(set) var data:Data! = nil
-    public fileprivate(set) var hasData:Bool = false
-
-    required public init() {
-        super.init()
-    }
-    override public func isInitialized() -> Bool {
-        return true
-    }
-    override public func writeTo(codedOutputStream: CodedOutputStream) throws {
-        if hasKey {
-            try codedOutputStream.writeString(fieldNumber: 1, value:key)
-        }
-        if hasData {
-            try codedOutputStream.writeData(fieldNumber: 2, value:data)
-        }
-        try unknownFields.writeTo(codedOutputStream: codedOutputStream)
-    }
-    override public func serializedSize() -> Int32 {
-        var serialize_size:Int32 = memoizedSerializedSize
-        if serialize_size != -1 {
-         return serialize_size
-        }
-
-        serialize_size = 0
-        if hasKey {
-            serialize_size += key.computeStringSize(fieldNumber: 1)
-        }
-        if hasData {
-            serialize_size += data.computeDataSize(fieldNumber: 2)
-        }
-        serialize_size += unknownFields.serializedSize()
-        memoizedSerializedSize = serialize_size
-        return serialize_size
-    }
-    public class func getBuilder() -> File.Builder {
-        return File.classBuilder() as! File.Builder
-    }
-    public func getBuilder() -> File.Builder {
-        return classBuilder() as! File.Builder
-    }
-    override public class func classBuilder() -> ProtocolBuffersMessageBuilder {
-        return File.Builder()
-    }
-    override public func classBuilder() -> ProtocolBuffersMessageBuilder {
-        return File.Builder()
-    }
-    public func toBuilder() throws -> File.Builder {
-        return try File.builderWithPrototype(prototype:self)
-    }
-    public class func builderWithPrototype(prototype:File) throws -> File.Builder {
-        return try File.Builder().mergeFrom(other:prototype)
-    }
-    override public func encode() throws -> Dictionary<String,Any> {
-        guard isInitialized() else {
-            throw ProtocolBuffersError.invalidProtocolBuffer("Uninitialized Message")
-        }
-
-        var jsonMap:Dictionary<String,Any> = Dictionary<String,Any>()
-        if hasKey {
-            jsonMap["key"] = key
-        }
-        if hasData {
-            jsonMap["data"] = data.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
-        }
-        return jsonMap
-    }
-    override class public func decode(jsonMap:Dictionary<String,Any>) throws -> File {
-        return try File.Builder.decodeToBuilder(jsonMap:jsonMap).build()
-    }
-    override class public func fromJSON(data:Data) throws -> File {
-        return try File.Builder.fromJSONToBuilder(data:data).build()
-    }
-    override public func getDescription(indent:String) throws -> String {
-        var output = ""
-        if hasKey {
-            output += "\(indent) key: \(key) \n"
-        }
-        if hasData {
-            output += "\(indent) data: \(data) \n"
-        }
-        output += unknownFields.getDescription(indent: indent)
-        return output
-    }
-    override public var hashValue:Int {
-        get {
-            var hashCode:Int = 7
-            if hasKey {
-                hashCode = (hashCode &* 31) &+ key.hashValue
-            }
-            if hasData {
-                hashCode = (hashCode &* 31) &+ data.hashValue
-            }
-            hashCode = (hashCode &* 31) &+  unknownFields.hashValue
-            return hashCode
-        }
-    }
-
-
-    //Meta information declaration start
-
-    override public class func className() -> String {
-        return "File"
-    }
-    override public func className() -> String {
-        return "File"
-    }
-    //Meta information declaration end
-
-    final public class Builder : GeneratedMessageBuilder {
-        fileprivate var builderResult:File = File()
-        public func getMessage() -> File {
-            return builderResult
-        }
-
-        required override public init () {
-            super.init()
-        }
-        public var key:String {
-            get {
-                return builderResult.key
-            }
-            set (value) {
-                builderResult.hasKey = true
-                builderResult.key = value
-            }
-        }
-        public var hasKey:Bool {
-            get {
-                return builderResult.hasKey
-            }
-        }
-        @discardableResult
-        public func setKey(_ value:String) -> File.Builder {
-            self.key = value
-            return self
-        }
-        @discardableResult
-        public func clearKey() -> File.Builder{
-            builderResult.hasKey = false
-            builderResult.key = nil
-            return self
-        }
-        public var data:Data {
-            get {
-                return builderResult.data
-            }
-            set (value) {
-                builderResult.hasData = true
-                builderResult.data = value
-            }
-        }
-        public var hasData:Bool {
-            get {
-                return builderResult.hasData
-            }
-        }
-        @discardableResult
-        public func setData(_ value:Data) -> File.Builder {
-            self.data = value
-            return self
-        }
-        @discardableResult
-        public func clearData() -> File.Builder{
-            builderResult.hasData = false
-            builderResult.data = nil
-            return self
-        }
-        override public var internalGetResult:GeneratedMessage {
-            get {
-                return builderResult
-            }
-        }
-        @discardableResult
-        override public func clear() -> File.Builder {
-            builderResult = File()
-            return self
-        }
-        override public func clone() throws -> File.Builder {
-            return try File.builderWithPrototype(prototype:builderResult)
-        }
-        override public func build() throws -> File {
-            try checkInitialized()
-            return buildPartial()
-        }
-        public func buildPartial() -> File {
-            let returnMe:File = builderResult
-            return returnMe
-        }
-        @discardableResult
-        public func mergeFrom(other:File) throws -> File.Builder {
-            if other == File() {
-                return self
-            }
-            if other.hasKey {
-                key = other.key
-            }
-            if other.hasData {
-                data = other.data
-            }
-            try merge(unknownField: other.unknownFields)
-            return self
-        }
-        @discardableResult
-        override public func mergeFrom(codedInputStream: CodedInputStream) throws -> File.Builder {
-            return try mergeFrom(codedInputStream: codedInputStream, extensionRegistry:ExtensionRegistry())
-        }
-        @discardableResult
-        override public func mergeFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> File.Builder {
-            let unknownFieldsBuilder:UnknownFieldSet.Builder = try UnknownFieldSet.builderWithUnknownFields(copyFrom:self.unknownFields)
-            while (true) {
-                let protobufTag = try codedInputStream.readTag()
-                switch protobufTag {
-                case 0: 
-                    self.unknownFields = try unknownFieldsBuilder.build()
-                    return self
-
-                case 10:
-                    key = try codedInputStream.readString()
-
-                case 18:
-                    data = try codedInputStream.readData()
-
-                default:
-                    if (!(try parse(codedInputStream:codedInputStream, unknownFields:unknownFieldsBuilder, extensionRegistry:extensionRegistry, tag:protobufTag))) {
-                        unknownFields = try unknownFieldsBuilder.build()
-                        return self
-                    }
-                }
-            }
-        }
-        class override public func decodeToBuilder(jsonMap:Dictionary<String,Any>) throws -> File.Builder {
-            let resultDecodedBuilder = File.Builder()
-            if let jsonValueKey = jsonMap["key"] as? String {
-                resultDecodedBuilder.key = jsonValueKey
-            }
-            if let jsonValueData = jsonMap["data"] as? String {
-                resultDecodedBuilder.data = Data(base64Encoded:jsonValueData, options: Data.Base64DecodingOptions(rawValue:0))!
-            }
-            return resultDecodedBuilder
-        }
-        override class public func fromJSONToBuilder(data:Data) throws -> File.Builder {
-            let jsonData = try JSONSerialization.jsonObject(with:data, options: JSONSerialization.ReadingOptions(rawValue: 0))
-            guard let jsDataCast = jsonData as? Dictionary<String,Any> else {
-              throw ProtocolBuffersError.invalidProtocolBuffer("Invalid JSON data")
-            }
-            return try File.Builder.decodeToBuilder(jsonMap:jsDataCast)
-        }
-    }
-
-}
-
 final public class Store : GeneratedMessage {
 
     public static func == (lhs: Store, rhs: Store) -> Bool {
@@ -616,16 +348,12 @@ final public class Store : GeneratedMessage {
         }
         var fieldCheck:Bool = (lhs.hashValue == rhs.hashValue)
         fieldCheck = fieldCheck && (lhs.hasKey == rhs.hasKey) && (!lhs.hasKey || lhs.key == rhs.key)
-        fieldCheck = fieldCheck && (lhs.hasValue == rhs.hasValue) && (!lhs.hasValue || lhs.value == rhs.value)
         fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
         return fieldCheck
     }
 
     public fileprivate(set) var key:Data! = nil
     public fileprivate(set) var hasKey:Bool = false
-
-    public fileprivate(set) var value:Data! = nil
-    public fileprivate(set) var hasValue:Bool = false
 
     required public init() {
         super.init()
@@ -636,9 +364,6 @@ final public class Store : GeneratedMessage {
     override public func writeTo(codedOutputStream: CodedOutputStream) throws {
         if hasKey {
             try codedOutputStream.writeData(fieldNumber: 1, value:key)
-        }
-        if hasValue {
-            try codedOutputStream.writeData(fieldNumber: 2, value:value)
         }
         try unknownFields.writeTo(codedOutputStream: codedOutputStream)
     }
@@ -651,9 +376,6 @@ final public class Store : GeneratedMessage {
         serialize_size = 0
         if hasKey {
             serialize_size += key.computeDataSize(fieldNumber: 1)
-        }
-        if hasValue {
-            serialize_size += value.computeDataSize(fieldNumber: 2)
         }
         serialize_size += unknownFields.serializedSize()
         memoizedSerializedSize = serialize_size
@@ -686,9 +408,6 @@ final public class Store : GeneratedMessage {
         if hasKey {
             jsonMap["key"] = key.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
         }
-        if hasValue {
-            jsonMap["value"] = value.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
-        }
         return jsonMap
     }
     override class public func decode(jsonMap:Dictionary<String,Any>) throws -> Store {
@@ -702,9 +421,6 @@ final public class Store : GeneratedMessage {
         if hasKey {
             output += "\(indent) key: \(key) \n"
         }
-        if hasValue {
-            output += "\(indent) value: \(value) \n"
-        }
         output += unknownFields.getDescription(indent: indent)
         return output
     }
@@ -713,9 +429,6 @@ final public class Store : GeneratedMessage {
             var hashCode:Int = 7
             if hasKey {
                 hashCode = (hashCode &* 31) &+ key.hashValue
-            }
-            if hasValue {
-                hashCode = (hashCode &* 31) &+ value.hashValue
             }
             hashCode = (hashCode &* 31) &+  unknownFields.hashValue
             return hashCode
@@ -767,31 +480,6 @@ final public class Store : GeneratedMessage {
             builderResult.key = nil
             return self
         }
-        public var value:Data {
-            get {
-                return builderResult.value
-            }
-            set (value) {
-                builderResult.hasValue = true
-                builderResult.value = value
-            }
-        }
-        public var hasValue:Bool {
-            get {
-                return builderResult.hasValue
-            }
-        }
-        @discardableResult
-        public func setValue(_ value:Data) -> Store.Builder {
-            self.value = value
-            return self
-        }
-        @discardableResult
-        public func clearValue() -> Store.Builder{
-            builderResult.hasValue = false
-            builderResult.value = nil
-            return self
-        }
         override public var internalGetResult:GeneratedMessage {
             get {
                 return builderResult
@@ -821,9 +509,6 @@ final public class Store : GeneratedMessage {
             if other.hasKey {
                 key = other.key
             }
-            if other.hasValue {
-                value = other.value
-            }
             try merge(unknownField: other.unknownFields)
             return self
         }
@@ -844,9 +529,6 @@ final public class Store : GeneratedMessage {
                 case 10:
                     key = try codedInputStream.readData()
 
-                case 18:
-                    value = try codedInputStream.readData()
-
                 default:
                     if (!(try parse(codedInputStream:codedInputStream, unknownFields:unknownFieldsBuilder, extensionRegistry:extensionRegistry, tag:protobufTag))) {
                         unknownFields = try unknownFieldsBuilder.build()
@@ -859,9 +541,6 @@ final public class Store : GeneratedMessage {
             let resultDecodedBuilder = Store.Builder()
             if let jsonValueKey = jsonMap["key"] as? String {
                 resultDecodedBuilder.key = Data(base64Encoded:jsonValueKey, options: Data.Base64DecodingOptions(rawValue:0))!
-            }
-            if let jsonValueValue = jsonMap["value"] as? String {
-                resultDecodedBuilder.value = Data(base64Encoded:jsonValueValue, options: Data.Base64DecodingOptions(rawValue:0))!
             }
             return resultDecodedBuilder
         }
@@ -876,9 +555,9 @@ final public class Store : GeneratedMessage {
 
 }
 
-final public class Haber : GeneratedMessage {
+final public class Wire : GeneratedMessage {
 
-    public static func == (lhs: Haber, rhs: Haber) -> Bool {
+    public static func == (lhs: Wire, rhs: Wire) -> Bool {
         if lhs === rhs {
             return true
         }
@@ -890,9 +569,7 @@ final public class Haber : GeneratedMessage {
         fieldCheck = fieldCheck && (lhs.hasWhich == rhs.hasWhich) && (!lhs.hasWhich || lhs.which == rhs.which)
         fieldCheck = fieldCheck && (lhs.hasLogin == rhs.hasLogin) && (!lhs.hasLogin || lhs.login == rhs.login)
         fieldCheck = fieldCheck && (lhs.contacts == rhs.contacts)
-        fieldCheck = fieldCheck && (lhs.hasFile == rhs.hasFile) && (!lhs.hasFile || lhs.file == rhs.file)
         fieldCheck = fieldCheck && (lhs.hasStore == rhs.hasStore) && (!lhs.hasStore || lhs.store == rhs.store)
-        fieldCheck = fieldCheck && (lhs.raw == rhs.raw)
         fieldCheck = fieldCheck && (lhs.hasPayload == rhs.hasPayload) && (!lhs.hasPayload || lhs.payload == rhs.payload)
         fieldCheck = (fieldCheck && (lhs.unknownFields == rhs.unknownFields))
         return fieldCheck
@@ -907,23 +584,17 @@ final public class Haber : GeneratedMessage {
             case login = 0
             case contacts = 1
             case presence = 2
-            case text = 3
-            case file = 4
-            case av = 5
-            case store = 6
-            case load = 7
-            case publicKey = 8
-            case publicKeyResponse = 9
-            case handshake = 10
-            case payload = 11
+            case store = 3
+            case load = 4
+            case publicKey = 5
+            case publicKeyResponse = 6
+            case handshake = 7
+            case payload = 8
             public func toString() -> String {
                 switch self {
                 case .login: return "LOGIN"
                 case .contacts: return "CONTACTS"
                 case .presence: return "PRESENCE"
-                case .text: return "TEXT"
-                case .file: return "FILE"
-                case .av: return "AV"
                 case .store: return "STORE"
                 case .load: return "LOAD"
                 case .publicKey: return "PUBLIC_KEY"
@@ -932,14 +603,11 @@ final public class Haber : GeneratedMessage {
                 case .payload: return "PAYLOAD"
                 }
             }
-            public static func fromString(_ str:String) throws -> Haber.Which {
+            public static func fromString(_ str:String) throws -> Wire.Which {
                 switch str {
                 case "LOGIN":    return .login
                 case "CONTACTS":    return .contacts
                 case "PRESENCE":    return .presence
-                case "TEXT":    return .text
-                case "FILE":    return .file
-                case "AV":    return .av
                 case "STORE":    return .store
                 case "LOAD":    return .load
                 case "PUBLIC_KEY":    return .publicKey
@@ -956,9 +624,6 @@ final public class Haber : GeneratedMessage {
                 case .login: return ".login"
                 case .contacts: return ".contacts"
                 case .presence: return ".presence"
-                case .text: return ".text"
-                case .file: return ".file"
-                case .av: return ".av"
                 case .store: return ".store"
                 case .load: return ".load"
                 case .publicKey: return ".publicKey"
@@ -989,18 +654,15 @@ final public class Haber : GeneratedMessage {
     public fileprivate(set) var to:String! = nil
     public fileprivate(set) var hasTo:Bool = false
 
-    public fileprivate(set) var which:Haber.Which = Haber.Which.login
+    public fileprivate(set) var which:Wire.Which = Wire.Which.login
     public fileprivate(set) var hasWhich:Bool = false
     /// One of the following will be filled in
     public fileprivate(set) var login:String! = nil
     public fileprivate(set) var hasLogin:Bool = false
 
     public fileprivate(set) var contacts:Array<Contact>  = Array<Contact>()
-    public fileprivate(set) var file:File!
-    public fileprivate(set) var hasFile:Bool = false
     public fileprivate(set) var store:Store!
     public fileprivate(set) var hasStore:Bool = false
-    public fileprivate(set) var raw:Array<Data> = Array<Data>()
     public fileprivate(set) var payload:Data! = nil
     public fileprivate(set) var hasPayload:Bool = false
 
@@ -1032,16 +694,8 @@ final public class Haber : GeneratedMessage {
         for oneElementContacts in contacts {
               try codedOutputStream.writeMessage(fieldNumber: 102, value:oneElementContacts)
         }
-        if hasFile {
-            try codedOutputStream.writeMessage(fieldNumber: 103, value:file)
-        }
         if hasStore {
             try codedOutputStream.writeMessage(fieldNumber: 104, value:store)
-        }
-        if !raw.isEmpty {
-            for oneValueraw in raw {
-                try codedOutputStream.writeData(fieldNumber: 105, value:oneValueraw)
-            }
         }
         if hasPayload {
             try codedOutputStream.writeData(fieldNumber: 106, value:payload)
@@ -1076,22 +730,11 @@ final public class Haber : GeneratedMessage {
         for oneElementContacts in contacts {
             serialize_size += oneElementContacts.computeMessageSize(fieldNumber: 102)
         }
-        if hasFile {
-            if let varSizefile = file?.computeMessageSize(fieldNumber: 103) {
-                serialize_size += varSizefile
-            }
-        }
         if hasStore {
             if let varSizestore = store?.computeMessageSize(fieldNumber: 104) {
                 serialize_size += varSizestore
             }
         }
-        var dataSizeRaw:Int32 = 0
-        for oneValueraw in raw {
-            dataSizeRaw += oneValueraw.computeDataSizeNoTag()
-        }
-        serialize_size += dataSizeRaw
-        serialize_size += 2 * Int32(raw.count)
         if hasPayload {
             serialize_size += payload.computeDataSize(fieldNumber: 106)
         }
@@ -1099,23 +742,23 @@ final public class Haber : GeneratedMessage {
         memoizedSerializedSize = serialize_size
         return serialize_size
     }
-    public class func getBuilder() -> Haber.Builder {
-        return Haber.classBuilder() as! Haber.Builder
+    public class func getBuilder() -> Wire.Builder {
+        return Wire.classBuilder() as! Wire.Builder
     }
-    public func getBuilder() -> Haber.Builder {
-        return classBuilder() as! Haber.Builder
+    public func getBuilder() -> Wire.Builder {
+        return classBuilder() as! Wire.Builder
     }
     override public class func classBuilder() -> ProtocolBuffersMessageBuilder {
-        return Haber.Builder()
+        return Wire.Builder()
     }
     override public func classBuilder() -> ProtocolBuffersMessageBuilder {
-        return Haber.Builder()
+        return Wire.Builder()
     }
-    public func toBuilder() throws -> Haber.Builder {
-        return try Haber.builderWithPrototype(prototype:self)
+    public func toBuilder() throws -> Wire.Builder {
+        return try Wire.builderWithPrototype(prototype:self)
     }
-    public class func builderWithPrototype(prototype:Haber) throws -> Haber.Builder {
-        return try Haber.Builder().mergeFrom(other:prototype)
+    public class func builderWithPrototype(prototype:Wire) throws -> Wire.Builder {
+        return try Wire.Builder().mergeFrom(other:prototype)
     }
     override public func encode() throws -> Dictionary<String,Any> {
         guard isInitialized() else {
@@ -1149,29 +792,19 @@ final public class Haber : GeneratedMessage {
             }
             jsonMap["contacts"] = jsonArrayContacts
         }
-        if hasFile {
-            jsonMap["file"] = try file.encode()
-        }
         if hasStore {
             jsonMap["store"] = try store.encode()
-        }
-        if !raw.isEmpty {
-            var jsonArrayRaw:Array<String> = []
-            for oneValueRaw in raw {
-                jsonArrayRaw.append(oneValueRaw.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0)))
-            }
-            jsonMap["raw"] = jsonArrayRaw
         }
         if hasPayload {
             jsonMap["payload"] = payload.base64EncodedString(options: Data.Base64EncodingOptions(rawValue: 0))
         }
         return jsonMap
     }
-    override class public func decode(jsonMap:Dictionary<String,Any>) throws -> Haber {
-        return try Haber.Builder.decodeToBuilder(jsonMap:jsonMap).build()
+    override class public func decode(jsonMap:Dictionary<String,Any>) throws -> Wire {
+        return try Wire.Builder.decodeToBuilder(jsonMap:jsonMap).build()
     }
-    override class public func fromJSON(data:Data) throws -> Haber {
-        return try Haber.Builder.fromJSONToBuilder(data:data).build()
+    override class public func fromJSON(data:Data) throws -> Wire {
+        return try Wire.Builder.fromJSONToBuilder(data:data).build()
     }
     override public func getDescription(indent:String) throws -> String {
         var output = ""
@@ -1200,24 +833,12 @@ final public class Haber : GeneratedMessage {
             output += "\(indent)}\n"
             contactsElementIndex += 1
         }
-        if hasFile {
-            output += "\(indent) file {\n"
-            if let outDescFile = file {
-                output += try outDescFile.getDescription(indent: "\(indent)  ")
-            }
-            output += "\(indent) }\n"
-        }
         if hasStore {
             output += "\(indent) store {\n"
             if let outDescStore = store {
                 output += try outDescStore.getDescription(indent: "\(indent)  ")
             }
             output += "\(indent) }\n"
-        }
-        var rawElementIndex:Int = 0
-        for oneValueRaw in raw  {
-            output += "\(indent) raw[\(rawElementIndex)]: \(oneValueRaw)\n"
-            rawElementIndex += 1
         }
         if hasPayload {
             output += "\(indent) payload: \(payload) \n"
@@ -1249,18 +870,10 @@ final public class Haber : GeneratedMessage {
             for oneElementContacts in contacts {
                 hashCode = (hashCode &* 31) &+ oneElementContacts.hashValue
             }
-            if hasFile {
-                if let hashValuefile = file?.hashValue {
-                    hashCode = (hashCode &* 31) &+ hashValuefile
-                }
-            }
             if hasStore {
                 if let hashValuestore = store?.hashValue {
                     hashCode = (hashCode &* 31) &+ hashValuestore
                 }
-            }
-            for oneValueRaw in raw {
-                hashCode = (hashCode &* 31) &+ oneValueRaw.hashValue
             }
             if hasPayload {
                 hashCode = (hashCode &* 31) &+ payload.hashValue
@@ -1274,16 +887,16 @@ final public class Haber : GeneratedMessage {
     //Meta information declaration start
 
     override public class func className() -> String {
-        return "Haber"
+        return "Wire"
     }
     override public func className() -> String {
-        return "Haber"
+        return "Wire"
     }
     //Meta information declaration end
 
     final public class Builder : GeneratedMessageBuilder {
-        fileprivate var builderResult:Haber = Haber()
-        public func getMessage() -> Haber {
+        fileprivate var builderResult:Wire = Wire()
+        public func getMessage() -> Wire {
             return builderResult
         }
 
@@ -1305,12 +918,12 @@ final public class Haber : GeneratedMessage {
             }
         }
         @discardableResult
-        public func setVersion(_ value:UInt32) -> Haber.Builder {
+        public func setVersion(_ value:UInt32) -> Wire.Builder {
             self.version = value
             return self
         }
         @discardableResult
-        public func clearVersion() -> Haber.Builder{
+        public func clearVersion() -> Wire.Builder{
             builderResult.hasVersion = false
             builderResult.version = nil
             return self
@@ -1330,12 +943,12 @@ final public class Haber : GeneratedMessage {
             }
         }
         @discardableResult
-        public func setSessionId(_ value:String) -> Haber.Builder {
+        public func setSessionId(_ value:String) -> Wire.Builder {
             self.sessionId = value
             return self
         }
         @discardableResult
-        public func clearSessionId() -> Haber.Builder{
+        public func clearSessionId() -> Wire.Builder{
             builderResult.hasSessionId = false
             builderResult.sessionId = nil
             return self
@@ -1355,12 +968,12 @@ final public class Haber : GeneratedMessage {
             }
         }
         @discardableResult
-        public func setFrom(_ value:String) -> Haber.Builder {
+        public func setFrom(_ value:String) -> Wire.Builder {
             self.from = value
             return self
         }
         @discardableResult
-        public func clearFrom() -> Haber.Builder{
+        public func clearFrom() -> Wire.Builder{
             builderResult.hasFrom = false
             builderResult.from = nil
             return self
@@ -1380,17 +993,17 @@ final public class Haber : GeneratedMessage {
             }
         }
         @discardableResult
-        public func setTo(_ value:String) -> Haber.Builder {
+        public func setTo(_ value:String) -> Wire.Builder {
             self.to = value
             return self
         }
         @discardableResult
-        public func clearTo() -> Haber.Builder{
+        public func clearTo() -> Wire.Builder{
             builderResult.hasTo = false
             builderResult.to = nil
             return self
         }
-            public var which:Haber.Which {
+            public var which:Wire.Which {
                 get {
                     return builderResult.which
                 }
@@ -1405,12 +1018,12 @@ final public class Haber : GeneratedMessage {
                 }
             }
         @discardableResult
-            public func setWhich(_ value:Haber.Which) -> Haber.Builder {
+            public func setWhich(_ value:Wire.Which) -> Wire.Builder {
               self.which = value
               return self
             }
         @discardableResult
-            public func clearWhich() -> Haber.Builder {
+            public func clearWhich() -> Wire.Builder {
                builderResult.hasWhich = false
                builderResult.which = .login
                return self
@@ -1431,12 +1044,12 @@ final public class Haber : GeneratedMessage {
             }
         }
         @discardableResult
-        public func setLogin(_ value:String) -> Haber.Builder {
+        public func setLogin(_ value:String) -> Wire.Builder {
             self.login = value
             return self
         }
         @discardableResult
-        public func clearLogin() -> Haber.Builder{
+        public func clearLogin() -> Wire.Builder{
             builderResult.hasLogin = false
             builderResult.login = nil
             return self
@@ -1451,67 +1064,13 @@ final public class Haber : GeneratedMessage {
             }
         }
         @discardableResult
-        public func setContacts(_ value:Array<Contact>) -> Haber.Builder {
+        public func setContacts(_ value:Array<Contact>) -> Wire.Builder {
             self.contacts = value
             return self
         }
         @discardableResult
-        public func clearContacts() -> Haber.Builder {
+        public func clearContacts() -> Wire.Builder {
             builderResult.contacts.removeAll(keepingCapacity: false)
-            return self
-        }
-        public var file:File! {
-            get {
-                if fileBuilder_ != nil {
-                    builderResult.file = fileBuilder_.getMessage()
-                }
-                return builderResult.file
-            }
-            set (value) {
-                builderResult.hasFile = true
-                builderResult.file = value
-            }
-        }
-        public var hasFile:Bool {
-            get {
-                return builderResult.hasFile
-            }
-        }
-        fileprivate var fileBuilder_:File.Builder! {
-            didSet {
-                builderResult.hasFile = true
-            }
-        }
-        public func getFileBuilder() -> File.Builder {
-            if fileBuilder_ == nil {
-                fileBuilder_ = File.Builder()
-                builderResult.file = fileBuilder_.getMessage()
-                if file != nil {
-                    try! fileBuilder_.mergeFrom(other: file)
-                }
-            }
-            return fileBuilder_
-        }
-        @discardableResult
-        public func setFile(_ value:File!) -> Haber.Builder {
-            self.file = value
-            return self
-        }
-        @discardableResult
-        public func mergeFile(value:File) throws -> Haber.Builder {
-            if builderResult.hasFile {
-                builderResult.file = try File.builderWithPrototype(prototype:builderResult.file).mergeFrom(other: value).buildPartial()
-            } else {
-                builderResult.file = value
-            }
-            builderResult.hasFile = true
-            return self
-        }
-        @discardableResult
-        public func clearFile() -> Haber.Builder {
-            fileBuilder_ = nil
-            builderResult.hasFile = false
-            builderResult.file = nil
             return self
         }
         public var store:Store! {
@@ -1547,12 +1106,12 @@ final public class Haber : GeneratedMessage {
             return storeBuilder_
         }
         @discardableResult
-        public func setStore(_ value:Store!) -> Haber.Builder {
+        public func setStore(_ value:Store!) -> Wire.Builder {
             self.store = value
             return self
         }
         @discardableResult
-        public func mergeStore(value:Store) throws -> Haber.Builder {
+        public func mergeStore(value:Store) throws -> Wire.Builder {
             if builderResult.hasStore {
                 builderResult.store = try Store.builderWithPrototype(prototype:builderResult.store).mergeFrom(other: value).buildPartial()
             } else {
@@ -1562,28 +1121,10 @@ final public class Haber : GeneratedMessage {
             return self
         }
         @discardableResult
-        public func clearStore() -> Haber.Builder {
+        public func clearStore() -> Wire.Builder {
             storeBuilder_ = nil
             builderResult.hasStore = false
             builderResult.store = nil
-            return self
-        }
-        public var raw:Array<Data> {
-            get {
-                return builderResult.raw
-            }
-            set (array) {
-                builderResult.raw = array
-            }
-        }
-        @discardableResult
-        public func setRaw(_ value:Array<Data>) -> Haber.Builder {
-            self.raw = value
-            return self
-        }
-        @discardableResult
-        public func clearRaw() -> Haber.Builder {
-            builderResult.raw.removeAll(keepingCapacity: false)
             return self
         }
         public var payload:Data {
@@ -1601,12 +1142,12 @@ final public class Haber : GeneratedMessage {
             }
         }
         @discardableResult
-        public func setPayload(_ value:Data) -> Haber.Builder {
+        public func setPayload(_ value:Data) -> Wire.Builder {
             self.payload = value
             return self
         }
         @discardableResult
-        public func clearPayload() -> Haber.Builder{
+        public func clearPayload() -> Wire.Builder{
             builderResult.hasPayload = false
             builderResult.payload = nil
             return self
@@ -1617,24 +1158,24 @@ final public class Haber : GeneratedMessage {
             }
         }
         @discardableResult
-        override public func clear() -> Haber.Builder {
-            builderResult = Haber()
+        override public func clear() -> Wire.Builder {
+            builderResult = Wire()
             return self
         }
-        override public func clone() throws -> Haber.Builder {
-            return try Haber.builderWithPrototype(prototype:builderResult)
+        override public func clone() throws -> Wire.Builder {
+            return try Wire.builderWithPrototype(prototype:builderResult)
         }
-        override public func build() throws -> Haber {
+        override public func build() throws -> Wire {
             try checkInitialized()
             return buildPartial()
         }
-        public func buildPartial() -> Haber {
-            let returnMe:Haber = builderResult
+        public func buildPartial() -> Wire {
+            let returnMe:Wire = builderResult
             return returnMe
         }
         @discardableResult
-        public func mergeFrom(other:Haber) throws -> Haber.Builder {
-            if other == Haber() {
+        public func mergeFrom(other:Wire) throws -> Wire.Builder {
+            if other == Wire() {
                 return self
             }
             if other.hasVersion {
@@ -1658,14 +1199,8 @@ final public class Haber : GeneratedMessage {
             if !other.contacts.isEmpty  {
                  builderResult.contacts += other.contacts
             }
-            if (other.hasFile) {
-                try mergeFile(value: other.file)
-            }
             if (other.hasStore) {
                 try mergeStore(value: other.store)
-            }
-            if !other.raw.isEmpty {
-                builderResult.raw += other.raw
             }
             if other.hasPayload {
                 payload = other.payload
@@ -1674,11 +1209,11 @@ final public class Haber : GeneratedMessage {
             return self
         }
         @discardableResult
-        override public func mergeFrom(codedInputStream: CodedInputStream) throws -> Haber.Builder {
+        override public func mergeFrom(codedInputStream: CodedInputStream) throws -> Wire.Builder {
             return try mergeFrom(codedInputStream: codedInputStream, extensionRegistry:ExtensionRegistry())
         }
         @discardableResult
-        override public func mergeFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> Haber.Builder {
+        override public func mergeFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> Wire.Builder {
             let unknownFieldsBuilder:UnknownFieldSet.Builder = try UnknownFieldSet.builderWithUnknownFields(copyFrom:self.unknownFields)
             while (true) {
                 let protobufTag = try codedInputStream.readTag()
@@ -1701,7 +1236,7 @@ final public class Haber : GeneratedMessage {
 
                 case 40:
                     let valueIntwhich = try codedInputStream.readEnum()
-                    if let enumswhich = Haber.Which(rawValue:valueIntwhich){
+                    if let enumswhich = Wire.Which(rawValue:valueIntwhich){
                         which = enumswhich
                     } else {
                         try unknownFieldsBuilder.mergeVarintField(fieldNumber: 5, value:Int64(valueIntwhich))
@@ -1715,14 +1250,6 @@ final public class Haber : GeneratedMessage {
                     try codedInputStream.readMessage(builder: subBuilder,extensionRegistry:extensionRegistry)
                     contacts.append(subBuilder.buildPartial())
 
-                case 826:
-                    let subBuilder:File.Builder = File.Builder()
-                    if hasFile {
-                        try subBuilder.mergeFrom(other: file)
-                    }
-                    try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
-                    file = subBuilder.buildPartial()
-
                 case 834:
                     let subBuilder:Store.Builder = Store.Builder()
                     if hasStore {
@@ -1730,9 +1257,6 @@ final public class Haber : GeneratedMessage {
                     }
                     try codedInputStream.readMessage(builder: subBuilder, extensionRegistry:extensionRegistry)
                     store = subBuilder.buildPartial()
-
-                case 842:
-                    raw += [try codedInputStream.readData()]
 
                 case 850:
                     payload = try codedInputStream.readData()
@@ -1745,8 +1269,8 @@ final public class Haber : GeneratedMessage {
                 }
             }
         }
-        class override public func decodeToBuilder(jsonMap:Dictionary<String,Any>) throws -> Haber.Builder {
-            let resultDecodedBuilder = Haber.Builder()
+        class override public func decodeToBuilder(jsonMap:Dictionary<String,Any>) throws -> Wire.Builder {
+            let resultDecodedBuilder = Wire.Builder()
             if let jsonValueVersion = jsonMap["version"] as? UInt {
                 resultDecodedBuilder.version = UInt32(jsonValueVersion)
             } else if let jsonValueVersion = jsonMap["version"] as? String {
@@ -1762,7 +1286,7 @@ final public class Haber : GeneratedMessage {
                 resultDecodedBuilder.to = jsonValueTo
             }
             if let jsonValueWhich = jsonMap["which"] as? String {
-                resultDecodedBuilder.which = try Haber.Which.fromString(jsonValueWhich)
+                resultDecodedBuilder.which = try Wire.Which.fromString(jsonValueWhich)
             }
             if let jsonValueLogin = jsonMap["login"] as? String {
                 resultDecodedBuilder.login = jsonValueLogin
@@ -1776,32 +1300,21 @@ final public class Haber : GeneratedMessage {
                 }
                 resultDecodedBuilder.contacts = jsonArrayContacts
             }
-            if let jsonValueFile = jsonMap["file"] as? Dictionary<String,Any> {
-                resultDecodedBuilder.file = try File.Builder.decodeToBuilder(jsonMap:jsonValueFile).build()
-
-            }
             if let jsonValueStore = jsonMap["store"] as? Dictionary<String,Any> {
                 resultDecodedBuilder.store = try Store.Builder.decodeToBuilder(jsonMap:jsonValueStore).build()
 
-            }
-            if let jsonValueRaw = jsonMap["raw"] as? Array<String> {
-                var jsonArrayRaw:Array<Data> = []
-                for oneValueRaw in jsonValueRaw {
-                    jsonArrayRaw.append(Data(base64Encoded:oneValueRaw, options: Data.Base64DecodingOptions(rawValue:0))!)
-                }
-                resultDecodedBuilder.raw = jsonArrayRaw
             }
             if let jsonValuePayload = jsonMap["payload"] as? String {
                 resultDecodedBuilder.payload = Data(base64Encoded:jsonValuePayload, options: Data.Base64DecodingOptions(rawValue:0))!
             }
             return resultDecodedBuilder
         }
-        override class public func fromJSONToBuilder(data:Data) throws -> Haber.Builder {
+        override class public func fromJSONToBuilder(data:Data) throws -> Wire.Builder {
             let jsonData = try JSONSerialization.jsonObject(with:data, options: JSONSerialization.ReadingOptions(rawValue: 0))
             guard let jsDataCast = jsonData as? Dictionary<String,Any> else {
               throw ProtocolBuffersError.invalidProtocolBuffer("Invalid JSON data")
             }
-            return try Haber.Builder.decodeToBuilder(jsonMap:jsDataCast)
+            return try Wire.Builder.decodeToBuilder(jsonMap:jsDataCast)
         }
     }
 
@@ -1877,69 +1390,6 @@ extension Contact.Builder: GeneratedMessageBuilderProtocol {
         }
     }
 }
-extension File: GeneratedMessageProtocol {
-    public class func parseArrayDelimitedFrom(inputStream: InputStream) throws -> Array<File> {
-        var mergedArray = Array<File>()
-        while let value = try parseDelimitedFrom(inputStream: inputStream) {
-          mergedArray.append(value)
-        }
-        return mergedArray
-    }
-    public class func parseDelimitedFrom(inputStream: InputStream) throws -> File? {
-        return try File.Builder().mergeDelimitedFrom(inputStream: inputStream)?.build()
-    }
-    public class func parseFrom(data: Data) throws -> File {
-        return try File.Builder().mergeFrom(data: data, extensionRegistry:WireRoot.default.extensionRegistry).build()
-    }
-    public class func parseFrom(data: Data, extensionRegistry:ExtensionRegistry) throws -> File {
-        return try File.Builder().mergeFrom(data: data, extensionRegistry:extensionRegistry).build()
-    }
-    public class func parseFrom(inputStream: InputStream) throws -> File {
-        return try File.Builder().mergeFrom(inputStream: inputStream).build()
-    }
-    public class func parseFrom(inputStream: InputStream, extensionRegistry:ExtensionRegistry) throws -> File {
-        return try File.Builder().mergeFrom(inputStream: inputStream, extensionRegistry:extensionRegistry).build()
-    }
-    public class func parseFrom(codedInputStream: CodedInputStream) throws -> File {
-        return try File.Builder().mergeFrom(codedInputStream: codedInputStream).build()
-    }
-    public class func parseFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> File {
-        return try File.Builder().mergeFrom(codedInputStream: codedInputStream, extensionRegistry:extensionRegistry).build()
-    }
-    public subscript(key: String) -> Any? {
-        switch key {
-        case "key": return self.key
-        case "data": return self.data
-        default: return nil
-        }
-    }
-}
-extension File.Builder: GeneratedMessageBuilderProtocol {
-    public subscript(key: String) -> Any? {
-        get { 
-            switch key {
-            case "key": return self.key
-            case "data": return self.data
-            default: return nil
-            }
-        }
-        set (newSubscriptValue) { 
-            switch key {
-            case "key":
-                guard let newSubscriptValue = newSubscriptValue as? String else {
-                    return
-                }
-                self.key = newSubscriptValue
-            case "data":
-                guard let newSubscriptValue = newSubscriptValue as? Data else {
-                    return
-                }
-                self.data = newSubscriptValue
-            default: return
-            }
-        }
-    }
-}
 extension Store: GeneratedMessageProtocol {
     public class func parseArrayDelimitedFrom(inputStream: InputStream) throws -> Array<Store> {
         var mergedArray = Array<Store>()
@@ -1972,7 +1422,6 @@ extension Store: GeneratedMessageProtocol {
     public subscript(key: String) -> Any? {
         switch key {
         case "key": return self.key
-        case "value": return self.value
         default: return nil
         }
     }
@@ -1982,7 +1431,6 @@ extension Store.Builder: GeneratedMessageBuilderProtocol {
         get { 
             switch key {
             case "key": return self.key
-            case "value": return self.value
             default: return nil
             }
         }
@@ -1993,44 +1441,39 @@ extension Store.Builder: GeneratedMessageBuilderProtocol {
                     return
                 }
                 self.key = newSubscriptValue
-            case "value":
-                guard let newSubscriptValue = newSubscriptValue as? Data else {
-                    return
-                }
-                self.value = newSubscriptValue
             default: return
             }
         }
     }
 }
-extension Haber: GeneratedMessageProtocol {
-    public class func parseArrayDelimitedFrom(inputStream: InputStream) throws -> Array<Haber> {
-        var mergedArray = Array<Haber>()
+extension Wire: GeneratedMessageProtocol {
+    public class func parseArrayDelimitedFrom(inputStream: InputStream) throws -> Array<Wire> {
+        var mergedArray = Array<Wire>()
         while let value = try parseDelimitedFrom(inputStream: inputStream) {
           mergedArray.append(value)
         }
         return mergedArray
     }
-    public class func parseDelimitedFrom(inputStream: InputStream) throws -> Haber? {
-        return try Haber.Builder().mergeDelimitedFrom(inputStream: inputStream)?.build()
+    public class func parseDelimitedFrom(inputStream: InputStream) throws -> Wire? {
+        return try Wire.Builder().mergeDelimitedFrom(inputStream: inputStream)?.build()
     }
-    public class func parseFrom(data: Data) throws -> Haber {
-        return try Haber.Builder().mergeFrom(data: data, extensionRegistry:WireRoot.default.extensionRegistry).build()
+    public class func parseFrom(data: Data) throws -> Wire {
+        return try Wire.Builder().mergeFrom(data: data, extensionRegistry:WireRoot.default.extensionRegistry).build()
     }
-    public class func parseFrom(data: Data, extensionRegistry:ExtensionRegistry) throws -> Haber {
-        return try Haber.Builder().mergeFrom(data: data, extensionRegistry:extensionRegistry).build()
+    public class func parseFrom(data: Data, extensionRegistry:ExtensionRegistry) throws -> Wire {
+        return try Wire.Builder().mergeFrom(data: data, extensionRegistry:extensionRegistry).build()
     }
-    public class func parseFrom(inputStream: InputStream) throws -> Haber {
-        return try Haber.Builder().mergeFrom(inputStream: inputStream).build()
+    public class func parseFrom(inputStream: InputStream) throws -> Wire {
+        return try Wire.Builder().mergeFrom(inputStream: inputStream).build()
     }
-    public class func parseFrom(inputStream: InputStream, extensionRegistry:ExtensionRegistry) throws -> Haber {
-        return try Haber.Builder().mergeFrom(inputStream: inputStream, extensionRegistry:extensionRegistry).build()
+    public class func parseFrom(inputStream: InputStream, extensionRegistry:ExtensionRegistry) throws -> Wire {
+        return try Wire.Builder().mergeFrom(inputStream: inputStream, extensionRegistry:extensionRegistry).build()
     }
-    public class func parseFrom(codedInputStream: CodedInputStream) throws -> Haber {
-        return try Haber.Builder().mergeFrom(codedInputStream: codedInputStream).build()
+    public class func parseFrom(codedInputStream: CodedInputStream) throws -> Wire {
+        return try Wire.Builder().mergeFrom(codedInputStream: codedInputStream).build()
     }
-    public class func parseFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> Haber {
-        return try Haber.Builder().mergeFrom(codedInputStream: codedInputStream, extensionRegistry:extensionRegistry).build()
+    public class func parseFrom(codedInputStream: CodedInputStream, extensionRegistry:ExtensionRegistry) throws -> Wire {
+        return try Wire.Builder().mergeFrom(codedInputStream: codedInputStream, extensionRegistry:extensionRegistry).build()
     }
     public subscript(key: String) -> Any? {
         switch key {
@@ -2041,15 +1484,13 @@ extension Haber: GeneratedMessageProtocol {
         case "which": return self.which
         case "login": return self.login
         case "contacts": return self.contacts
-        case "file": return self.file
         case "store": return self.store
-        case "raw": return self.raw
         case "payload": return self.payload
         default: return nil
         }
     }
 }
-extension Haber.Builder: GeneratedMessageBuilderProtocol {
+extension Wire.Builder: GeneratedMessageBuilderProtocol {
     public subscript(key: String) -> Any? {
         get { 
             switch key {
@@ -2060,9 +1501,7 @@ extension Haber.Builder: GeneratedMessageBuilderProtocol {
             case "which": return self.which
             case "login": return self.login
             case "contacts": return self.contacts
-            case "file": return self.file
             case "store": return self.store
-            case "raw": return self.raw
             case "payload": return self.payload
             default: return nil
             }
@@ -2090,7 +1529,7 @@ extension Haber.Builder: GeneratedMessageBuilderProtocol {
                 }
                 self.to = newSubscriptValue
             case "which":
-                guard let newSubscriptValue = newSubscriptValue as? Haber.Which else {
+                guard let newSubscriptValue = newSubscriptValue as? Wire.Which else {
                     return
                 }
                 self.which = newSubscriptValue
@@ -2104,21 +1543,11 @@ extension Haber.Builder: GeneratedMessageBuilderProtocol {
                     return
                 }
                 self.contacts = newSubscriptValue
-            case "file":
-                guard let newSubscriptValue = newSubscriptValue as? File else {
-                    return
-                }
-                self.file = newSubscriptValue
             case "store":
                 guard let newSubscriptValue = newSubscriptValue as? Store else {
                     return
                 }
                 self.store = newSubscriptValue
-            case "raw":
-                guard let newSubscriptValue = newSubscriptValue as? Array<Data> else {
-                    return
-                }
-                self.raw = newSubscriptValue
             case "payload":
                 guard let newSubscriptValue = newSubscriptValue as? Data else {
                     return

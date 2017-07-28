@@ -5,8 +5,6 @@ class Model {
 
     static let shared = Model()
 
-    private var textsStorage = [Data]()
-
     var roster = [String:Contact]()
     var texts = [Text]()
     var unreads = [String:Int]()
@@ -22,41 +20,39 @@ class Model {
         case keyNotHandled
     }
 
-    struct Text {
-        var message: Data
-        var from: String
-        var to: String
-    }
-
     private init() {
         EventBus.addListener(about: .authenticated, didReceive: { notification in
             Backend.shared.sendLoad(key: .texts)
         })
     }
 
-    func didReceivePresence(_ haber: Haber) {
+    func didReceivePresence(_ haber: Wire) {
         for contact in haber.contacts {
             roster[contact.id] = contact
         }
         EventBus.post(about:.presence)
     }
 
-    func didReceiveText(_ haber: Haber, data:Data, from: String?) {
-        if let from = from, from != watching {
-            unreads[from] = (unreads[from] ?? 0) + 1
+    func didReceiveText(_ body: Data, from peerId: String) {
+        if peerId != watching {
+            unreads[peerId] = (unreads[peerId] ?? 0) + 1
         }
-        let text = Text(message: haber.payload, from: from!, to: haber.to)
-        texts.append(text)
-        EventBus.post(about:.text)
-        storeText(data: data)
+        do {
+            let moi = Backend.shared.credential?.username
+            let text = try Text.Builder().setTo(moi!).setFrom(peerId).setBody(body).build()
+            texts.append(text)
+            storeText()
+        } catch {
+            print(error.localizedDescription)
+        }
+        EventBus.post(.text)
     }
 
-    private func storeText(data: Data) {
-        textsStorage.append(data)
+    private func storeText() {
         do {
-            let allTexts = try Haber.Builder().setRaw(textsStorage).build().data()
+            let storage = try Voip.Builder().setTextStorage(texts).build().data()
             let key = LocalStorage.Key.texts.toData()
-            Backend.shared.sendStore(key: key, value: allTexts)
+            Backend.shared.sendStore(key: key, value: storage)
         } catch {
             print(error.localizedDescription)
         }
@@ -76,29 +72,28 @@ class Model {
         guard key == .texts else {
             throw ModelError.keyNotHandled
         }
-        let parsed = try Haber.parseFrom(data: value)
-        textsStorage = parsed.raw
-        texts = previousTexts()
+        let parsed = try Voip.parseFrom(data: value)
+        texts = parsed.textStorage
         EventBus.post(.texts)
     }
 
-    private func previousTexts() -> [Text] {
-        var result = [Text]()
-        for data in textsStorage {
-            do {
-                let message = try Haber.parseFrom(data: data)
-                guard message.which == .text else {
-                    print("\(message.which) in textStorage")
-                    continue
-                }
-                let text = Text(message: message.payload, from: message.from, to: message.to)
-                result.append(text)
-            } catch {
-                print(error.localizedDescription)
-            }
-        }
-        return result
-    }
+//    private func previousTexts() -> [Text] {
+//        var result = [Text]()
+//        for data in textsStorage {
+//            do {
+//                let message = try Wire.parseFrom(data: data)
+//                guard message.which == .text else {
+//                    print("\(message.which) in textStorage")
+//                    continue
+//                }
+//                let text = Text(message: message.payload, from: message.from, to: message.to)
+//                result.append(text)
+//            } catch {
+//                print(error.localizedDescription)
+//            }
+//        }
+//        return result
+//    }
 
     func setContacts(_ ids: [String]) {
         var update = [String:Contact]()

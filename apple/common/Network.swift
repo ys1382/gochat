@@ -3,7 +3,7 @@ import Starscream
 
 class Network: WebSocketDelegate {
 
-    static let address = "ws://10.17.7.91:8000/ws"
+    static let address = "ws://172.31.99.182:8000/ws"
 
     static let shared = Network()
 
@@ -34,7 +34,7 @@ class Network: WebSocketDelegate {
     }
 
     func websocketDidReceiveData(_ websocket: Starscream.WebSocket, data: Data) {
-        Backend.shared.didReceiveData(data)
+        Backend.shared.didReceiveFromServer(data)
     }
 
     func websocketDidReceiveMessage(_ socket: WebSocket, text: String) {

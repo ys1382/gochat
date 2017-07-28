@@ -9,17 +9,11 @@ message Contact {
     bool online = 3;
 }
 
-message File {
-    string key = 1;
-    bytes data = 2;
-}
-
 message Store {
     bytes key   = 1;
-    bytes value = 2;
 }
 
-message Haber {
+message Wire {
 
     uint32 version = 1;
     string sessionId = 2;
@@ -31,23 +25,18 @@ message Haber {
         LOGIN = 0;
         CONTACTS = 1;
         PRESENCE = 2;
-        TEXT = 3;
-        FILE = 4;
-        AV = 5;
-	STORE = 6;
-	LOAD = 7;
-	PUBLIC_KEY = 8;
-	PUBLIC_KEY_RESPONSE = 9;
-	HANDSHAKE = 10;
-	PAYLOAD = 11;
+	STORE = 3;
+	LOAD = 4;
+	PUBLIC_KEY = 5;
+	PUBLIC_KEY_RESPONSE = 6;
+	HANDSHAKE = 7;
+	PAYLOAD = 8;
     }
     Which which = 5;
 
     // One of the following will be filled in
     string login = 101;
     repeated Contact contacts = 102; // for roster, presence, and invite
-    File file = 103;
     Store store = 104;
-    repeated bytes raw = 105;
     bytes payload = 106;
 }

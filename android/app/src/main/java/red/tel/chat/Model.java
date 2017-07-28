@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import red.tel.chat.EventBus.Event;
-import red.tel.chat.generated_protobuf.Haber;
+import red.tel.chat.generated_protobuf.Wire;
 import red.tel.chat.generated_protobuf.Contact;
 
 public class Model {
@@ -60,7 +60,7 @@ public class Model {
     }
 
     // from Backend
-    static void incoming(Haber haber) {
+    static void incoming(Wire haber) {
         switch (haber.which) {
             case CONTACTS:
                 roster = haber.contacts.stream().collect(Collectors.toMap(c -> c.name, c -> c));

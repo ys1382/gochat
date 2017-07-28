@@ -34,13 +34,6 @@ class Crypto {
         }
     }
 
-//    func establishSession(forPeerId peerId: String) {
-//        let peer = self.peer(forPeerId: peerId)
-//        if peer.clientPublicKey == nil {
-//            peer.sendPublicKey(isResponse: false)
-//        }
-//    }
-//
     func isSessionEstablishedFor(_ peerId: String) -> Bool {
         let peer = self.peer(forPeerId: peerId)
         if peer.status == .begun {
@@ -146,10 +139,6 @@ private class Peer {
         }
     }
 
-//    func sendMessage(_ message: Data) {
-//        Backend.shared.sendPayload(message, to: peerId)
-//    }
-
     func didReceive(_ data: Data) {
         print("status is \(status)")
         do {
@@ -162,7 +151,7 @@ private class Peer {
                 didEstablishSession(sendThisToo: decryptedMessage)
             } else { // themis says: here is the decrypted message
                 print("themis says: here is the decrypted message")
-                Backend.shared.didReceiveData(decryptedMessage, source: peerId)
+                Backend.shared.didReceiveFromPeer(decryptedMessage, from: peerId)
             }
         } catch {
             if let session = session, session.isSessionEstablished() {

@@ -35,9 +35,9 @@ class TextViewController: NSViewController {
     private func updateTranscript() {
         if let whom = Model.shared.watching {
             transcript.string = Model.shared.texts
-                .filter({ message in message.to == whom || message.from == whom })
-                .reduce("", { text,message in
-                    text! + Model.shared.nameFor(message.from) + ": " + String(data: message.message, encoding: .utf8)!  + "\n"} )
+                .filter({ text in text.to == whom || text.from == whom })
+                .reduce("", { sum, text in
+                    sum! + Model.shared.nameFor(text.from) + ": " + String(data: text.body, encoding: .utf8)!  + "\n"} )
         }
     }
 }
