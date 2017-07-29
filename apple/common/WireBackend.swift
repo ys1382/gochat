@@ -1,5 +1,6 @@
 import Foundation
 
+// for use of Wire.proto
 class WireBackend {
 
     static let shared = WireBackend()
@@ -12,17 +13,13 @@ class WireBackend {
         network.connect()
     }
 
-    func send(wire: Wire) {
-        network.send(wire.data())
-    }
-
     private func send(_ wireBuilder: Wire.Builder) {
         do {
             var annotated = wireBuilder
             if let sessionId = sessionId {
                 annotated = annotated.setSessionId(sessionId)
             }
-            send(wire: try annotated.build())
+            network.send(try annotated.build().data())
         } catch {
             print(error.localizedDescription)
         }
@@ -56,6 +53,8 @@ class WireBackend {
             }
         }
     }
+
+    // queue messages while waiting for handshake to complete
 
     struct Hold {
         var data: Data
@@ -100,11 +99,7 @@ class WireBackend {
         }
     }
 
-    func sendContacts(_ contacts: [Contact]) {
-        let wireBuilder = Wire.Builder().setContacts(contacts).setWhich(.contacts)
-        send(wireBuilder)
-    }
-
+    // tell the server to store data
     func sendStore(key: String, value: Data) {
         do {
             guard let encrypted = crypto?.keyDerivationEncrypt(data: value) else {
@@ -119,17 +114,19 @@ class WireBackend {
         }
     }
 
+    // request the server to send back stored data
+    func sendLoad(key: String) {
+        let wireBuilder = Wire.Builder().setWhich(.load).setPayload(key.data(using: .utf8)!)
+        send(wireBuilder)
+    }
+
+    // the server sent back stored data, due to a .load request
     private func didReceiveStore(_ wire: Wire) throws {
         guard let value = crypto?.keyDerivationDecrypt(ciphertext: wire.payload) else {
             print("could not decrypt store")
             return
         }
         try Model.shared.didReceiveStore(key: wire.store.key, value: value)
-    }
-
-    func sendLoad(key: String) {
-        let wireBuilder = Wire.Builder().setWhich(.load).setPayload(key.data(using: .utf8)!)
-        send(wireBuilder)
     }
 
     func login(username: String, password: String) {
@@ -144,8 +141,13 @@ class WireBackend {
         EventBus.post(.authenticated)
     }
 
+    func sendContacts(_ contacts: [Contact]) {
+        let wireBuilder = Wire.Builder().setContacts(contacts).setWhich(.contacts)
+        send(wireBuilder)
+    }
+
     func send(data: Data, peerId: String) {
-        if crypto!.isSessionEstablishedFor(peerId) {
+        if crypto!.isSessionEstablished(peerId: peerId) {
             encryptAndSend(data: data, peerId: peerId)
         } else {
             enqueue(data: data, peerId: peerId)

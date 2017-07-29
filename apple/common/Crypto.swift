@@ -34,7 +34,7 @@ class Crypto {
         }
     }
 
-    func isSessionEstablishedFor(_ peerId: String) -> Bool {
+    func isSessionEstablished(peerId: String) -> Bool {
         let peer = self.peer(peerId)
         if peer.status == .begun {
             peer.sendPublicKey(isResponse: false)

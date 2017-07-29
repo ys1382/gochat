@@ -1,5 +1,6 @@
 import Foundation
 
+// for user of Voip.proto
 // todo: add file, AV
 class VoipBackend {
 

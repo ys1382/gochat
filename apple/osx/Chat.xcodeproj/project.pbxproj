@@ -74,10 +74,17 @@
 				1A7F93FA1EE49A4D009BE159 /* Network.swift */,
 				1AB7109E1F2C0C4300097E7F /* VoipBackend.swift */,
 				1A60DFF21EA30FC900BECD73 /* WireBackend.swift */,
+			);
+			name = Common;
+			sourceTree = "<group>";
+		};
+		1AB710A21F2C461100097E7F /* Protobuf */ = {
+			isa = PBXGroup;
+			children = (
 				1AB7109C1F2BC18000097E7F /* Voip.proto.swift */,
 				1A60DFF31EA30FC900BECD73 /* Wire.proto.swift */,
 			);
-			name = Common;
+			name = Protobuf;
 			sourceTree = "<group>";
 		};
 		1AC51C561EE5EF4700681864 /* UI */ = {
@@ -115,9 +122,10 @@
 			isa = PBXGroup;
 			children = (
 				1ADE89E41EA1CE0E00E41212 /* AppDelegate.swift */,
+				1ADE89ED1EA1CE0E00E41212 /* Info.plist */,
 				1A709A4C1EEF2A0D003C2699 /* Common */,
 				1AC51C561EE5EF4700681864 /* UI */,
-				1ADE89ED1EA1CE0E00E41212 /* Info.plist */,
+				1AB710A21F2C461100097E7F /* Protobuf */,
 			);
 			path = Chat;
 			sourceTree = "<group>";

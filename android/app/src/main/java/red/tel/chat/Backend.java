@@ -32,9 +32,7 @@ public class Backend extends IntentService {
     private Network network;
     private String sessionId;
     private Crypto crypto;
-
-
-    private Map<String, ArrayList<Wire>> queue = new HashMap<>();
+    private Map<String, ArrayList<Hold>> queue = new HashMap<>();
 
     public static Backend shared() {
         return instance;
@@ -103,34 +101,35 @@ public class Backend extends IntentService {
         EventBus.announce(EventBus.Event.AUTHENTICATED);
     }
 
-    private void enqueue(Wire.Builder wireBuilder) {
-        if (!queue.containsKey(wireBuilder.to)) {
-            queue.put(wireBuilder.to, new ArrayList<>());
+    private class Hold {
+        byte[] data;
+        String peerId;
+        Hold(byte[] data, String peerId) {
+            this.data = data;
+            this.peerId = peerId;
         }
-        queue.get(wireBuilder.to).add(wireBuilder.build());
     }
 
-    private Boolean dontEncrypt(Wire.Builder wireBuilder) {
-        return wireBuilder.to == null ||
-                wireBuilder.which == PUBLIC_KEY ||
-                wireBuilder.which == PUBLIC_KEY_RESPONSE ||
-                wireBuilder.which == HANDSHAKE;
+    private void enqueue(byte[] data, String peerId) {
+        if (!queue.containsKey(peerId)) {
+            queue.put(peerId, new ArrayList<>());
+        }
+        Hold hold = new Hold(data, peerId);
+        queue.get(peerId).add(hold);
     }
 
-    private void send(Wire.Builder wireBuilder) {
-        if (dontEncrypt(wireBuilder)) {
-            buildAndSend(wireBuilder);
-        } else if (crypto.isSessionEstablishedFor(wireBuilder.to)) {
-            encryptAndSend(wireBuilder.build());
+    private void send(byte[] data, String peerId) {
+        if (crypto.isSessionEstablishedFor(peerId)) {
+            encryptAndSend(data, peerId);
         } else {
-            enqueue(wireBuilder);
+            enqueue(data, peerId);
         }
     }
 
-    private void encryptAndSend(Wire wire) {
+    private void encryptAndSend(byte[] data, String peerId) {
         try {
-            ByteString encrypted = ByteString.of(crypto.encrypt(wire.encode(), wire.to));
-            Wire.Builder payloadBuilder = new Wire.Builder().payload(encrypted).which(PAYLOAD).to(wire.to);
+            ByteString encrypted = ByteString.of(crypto.encrypt(data, peerId));
+            Wire.Builder payloadBuilder = new Wire.Builder().payload(encrypted).which(PAYLOAD).to(peerId);
             buildAndSend(payloadBuilder);
         } catch (Exception exception) {
             Log.e(TAG, exception.getLocalizedMessage());
@@ -150,24 +149,18 @@ public class Backend extends IntentService {
 
     public void login(String username) {
         Wire.Builder wire = new Wire.Builder().which(LOGIN).login(username);
-        instance.send(wire);
+        instance.buildAndSend(wire);
     }
 
     public void sendContacts(List<Contact> contacts) {
         Wire.Builder wire = new Wire.Builder().which(CONTACTS).contacts(contacts);
-        instance.send(wire);
+        instance.buildAndSend(wire);
     }
 
     public void sendText(String message, String peerId) {
         okio.ByteString text = okio.ByteString.encodeUtf8(message);
-        Voip.Builder voipBulder = new Voip.Builder().which(Voip.Which.TEXT).payload(text);
-        send(voipBulder, peerId);
-    }
-
-    private void send(Voip.Builder voipBulder, String peerId) {
-        ByteString payload = ByteString.of(voipBulder.build().encode());
-        Wire.Builder wireBuilder = new Wire.Builder().payload(payload).which(PAYLOAD).to(peerId);
-        send(wireBuilder);
+        byte[] data = new Voip.Builder().which(Voip.Which.TEXT).payload(text).build().encode();
+        send(data, peerId);
     }
 
     void sendPublicKey(byte[] key, String recipient, Boolean isResponse) {
@@ -178,7 +171,7 @@ public class Backend extends IntentService {
     private void sendData(Wire.Which which, byte[] data, String recipient) {
         okio.ByteString byteString = ByteString.of(data);
         Wire.Builder wire = new Wire.Builder().which(which).payload(byteString).to(recipient);
-        instance.send(wire);
+        instance.buildAndSend(wire);
     }
 
     void sendHandshake(byte[] key, String recipient) {
@@ -186,12 +179,12 @@ public class Backend extends IntentService {
     }
 
     void handshook(String peerId) {
-        ArrayList<Wire> list = queue.get(peerId);
+        ArrayList<Hold> list = queue.get(peerId);
         if (list == null) {
             return;
         }
-        for (Wire wire: list) {
-            encryptAndSend(wire);
+        for (Hold hold: list) {
+            encryptAndSend(hold.data, hold.peerId);
         }
     }
 
