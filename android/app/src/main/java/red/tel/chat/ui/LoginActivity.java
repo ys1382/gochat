@@ -101,8 +101,8 @@ public class LoginActivity extends BaseActivity {
         }
         String username = usernameView.getText().toString();
         String password = passwordView.getText().toString();
-        Model.setUsername(username);
-        Model.setPassword(password);
+        Model.shared().setUsername(username);
+        Model.shared().setPassword(password);
         showProgress();
         Backend.shared().login(username);
     }

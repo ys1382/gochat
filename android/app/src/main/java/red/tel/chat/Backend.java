@@ -11,6 +11,7 @@ import java.util.List;
 
 import okio.ByteString;
 import red.tel.chat.generated_protobuf.Contact;
+import red.tel.chat.generated_protobuf.Store;
 import red.tel.chat.generated_protobuf.Wire;
 import red.tel.chat.generated_protobuf.Voip;
 
@@ -44,7 +45,7 @@ public class Backend extends IntentService {
         network = new Network();
 
         EventBus.listenFor(this, EventBus.Event.CONNECTED, () -> {
-            String username = Model.getUsername();
+            String username = Model.shared().getUsername();
             if (username != null) {
                 Backend.this.login(username);
             }
@@ -64,10 +65,10 @@ public class Backend extends IntentService {
             switch (wire.which) {
                 case CONTACTS:
                 case PRESENCE:
-                    Model.incomingFromServer(wire);
+                    Model.shared().incomingFromServer(wire);
                     break;
                 case STORE:
-//                    onStore(wire);
+                    onReceiveStore(wire);
                     break;
                 case HANDSHAKE:
                 case PAYLOAD:
@@ -83,6 +84,32 @@ public class Backend extends IntentService {
         }
     }
 
+    // tell the server to store data
+    void sendStore(String key, byte[] value) {
+        try {
+            ByteString encrypted = ByteString.of(crypto.keyDerivationEncrypt(value));
+            ByteString keyBytes = ByteString.encodeUtf8(key);
+            Store store = new Store.Builder().key(keyBytes).build();
+            Wire.Builder wireBuilder = new Wire.Builder().store(store).which(Wire.Which.STORE).payload(encrypted);
+            buildAndSend(wireBuilder);
+        } catch (Exception exception) {
+            Log.e(TAG, exception.getLocalizedMessage());
+        }
+    }
+
+    // request the server to send back stored data
+    void sendLoad(String key) {
+        ByteString payload = ByteString.encodeUtf8(key);
+        Wire.Builder wireBuilder = new Wire.Builder().which(Wire.Which.LOAD).payload(payload);
+        buildAndSend(wireBuilder);
+    }
+
+    // the server sent back stored data, due to a LOAD request
+    private void onReceiveStore(Wire wire) throws Exception {
+        byte[] value = crypto.keyDerivationDecrypt(wire.payload.toByteArray());
+        Model.shared().onReceiveStore(wire.store.key.utf8(), value);
+    }
+
     private void onPublicKey(Wire wire) throws Exception {
         crypto.setPublicKey(
                 wire.payload.toByteArray(),
@@ -92,7 +119,7 @@ public class Backend extends IntentService {
 
     private void authenticated(String sessionId) {
         try {
-            crypto = new Crypto(Model.getUsername(), Model.getPassword());
+            crypto = new Crypto(Model.shared().getUsername(), Model.shared().getPassword());
         } catch (Exception exception) {
             Log.e(TAG, exception.getLocalizedMessage());
             return;
@@ -195,7 +222,7 @@ public class Backend extends IntentService {
 
             switch (voip.which) {
                 case TEXT:
-                    Model.incomingFromPeer(voip);
+                    Model.shared().incomingFromPeer(voip, peerId);
                     break;
                 default:
                     Log.e(TAG, "no handler for " + voip.which);

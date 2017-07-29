@@ -12,6 +12,9 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.util.Locale;
+
+import red.tel.chat.generated_protobuf.Text;
 import red.tel.chat.Backend;
 import red.tel.chat.EventBus;
 import red.tel.chat.Model;
@@ -64,7 +67,11 @@ public class ItemDetailFragment extends Fragment {
 
         EventBus.listenFor(getActivity(), EventBus.Event.TEXT, () -> {
             TextView textView = (TextView) rootView.findViewById(R.id.messagesContainer);
-            String texts = Model.getTexts().stream().reduce("", (a,b) -> a + "\n" + b );
+            StringBuilder texts = new StringBuilder();
+            for (Text text: Model.shared().getTexts()) {
+                String line = String.format(Locale.US,"%1$s: %2$s\n", text.from, text.body);
+                texts.append(line);
+            }
             Log.d(TAG, "texts = " + texts);
             textView.setText(texts);
         });

@@ -65,7 +65,7 @@ public class ItemListActivity extends BaseActivity {
         private List<String> values = new ArrayList<>();
 
         SimpleItemRecyclerViewAdapter() {
-            values = Model.getContacts();
+            values = Model.shared().getContacts();
         }
 
         @Override
@@ -74,7 +74,7 @@ public class ItemListActivity extends BaseActivity {
                     .from(parent.getContext())
                     .inflate(R.layout.item_list_content, parent, false);
             EventBus.listenFor(parent.getContext(), EventBus.Event.CONTACTS, () -> {
-                values = Model.getContacts();
+                values = Model.shared().getContacts();
                 notifyDataSetChanged();
             });
             return new ViewHolder(view);
@@ -84,7 +84,7 @@ public class ItemListActivity extends BaseActivity {
         public void onBindViewHolder(final ViewHolder holder, int position) {
             String name = this.values.get(position);
             holder.contactName.setText(name);
-            if (Model.isOnline(name)) {
+            if (Model.shared().isOnline(name)) {
                 holder.contactName.setTextColor(Color.BLUE);
                 holder.contactName.setTypeface(null, Typeface.BOLD);
             }
@@ -135,7 +135,7 @@ public class ItemListActivity extends BaseActivity {
 
                 alert.setPositiveButton(R.string.ok, (dialog, whichButton) -> {
                     recyclerViewAdapter.values.remove(contactName.getText().toString());
-                    Model.setContacts(recyclerViewAdapter.values);
+                    Model.shared().setContacts(recyclerViewAdapter.values);
                     recyclerViewAdapter.notifyDataSetChanged();
                 });
 
@@ -156,7 +156,7 @@ public class ItemListActivity extends BaseActivity {
         alert.setPositiveButton(R.string.ok, (dialog, whichButton) -> {
             String name = input.getEditableText().toString();
             recyclerViewAdapter.values.add(name);
-            Model.setContacts(recyclerViewAdapter.values);
+            Model.shared().setContacts(recyclerViewAdapter.values);
             recyclerViewAdapter.notifyDataSetChanged();
         });
 
