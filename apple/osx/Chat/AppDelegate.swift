@@ -3,15 +3,10 @@ import Cocoa
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-//    var c = Crypto(username: "username", password: "password")
-//    ThemisExample.go()
-
     func applicationDidFinishLaunching(_ aNotification: Notification) {
 
         EventBus.addListener(about: .connected, didReceive: { notification in
-            if let credential = Backend.shared.credential {
-                Backend.shared.login(username: credential.username, password: credential.password)
-            } else {
+            if !Auth.shared.login() {
                 LoginViewController.popup()
             }
         })
@@ -24,6 +19,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             alert.runModal()
         })
 
-        Backend.shared.connect()
+        WireBackend.shared.connect()
     }
 }

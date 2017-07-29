@@ -35,14 +35,14 @@ class Crypto {
     }
 
     func isSessionEstablishedFor(_ peerId: String) -> Bool {
-        let peer = self.peer(forPeerId: peerId)
+        let peer = self.peer(peerId)
         if peer.status == .begun {
             peer.sendPublicKey(isResponse: false)
         }
         return peer.status == .sessionEstablished
     }
 
-    private func peer(forPeerId peerId: String) -> Peer {
+    private func peer(_ peerId: String) -> Peer {
         if peers[peerId] == nil {
             let peer = Peer(peerId: peerId)
             peers[peerId] = peer
@@ -51,16 +51,16 @@ class Crypto {
     }
 
     func setPublicKey(key: Data, peerId: String, isResponse: Bool) {
-        let peer = self.peer(forPeerId: peerId)
+        let peer = self.peer(peerId)
         peer.setServerPublicKey(key: key, isResponse: isResponse)
     }
 
     func didReceivePayload(_ payload: Data, from peerId: String) {
-        peer(forPeerId: peerId).didReceive(payload)
+        peer(peerId).didReceive(payload)
     }
 
-    func encrypt(data: Data, forPeerId peerId: String) -> Data? {
-        let peer = self.peer(forPeerId: peerId)
+    func encrypt(data: Data, peerId: String) -> Data? {
+        let peer = self.peer(peerId)
         return peer.encrypt(data)
     }
 }
@@ -101,7 +101,7 @@ private class Peer {
     var clientPublicKey: Data? = nil
 
     init(peerId: String) {
-        clientIdData = Backend.shared.credential!.username.data(using: .utf8)!
+        clientIdData = Auth.shared.username!.data(using: .utf8)!
         self.peerId = peerId
 
         guard let keyGeneratorEC: TSKeyGen = TSKeyGen(algorithm: .EC) else {
@@ -124,7 +124,7 @@ private class Peer {
 
     func sendPublicKey(isResponse: Bool) {
         status = .publicKeySent
-        Backend.shared.sendPublicKey(clientPublicKey!, to: peerId, isResponse: isResponse)
+        WireBackend.shared.sendPublicKey(clientPublicKey!, to: peerId, isResponse: isResponse)
     }
 
     func connect() {
@@ -133,7 +133,7 @@ private class Peer {
                 print("could not connectRequest")
                 return
             }
-            Backend.shared.sendHandshake(message: message, to: peerId)
+            WireBackend.shared.sendHandshake(message: message, to: peerId)
         } catch {
             print(error.localizedDescription)
         }
@@ -145,13 +145,13 @@ private class Peer {
             let decryptedMessage = try session!.unwrapData(data)
             if !session!.isSessionEstablished() { // themis says: send this back
                 print("themis says: send this back")
-                Backend.shared.sendHandshake(message: decryptedMessage, to: peerId)
+                WireBackend.shared.sendHandshake(message: decryptedMessage, to: peerId)
             } else if status != .sessionEstablished { // themis says: session now established
                 print("themis says: session now established")
                 didEstablishSession(sendThisToo: decryptedMessage)
             } else { // themis says: here is the decrypted message
                 print("themis says: here is the decrypted message")
-                Backend.shared.didReceiveFromPeer(decryptedMessage, from: peerId)
+                VoipBackend.didReceiveFromPeer(decryptedMessage, from: peerId)
             }
         } catch {
             if let session = session, session.isSessionEstablished() {
@@ -166,9 +166,9 @@ private class Peer {
     private func didEstablishSession(sendThisToo: Data? = nil) {
         status = .sessionEstablished
         if let message = sendThisToo {
-            Backend.shared.sendHandshake(message: message, to: peerId)
+            WireBackend.shared.sendHandshake(message: message, to: peerId)
         }
-        Backend.shared.handshook(with: peerId)
+        WireBackend.shared.handshook(with: peerId)
     }
 
     func encrypt(_ data: Data) -> Data? {

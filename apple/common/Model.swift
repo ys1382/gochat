@@ -4,7 +4,7 @@ import Starscream
 class Model {
 
     static let shared = Model()
-
+    static let textsKey = "texts"
     var roster = [String:Contact]()
     var texts = [Text]()
     var unreads = [String:Int]()
@@ -22,7 +22,7 @@ class Model {
 
     private init() {
         EventBus.addListener(about: .authenticated, didReceive: { notification in
-            Backend.shared.sendLoad(key: .texts)
+            WireBackend.shared.sendLoad(key: Model.textsKey)
         })
     }
 
@@ -38,7 +38,7 @@ class Model {
             unreads[peerId] = (unreads[peerId] ?? 0) + 1
         }
         do {
-            let moi = Backend.shared.credential?.username
+            let moi = Auth.shared.username
             let text = try Text.Builder().setTo(moi!).setFrom(peerId).setBody(body).build()
             texts.append(text)
             storeText()
@@ -51,8 +51,7 @@ class Model {
     private func storeText() {
         do {
             let storage = try Voip.Builder().setTextStorage(texts).build().data()
-            let key = LocalStorage.Key.texts.toData()
-            Backend.shared.sendStore(key: key, value: storage)
+            WireBackend.shared.sendStore(key: Model.textsKey, value: storage)
         } catch {
             print(error.localizedDescription)
         }
@@ -67,33 +66,14 @@ class Model {
         EventBus.post(about:.contacts)
     }
 
-    func didReceiveStore(key keyData: Data, value: Data) throws {
-        let key = try LocalStorage.Key(keyData)
-        guard key == .texts else {
+    func didReceiveStore(key: Data, value: Data) throws {
+        guard key == "texts".data(using: .utf8) else {
             throw ModelError.keyNotHandled
         }
         let parsed = try Voip.parseFrom(data: value)
         texts = parsed.textStorage
         EventBus.post(.texts)
     }
-
-//    private func previousTexts() -> [Text] {
-//        var result = [Text]()
-//        for data in textsStorage {
-//            do {
-//                let message = try Wire.parseFrom(data: data)
-//                guard message.which == .text else {
-//                    print("\(message.which) in textStorage")
-//                    continue
-//                }
-//                let text = Text(message: message.payload, from: message.from, to: message.to)
-//                result.append(text)
-//            } catch {
-//                print(error.localizedDescription)
-//            }
-//        }
-//        return result
-//    }
 
     func setContacts(_ ids: [String]) {
         var update = [String:Contact]()
@@ -105,7 +85,7 @@ class Model {
             }
         }
         roster = update
-        Backend.shared.sendContacts(Array(roster.values))
+        WireBackend.shared.sendContacts(Array(roster.values))
     }
 
     func nameFor(_ id: String) -> String {

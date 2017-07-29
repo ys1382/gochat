@@ -15,13 +15,13 @@ type Client struct {
   crowd       *Crowd
 }
 
-func (client *Client) Save(db *bolt.DB, haber *Haber) {
+func (client *Client) Save(db *bolt.DB, wire *Wire) {
   db.Update(func(tx *bolt.Tx) error {
     b, err := tx.CreateBucketIfNotExists([]byte(client.id))
     if err != nil {
       fmt.Println("Error opening bucket:", err)
     }
-    encoded, err := proto.Marshal(haber)
+    encoded, err := proto.Marshal(wire)
     if err != nil {
       fmt.Println("Error marshalling:", err)
     }
@@ -37,12 +37,12 @@ func (client *Client) Load(db *bolt.DB) {
       if data == nil {
         fmt.Println("contacts are nil for " + client.id)
       } else {
-        var haber Haber
-        err := proto.Unmarshal(data, &haber)
+        var wire Wire
+        err := proto.Unmarshal(data, &wire)
         if err != nil {
           fmt.Println("Error unmarshalling:", err)
         } else {
-          client.contacts = haber.GetContacts()
+          client.contacts = wire.GetContacts()
         }
       }
     }
@@ -54,9 +54,9 @@ func (client *Client) isOnline() (bool) {
   return len(client.sessions) > 0
 }
 
-func (client *Client) Send(haber *Haber) {
-  fmt.Println("Client.Send " + haber.Which.String())
-  data, err := proto.Marshal(haber)
+func (client *Client) Send(wire *Wire) {
+  fmt.Println("Client.Send " + wire.Which.String())
+  data, err := proto.Marshal(wire)
   if err != nil || data == nil {
     fmt.Println("Error marshalling:", err)
   }  else if client == nil {
@@ -69,14 +69,14 @@ func (client *Client) Send(haber *Haber) {
   }
 }
 
-func (client *Client) receivedLoad(haber *Haber) {
+func (client *Client) receivedLoad(wire *Wire) {
   crowd.db.View(func(tx *bolt.Tx) error {
     b := tx.Bucket([]byte(client.id))
     if b == nil {
       fmt.Println("no bucket for " + client.id)
       return nil
     }
-    key := haber.GetPayload()
+    key := wire.GetPayload()
     data := b.Get(key)
     if data == nil {
       fmt.Println("data is nil for " + string(key[:]))
@@ -84,25 +84,25 @@ func (client *Client) receivedLoad(haber *Haber) {
     }
     store := &Store{
       Key:   key,
-      Value: data,
     }
-    update := &Haber{
-      Which: Haber_STORE,
-      Store: store,
-      To:    client.id,
+    update := &Wire{
+      Which:   Wire_STORE,
+      Store:   store,
+      To:      client.id,
+      Payload: data,
     }
     crowd.queue <- *update
     return nil
   })
 }
 
-func (client *Client) receivedStore(haber *Haber) {
+func (client *Client) receivedStore(wire *Wire) {
   crowd.db.Update(func(tx *bolt.Tx) error {
     b, err := tx.CreateBucketIfNotExists([]byte(client.id))
     if err != nil {
       fmt.Println("Error opening bucket:", err)
     }
-    return b.Put(haber.Store.Key, haber.GetStore().GetValue())
+    return b.Put(wire.Store.Key, wire.GetPayload())
   })
 }
 
@@ -143,8 +143,8 @@ func (client *Client) sendContacts(sessionId string) {
     contact.Online = ok
   }
 
-  buds := &Haber {
-    Which: Haber_CONTACTS,
+  buds := &Wire {
+    Which: Wire_CONTACTS,
     SessionId: sessionId,
     Contacts: client.contacts,
     To: client.id,
@@ -152,22 +152,22 @@ func (client *Client) sendContacts(sessionId string) {
   crowd.queue <- *buds
 }
 
-func forward(client *Client, haber *Haber) {
-  haber.From = client.id
-  crowd.queue <- *haber // forward to all devices with source's and destination's ids
+func forward(client *Client, wire *Wire) {
+  wire.From = client.id
+  crowd.queue <- *wire // forward to all devices with source's and destination's ids
 }
 
-func (client *Client) receivedContacts(haber *Haber) {
+func (client *Client) receivedContacts(wire *Wire) {
   fmt.Println("receivedContacts for " + client.id)
-  client.contacts = haber.GetContacts()
+  client.contacts = wire.GetContacts()
   client.subscribeToContacts()
-  client.Save(crowd.db, haber)
+  client.Save(crowd.db, wire)
 
-  for _,contact := range haber.Contacts {
+  for _,contact := range wire.Contacts {
     if c, ok := crowd.clients[contact.GetId()]; ok {
       contact.Online = c.online
     }
   }
-  haber.To = client.id
-  forward(client, haber)
+  wire.To = client.id
+  forward(client, wire)
 }

@@ -12,12 +12,12 @@ type Crowd struct {
   clients             map[string]*Client
   presenceSubscribers map[string][]string // set of subscribers to each client
   clientsMtx          sync.Mutex
-  queue               chan Haber
+  queue               chan Wire
   db                  *bolt.DB
 }
 
 func (crowd *Crowd) Init(db *bolt.DB) {
-  crowd.queue = make(chan Haber, 5)
+  crowd.queue = make(chan Wire, 5)
   crowd.clients = make(map[string]*Client)
   crowd.presenceSubscribers = make(map[string][]string)
   crowd.db = db
@@ -39,13 +39,13 @@ func (crowd *Crowd) Init(db *bolt.DB) {
       }
 
       which := message.Which
-      if which != Haber_CONTACTS { // don't forward sessionId
+      if which != Wire_CONTACTS { // don't forward sessionId
         message.SessionId = ""
       }
       fmt.Printf("Send %s from %s to %s\n", message.GetWhich().String(), message.From, message.To);
       client.Send(&message)
 
-      //if (which == Haber_TEXT || which == Haber_FILE) && (message.To != message.From) {
+      //if (which == Wire_TEXT || which == Wire_FILE) && (message.To != message.From) {
       //  message.To = message.From
       //  fmt.Println("\t also send " + message.GetWhich().String() + " from " + message.From + " to " + message.To)
       //  crowd.queue <- message
@@ -54,12 +54,12 @@ func (crowd *Crowd) Init(db *bolt.DB) {
   }()
 }
 
-func (crowd *Crowd) messageArrived(conn *websocket.Conn, haber *Haber, sessionId string) bool {
-  if haber.GetWhich() == Haber_LOGIN {
-    crowd.receivedLogin(conn, haber.GetLogin())
+func (crowd *Crowd) messageArrived(conn *websocket.Conn, wire *Wire, sessionId string) bool {
+  if wire.GetWhich() == Wire_LOGIN {
+    crowd.receivedLogin(conn, wire.GetLogin())
     return false
   }
-  sessionId = haber.GetSessionId()
+  sessionId = wire.GetSessionId()
   if sessionId != "" {
     fmt.Println("\nsessionId is " + sessionId)
     crowd.updatePresence(sessionId, true)
@@ -72,33 +72,33 @@ func (crowd *Crowd) messageArrived(conn *websocket.Conn, haber *Haber, sessionId
       fmt.Println("no client for " + sessionId)
       return true
     } else {
-      fmt.Println("sessionId is empty, which=" + haber.GetWhich().String())
+      fmt.Println("sessionId is empty, which=" + wire.GetWhich().String())
     }
   }
 
-  switch haber.GetWhich() {
-  case Haber_CONTACTS:
-    client.receivedContacts(haber)
-  case Haber_STORE:
-    client.receivedStore(haber)
-  case Haber_LOAD:
-    client.receivedLoad(haber)
-  case Haber_PUBLIC_KEY:
+  switch wire.GetWhich() {
+  case Wire_CONTACTS:
+    client.receivedContacts(wire)
+  case Wire_STORE:
+    client.receivedStore(wire)
+  case Wire_LOAD:
+    client.receivedLoad(wire)
+  case Wire_PUBLIC_KEY:
     fallthrough
-  case Haber_PUBLIC_KEY_RESPONSE:
+  case Wire_PUBLIC_KEY_RESPONSE:
     fallthrough
-  case Haber_HANDSHAKE:
+  case Wire_HANDSHAKE:
     fallthrough
-  case Haber_PAYLOAD:
+  case Wire_PAYLOAD:
     if client == nil {
       fmt.Printf("client is nil %d\n", len(crowd.clients))
     }
-    if haber == nil {
-      fmt.Println("haber is nil")
+    if wire == nil {
+      fmt.Println("wire is nil")
     }
-    forward(client, haber)
+    forward(client, wire)
   default:
-    fmt.Println("No handler for " + haber.GetWhich().String())
+    fmt.Println("No handler for " + wire.GetWhich().String())
   }
   return false
 }
@@ -165,8 +165,8 @@ func (crowd *Crowd) updatePresence(sessionId string, online bool) {
 
   for _,subscriber := range crowd.presenceSubscribers[from] {
     fmt.Println("\t subscriber= " + subscriber)
-    update := &Haber {
-      Which: Haber_PRESENCE,
+    update := &Wire {
+      Which: Wire_PRESENCE,
       Contacts: []*Contact{contact},
       To: subscriber,
     }

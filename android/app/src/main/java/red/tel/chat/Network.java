@@ -16,7 +16,7 @@ import com.neovisionaries.ws.client.WebSocketFrame;
 // websocket façade
 class Network {
 
-    private static final String serverUrl = "ws://172.31.99.182:8000/ws";
+    private static final String serverUrl = "ws://10.17.7.91:8000/ws";
     private static final String TAG = "Network";
     private static final int CONNECTION_TIMEOUT = 1000;
     private WebSocket webSocket;
@@ -60,7 +60,7 @@ class Network {
                 @Override
                 public void onBinaryMessage(WebSocket websocket, byte[] binary) throws Exception {
                     Log.i(TAG, "onBinaryMessage " + binary.length + " bytes");
-                    Backend.shared().onReceiveData(binary);
+                    Backend.shared().onReceiveFromServer(binary);
                 }
             };
 

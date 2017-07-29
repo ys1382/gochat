@@ -12,6 +12,7 @@ import java.util.List;
 import okio.ByteString;
 import red.tel.chat.generated_protobuf.Contact;
 import red.tel.chat.generated_protobuf.Wire;
+import red.tel.chat.generated_protobuf.Voip;
 
 import static red.tel.chat.generated_protobuf.Wire.Which.CONTACTS;
 import static red.tel.chat.generated_protobuf.Wire.Which.HANDSHAKE;
@@ -19,7 +20,6 @@ import static red.tel.chat.generated_protobuf.Wire.Which.PAYLOAD;
 import static red.tel.chat.generated_protobuf.Wire.Which.LOGIN;
 import static red.tel.chat.generated_protobuf.Wire.Which.PUBLIC_KEY;
 import static red.tel.chat.generated_protobuf.Wire.Which.PUBLIC_KEY_RESPONSE;
-import static red.tel.chat.generated_protobuf.Wire.Which.TEXT;
 
 // shuttles data between Network and Model
 public class Backend extends IntentService {
@@ -54,31 +54,30 @@ public class Backend extends IntentService {
     }
 
     // receive from Network
-    void onReceiveData(byte[] binary) {
+    void onReceiveFromServer(byte[] binary) {
         try {
-            Wire haber = Haber.ADAPTER.decode(binary);
-            Log.d(TAG, "incoming " + haber.which);
+            Wire wire = Wire.ADAPTER.decode(binary);
+            Log.d(TAG, "incoming " + wire.which + " from server");
 
-            if (sessionId == null && haber.sessionId != null) {
-                authenticated(haber.sessionId);
+            if (sessionId == null && wire.sessionId != null) {
+                authenticated(wire.sessionId);
             }
 
-            switch (haber.which) {
-                case TEXT:
+            switch (wire.which) {
                 case CONTACTS:
                 case PRESENCE:
-                    Model.incoming(haber);
+                    Model.incomingFromServer(wire);
                     break;
                 case STORE:
-//                    onStore(haber);
+//                    onStore(wire);
                     break;
                 case HANDSHAKE:
                 case PAYLOAD:
-                    crypto.onReceivePayload(haber.payload.toByteArray(), haber.from);
+                    crypto.onReceivePayload(wire.payload.toByteArray(), wire.from);
                     break;
                 case PUBLIC_KEY:
                 case PUBLIC_KEY_RESPONSE:
-                    onPublicKey(haber);
+                    onPublicKey(wire);
                     break;
             }
         } catch (Exception exception) {
@@ -86,11 +85,11 @@ public class Backend extends IntentService {
         }
     }
 
-    private void onPublicKey(Wire haber) throws Exception {
+    private void onPublicKey(Wire wire) throws Exception {
         crypto.setPublicKey(
-                haber.payload.toByteArray(),
-                haber.from,
-                haber.which == Wire.Which.PUBLIC_KEY_RESPONSE);
+                wire.payload.toByteArray(),
+                wire.from,
+                wire.which == Wire.Which.PUBLIC_KEY_RESPONSE);
     }
 
     private void authenticated(String sessionId) {
@@ -104,65 +103,71 @@ public class Backend extends IntentService {
         EventBus.announce(EventBus.Event.AUTHENTICATED);
     }
 
-    private void enqueue(Wire.Builder haberBuilder) {
-        if (!queue.containsKey(haberBuilder.to)) {
-            queue.put(haberBuilder.to, new ArrayList<>());
+    private void enqueue(Wire.Builder wireBuilder) {
+        if (!queue.containsKey(wireBuilder.to)) {
+            queue.put(wireBuilder.to, new ArrayList<>());
         }
-        queue.get(haberBuilder.to).add(haberBuilder.build());
+        queue.get(wireBuilder.to).add(wireBuilder.build());
     }
 
-    private Boolean dontEncrypt(Wire.Builder haberBuilder) {
-        return haberBuilder.to == null ||
-                haberBuilder.which == PUBLIC_KEY ||
-                haberBuilder.which == PUBLIC_KEY_RESPONSE ||
-                haberBuilder.which == HANDSHAKE;
+    private Boolean dontEncrypt(Wire.Builder wireBuilder) {
+        return wireBuilder.to == null ||
+                wireBuilder.which == PUBLIC_KEY ||
+                wireBuilder.which == PUBLIC_KEY_RESPONSE ||
+                wireBuilder.which == HANDSHAKE;
     }
 
-    private void send(Wire.Builder haberBuilder) {
-        if (dontEncrypt(haberBuilder)) {
-            buildAndSend(haberBuilder);
-        } else if (crypto.isSessionEstablishedFor(haberBuilder.to)) {
-            encryptAndSend(haberBuilder.build());
+    private void send(Wire.Builder wireBuilder) {
+        if (dontEncrypt(wireBuilder)) {
+            buildAndSend(wireBuilder);
+        } else if (crypto.isSessionEstablishedFor(wireBuilder.to)) {
+            encryptAndSend(wireBuilder.build());
         } else {
-            enqueue(haberBuilder);
+            enqueue(wireBuilder);
         }
     }
 
-    private void encryptAndSend(Wire haber) {
+    private void encryptAndSend(Wire wire) {
         try {
-            ByteString encrypted = ByteString.of(crypto.encrypt(haber.encode(), haber.to));
-            Wire.Builder payloadBuilder = new Haber.Builder().payload(encrypted).which(PAYLOAD).to(haber.to);
+            ByteString encrypted = ByteString.of(crypto.encrypt(wire.encode(), wire.to));
+            Wire.Builder payloadBuilder = new Wire.Builder().payload(encrypted).which(PAYLOAD).to(wire.to);
             buildAndSend(payloadBuilder);
         } catch (Exception exception) {
             Log.e(TAG, exception.getLocalizedMessage());
         }
     }
 
-    private void buildAndSend(Wire.Builder haberBuilder) {
-        haberBuilder.sessionId = sessionId;
-        send(haberBuilder.build());
+    private void buildAndSend(Wire.Builder wireBuilder) {
+        wireBuilder.sessionId = sessionId;
+        send(wireBuilder.build());
     }
 
-    private void send(Wire haber) {
-        network.send(haber.encode());
+    private void send(Wire wire) {
+        network.send(wire.encode());
     }
 
     // send to Network
 
     public void login(String username) {
-        Wire.Builder haber = new Haber.Builder().which(LOGIN).login(username);
-        instance.send(haber);
+        Wire.Builder wire = new Wire.Builder().which(LOGIN).login(username);
+        instance.send(wire);
     }
 
     public void sendContacts(List<Contact> contacts) {
-        Wire.Builder haber = new Haber.Builder().which(CONTACTS).contacts(contacts);
-        instance.send(haber);
+        Wire.Builder wire = new Wire.Builder().which(CONTACTS).contacts(contacts);
+        instance.send(wire);
     }
 
-    public void sendText(String recipient, String message) {
+    public void sendText(String message, String peerId) {
         okio.ByteString text = okio.ByteString.encodeUtf8(message);
-        Wire.Builder haber = new Haber.Builder().which(TEXT).payload(text).to(recipient);
-        instance.send(haber);
+        Voip.Builder voipBulder = new Voip.Builder().which(Voip.Which.TEXT).payload(text);
+        send(voipBulder, peerId);
+    }
+
+    private void send(Voip.Builder voipBulder, String peerId) {
+        ByteString payload = ByteString.of(voipBulder.build().encode());
+        Wire.Builder wireBuilder = new Wire.Builder().payload(payload).which(PAYLOAD).to(peerId);
+        send(wireBuilder);
     }
 
     void sendPublicKey(byte[] key, String recipient, Boolean isResponse) {
@@ -172,8 +177,8 @@ public class Backend extends IntentService {
 
     private void sendData(Wire.Which which, byte[] data, String recipient) {
         okio.ByteString byteString = ByteString.of(data);
-        Wire.Builder haber = new Haber.Builder().which(which).payload(byteString).to(recipient);
-        instance.send(haber);
+        Wire.Builder wire = new Wire.Builder().which(which).payload(byteString).to(recipient);
+        instance.send(wire);
     }
 
     void sendHandshake(byte[] key, String recipient) {
@@ -185,8 +190,26 @@ public class Backend extends IntentService {
         if (list == null) {
             return;
         }
-        for (Wire haber: list) {
-            encryptAndSend(haber);
+        for (Wire wire: list) {
+            encryptAndSend(wire);
+        }
+    }
+
+    void onReceiveFromPeer(byte[] binary, String peerId) {
+        try {
+            Voip voip = Voip.ADAPTER.decode(binary);
+            Log.d(TAG, "incoming " + voip.which + " from " + peerId);
+
+            switch (voip.which) {
+                case TEXT:
+                    Model.incomingFromPeer(voip);
+                    break;
+                default:
+                    Log.e(TAG, "no handler for " + voip.which);
+                    break;
+            }
+        } catch (Exception exception) {
+            Log.e(TAG, exception.getLocalizedMessage());
         }
     }
 }

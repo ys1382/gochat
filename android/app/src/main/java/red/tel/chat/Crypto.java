@@ -66,7 +66,7 @@ class Crypto {
     }
 
     void onReceivePayload(byte[] payload, String peerId) throws Exception {
-        getPeer(peerId).didReceive(payload);
+        getPeer(peerId).onReceive(payload);
     }
 
     byte[] encrypt(byte[] data, String peerId) throws Exception {
@@ -146,7 +146,7 @@ class Crypto {
             }
         }
 
-        void didReceive(byte[] receiveBuffer) throws Exception {
+        void onReceive(byte[] receiveBuffer) throws Exception {
             SecureSession.UnwrapResult result = session.unwrap(receiveBuffer);
             if (session.isEstablished()) {
                 status = Status.SESSION_ESTABLISHED;
@@ -155,7 +155,7 @@ class Crypto {
                 case USER_DATA:
                     // this is the actual data that was encrypted by your peer using SecureSession.wrap
                     // process the data according to your application's flow for incoming data
-                    Backend.shared().onReceiveData(result.getData());
+                    Backend.shared().onReceiveFromPeer(result.getData(), peerId);
                     break;
                 case PROTOCOL_DATA:
                     // this is the internal Secure Session protocol data. An opaque response was generated, just send it to your peer

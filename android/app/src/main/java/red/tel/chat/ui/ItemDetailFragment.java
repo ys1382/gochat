@@ -30,7 +30,7 @@ public class ItemDetailFragment extends Fragment {
     // The fragment argument representing the item ID that this fragment represents.
     public static final String ARG_ITEM_ID = "item_id";
 
-    private String item;
+    private String whom;
 
     // Mandatory empty constructor for the fragment manager to instantiate the fragment (e.g. upon
     // screen orientation changes).
@@ -43,12 +43,12 @@ public class ItemDetailFragment extends Fragment {
         if (getArguments().containsKey(ARG_ITEM_ID)) {
             // Load the dummy content specified by the fragment arguments. In a real-world scenario,
             // use a Loader to load content from a content provider.
-            item = getArguments().getString(ARG_ITEM_ID);
+            whom = getArguments().getString(ARG_ITEM_ID);
 
             Activity activity = this.getActivity();
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
             if (appBarLayout != null) {
-                appBarLayout.setTitle(item);
+                appBarLayout.setTitle(whom);
             }
         }
     }
@@ -56,11 +56,11 @@ public class ItemDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.item_detail, container, false);
-        getActivity().setTitle(item);
+        getActivity().setTitle(whom);
 
         EditText messageEdit = (EditText) rootView.findViewById(R.id.messageEdit);
         ImageButton messageSend = (ImageButton) rootView.findViewById(R.id.chatSendButton);
-        messageSend.setOnClickListener(v -> Backend.shared().sendText(item, messageEdit.getText().toString()));
+        messageSend.setOnClickListener(v -> Backend.shared().sendText(messageEdit.getText().toString(), whom));
 
         EventBus.listenFor(getActivity(), EventBus.Event.TEXT, () -> {
             TextView textView = (TextView) rootView.findViewById(R.id.messagesContainer);

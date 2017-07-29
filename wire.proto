@@ -10,7 +10,7 @@ message Contact {
 }
 
 message Store {
-    bytes key   = 1;
+    bytes key = 1;
 }
 
 message Wire {

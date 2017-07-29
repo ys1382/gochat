@@ -16,7 +16,7 @@ class TextViewController: NSViewController {
 
     @IBAction func didClickSend(_ sender: Any) {
         let body = input.stringValue
-        Backend.shared.sendText(body, to: Model.shared.watching!)
+        VoipBackend.sendText(body, peerId: Model.shared.watching!)
         input.stringValue = ""
     }
 

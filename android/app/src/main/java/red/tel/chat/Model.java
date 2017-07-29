@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import red.tel.chat.EventBus.Event;
 import red.tel.chat.generated_protobuf.Wire;
+import red.tel.chat.generated_protobuf.Voip;
 import red.tel.chat.generated_protobuf.Contact;
 
 public class Model {
@@ -59,20 +60,26 @@ public class Model {
         getSharedPreferences().edit().putString(PASSWORD, username).apply();
     }
 
-    // from Backend
-    static void incoming(Wire haber) {
-        switch (haber.which) {
+    static void incomingFromServer(Wire wire) {
+        switch (wire.which) {
             case CONTACTS:
-                roster = haber.contacts.stream().collect(Collectors.toMap(c -> c.name, c -> c));
+                roster = wire.contacts.stream().collect(Collectors.toMap(c -> c.name, c -> c));
                 EventBus.announce(Event.CONTACTS);
                 break;
+            default:
+                Log.e(TAG, "Did not handle incoming " + wire.which);
+        }
+    }
+
+    static void incomingFromPeer(Voip voip) {
+        switch (voip.which) {
             case TEXT:
-                texts.add(haber.payload.utf8());
-                Log.d(TAG, "text " + haber.payload.utf8() + ", texts.size = " + texts.size());
+                texts.add(voip.payload.utf8());
+                Log.d(TAG, "text " + voip.payload.utf8() + ", texts.size = " + texts.size());
                 EventBus.announce(Event.TEXT);
                 break;
             default:
-                Log.e(TAG, "Did not handle incoming " + haber.which);
+                Log.e(TAG, "Did not handle incoming " + voip.which);
         }
     }
 
