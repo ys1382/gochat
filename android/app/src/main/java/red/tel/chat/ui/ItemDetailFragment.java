@@ -63,19 +63,26 @@ public class ItemDetailFragment extends Fragment {
 
         EditText messageEdit = (EditText) rootView.findViewById(R.id.messageEdit);
         ImageButton messageSend = (ImageButton) rootView.findViewById(R.id.chatSendButton);
-        messageSend.setOnClickListener(v -> Backend.shared().sendText(messageEdit.getText().toString(), whom));
-
-        EventBus.listenFor(getActivity(), EventBus.Event.TEXT, () -> {
-            TextView textView = (TextView) rootView.findViewById(R.id.messagesContainer);
-            StringBuilder texts = new StringBuilder();
-            for (Text text: Model.shared().getTexts()) {
-                String line = String.format(Locale.US,"%1$s: %2$s\n", text.from, text.body.utf8());
-                texts.append(line);
-            }
-            Log.d(TAG, "texts = " + texts);
-            textView.setText(texts);
+        messageSend.setOnClickListener(v -> {
+            String message = messageEdit.getText().toString();
+            Model.shared().addText(message, Model.shared().getUsername(), whom);
+            Backend.shared().sendText(messageEdit.getText().toString(), whom);
         });
 
+        updateTexts(rootView);
+        EventBus.listenFor(getActivity(), EventBus.Event.TEXT, () -> updateTexts(rootView));
+
         return rootView;
+    }
+
+    private void updateTexts(View rootView) {
+        TextView textView = (TextView) rootView.findViewById(R.id.messagesContainer);
+        StringBuilder texts = new StringBuilder();
+        for (Text text: Model.shared().getTexts()) {
+            String line = String.format(Locale.US,"%1$s: %2$s\n", text.from, text.body.utf8());
+            texts.append(line);
+        }
+        Log.d(TAG, "texts = " + texts);
+        textView.setText(texts);
     }
 }

@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import okio.ByteString;
 import red.tel.chat.EventBus.Event;
 import red.tel.chat.generated_protobuf.Wire;
 import red.tel.chat.generated_protobuf.Voip;
@@ -21,12 +23,13 @@ public class Model {
     private static final String USERNAME = "username";
     private static final String PASSWORD = "password";
     private Map<String, Contact> roster = new HashMap<>();
-    private List<Text> texts = new ArrayList<>();
+    private List<red.tel.chat.generated_protobuf.Text> texts = new ArrayList<>();
     private static Model instance;
 
     public static Model shared() {
         if (instance == null) {
             instance = new Model();
+            EventBus.listenFor(ChatApp.getContext(), Event.AUTHENTICATED, () -> Backend.shared().sendLoad(TEXTS));
         }
         return instance;
     }
@@ -48,7 +51,7 @@ public class Model {
         return PreferenceManager.getDefaultSharedPreferences(ChatApp.getContext());
     }
 
-    String getUsername() {
+    public String getUsername() {
         return getSharedPreferences().getString(USERNAME, null);
     }
 
@@ -78,15 +81,19 @@ public class Model {
     void incomingFromPeer(Voip voip, String peerId) {
         switch (voip.which) {
             case TEXT:
-                Text text = new Text.Builder().body(voip.payload).to(getUsername()).from(peerId).build();
-                texts.add(text);
-                storeTexts();
+                addText(voip.payload.utf8(), peerId, getUsername());
                 Log.d(TAG, "text " + voip.payload.utf8() + ", texts.size = " + texts.size());
                 EventBus.announce(Event.TEXT);
                 break;
             default:
                 Log.e(TAG, "Did not handle incoming " + voip.which);
         }
+    }
+
+    public void addText(String body, String from, String to) {
+        Text text = new Text.Builder().body(ByteString.encodeUtf8(body)).from(from).to(to).build();
+        texts.add(text);
+        storeTexts();
     }
 
     private void storeTexts() {
@@ -97,7 +104,7 @@ public class Model {
     void onReceiveStore(String key, byte[] value) throws Exception {
         if (key.equals(TEXTS)) {
             Voip parsed = Voip.ADAPTER.decode(value);
-            texts = parsed.textStorage;
+            texts = new ArrayList<>(parsed.textStorage);
             EventBus.announce(Event.TEXT);
         } else {
             Log.e(TAG, "unsupported key " + key);

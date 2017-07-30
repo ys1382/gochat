@@ -3,7 +3,7 @@ import Starscream
 
 class Network: WebSocketDelegate {
 
-    static let address = "ws://10.0.0.33:8000/ws"
+    static let address = "ws://127.0.0.1:8000/ws"
 
     static let shared = Network()
 
