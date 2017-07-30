@@ -21,7 +21,7 @@ class VoipBackend {
 
         print("read \(data.count) bytes for \(voip.which) from \(peerId)")
         switch voip.which {
-            case        .text: Model.shared.didReceiveText(voip.payload, from: peerId)
+            case        .text: Model.shared.didReceiveText(body: voip.payload, from: peerId)
             default:    print("did not handle \(voip.which)")
         }
     }

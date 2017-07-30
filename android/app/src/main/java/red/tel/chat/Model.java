@@ -32,7 +32,7 @@ public class Model {
     }
 
     public List<String> getContacts() {
-        return roster.values().stream().map(contact -> contact.name).collect(Collectors.toList());
+        return roster.values().stream().map(contact -> contact.id).collect(Collectors.toList());
     }
 
     public Boolean isOnline(String name) {
@@ -67,7 +67,7 @@ public class Model {
     void incomingFromServer(Wire wire) {
         switch (wire.which) {
             case CONTACTS:
-                roster = wire.contacts.stream().collect(Collectors.toMap(c -> c.name, c -> c));
+                roster = wire.contacts.stream().collect(Collectors.toMap(c -> c.id, c -> c));
                 EventBus.announce(Event.CONTACTS);
                 break;
             default:
@@ -105,10 +105,10 @@ public class Model {
     }
 
     public void setContacts(List<String> names) {
-        roster = names.stream().collect(Collectors.toMap(name -> name, name ->
-                roster.containsKey(name) ?
-                        roster.get(name) :
-                        new Contact.Builder().name(name).build()));
+        roster = names.stream().collect(Collectors.toMap(id -> id, id ->
+                roster.containsKey(id) ?
+                        roster.get(id) :
+                        new Contact.Builder().id(id).build()));
         Backend.shared().sendContacts(new ArrayList<>(roster.values()));
     }
 }

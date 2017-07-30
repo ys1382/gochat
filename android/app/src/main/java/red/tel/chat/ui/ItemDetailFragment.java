@@ -69,7 +69,7 @@ public class ItemDetailFragment extends Fragment {
             TextView textView = (TextView) rootView.findViewById(R.id.messagesContainer);
             StringBuilder texts = new StringBuilder();
             for (Text text: Model.shared().getTexts()) {
-                String line = String.format(Locale.US,"%1$s: %2$s\n", text.from, text.body);
+                String line = String.format(Locale.US,"%1$s: %2$s\n", text.from, text.body.utf8());
                 texts.append(line);
             }
             Log.d(TAG, "texts = " + texts);

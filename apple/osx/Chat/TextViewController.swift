@@ -16,6 +16,8 @@ class TextViewController: NSViewController {
 
     @IBAction func didClickSend(_ sender: Any) {
         let body = input.stringValue
+        let whom = Model.shared.watching!
+        Model.shared.addText(body: body.data(using: .utf8)!, from: Auth.shared.username!, to: whom)
         VoipBackend.sendText(body, peerId: Model.shared.watching!)
         input.stringValue = ""
     }
@@ -28,7 +30,6 @@ class TextViewController: NSViewController {
         EventBus.addListener(about: .text) { notification in
             self.updateTranscript()
         }
-
         updateTranscript()
     }
 
@@ -37,7 +38,7 @@ class TextViewController: NSViewController {
             transcript.string = Model.shared.texts
                 .filter({ text in text.to == whom || text.from == whom })
                 .reduce("", { sum, text in
-                    sum! + Model.shared.nameFor(text.from) + ": " + String(data: text.body, encoding: .utf8)!  + "\n"} )
+                    sum! + text.from + ": " + String(data: text.body, encoding: .utf8)!  + "\n"} )
         }
     }
 }

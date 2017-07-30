@@ -127,6 +127,13 @@ func (client *Client) subscribeToContacts() {
   }
 }
 
+func (client *Client) updatePresence(sessionId string, online bool) {
+  if !online {
+    delete(client.sessions, sessionId)
+  }
+  client.online = len(client.sessions) > 0
+}
+
 // remove a string from a list of strings
 func remove(s []string, r string) []string {
   for i, v := range s {

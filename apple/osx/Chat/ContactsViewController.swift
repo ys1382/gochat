@@ -69,7 +69,6 @@ class ContactsViewController: NSViewController, NSTableViewDelegate, NSTableView
                    viewFor tableColumn: NSTableColumn?,
                    row: Int) -> NSView? {
         let cellView = tableView.make(withIdentifier: tableColumn!.identifier, owner: self) as! NSTableCellView
-//        let name = nameFor(row)
         let id = ids[row]
         cellView.textField?.stringValue = cellTextFor(id)
         cellView.textField?.textColor = Model.shared.roster[id]?.online == true ? .blue : .gray
@@ -79,7 +78,7 @@ class ContactsViewController: NSViewController, NSTableViewDelegate, NSTableView
     func cellTextFor(_ id: String) -> String {
         let unreads = Model.shared.unreads[id] ?? 0
         let showUnreads = unreads > 0 ? " (\(unreads))" : ""
-        return Model.shared.nameFor(id) + showUnreads
+        return id + showUnreads
     }
 
     func tableViewSelectionDidChange(_ notification: Notification) {

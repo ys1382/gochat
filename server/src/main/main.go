@@ -30,6 +30,7 @@ func connected(w http.ResponseWriter, r *http.Request) {
   }
 
   sessionId := ""
+  ok := true
 
   go func() {
 
@@ -48,7 +49,8 @@ func connected(w http.ResponseWriter, r *http.Request) {
         return
       }
 
-      if crowd.messageArrived(conn, wire, sessionId) {
+      sessionId, ok = crowd.messageArrived(conn, wire, sessionId)
+      if !ok {
         fmt.Println("\nReceived error, stop loop")
         return
       }

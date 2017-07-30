@@ -26,26 +26,29 @@ class Model {
         })
     }
 
-    func didReceivePresence(_ haber: Wire) {
-        for contact in haber.contacts {
+    func didReceivePresence(_ wire: Wire) {
+        for contact in wire.contacts {
             roster[contact.id] = contact
         }
         EventBus.post(about:.presence)
     }
 
-    func didReceiveText(_ body: Data, from peerId: String) {
+    func didReceiveText(body: Data, from peerId: String) {
         if peerId != watching {
             unreads[peerId] = (unreads[peerId] ?? 0) + 1
         }
+        addText(body: body, from: peerId, to: Auth.shared.username!)
+    }
+
+    func addText(body: Data, from: String, to: String) {
         do {
-            let moi = Auth.shared.username
-            let text = try Text.Builder().setTo(moi!).setFrom(peerId).setBody(body).build()
+            let text = try Text.Builder().setTo(to).setFrom(from).setBody(body).build()
             texts.append(text)
             storeText()
+            EventBus.post(.text)
         } catch {
             print(error.localizedDescription)
         }
-        EventBus.post(.text)
     }
 
     private func storeText() {
@@ -86,13 +89,5 @@ class Model {
         }
         roster = update
         WireBackend.shared.sendContacts(Array(roster.values))
-    }
-
-    func nameFor(_ id: String) -> String {
-        var result: String? = nil
-        if let contact = roster[id] {
-            result = contact.name ?? contact.id
-        }
-        return result ?? "?"
     }
 }

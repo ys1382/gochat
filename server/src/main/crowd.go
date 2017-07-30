@@ -44,20 +44,14 @@ func (crowd *Crowd) Init(db *bolt.DB) {
       }
       fmt.Printf("Send %s from %s to %s\n", message.GetWhich().String(), message.From, message.To);
       client.Send(&message)
-
-      //if (which == Wire_TEXT || which == Wire_FILE) && (message.To != message.From) {
-      //  message.To = message.From
-      //  fmt.Println("\t also send " + message.GetWhich().String() + " from " + message.From + " to " + message.To)
-      //  crowd.queue <- message
-      //}
     }
   }()
 }
 
-func (crowd *Crowd) messageArrived(conn *websocket.Conn, wire *Wire, sessionId string) bool {
+func (crowd *Crowd) messageArrived(conn *websocket.Conn, wire *Wire, sessionId string) (string, bool) {
   if wire.GetWhich() == Wire_LOGIN {
-    crowd.receivedLogin(conn, wire.GetLogin())
-    return false
+    sessionId := crowd.receivedLogin(conn, wire.GetLogin())
+    return sessionId, true
   }
   sessionId = wire.GetSessionId()
   if sessionId != "" {
@@ -66,11 +60,10 @@ func (crowd *Crowd) messageArrived(conn *websocket.Conn, wire *Wire, sessionId s
   }
 
   client, ok := crowd.clients[sessionId]
-  fmt.Printf("\nok is %t\n", ok)
   if !ok {
     if client == nil && sessionId != "" {
       fmt.Println("no client for " + sessionId)
-      return true
+      return sessionId, false
     } else {
       fmt.Println("sessionId is empty, which=" + wire.GetWhich().String())
     }
@@ -100,10 +93,10 @@ func (crowd *Crowd) messageArrived(conn *websocket.Conn, wire *Wire, sessionId s
   default:
     fmt.Println("No handler for " + wire.GetWhich().String())
   }
-  return false
+  return sessionId, true
 }
 
-func (crowd *Crowd) receivedLogin(conn *websocket.Conn, id string) {
+func (crowd *Crowd) receivedLogin(conn *websocket.Conn, id string) string {
   fmt.Println("receivedLogin: " + id)
   defer crowd.clientsMtx.Unlock()
   crowd.clientsMtx.Lock()
@@ -127,6 +120,7 @@ func (crowd *Crowd) receivedLogin(conn *websocket.Conn, id string) {
   crowd.clients[sessionId] = client
   client.sendContacts(sessionId)
   crowd.updatePresence(sessionId, true)
+  return sessionId
 }
 
 // todo: need a real GUID generator
@@ -147,14 +141,13 @@ func (crowd *Crowd) updatePresence(sessionId string, online bool) {
     return
   }
 
-  fmt.Printf("put %s / %s, size is %d\n", client.id, sessionId, len(crowd.clients))
   crowd.clients[sessionId] = client
   if online == client.online {
     return
   } else {
-    fmt.Printf("updatePresence sessionId=%s online=%t\n`", sessionId, online)
+    fmt.Printf("updatePresence sessionId=%s online=%t\n", sessionId, online)
   }
-  client.online = online
+  client.updatePresence(sessionId, online)
 
   // inform subscribers
   from := client.id
@@ -164,13 +157,13 @@ func (crowd *Crowd) updatePresence(sessionId string, online bool) {
   }
 
   for _,subscriber := range crowd.presenceSubscribers[from] {
-    fmt.Println("\t subscriber= " + subscriber)
+    fmt.Println("\t subscriber=" + subscriber)
     update := &Wire {
       Which: Wire_PRESENCE,
       Contacts: []*Contact{contact},
       To: subscriber,
     }
-    fmt.Printf("\t contacts length = %d\n", len(update.GetContacts()))
+    fmt.Printf("\t contacts length=%d\n", len(update.GetContacts()))
     crowd.queue <- *update
   }
   client.subscribeToContacts()
