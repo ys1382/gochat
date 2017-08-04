@@ -10,12 +10,12 @@ class LoginViewController : NSWindowController {
 
     @IBAction func didClickLogin(_ sender: Any) {
         loginWindow?.close()
-        WireBackend.shared.login(username: username.stringValue, password: password.stringValue)
+        Auth.shared.login(username: username.stringValue, password: password.stringValue)
     }
 
     @IBAction func didClickRegister(_ sender: Any) {
         loginWindow?.close()
-        WireBackend.shared.login(username: username.stringValue, password: password.stringValue)
+        Auth.shared.login(username: username.stringValue, password: password.stringValue)
     }
 
     static func popup() {

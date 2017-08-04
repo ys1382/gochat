@@ -2,9 +2,9 @@ platform :osx, '10.12'
 
 target 'Chat' do
   use_frameworks!
-  pod 'Starscream', :git => 'https://github.com/daltoniam/Starscream', :branch => 'swift3'
-  pod 'ProtocolBuffers-Swift'
-  pod 'themis', :podspec => 'https://raw.githubusercontent.com/cossacklabs/themis/master/themis.podspec'
+  pod 'Starscream', :git => 'https://github.com/daltoniam/Starscream', :branch => 'swift3', :inhibit_warnings => true
+  pod 'ProtocolBuffers-Swift', :inhibit_warnings => true
+  pod 'themis', :podspec => 'https://raw.githubusercontent.com/cossacklabs/themis/master/themis.podspec', :inhibit_warnings => true
 end
 
 pre_install do |installer|
