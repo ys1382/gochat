@@ -11,10 +11,10 @@ class LoginViewController: UIViewController {
     }
 
     @IBAction func didClickLogin(_ sender: Any) {
-        Backend.shared.login(username: username.text!, password: password.text!)
+        Auth.shared.login(username: username.text!, password: password.text!)
     }
     
     @IBAction func didClickRegister(_ sender: Any) {
-        Backend.shared.login(username: username.text!, password: password.text!)
+        Auth.shared.register(username: username.text!, password: password.text!)
     }
 }

@@ -10,16 +10,16 @@ class LoginViewController : NSWindowController {
 
     @IBAction func didClickLogin(_ sender: Any) {
         loginWindow?.close()
-        WireBackend.shared.login(username: username.stringValue, password: password.stringValue)
+        Auth.shared.login(username: username.stringValue, password: password.stringValue)
     }
 
     @IBAction func didClickRegister(_ sender: Any) {
         loginWindow?.close()
-        WireBackend.shared.login(username: username.stringValue, password: password.stringValue)
+        Auth.shared.register(username: username.stringValue, password: password.stringValue)
     }
 
     static func popup() {
-        shared = LoginViewController(windowNibName: "Login")
+        shared = LoginViewController(windowNibName: NSNib.Name(rawValue: "Login"))
         shared?.showWindow(nil)
         shared?.loginWindow.makeKey()
     }

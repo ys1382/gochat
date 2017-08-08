@@ -28,6 +28,10 @@ class Auth {
         }
     }
 
+    func register(username: String, password: String) {
+        login(username: username, password: password)
+    }
+
     func login(username: String, password: String) {
         self.username = username
         self.password = password

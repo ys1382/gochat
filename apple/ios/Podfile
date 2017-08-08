@@ -6,6 +6,7 @@ target 'Chat' do
   pod 'Starscream', :git => 'https://github.com/daltoniam/Starscream', :branch => 'swift3'
   pod 'ProtocolBuffers-Swift'
   pod 'themis'
+  pod 'SlackTextViewController'
 end
 
 pre_install do |installer|

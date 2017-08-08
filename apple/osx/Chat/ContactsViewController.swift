@@ -19,7 +19,7 @@ class ContactsViewController: NSViewController, NSTableViewDelegate, NSTableView
         alert.accessoryView = textField
         alert.window.initialFirstResponder = textField
 
-        if alert.runModal() == NSAlertFirstButtonReturn {
+        if alert.runModal() == NSApplication.ModalResponse.alertFirstButtonReturn {
             addContact(textField.stringValue)
         }
     }
@@ -68,7 +68,7 @@ class ContactsViewController: NSViewController, NSTableViewDelegate, NSTableView
     func tableView(_ tableView: NSTableView,
                    viewFor tableColumn: NSTableColumn?,
                    row: Int) -> NSView? {
-        let cellView = tableView.make(withIdentifier: tableColumn!.identifier, owner: self) as! NSTableCellView
+        let cellView = tableView.makeView(withIdentifier: tableColumn!.identifier, owner: self) as! NSTableCellView
         let id = ids[row]
         cellView.textField?.stringValue = cellTextFor(id)
         cellView.textField?.textColor = Model.shared.roster[id]?.online == true ? .blue : .gray

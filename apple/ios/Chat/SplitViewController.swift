@@ -13,9 +13,7 @@ class SplitViewController : UISplitViewController {
 
     private func connect() {
         EventBus.addListener(about: .connected, didReceive: { notification in
-            if let credential = Backend.shared.credential {
-                Backend.shared.login(username: credential.username, password: credential.password)
-            } else {
+            if !Auth.shared.login() {
                 self.performSegue(withIdentifier: "login", sender: nil)
             }
         })
@@ -29,6 +27,6 @@ class SplitViewController : UISplitViewController {
             self.present(alertController, animated: true, completion: nil)
         })
 
-        Backend.shared.connect()
+        WireBackend.shared.connect()
     }
 }
