@@ -58,8 +58,27 @@ class VideoInput : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Video
             try device.lockForConfiguration()
             let fps = CMTime(value: 1, timescale: 10)
             device.activeFormat = format
-            device.activeVideoMinFrameDuration = fps
-            device.activeVideoMaxFrameDuration = fps
+            
+            #if os(OSX)
+                
+                // While Apple's docs say kCMTimeInvalid will end in default
+                // settings for this format, kCMTimeInvalid on OS X ends with a runtime
+                // exception:
+                // "The activeVideoMinFrameDuration/activeVideoMaxFrameDuration passed is not supported by the device."
+                
+                if CMTimeCompare(fps, kCMTimeInvalid) > 0 {
+                    device.activeVideoMinFrameDuration = fps
+                }
+                
+                if CMTimeCompare(fps, kCMTimeInvalid) > 0 {
+                    device.activeVideoMaxFrameDuration = fps
+                }
+            #else
+                device.activeVideoMinFrameDuration = fps
+                device.activeVideoMaxFrameDuration = fps
+            #endif
+
+                
             device.unlockForConfiguration()
             
             let videoDataOutput = AVCaptureVideoDataOutput()
