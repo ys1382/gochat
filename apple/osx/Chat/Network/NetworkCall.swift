@@ -497,7 +497,6 @@ class NetworkCallProposalController : NetworkSingleCallSessionController<Network
 private func callAsync(_ to: String, _ audio: Bool, _ video: Bool) -> NetworkCallProposalInfo {
     let info = NetworkCallProposalInfo(UUID().uuidString,
                                        Auth.shared.username!,
-                                       //Model.shared.username!,
                                        to,
                                        audio,
                                        video)
