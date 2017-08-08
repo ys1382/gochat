@@ -4,6 +4,15 @@ import Foundation
 // todo: add file, AV
 class VoipBackend {
 
+    private static var audio = NetworkInput()
+    private static var video = NetworkInput()
+
+    static var videoSessionStart: ((NetworkVideoSessionInfo) throws ->IODataProtocol?)?
+    static var videoSessionStop: ((IOID)->Void)?
+    
+    static var audioSessionStart: ((NetworkAudioSessionInfo) throws ->IODataProtocol?)?
+    static var audioSessionStop: ((IOID)->Void)?
+    
     static func sendText(_ body: String, peerId: String) {
         do {
             let data = try Voip.Builder().setWhich(.text).setPayload(body.data(using: .utf8)!).build().data()
@@ -18,11 +27,32 @@ class VoipBackend {
             print("Could not deserialize voip")
             return
         }
-
+        
         print("read \(data.count) bytes for \(voip.which) from \(peerId)")
         switch voip.which {
-            case        .text: Model.shared.didReceiveText(body: voip.payload, from: peerId)
-            default:    print("did not handle \(voip.which)")
+        case .text: Model.shared.didReceiveText(body: voip.payload, from: peerId)
+        case .av: getsAV(voip)
+        case .audioSession: getsAudioSession(voip)
+        case .videoSession: getsVideoSession(voip)
+        case .callProposal:
+            dispatch_async_network_call { VoipBackend.getsCallProposal(voip) }
+        case .callCancel:
+            dispatch_async_network_call { VoipBackend.getsCallCancel(voip) }
+        case .callAccept:
+            dispatch_async_network_call { VoipBackend.getsCallAccept(voip) }
+        case .callDecline:
+            dispatch_async_network_call { VoipBackend.getsCallDecline(voip) }
+        case .callStartOutgoing:
+            dispatch_async_network_call { VoipBackend.getsOutgoingCallStart(voip) }
+        case .callStartIncoming:
+            dispatch_async_network_call { VoipBackend.getsIncomingCallStart(voip) }
+        case .callQuality:
+            dispatch_async_network_call { VoipBackend.getsCallQuality(voip) }
+        case .callStop:
+            dispatch_async_network_call { VoipBackend.getsCallStop(voip) }
+            
+        default:
+            logNetworkError("did not handle \(voip.which)")
         }
     }
     
@@ -154,6 +184,99 @@ class VoipBackend {
         }
     }
     
+    static func getsCallProposal(_ voip: Voip) {
+        NetworkCallProposalController.incoming?.start(voip.callProposalInfo)
+    }
+    
+    static func getsCallCancel(_ voip: Voip) {
+        NetworkCallProposalController.incoming?.stop(voip.callProposalInfo)
+        NetworkCallProposalController.outgoing?.stop(voip.callProposalInfo)
+    }
+    
+    static func getsCallAccept(_ voip: Voip) {
+        NetworkCallProposalController.outgoing?.accept(voip.callProposalInfo)
+    }
+    
+    static func getsCallDecline(_ voip: Voip) {
+        NetworkCallProposalController.outgoing?.decline(voip.callProposalInfo)
+    }
+    
+    static func getsOutgoingCallStart(_ voip: Voip) {
+        NetworkCallController.incoming?.start(try! voip.callInfo())
+        startCallOutput(voip, NetworkCallController.incoming, audio, video)
+    }
+    
+    static func getsIncomingCallStart(_ voip: Voip) {
+        startCallOutput(voip, NetworkCallController.outgoing, audio, video)
+    }
+    
+    static func getsCallQuality(_ voip: Voip) {
+        changeCallQuality(try! voip.callInfo(), Int(voip.avQuality.diff))
+    }
+    
+    static func getsCallStop(_ voip: Voip) {
+        NetworkCallController.incoming?.stop(try! voip.callInfo())
+        NetworkCallController.outgoing?.stop(try! voip.callInfo())
+        
+        if voip.hasAudioSession {
+            audio.remove(voip.audioSession.sid)
+        }
+        
+        if voip.hasVideoSession {
+            video.remove(voip.videoSession.sid)
+        }
+    }
+    
+    static func getsAV(_ voip: Voip) {
+        if (voip.av.hasAudio) {
+            audio.process(voip.audioSession.sid, voip.av.audio.image.data as NSData)
+        }
+        
+        if (voip.av.hasVideo) {
+            video.process(voip.videoSession.sid, voip.av.video.image.data as NSData)
+        }
+    }
+    
+    static func getsVideoSession(_ voip: Voip) {
+        do {
+            if voip.videoSession.hasActive && voip.videoSession.active {
+                video.removeAll()
+                
+                try dispatch_sync_on_main {
+                    guard let output = try videoSessionStart?(try voip.videoSessionInfo()!) else { return }
+                    video.add(voip.videoSession.sid, output)
+                }
+            }
+            else {
+                videoSessionStop?(voip.videoSessionID!)
+                video.remove(voip.videoSession.sid)
+            }
+        }
+        catch {
+            logNetworkError(error)
+        }
+    }
+    
+    static func getsAudioSession(_ voip: Voip) {
+        do {
+            if voip.audioSession.hasActive && voip.audioSession.active {
+                audio.removeAll()
+                
+                try dispatch_sync_on_main {
+                    guard let output = try audioSessionStart?(try voip.audioSessionInfo()!) else { return }
+                    audio.add(voip.audioSession.sid, output)
+                }
+            }
+            else {
+                audioSessionStop?(voip.audioSessionID!)
+                audio.remove(voip.audioSession.sid)
+            }
+        }
+        catch {
+            logNetworkError(error)
+        }
+    }
+    
 }
 
 
@@ -245,4 +368,64 @@ extension Voip {
         return try Create(.callQuality, to, call).FillQuality(diff)
     }
     
+    var audioSessionID: IOID? {
+        get {
+            guard hasAudioSession else { return nil }
+            return IOID(call.from, call.to, audioSession.sid, audioSession.gid)
+        }
+    }
+    
+    var videoSessionID: IOID? {
+        get {
+            guard hasVideoSession else { return nil }
+            return IOID(call.from, call.to, videoSession.sid, videoSession.gid)
+        }
+    }
+    
+    func audioSessionInfo() throws -> NetworkAudioSessionInfo? {
+        guard hasAudioSession else { return nil }
+        return NetworkAudioSessionInfo(audioSessionID!,
+                                       audioSession.hasData ? factory(audioSession.data as NSData) : nil)
+    }
+    
+    func videoSessionInfo() throws -> NetworkVideoSessionInfo? {
+        guard hasVideoSession else { return nil }
+        return NetworkVideoSessionInfo(videoSessionID!,
+                                       videoSession.hasData ? factory(videoSession.data as NSData) : nil)
+    }
+    
+    func callInfo() throws -> NetworkCallInfo {
+        return NetworkCallInfo(callProposalInfo, try audioSessionInfo(), try videoSessionInfo())
+    }
+    
+    var callProposalInfo: NetworkCallProposalInfo {
+        get {
+            return NetworkCallProposalInfo(self.call.key,
+                                           self.call.from,
+                                           self.call.to,
+                                           self.call.hasAudio ? self.call.audio : false,
+                                           self.call.hasVideo ? self.call.video : false)
+        }
+    }
+
+}
+
+func startCallOutput(_ voip: Voip, _ call: NetworkCallController?, _ audio: NetworkInput, _ video: NetworkInput) {
+    var audio_: IODataProtocol?
+    var video_: IODataProtocol?
+    
+    do {
+        try call?.startOutput(try! voip.callInfo(), &audio_, &video_)
+    }
+    catch {
+        logNetworkError(error)
+    }
+    
+    if audio_ != nil {
+        audio.add(voip.audioSession.sid, audio_!)
+    }
+    
+    if video_ != nil {
+        video.add(voip.videoSession.sid, video_!)
+    }
 }
