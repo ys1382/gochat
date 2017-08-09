@@ -12,7 +12,7 @@ class DetailViewController: UIViewController {
             print("could not create Text")
             return
         }
-        Backend.shared.sendText(body, to: whom)
+        VoipBackend.sendText(body, peerId: whom)
         input.text = ""
     }
 
@@ -31,10 +31,18 @@ class DetailViewController: UIViewController {
     }
 
     private func updateTranscript() {
+
         if let whom = Model.shared.watching {
             transcript.text = Model.shared.texts
-                .filter({ haber in haber.from == Backend.shared.credential?.username || haber.from == whom })
-                .reduce("", { text,haber in text + "\n" + haber.from + ": " + String(data: haber.payload, encoding: .utf8)!} )
+                .filter({ text in text.to == whom || text.from == whom })
+                .reduce("", { sum, text in
+                    sum! + text.from + ": " + String(data: text.body, encoding: .utf8)!  + "\n"} )
         }
+
+//        if let whom = Model.shared.watching {
+//            transcript.text = Model.shared.texts
+//                .filter({ haber in haber.from == Backend.shared.credential?.username || haber.from == whom })
+//                .reduce("", { text,haber in text + "\n" + haber.from + ": " + String(data: haber.payload, encoding: .utf8)!} )
+//        }
     }
 }

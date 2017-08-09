@@ -46,7 +46,7 @@ class MasterViewController: UITableViewController {
         }
     }
 
-    func askContact(_ sender: Any) {
+    @objc func askContact(_ sender: Any) {
         let alertController = UIAlertController(title: nil,
                                                 message: "Add a Contact",
                                                 preferredStyle: UIAlertControllerStyle.alert)

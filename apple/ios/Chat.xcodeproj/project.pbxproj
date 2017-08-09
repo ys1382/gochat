@@ -7,7 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1A60DFF81EA30FEA00BECD73 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A60DFF61EA30FEA00BECD73 /* Backend.swift */; };
+		1A43D8171F3822F8004A8C8A /* Auth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A43D8131F3822F8004A8C8A /* Auth.swift */; };
+		1A43D8181F3822F8004A8C8A /* Voip.proto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A43D8141F3822F8004A8C8A /* Voip.proto.swift */; };
+		1A43D8191F3822F8004A8C8A /* VoipBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A43D8151F3822F8004A8C8A /* VoipBackend.swift */; };
+		1A43D81A1F3822F8004A8C8A /* WireBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A43D8161F3822F8004A8C8A /* WireBackend.swift */; };
 		1A60E0021EA4039F00BECD73 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A60E0011EA4039F00BECD73 /* Model.swift */; };
 		1A709A441EEEF204003C2699 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A709A431EEEF204003C2699 /* LoginViewController.swift */; };
 		1A709A481EEF29EC003C2699 /* Crypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A709A451EEF29EC003C2699 /* Crypto.swift */; };
@@ -15,7 +18,6 @@
 		1A709A4A1EEF29EC003C2699 /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A709A471EEF29EC003C2699 /* Network.swift */; };
 		1A709A4E1EEF8837003C2699 /* Wire.proto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A709A4D1EEF8837003C2699 /* Wire.proto.swift */; };
 		1AA0003B1EAD9A36006B9EE7 /* SplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA0003A1EAD9A36006B9EE7 /* SplitViewController.swift */; };
-		1AA386E01F04AE8D00F18D93 /* LocalStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA386DF1F04AE8D00F18D93 /* LocalStorage.swift */; };
 		1AB0620C1E8843E500A841D0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB0620B1E8843E500A841D0 /* AppDelegate.swift */; };
 		1AB0620E1E8843E500A841D0 /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB0620D1E8843E500A841D0 /* MasterViewController.swift */; };
 		1AB062101E8843E500A841D0 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB0620F1E8843E500A841D0 /* DetailViewController.swift */; };
@@ -26,7 +28,10 @@
 
 /* Begin PBXFileReference section */
 		0ACBFB437F9424A73A5B0830 /* Pods_Chat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Chat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		1A60DFF61EA30FEA00BECD73 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Backend.swift; path = ../../common/Backend.swift; sourceTree = "<group>"; };
+		1A43D8131F3822F8004A8C8A /* Auth.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Auth.swift; path = ../../common/Auth.swift; sourceTree = "<group>"; };
+		1A43D8141F3822F8004A8C8A /* Voip.proto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Voip.proto.swift; path = ../../common/Voip.proto.swift; sourceTree = "<group>"; };
+		1A43D8151F3822F8004A8C8A /* VoipBackend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = VoipBackend.swift; path = ../../common/VoipBackend.swift; sourceTree = "<group>"; };
+		1A43D8161F3822F8004A8C8A /* WireBackend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WireBackend.swift; path = ../../common/WireBackend.swift; sourceTree = "<group>"; };
 		1A60E0011EA4039F00BECD73 /* Model.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Model.swift; path = ../../common/Model.swift; sourceTree = "<group>"; };
 		1A709A431EEEF204003C2699 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		1A709A451EEF29EC003C2699 /* Crypto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Crypto.swift; path = ../../common/Crypto.swift; sourceTree = "<group>"; };
@@ -34,7 +39,6 @@
 		1A709A471EEF29EC003C2699 /* Network.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Network.swift; path = ../../common/Network.swift; sourceTree = "<group>"; };
 		1A709A4D1EEF8837003C2699 /* Wire.proto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Wire.proto.swift; path = ../../common/Wire.proto.swift; sourceTree = "<group>"; };
 		1AA0003A1EAD9A36006B9EE7 /* SplitViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplitViewController.swift; sourceTree = "<group>"; };
-		1AA386DF1F04AE8D00F18D93 /* LocalStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LocalStorage.swift; path = ../../common/LocalStorage.swift; sourceTree = "<group>"; };
 		1AA386E41F04B02900F18D93 /* BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BridgingHeader.h; path = ../../common/BridgingHeader.h; sourceTree = "<group>"; };
 		1AB062081E8843E500A841D0 /* Chat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AB0620B1E8843E500A841D0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -93,12 +97,14 @@
 			isa = PBXGroup;
 			children = (
 				1AA386E41F04B02900F18D93 /* BridgingHeader.h */,
-				1A60DFF61EA30FEA00BECD73 /* Backend.swift */,
 				1A709A451EEF29EC003C2699 /* Crypto.swift */,
 				1A709A461EEF29EC003C2699 /* EventBus.swift */,
-				1AA386DF1F04AE8D00F18D93 /* LocalStorage.swift */,
 				1A60E0011EA4039F00BECD73 /* Model.swift */,
 				1A709A471EEF29EC003C2699 /* Network.swift */,
+				1A43D8131F3822F8004A8C8A /* Auth.swift */,
+				1A43D8141F3822F8004A8C8A /* Voip.proto.swift */,
+				1A43D8151F3822F8004A8C8A /* VoipBackend.swift */,
+				1A43D8161F3822F8004A8C8A /* WireBackend.swift */,
 				1A709A4D1EEF8837003C2699 /* Wire.proto.swift */,
 			);
 			name = Common;
@@ -163,12 +169,12 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0820;
-				LastUpgradeCheck = 0830;
+				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = ys1382;
 				TargetAttributes = {
 					1AB062071E8843E500A841D0 = {
 						CreatedOnToolsVersion = 8.2.1;
-						LastSwiftMigration = 0830;
+						LastSwiftMigration = 0900;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -256,16 +262,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1A60DFF81EA30FEA00BECD73 /* Backend.swift in Sources */,
 				1A709A491EEF29EC003C2699 /* EventBus.swift in Sources */,
+				1A43D81A1F3822F8004A8C8A /* WireBackend.swift in Sources */,
 				1AA0003B1EAD9A36006B9EE7 /* SplitViewController.swift in Sources */,
 				1AB062101E8843E500A841D0 /* DetailViewController.swift in Sources */,
+				1A43D8181F3822F8004A8C8A /* Voip.proto.swift in Sources */,
 				1A709A481EEF29EC003C2699 /* Crypto.swift in Sources */,
+				1A43D8191F3822F8004A8C8A /* VoipBackend.swift in Sources */,
 				1A709A4A1EEF29EC003C2699 /* Network.swift in Sources */,
 				1A709A4E1EEF8837003C2699 /* Wire.proto.swift in Sources */,
+				1A43D8171F3822F8004A8C8A /* Auth.swift in Sources */,
 				1AB0620E1E8843E500A841D0 /* MasterViewController.swift in Sources */,
 				1A709A441EEEF204003C2699 /* LoginViewController.swift in Sources */,
-				1AA386E01F04AE8D00F18D93 /* LocalStorage.swift in Sources */,
 				1A60E0021EA4039F00BECD73 /* Model.swift in Sources */,
 				1AB0620C1E8843E500A841D0 /* AppDelegate.swift in Sources */,
 			);
@@ -294,7 +302,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -302,7 +312,11 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -345,7 +359,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -353,7 +369,11 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -396,7 +416,8 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../common/BridgingHeader.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -415,7 +436,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../common/BridgingHeader.h;
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};

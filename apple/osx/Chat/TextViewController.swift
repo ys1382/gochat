@@ -35,10 +35,14 @@ class TextViewController: NSViewController {
 
     private func updateTranscript() {
         if let whom = Model.shared.watching {
-            transcript.string = Model.shared.texts
+            let textsFiltered = Model.shared.texts
                 .filter({ text in text.to == whom || text.from == whom })
-                .reduce("", { sum, text in
-                    sum! + text.from + ": " + String(data: text.body, encoding: .utf8)!  + "\n"} )
+            let textsReduced = textsFiltered.reduce("", { sum, text in sum + lineOf(text) } )
+            transcript.string = textsReduced
         }
+    }
+
+    private func lineOf(_ text: Text) -> String {
+        return text.from + ": " + String(data: text.body, encoding: .utf8)!  + "\n"
     }
 }
