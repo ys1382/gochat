@@ -24,6 +24,37 @@
 		1AB062131E8843E600A841D0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1AB062111E8843E600A841D0 /* Main.storyboard */; };
 		1AB062151E8843E600A841D0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1AB062141E8843E600A841D0 /* Assets.xcassets */; };
 		66C4B5946A64F209719F1358 /* Pods_Chat.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ACBFB437F9424A73A5B0830 /* Pods_Chat.framework */; };
+		E5CD23511F3AB79200937C44 /* Audio.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23461F3AB79200937C44 /* Audio.swift */; };
+		E5CD23521F3AB79200937C44 /* AudioDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23471F3AB79200937C44 /* AudioDecoder.swift */; };
+		E5CD23531F3AB79200937C44 /* AudioInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23481F3AB79200937C44 /* AudioInput.swift */; };
+		E5CD23541F3AB79200937C44 /* AudioOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23491F3AB79200937C44 /* AudioOutput.swift */; };
+		E5CD23551F3AB79200937C44 /* IO.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD234A1F3AB79200937C44 /* IO.swift */; };
+		E5CD23561F3AB79200937C44 /* IOBalancer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD234B1F3AB79200937C44 /* IOBalancer.swift */; };
+		E5CD23571F3AB79200937C44 /* Video.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD234C1F3AB79200937C44 /* Video.swift */; };
+		E5CD23581F3AB79200937C44 /* VideoDecoderH264.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD234D1F3AB79200937C44 /* VideoDecoderH264.swift */; };
+		E5CD23591F3AB79200937C44 /* VideoEncoderH264.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD234E1F3AB79200937C44 /* VideoEncoderH264.swift */; };
+		E5CD235A1F3AB79200937C44 /* VideoInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD234F1F3AB79200937C44 /* VideoInput.swift */; };
+		E5CD235B1F3AB79200937C44 /* VideoOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23501F3AB79200937C44 /* VideoOutput.swift */; };
+		E5CD23751F3AB7A100937C44 /* AudioToolbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23681F3AB7A100937C44 /* AudioToolbox.swift */; };
+		E5CD23761F3AB7A100937C44 /* AVFoundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23691F3AB7A100937C44 /* AVFoundation.swift */; };
+		E5CD23771F3AB7A100937C44 /* CoreAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD236A1F3AB7A100937C44 /* CoreAudio.swift */; };
+		E5CD23781F3AB7A100937C44 /* CoreMedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD236B1F3AB7A100937C44 /* CoreMedia.swift */; };
+		E5CD23791F3AB7A100937C44 /* Defs.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD236C1F3AB7A100937C44 /* Defs.swift */; };
+		E5CD237A1F3AB7A100937C44 /* Dispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD236D1F3AB7A100937C44 /* Dispatch.swift */; };
+		E5CD237B1F3AB7A100937C44 /* Foundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD236E1F3AB7A100937C44 /* Foundation.swift */; };
+		E5CD237C1F3AB7A100937C44 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD236F1F3AB7A100937C44 /* Log.swift */; };
+		E5CD237D1F3AB7A100937C44 /* Protobuf.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23701F3AB7A100937C44 /* Protobuf.swift */; };
+		E5CD237E1F3AB7A100937C44 /* Serialization.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23711F3AB7A100937C44 /* Serialization.swift */; };
+		E5CD237F1F3AB7A100937C44 /* System.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23721F3AB7A100937C44 /* System.swift */; };
+		E5CD23801F3AB7A100937C44 /* Thread.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23731F3AB7A100937C44 /* Thread.swift */; };
+		E5CD23811F3AB7A100937C44 /* UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23741F3AB7A100937C44 /* UI.swift */; };
+		E5CD23931F3AB82A00937C44 /* NetworkAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD238E1F3AB82A00937C44 /* NetworkAudio.swift */; };
+		E5CD23941F3AB82A00937C44 /* NetworkBalancer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD238F1F3AB82A00937C44 /* NetworkBalancer.swift */; };
+		E5CD23951F3AB82A00937C44 /* NetworkBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23901F3AB82A00937C44 /* NetworkBase.swift */; };
+		E5CD23961F3AB82A00937C44 /* NetworkCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23911F3AB82A00937C44 /* NetworkCall.swift */; };
+		E5CD23971F3AB82A00937C44 /* NetworkH264.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23921F3AB82A00937C44 /* NetworkH264.swift */; };
+		E5CD239A1F3AB8D900937C44 /* AV.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23981F3AB8D900937C44 /* AV.swift */; };
+		E5CD239B1F3AB8D900937C44 /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23991F3AB8D900937C44 /* Types.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +79,37 @@
 		1AB062141E8843E600A841D0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1AB062191E8843E600A841D0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C5A48039D30C2E9ECC041BE6 /* Pods-Chat.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chat.release.xcconfig"; path = "Pods/Target Support Files/Pods-Chat/Pods-Chat.release.xcconfig"; sourceTree = "<group>"; };
+		E5CD23461F3AB79200937C44 /* Audio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Audio.swift; sourceTree = "<group>"; };
+		E5CD23471F3AB79200937C44 /* AudioDecoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioDecoder.swift; sourceTree = "<group>"; };
+		E5CD23481F3AB79200937C44 /* AudioInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioInput.swift; sourceTree = "<group>"; };
+		E5CD23491F3AB79200937C44 /* AudioOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioOutput.swift; sourceTree = "<group>"; };
+		E5CD234A1F3AB79200937C44 /* IO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IO.swift; sourceTree = "<group>"; };
+		E5CD234B1F3AB79200937C44 /* IOBalancer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IOBalancer.swift; sourceTree = "<group>"; };
+		E5CD234C1F3AB79200937C44 /* Video.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Video.swift; sourceTree = "<group>"; };
+		E5CD234D1F3AB79200937C44 /* VideoDecoderH264.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoDecoderH264.swift; sourceTree = "<group>"; };
+		E5CD234E1F3AB79200937C44 /* VideoEncoderH264.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoEncoderH264.swift; sourceTree = "<group>"; };
+		E5CD234F1F3AB79200937C44 /* VideoInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoInput.swift; sourceTree = "<group>"; };
+		E5CD23501F3AB79200937C44 /* VideoOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoOutput.swift; sourceTree = "<group>"; };
+		E5CD23681F3AB7A100937C44 /* AudioToolbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioToolbox.swift; sourceTree = "<group>"; };
+		E5CD23691F3AB7A100937C44 /* AVFoundation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVFoundation.swift; sourceTree = "<group>"; };
+		E5CD236A1F3AB7A100937C44 /* CoreAudio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreAudio.swift; sourceTree = "<group>"; };
+		E5CD236B1F3AB7A100937C44 /* CoreMedia.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreMedia.swift; sourceTree = "<group>"; };
+		E5CD236C1F3AB7A100937C44 /* Defs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Defs.swift; sourceTree = "<group>"; };
+		E5CD236D1F3AB7A100937C44 /* Dispatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dispatch.swift; sourceTree = "<group>"; };
+		E5CD236E1F3AB7A100937C44 /* Foundation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Foundation.swift; sourceTree = "<group>"; };
+		E5CD236F1F3AB7A100937C44 /* Log.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
+		E5CD23701F3AB7A100937C44 /* Protobuf.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Protobuf.swift; sourceTree = "<group>"; };
+		E5CD23711F3AB7A100937C44 /* Serialization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Serialization.swift; sourceTree = "<group>"; };
+		E5CD23721F3AB7A100937C44 /* System.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = System.swift; sourceTree = "<group>"; };
+		E5CD23731F3AB7A100937C44 /* Thread.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Thread.swift; sourceTree = "<group>"; };
+		E5CD23741F3AB7A100937C44 /* UI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UI.swift; sourceTree = "<group>"; };
+		E5CD238E1F3AB82A00937C44 /* NetworkAudio.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkAudio.swift; sourceTree = "<group>"; };
+		E5CD238F1F3AB82A00937C44 /* NetworkBalancer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkBalancer.swift; sourceTree = "<group>"; };
+		E5CD23901F3AB82A00937C44 /* NetworkBase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkBase.swift; sourceTree = "<group>"; };
+		E5CD23911F3AB82A00937C44 /* NetworkCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkCall.swift; sourceTree = "<group>"; };
+		E5CD23921F3AB82A00937C44 /* NetworkH264.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkH264.swift; sourceTree = "<group>"; };
+		E5CD23981F3AB8D900937C44 /* AV.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AV.swift; path = ../../common/AV.swift; sourceTree = "<group>"; };
+		E5CD23991F3AB8D900937C44 /* Types.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Types.swift; path = ../../common/Types.swift; sourceTree = "<group>"; };
 		F1950861D287C0179BA10F15 /* Pods-Chat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chat.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Chat/Pods-Chat.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -96,6 +158,9 @@
 		1A709A4B1EEF29F8003C2699 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				E5CD238D1F3AB82A00937C44 /* Network */,
+				E5CD23671F3AB7A100937C44 /* Utils */,
+				E5CD23451F3AB79200937C44 /* IO */,
 				1AA386E41F04B02900F18D93 /* BridgingHeader.h */,
 				1A709A451EEF29EC003C2699 /* Crypto.swift */,
 				1A709A461EEF29EC003C2699 /* EventBus.swift */,
@@ -106,6 +171,8 @@
 				1A43D8151F3822F8004A8C8A /* VoipBackend.swift */,
 				1A43D8161F3822F8004A8C8A /* WireBackend.swift */,
 				1A709A4D1EEF8837003C2699 /* Wire.proto.swift */,
+				E5CD23981F3AB8D900937C44 /* AV.swift */,
+				E5CD23991F3AB8D900937C44 /* Types.swift */,
 			);
 			name = Common;
 			sourceTree = "<group>";
@@ -137,6 +204,59 @@
 				1AB062191E8843E600A841D0 /* Info.plist */,
 			);
 			path = Chat;
+			sourceTree = "<group>";
+		};
+		E5CD23451F3AB79200937C44 /* IO */ = {
+			isa = PBXGroup;
+			children = (
+				E5CD23461F3AB79200937C44 /* Audio.swift */,
+				E5CD23471F3AB79200937C44 /* AudioDecoder.swift */,
+				E5CD23481F3AB79200937C44 /* AudioInput.swift */,
+				E5CD23491F3AB79200937C44 /* AudioOutput.swift */,
+				E5CD234A1F3AB79200937C44 /* IO.swift */,
+				E5CD234B1F3AB79200937C44 /* IOBalancer.swift */,
+				E5CD234C1F3AB79200937C44 /* Video.swift */,
+				E5CD234D1F3AB79200937C44 /* VideoDecoderH264.swift */,
+				E5CD234E1F3AB79200937C44 /* VideoEncoderH264.swift */,
+				E5CD234F1F3AB79200937C44 /* VideoInput.swift */,
+				E5CD23501F3AB79200937C44 /* VideoOutput.swift */,
+			);
+			name = IO;
+			path = ../../common/IO;
+			sourceTree = "<group>";
+		};
+		E5CD23671F3AB7A100937C44 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				E5CD23681F3AB7A100937C44 /* AudioToolbox.swift */,
+				E5CD23691F3AB7A100937C44 /* AVFoundation.swift */,
+				E5CD236A1F3AB7A100937C44 /* CoreAudio.swift */,
+				E5CD236B1F3AB7A100937C44 /* CoreMedia.swift */,
+				E5CD236C1F3AB7A100937C44 /* Defs.swift */,
+				E5CD236D1F3AB7A100937C44 /* Dispatch.swift */,
+				E5CD236E1F3AB7A100937C44 /* Foundation.swift */,
+				E5CD236F1F3AB7A100937C44 /* Log.swift */,
+				E5CD23701F3AB7A100937C44 /* Protobuf.swift */,
+				E5CD23711F3AB7A100937C44 /* Serialization.swift */,
+				E5CD23721F3AB7A100937C44 /* System.swift */,
+				E5CD23731F3AB7A100937C44 /* Thread.swift */,
+				E5CD23741F3AB7A100937C44 /* UI.swift */,
+			);
+			name = Utils;
+			path = ../../common/Utils;
+			sourceTree = "<group>";
+		};
+		E5CD238D1F3AB82A00937C44 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				E5CD238E1F3AB82A00937C44 /* NetworkAudio.swift */,
+				E5CD238F1F3AB82A00937C44 /* NetworkBalancer.swift */,
+				E5CD23901F3AB82A00937C44 /* NetworkBase.swift */,
+				E5CD23911F3AB82A00937C44 /* NetworkCall.swift */,
+				E5CD23921F3AB82A00937C44 /* NetworkH264.swift */,
+			);
+			name = Network;
+			path = ../../common/Network;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -264,17 +384,48 @@
 			files = (
 				1A709A491EEF29EC003C2699 /* EventBus.swift in Sources */,
 				1A43D81A1F3822F8004A8C8A /* WireBackend.swift in Sources */,
+				E5CD23941F3AB82A00937C44 /* NetworkBalancer.swift in Sources */,
+				E5CD23931F3AB82A00937C44 /* NetworkAudio.swift in Sources */,
+				E5CD23811F3AB7A100937C44 /* UI.swift in Sources */,
+				E5CD235A1F3AB79200937C44 /* VideoInput.swift in Sources */,
+				E5CD239A1F3AB8D900937C44 /* AV.swift in Sources */,
 				1AA0003B1EAD9A36006B9EE7 /* SplitViewController.swift in Sources */,
+				E5CD23561F3AB79200937C44 /* IOBalancer.swift in Sources */,
 				1AB062101E8843E500A841D0 /* DetailViewController.swift in Sources */,
 				1A43D8181F3822F8004A8C8A /* Voip.proto.swift in Sources */,
+				E5CD237A1F3AB7A100937C44 /* Dispatch.swift in Sources */,
+				E5CD23521F3AB79200937C44 /* AudioDecoder.swift in Sources */,
+				E5CD23771F3AB7A100937C44 /* CoreAudio.swift in Sources */,
 				1A709A481EEF29EC003C2699 /* Crypto.swift in Sources */,
 				1A43D8191F3822F8004A8C8A /* VoipBackend.swift in Sources */,
+				E5CD237C1F3AB7A100937C44 /* Log.swift in Sources */,
 				1A709A4A1EEF29EC003C2699 /* Network.swift in Sources */,
 				1A709A4E1EEF8837003C2699 /* Wire.proto.swift in Sources */,
+				E5CD23751F3AB7A100937C44 /* AudioToolbox.swift in Sources */,
+				E5CD23971F3AB82A00937C44 /* NetworkH264.swift in Sources */,
+				E5CD23591F3AB79200937C44 /* VideoEncoderH264.swift in Sources */,
+				E5CD23951F3AB82A00937C44 /* NetworkBase.swift in Sources */,
+				E5CD23801F3AB7A100937C44 /* Thread.swift in Sources */,
+				E5CD237F1F3AB7A100937C44 /* System.swift in Sources */,
+				E5CD23511F3AB79200937C44 /* Audio.swift in Sources */,
 				1A43D8171F3822F8004A8C8A /* Auth.swift in Sources */,
 				1AB0620E1E8843E500A841D0 /* MasterViewController.swift in Sources */,
+				E5CD23541F3AB79200937C44 /* AudioOutput.swift in Sources */,
+				E5CD237B1F3AB7A100937C44 /* Foundation.swift in Sources */,
+				E5CD23961F3AB82A00937C44 /* NetworkCall.swift in Sources */,
+				E5CD23531F3AB79200937C44 /* AudioInput.swift in Sources */,
+				E5CD23791F3AB7A100937C44 /* Defs.swift in Sources */,
+				E5CD239B1F3AB8D900937C44 /* Types.swift in Sources */,
 				1A709A441EEEF204003C2699 /* LoginViewController.swift in Sources */,
+				E5CD237E1F3AB7A100937C44 /* Serialization.swift in Sources */,
 				1A60E0021EA4039F00BECD73 /* Model.swift in Sources */,
+				E5CD23551F3AB79200937C44 /* IO.swift in Sources */,
+				E5CD23571F3AB79200937C44 /* Video.swift in Sources */,
+				E5CD23761F3AB7A100937C44 /* AVFoundation.swift in Sources */,
+				E5CD237D1F3AB7A100937C44 /* Protobuf.swift in Sources */,
+				E5CD23581F3AB79200937C44 /* VideoDecoderH264.swift in Sources */,
+				E5CD235B1F3AB79200937C44 /* VideoOutput.swift in Sources */,
+				E5CD23781F3AB7A100937C44 /* CoreMedia.swift in Sources */,
 				1AB0620C1E8843E500A841D0 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -407,8 +558,9 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = CD4E4U2KRU;
+				DEVELOPMENT_TEAM = 5KH4V6747U;
 				INFOPLIST_FILE = Chat/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = ys1382.Chat;
@@ -417,7 +569,7 @@
 				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../common/BridgingHeader.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -428,8 +580,9 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = CD4E4U2KRU;
+				DEVELOPMENT_TEAM = 5KH4V6747U;
 				INFOPLIST_FILE = Chat/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = ys1382.Chat;
@@ -437,7 +590,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../common/BridgingHeader.h;
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};

@@ -257,7 +257,8 @@ func videoFormat(_ src: @escaping NSData.Factory) -> VideoFormat.Factory {
 class NetworkOutputVideo : NetworkOutput {
     
     override func process(_ dataID: UUID, _ data: NSData) {
-        Backend.shared.sendVideo(id, data) {
+        //Backend.shared.sendVideo(id, data) {
+        VoipBackend.sendVideo(id, data) {
             self.processed(dataID)
         }
     }
@@ -278,7 +279,8 @@ class NetworkOutputVideoSession : VideoSessionProtocol {
     }
     
     func start() throws {
-        Backend.shared.sendVideoSession(NetworkVideoSessionInfo(id, factory(format)), true)
+        //Backend.shared.sendVideoSession(NetworkVideoSessionInfo(id, factory(format)), true)
+        VoipBackend.sendVideoSession(NetworkVideoSessionInfo(id, factory(format)), true)
     }
     
     func update(_ format: VideoFormat) throws {
@@ -286,7 +288,8 @@ class NetworkOutputVideoSession : VideoSessionProtocol {
     }
     
     func stop() {
-        Backend.shared.sendVideoSession(NetworkVideoSessionInfo(id), false)
+        //Backend.shared.sendVideoSession(NetworkVideoSessionInfo(id), false)
+        VoipBackend.sendVideoSession(NetworkVideoSessionInfo(id), false)
     }
 }
 

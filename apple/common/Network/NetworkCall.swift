@@ -254,13 +254,14 @@ class NetworkOutgoingCall : NetworkCall {
     
     override fileprivate func startCapture(_ from: String, _ to: String) throws -> NetworkCallInfo {
         let info = try super.startCapture(from, to)
-        Backend.shared.sendOutgoingCallStart(info.to, info)
+        VoipBackend.sendOutgoingCallStart(info.to, info)
         return info
     }
     
     override func stop() {
         super.stop()
-        Backend.shared.sendCallStop(info.to, info)
+        //Backend.shared.sendCallStop(info.to, info)
+        VoipBackend.sendCallStop(info.to, info)
     }
 }
 
@@ -275,14 +276,16 @@ class NetworkIncomingCall : NetworkCall {
         
         if info.from != info.to {
             info = try super.startCapture(to, from)
-            Backend.shared.sendIncomingCallStart(info.from, info)
+            //Backend.shared.sendIncomingCallStart(info.from, info)
+            VoipBackend.sendIncomingCallStart(info.from, info)
         }
         return info
     }
 
     override func stop() {
         super.stop()
-        Backend.shared.sendCallStop(info.from, info)
+        //Backend.shared.sendCallStop(info.from, info)
+        VoipBackend.sendCallStop(info.from, info)
     }
 }
 
@@ -412,12 +415,14 @@ class NetworkOutgoingCallProposal : NetworkCallProposal {
     override func start() throws {
         try super.start()
         
-        Backend.shared.sendCallProposal(info.to, info)
+        //Backend.shared.sendCallProposal(info.to, info)
+        VoipBackend.sendCallProposal(info.to, info)
     }
     
     override func stop() {
         super.stop()
-        Backend.shared.sendCallCancel(info.to, info)
+        //Backend.shared.sendCallCancel(info.to, info)
+        VoipBackend.sendCallCancel(info.to, info)
     }
     
     override func accept(_ info: NetworkCallProposalInfo) {
@@ -430,17 +435,20 @@ class NetworkIncomingCallProposal : NetworkCallProposal {
     
     override func stop() {
         super.stop()
-        Backend.shared.sendCallCancel(info.from, info)
+        //Backend.shared.sendCallCancel(info.from, info)
+        VoipBackend.sendCallCancel(info.from, info)
     }
     
     override func accept(_ info: NetworkCallProposalInfo) {
         super.accept(info)
-        Backend.shared.sendCallAccept(info.from, info)
+        //Backend.shared.sendCallAccept(info.from, info)
+        VoipBackend.sendCallAccept(info.from, info)
     }
     
     override func decline() {
         super.decline()
-        Backend.shared.sendCallDecline(info.from, info)
+        //Backend.shared.sendCallDecline(info.from, info)
+        VoipBackend.sendCallDecline(info.from, info)
     }
 }
 
@@ -488,7 +496,7 @@ class NetworkCallProposalController : NetworkSingleCallSessionController<Network
 
 private func callAsync(_ to: String, _ audio: Bool, _ video: Bool) -> NetworkCallProposalInfo {
     let info = NetworkCallProposalInfo(UUID().uuidString,
-                                       Model.shared.username!,
+                                       Auth.shared.username!,
                                        to,
                                        audio,
                                        video)

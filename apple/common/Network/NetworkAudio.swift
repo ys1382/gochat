@@ -117,7 +117,8 @@ func audioFormat(_ src: @escaping NSData.Factory) -> AudioFormat.Factory {
 class NetworkOutputAudio : NetworkOutput {
     
     override func process(_ dataID: UUID, _ data: NSData) {
-        Backend.shared.sendAudio(id, data) {
+        
+        VoipBackend.sendAudio(id, data) {
             self.processed(dataID)
         }
     }
@@ -136,10 +137,12 @@ class NetworkOutputAudioSession : IOSessionProtocol {
     }
     
     func start() throws {
-        Backend.shared.sendAudioSession(info, true)
+        //Backend.shared.sendAudioSession(info, true)
+        VoipBackend.sendAudioSession(info, true)
     }
     
     func stop() {
-        Backend.shared.sendAudioSession(info, false)
+        //Backend.shared.sendAudioSession(info, false)
+        VoipBackend.sendAudioSession(info, false)
     }
 }
