@@ -55,6 +55,15 @@
 		E5CD23971F3AB82A00937C44 /* NetworkH264.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23921F3AB82A00937C44 /* NetworkH264.swift */; };
 		E5CD239A1F3AB8D900937C44 /* AV.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23981F3AB8D900937C44 /* AV.swift */; };
 		E5CD239B1F3AB8D900937C44 /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23991F3AB8D900937C44 /* Types.swift */; };
+		E5CD23A41F3ABFF000937C44 /* !AVFoundation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23A11F3ABFF000937C44 /* !AVFoundation.swift */; };
+		E5CD23A51F3ABFF000937C44 /* !Video.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23A21F3ABFF000937C44 /* !Video.swift */; };
+		E5CD23A61F3ABFF000937C44 /* UIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23A31F3ABFF000937C44 /* UIKit.swift */; };
+		E5CD23AA1F3AC04A00937C44 /* ConversationCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23A71F3AC04A00937C44 /* ConversationCall.swift */; };
+		E5CD23AB1F3AC04A00937C44 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23A81F3AC04A00937C44 /* SettingsViewController.swift */; };
+		E5CD23AC1F3AC04A00937C44 /* VideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23A91F3AC04A00937C44 /* VideoViewController.swift */; };
+		E5CD23AE1F3AC09500937C44 /* OutgoingCallViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23AD1F3AC09500937C44 /* OutgoingCallViewController.swift */; };
+		E5CD23B01F3AC0DC00937C44 /* IncomingCallViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23AF1F3AC0DC00937C44 /* IncomingCallViewController.swift */; };
+		E5CD23B41F3AC16D00937C44 /* Application.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CD23B31F3AC16D00937C44 /* Application.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -110,6 +119,15 @@
 		E5CD23921F3AB82A00937C44 /* NetworkH264.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkH264.swift; sourceTree = "<group>"; };
 		E5CD23981F3AB8D900937C44 /* AV.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AV.swift; path = ../../common/AV.swift; sourceTree = "<group>"; };
 		E5CD23991F3AB8D900937C44 /* Types.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Types.swift; path = ../../common/Types.swift; sourceTree = "<group>"; };
+		E5CD23A11F3ABFF000937C44 /* !AVFoundation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "!AVFoundation.swift"; sourceTree = "<group>"; };
+		E5CD23A21F3ABFF000937C44 /* !Video.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "!Video.swift"; sourceTree = "<group>"; };
+		E5CD23A31F3ABFF000937C44 /* UIKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIKit.swift; sourceTree = "<group>"; };
+		E5CD23A71F3AC04A00937C44 /* ConversationCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConversationCall.swift; sourceTree = "<group>"; };
+		E5CD23A81F3AC04A00937C44 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
+		E5CD23A91F3AC04A00937C44 /* VideoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoViewController.swift; sourceTree = "<group>"; };
+		E5CD23AD1F3AC09500937C44 /* OutgoingCallViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutgoingCallViewController.swift; sourceTree = "<group>"; };
+		E5CD23AF1F3AC0DC00937C44 /* IncomingCallViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IncomingCallViewController.swift; sourceTree = "<group>"; };
+		E5CD23B31F3AC16D00937C44 /* Application.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Application.swift; path = ../../common/Application.swift; sourceTree = "<group>"; };
 		F1950861D287C0179BA10F15 /* Pods-Chat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Chat.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Chat/Pods-Chat.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -145,8 +163,14 @@
 		1A709A421EEEF10A003C2699 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				E5CD23A01F3ABFF000937C44 /* Utils */,
 				1AB062141E8843E600A841D0 /* Assets.xcassets */,
 				1AB062111E8843E600A841D0 /* Main.storyboard */,
+				E5CD23AF1F3AC0DC00937C44 /* IncomingCallViewController.swift */,
+				E5CD23AD1F3AC09500937C44 /* OutgoingCallViewController.swift */,
+				E5CD23A71F3AC04A00937C44 /* ConversationCall.swift */,
+				E5CD23A81F3AC04A00937C44 /* SettingsViewController.swift */,
+				E5CD23A91F3AC04A00937C44 /* VideoViewController.swift */,
 				1AB0620F1E8843E500A841D0 /* DetailViewController.swift */,
 				1A709A431EEEF204003C2699 /* LoginViewController.swift */,
 				1AB0620D1E8843E500A841D0 /* MasterViewController.swift */,
@@ -162,6 +186,7 @@
 				E5CD23671F3AB7A100937C44 /* Utils */,
 				E5CD23451F3AB79200937C44 /* IO */,
 				1AA386E41F04B02900F18D93 /* BridgingHeader.h */,
+				E5CD23B31F3AC16D00937C44 /* Application.swift */,
 				1A709A451EEF29EC003C2699 /* Crypto.swift */,
 				1A709A461EEF29EC003C2699 /* EventBus.swift */,
 				1A60E0011EA4039F00BECD73 /* Model.swift */,
@@ -257,6 +282,16 @@
 			);
 			name = Network;
 			path = ../../common/Network;
+			sourceTree = "<group>";
+		};
+		E5CD23A01F3ABFF000937C44 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				E5CD23A11F3ABFF000937C44 /* !AVFoundation.swift */,
+				E5CD23A21F3ABFF000937C44 /* !Video.swift */,
+				E5CD23A31F3ABFF000937C44 /* UIKit.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -388,6 +423,9 @@
 				E5CD23931F3AB82A00937C44 /* NetworkAudio.swift in Sources */,
 				E5CD23811F3AB7A100937C44 /* UI.swift in Sources */,
 				E5CD235A1F3AB79200937C44 /* VideoInput.swift in Sources */,
+				E5CD23A51F3ABFF000937C44 /* !Video.swift in Sources */,
+				E5CD23AA1F3AC04A00937C44 /* ConversationCall.swift in Sources */,
+				E5CD23AC1F3AC04A00937C44 /* VideoViewController.swift in Sources */,
 				E5CD239A1F3AB8D900937C44 /* AV.swift in Sources */,
 				1AA0003B1EAD9A36006B9EE7 /* SplitViewController.swift in Sources */,
 				E5CD23561F3AB79200937C44 /* IOBalancer.swift in Sources */,
@@ -395,6 +433,7 @@
 				1A43D8181F3822F8004A8C8A /* Voip.proto.swift in Sources */,
 				E5CD237A1F3AB7A100937C44 /* Dispatch.swift in Sources */,
 				E5CD23521F3AB79200937C44 /* AudioDecoder.swift in Sources */,
+				E5CD23A41F3ABFF000937C44 /* !AVFoundation.swift in Sources */,
 				E5CD23771F3AB7A100937C44 /* CoreAudio.swift in Sources */,
 				1A709A481EEF29EC003C2699 /* Crypto.swift in Sources */,
 				1A43D8191F3822F8004A8C8A /* VoipBackend.swift in Sources */,
@@ -402,15 +441,20 @@
 				1A709A4A1EEF29EC003C2699 /* Network.swift in Sources */,
 				1A709A4E1EEF8837003C2699 /* Wire.proto.swift in Sources */,
 				E5CD23751F3AB7A100937C44 /* AudioToolbox.swift in Sources */,
+				E5CD23B01F3AC0DC00937C44 /* IncomingCallViewController.swift in Sources */,
+				E5CD23AE1F3AC09500937C44 /* OutgoingCallViewController.swift in Sources */,
 				E5CD23971F3AB82A00937C44 /* NetworkH264.swift in Sources */,
 				E5CD23591F3AB79200937C44 /* VideoEncoderH264.swift in Sources */,
 				E5CD23951F3AB82A00937C44 /* NetworkBase.swift in Sources */,
 				E5CD23801F3AB7A100937C44 /* Thread.swift in Sources */,
 				E5CD237F1F3AB7A100937C44 /* System.swift in Sources */,
 				E5CD23511F3AB79200937C44 /* Audio.swift in Sources */,
+				E5CD23A61F3ABFF000937C44 /* UIKit.swift in Sources */,
 				1A43D8171F3822F8004A8C8A /* Auth.swift in Sources */,
 				1AB0620E1E8843E500A841D0 /* MasterViewController.swift in Sources */,
 				E5CD23541F3AB79200937C44 /* AudioOutput.swift in Sources */,
+				E5CD23B41F3AC16D00937C44 /* Application.swift in Sources */,
+				E5CD23AB1F3AC04A00937C44 /* SettingsViewController.swift in Sources */,
 				E5CD237B1F3AB7A100937C44 /* Foundation.swift in Sources */,
 				E5CD23961F3AB82A00937C44 /* NetworkCall.swift in Sources */,
 				E5CD23531F3AB79200937C44 /* AudioInput.swift in Sources */,

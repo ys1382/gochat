@@ -3,10 +3,10 @@ platform :ios, '9.0'
 
 target 'Chat' do
   use_frameworks!
-  pod 'Starscream', :git => 'https://github.com/daltoniam/Starscream', :branch => 'swift3'
-  pod 'ProtocolBuffers-Swift'
-  pod 'themis'
-  pod 'SlackTextViewController'
+  pod 'Starscream', :git => 'https://github.com/daltoniam/Starscream', :branch => 'swift3', :inhibit_warnings => true
+  pod 'ProtocolBuffers-Swift', :inhibit_warnings => true
+  pod 'themis', :inhibit_warnings => true
+  pod 'SlackTextViewController', :inhibit_warnings => true
 end
 
 pre_install do |installer|
