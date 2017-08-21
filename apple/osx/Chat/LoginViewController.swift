@@ -19,7 +19,9 @@ class LoginViewController : NSWindowController {
     }
 
     static func popup() {
-        shared = LoginViewController(windowNibName: NSNib.Name(rawValue: "Login"))
+        // Xcode8 compiler
+        // shared = LoginViewController(windowNibName: NSNib.Name(rawValue: "Login"))
+        shared = LoginViewController(windowNibName: "Login")
         shared?.showWindow(nil)
         shared?.loginWindow.makeKey()
     }

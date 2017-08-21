@@ -15,6 +15,64 @@ message File {
     bytes body = 3;
 }
 
+message Call {
+    string key = 1;
+    string to = 2;
+    string from = 3;
+    bool audio = 4;
+    bool video = 5;
+}
+
+message Time {
+    int64 value = 1;
+    int32 scale = 2;
+    uint32 flags = 3;
+    int64 epoch = 4;
+}
+
+message Timestamp {
+    Time duration = 1;
+    Time presentation = 2;
+}
+
+message Image {
+    int64 width = 1;
+    int64 height = 2;
+    uint32 format = 3;
+    map <string, string> attachments = 4;
+    bytes data = 5;
+}
+
+message FormatDescription {
+    uint32 mediaType = 1;
+    uint32 mediaSubtype = 2;
+    map <string, string> extensions = 3;
+}
+
+message VideoSample {
+    Image image = 1;
+}
+
+message AudioSample {
+    Image image = 1;
+}
+
+message Av {
+    VideoSample video = 1;
+    AudioSample audio = 2;
+}
+
+message AVSession {
+    string sid = 1;
+    string gid = 2;
+    bool active = 3;
+    bytes data = 4;
+}
+
+message AVQuality {
+    int32 diff = 1;
+}
+
 message Voip {
 
     uint32 version = 1;
@@ -24,10 +82,26 @@ message Voip {
         TEXT = 0;
         FILE = 1;
         AV = 2;
+        AudioSession = 3;
+        VideoSession = 4;
+        CALL_PROPOSAL = 5;
+        CALL_CANCEL = 6;
+        CALL_ACCEPT = 7;
+        CALL_DECLINE = 8;
+        CALL_START_OUTGOING = 9;
+        CALL_START_INCOMING = 10;
+        CALL_QUALITY = 11;
+        CALL_STOP = 12;        
     }
-    Which which = 2;
+    Which which = 12;
 
     repeated Text textStorage = 101;
     File file = 102;
     bytes payload  = 103;
+    Call call = 104;
+    Av av = 105;
+    AVSession audioSession = 106;
+    AVSession videoSession = 107;
+    AVQuality avQuality = 18;
+    
 }

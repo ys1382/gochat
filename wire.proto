@@ -25,12 +25,12 @@ message Wire {
         LOGIN = 0;
         CONTACTS = 1;
         PRESENCE = 2;
-	STORE = 3;
-	LOAD = 4;
-	PUBLIC_KEY = 5;
-	PUBLIC_KEY_RESPONSE = 6;
-	HANDSHAKE = 7;
-	PAYLOAD = 8;
+	    STORE = 3;
+	    LOAD = 4;
+	    PUBLIC_KEY = 5;
+	    PUBLIC_KEY_RESPONSE = 6;
+	    HANDSHAKE = 7;
+	    PAYLOAD = 8;
     }
     Which which = 5;
 
